@@ -22,6 +22,7 @@ const SpyControllerScript := preload("res://scripts/worldmap/actions/spy_control
 const SpyPresentationHelperScript := preload("res://scripts/worldmap/actions/spy_presentation_helper.gd")
 const MilitaryControllerScript := preload("res://scripts/worldmap/military/military_controller.gd")
 const EnemyWarfareServiceScript := preload("res://scripts/worldmap/military/enemy_warfare_service.gd")
+const BattleContextServiceScript := preload("res://scripts/worldmap/battle/battle_context_service.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -1023,6 +1024,7 @@ var _spy_controller: SpyControllerScript = null
 var _spy_presenter: SpyPresentationHelperScript = null
 var _military_controller: MilitaryControllerScript = null
 var _enemy_warfare_service: EnemyWarfareServiceScript = null
+var _battle_context_service: BattleContextServiceScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1811,6 +1813,51 @@ func _ensure_enemy_warfare_service() -> EnemyWarfareServiceScript:
 			}
 		)
 	return _enemy_warfare_service
+
+
+func _ensure_battle_context_service() -> BattleContextServiceScript:
+	if _battle_context_service == null:
+		_battle_context_service = BattleContextServiceScript.new()
+		_battle_context_service.configure(
+			Callable(self, "_battle_context_query"),
+			{
+				"minimum_invasion_troops": ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS,
+				"max_heroes_per_side": INVASION_BATTLE_MAX_HEROES_PER_SIDE,
+				"reinforcement_max_hops": INVASION_REINFORCEMENT_MAX_HOPS,
+				"reinforcement_ally_factions": INVASION_REINFORCEMENT_ALLY_FACTIONS,
+				"player_attack_context_source": PLAYER_ATTACK_CONTEXT_SOURCE,
+				"command_rank_labels": COMMAND_RANK_LABELS,
+				"command_rank_limits": COMMAND_RANK_LIMITS,
+				"hero_role_contracts": HERO_BATTLE_ROLE_CONTRACTS,
+				"hero_default_role_contract": HERO_BATTLE_DEFAULT_ROLE_CONTRACT,
+				"hero_portrait_nation_by_faction": HERO_PORTRAIT_NATION_BY_FACTION,
+				"hero_toast_icon_fallback": HERO_BATTLE_TOAST_ICON_FALLBACK,
+			}
+		)
+	return _battle_context_service
+
+
+func _battle_context_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"turn_number": return int(_player_state.get("turn_number", 1))
+		"has_city": return _has_city_for_battle_context(str(args[0]))
+		"city_owner": return _get_city_owner_id_for_battle_context(str(args[0]))
+		"city_troops": return _get_city_troops_for_battle_context(str(args[0]))
+		"city_name": return _format_city_name_by_id(str(args[0]), str(args[1]))
+		"city_neighbors": return _get_city_neighbors_mvp(str(args[0]))
+		"city_stationed_hero_ids": return _battle_context_get_city_stationed_hero_ids(str(args[0]))
+		"city_governor_id": return _battle_context_get_city_governor_id(str(args[0]))
+		"city_battle_supply": return _select_city_battle_supply(str(args[0]))
+		"is_city_owner_consistent_for_enemy_invasion": return _is_city_owner_consistent_for_enemy_invasion_mvp(str(args[0]))
+		"is_city_owned_by_enemy": return _is_city_owned_by_enemy_mvp(str(args[0]))
+		"is_city_owned_by_player": return _is_city_owned_by_player_mvp(str(args[0]))
+		"city_troops_for_enemy_invasion": return _get_city_troops_for_enemy_invasion_mvp(str(args[0]))
+		"available_player_attack_hero_ids": return _get_available_player_attack_main_hero_ids(str(args[0]))
+		"hero_entry": return _get_hero_entry(str(args[0])).duplicate(true)
+		"is_hero_captured_for_battle": return _is_hero_captured_for_battle(str(args[0]))
+		"player_battle_tech_modifier": return _get_player_battle_tech_modifier_mvp(str(args[0]), str(args[1])).duplicate(true)
+		"has_domestic_battle_modifier_data": return _has_domestic_battle_modifier_data_mvp(args[0] as Dictionary)
+	return null
 
 
 func _enemy_warfare_query(query_id: String, args: Array) -> Variant:
@@ -15722,432 +15769,63 @@ func _select_city_after_invasion_result(city_id: String) -> void:
 
 
 func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> Dictionary:
-	if event.is_empty():
-		return {"ok": false, "message": "진행 중인 침공 이벤트가 없습니다."}
-	if str(event.get("type", "")) != "defense":
-		return {"ok": false, "message": "방어전 이벤트가 아닙니다."}
-	var attacker_city_id := str(event.get("attacker_city_id", ""))
-	var defender_city_id := str(event.get("defender_city_id", ""))
-	if not _has_city_for_battle_context(attacker_city_id):
-		return {"ok": false, "message": "침공 도시 정보를 찾을 수 없습니다."}
-	if not _has_city_for_battle_context(defender_city_id):
-		return {"ok": false, "message": "방어 도시 정보를 찾을 수 없습니다."}
-	if not _is_city_owner_consistent_for_enemy_invasion_mvp(attacker_city_id):
-		return {"ok": false, "message": "침공 도시 소유권 정보가 일치하지 않습니다."}
-	if not _is_city_owner_consistent_for_enemy_invasion_mvp(defender_city_id):
-		return {"ok": false, "message": "방어 도시 소유권 정보가 일치하지 않습니다."}
-	if not _is_city_owned_by_enemy_mvp(attacker_city_id):
-		return {"ok": false, "message": "침공 도시가 적 소유가 아닙니다."}
-	if not _is_city_owned_by_player_mvp(defender_city_id):
-		return {"ok": false, "message": "방어 도시가 아군 소유가 아닙니다."}
-	if not _get_city_neighbors_mvp(attacker_city_id).has(defender_city_id):
-		return {"ok": false, "message": "침공 도시와 방어 도시가 인접하지 않습니다."}
-	if _get_city_troops_for_enemy_invasion_mvp(attacker_city_id) < ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS:
-		return {"ok": false, "message": "침공 도시 병력이 부족합니다."}
-	return {"ok": true, "message": ""}
+	return _ensure_battle_context_service()._validate_pending_invasion_event_for_battle_context(event)
 
 
 func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String, selected_defender_hero_ids: Array[String] = [], defender_troop_allocation_override: Dictionary = {}) -> Dictionary:
-	var attacker_city_id := str(event.get("attacker_city_id", ""))
-	var defender_city_id := str(event.get("defender_city_id", ""))
-	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
-	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var used_hero_ids := {}
-	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
-	var defender_roster := {}
-	if selected_defender_hero_ids.is_empty():
-		defender_roster = _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
-	else:
-		defender_roster = _build_selected_side_roster_for_battle_context(defender_city_id, selected_defender_hero_ids, defender_troop_allocation_override, used_hero_ids, "defender")
-	var attacker_troop_allocation := _build_command_limit_troop_allocation_for_heroes(attacker_roster.get("hero_ids", []), _get_city_troops_for_battle_context(attacker_city_id), attacker_city_id)
-	var defender_troop_allocation := _build_command_limit_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id), defender_city_id)
-	if not selected_defender_hero_ids.is_empty():
-		defender_troop_allocation = defender_troop_allocation_override.duplicate(true)
-	attacker_roster = _apply_troop_allocation_to_roster(attacker_roster, attacker_troop_allocation, attacker_city_id)
-	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
-	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
-	return {
-		"type": "defense",
-		"source": "enemy_invasion",
-		"mode": "auto" if mode == "auto" else "manual",
-		"attacker_city_id": attacker_city_id,
-		"defender_city_id": defender_city_id,
-		"attacker_city_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 적 도시"),
-		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 아군 도시"),
-		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
-		"event_turn_number": int(event.get("turn_number", _player_state.get("turn_number", 1))),
-		"attacker_owner": attacker_owner,
-		"defender_owner": defender_owner,
-		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),
-		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
-		"attacker_troop_allocation": attacker_troop_allocation.duplicate(true),
-		"defender_troop_allocation": defender_troop_allocation.duplicate(true),
-		"attacker_total_allocated_troops": _sum_troop_allocation(attacker_troop_allocation),
-		"defender_total_allocated_troops": _sum_troop_allocation(defender_troop_allocation),
-		"attacker_source_city_id": attacker_city_id,
-		"defender_source_city_id": defender_city_id,
-		"selected_defender_hero_ids": _normalize_hero_id_array(selected_defender_hero_ids),
-		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
-		"defender_hero_ids": defender_roster.get("hero_ids", []),
-		"attacker_heroes": attacker_roster.get("heroes", []),
-		"defender_heroes": defender_roster.get("heroes", []),
-		"attacker_main_hero_ids": attacker_roster.get("main_hero_ids", []),
-		"defender_main_hero_ids": defender_roster.get("main_hero_ids", []),
-		"attacker_support_hero_ids": attacker_roster.get("support_hero_ids", []),
-		"defender_support_hero_ids": defender_roster.get("support_hero_ids", []),
-		"attacker_support_city_ids": attacker_roster.get("support_city_ids", []),
-		"defender_support_city_ids": defender_roster.get("support_city_ids", []),
-		"attacker_governor_id": _get_city_governor_id_for_battle_context(attacker_city_id),
-		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
-	}
+	return _ensure_battle_context_service()._build_battle_context_from_pending_invasion(event, mode, selected_defender_hero_ids, defender_troop_allocation_override)
 
 
 func _build_player_attack_battle_context(source_city_id: String, target_city_id: String, mode: String = "manual", selected_attacker_hero_ids: Array[String] = [], attacker_troop_allocation: Dictionary = {}, supply_cost: Dictionary = {}) -> Dictionary:
-	var attacker_city_id := source_city_id
-	var defender_city_id := target_city_id
-	if attacker_city_id.is_empty() or defender_city_id.is_empty():
-		return {}
-	if not _has_city_for_battle_context(attacker_city_id) or not _has_city_for_battle_context(defender_city_id):
-		return {}
-	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
-	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var used_hero_ids := {}
-	var attacker_roster := _build_player_attack_selected_roster_for_battle_context(attacker_city_id, selected_attacker_hero_ids, attacker_troop_allocation, used_hero_ids)
-	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
-	var defender_troop_allocation := _build_command_limit_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id), defender_city_id)
-	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
-	var attacker_main_hero_ids: Array = attacker_roster.get("main_hero_ids", [])
-	if attacker_main_hero_ids.is_empty():
-		print("[PLAYER_ATTACK] context_build_blocked source=%s target=%s reason=no_main_attackers" % [attacker_city_id, defender_city_id])
-		return {}
-	var total_assigned_troops := 0
-	for hero_id in attacker_main_hero_ids:
-		total_assigned_troops += maxi(0, int(attacker_troop_allocation.get(str(hero_id), 0)))
-	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
-	var defender_supply := _select_city_battle_supply(defender_city_id)
-	var attacker_food_type := str(supply_cost.get("food_type", "rice"))
-	return {
-		"type": "attack",
-		"source": PLAYER_ATTACK_CONTEXT_SOURCE,
-		"battle_mode": "invasion",
-		"mode": "auto" if mode == "auto" else "manual",
-		"attacker_city_id": attacker_city_id,
-		"defender_city_id": defender_city_id,
-		"attacker_city_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 아군 도시"),
-		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 적 도시"),
-		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
-		"attacker_owner": attacker_owner,
-		"defender_owner": defender_owner,
-		"attacker_faction_id": attacker_owner,
-		"defender_faction_id": defender_owner,
-		"attacker_faction_display_name": GameSessionScript.get_battle_faction_display_name(attacker_owner),
-		"defender_faction_display_name": GameSessionScript.get_battle_faction_display_name(defender_owner),
-		"source_city_id": attacker_city_id,
-		"target_city_id": defender_city_id,
-		"source_city_display_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 도시"),
-		"target_city_display_name": _format_city_name_by_id(defender_city_id, "알 수 없는 도시"),
-		"attacker_troops": total_assigned_troops if total_assigned_troops > 0 else _get_city_troops_for_battle_context(attacker_city_id),
-		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
-		"attacker_initial_healthy_troops": total_assigned_troops,
-		"defender_initial_healthy_troops": _get_city_troops_for_battle_context(defender_city_id),
-		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
-		"defender_hero_ids": defender_roster.get("hero_ids", []),
-		"attacker_heroes": attacker_roster.get("heroes", []),
-		"defender_heroes": defender_roster.get("heroes", []),
-		"selected_attacker_hero_ids": attacker_main_hero_ids.duplicate(),
-		"attacker_general_ids": attacker_main_hero_ids.duplicate(),
-		"defender_general_ids": defender_roster.get("main_hero_ids", []).duplicate(),
-		"attacker_troop_allocation": attacker_troop_allocation.duplicate(true),
-		"attacker_troop_composition": attacker_troop_allocation.duplicate(true),
-		"defender_troop_composition": defender_troop_allocation.duplicate(true),
-		"supply_cost": supply_cost.duplicate(true),
-		"attacker_carried_gold": maxi(0, int(supply_cost.get("gold", 0))),
-		"attacker_food_type": attacker_food_type,
-		"attacker_food_amount": maxi(0, int(supply_cost.get("food", 0))),
-		"attacker_salt_amount": maxi(0, int(supply_cost.get("salt", 0))),
-		"defender_food_type": str(defender_supply.get("food_type", "rice")),
-		"defender_food_amount": maxi(0, int(defender_supply.get("food_amount", 0))),
-		"defender_salt_amount": maxi(0, int(defender_supply.get("salt_amount", 0))),
-		"battle_max_turns": ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
-		"current_battle_turn": 1,
-		"supply_balance_snapshot": {},
-		"tech_effect_snapshot": {},
-		"supply_source_city_id": attacker_city_id,
-		"defender_troop_allocation": defender_troop_allocation.duplicate(true),
-		"defender_total_allocated_troops": _sum_troop_allocation(defender_troop_allocation),
-		"defender_source_city_id": defender_city_id,
-		"attacker_main_hero_ids": attacker_roster.get("main_hero_ids", []),
-		"defender_main_hero_ids": defender_roster.get("main_hero_ids", []),
-		"attacker_support_hero_ids": attacker_roster.get("support_hero_ids", []),
-		"defender_support_hero_ids": defender_roster.get("support_hero_ids", []),
-		"attacker_support_city_ids": attacker_roster.get("support_city_ids", []),
-		"defender_support_city_ids": defender_roster.get("support_city_ids", []),
-		"attacker_governor_id": str(attacker_main_hero_ids[0]) if not attacker_main_hero_ids.is_empty() else "",
-		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
-	}
+	return _ensure_battle_context_service()._build_player_attack_battle_context(source_city_id, target_city_id, mode, selected_attacker_hero_ids, attacker_troop_allocation, supply_cost)
 
 
 func _build_player_attack_selected_roster_for_battle_context(source_city_id: String, selected_hero_ids: Array[String], troop_allocation: Dictionary, used_hero_ids: Dictionary) -> Dictionary:
-	return _build_selected_side_roster_for_battle_context(source_city_id, selected_hero_ids, troop_allocation, used_hero_ids, "attacker")
+	return _ensure_battle_context_service()._build_player_attack_selected_roster_for_battle_context(source_city_id, selected_hero_ids, troop_allocation, used_hero_ids)
 
 
 func _build_selected_side_roster_for_battle_context(source_city_id: String, selected_hero_ids: Array[String], troop_allocation: Dictionary, used_hero_ids: Dictionary, side_label: String) -> Dictionary:
-	var hero_ids: Array[String] = []
-	var main_hero_ids: Array[String] = []
-	var support_hero_ids: Array[String] = []
-	var support_city_ids: Array[String] = []
-	var source_heroes := selected_hero_ids.duplicate()
-	if source_heroes.is_empty():
-		source_heroes = _get_available_player_attack_main_hero_ids(source_city_id)
-	for hero_id in source_heroes:
-		if not selected_hero_ids.is_empty() and maxi(0, int(troop_allocation.get(str(hero_id), 0))) <= 0:
-			continue
-		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, side_label, source_city_id, "selected_main"):
-			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
-				break
-	var heroes: Array[Dictionary] = []
-	for hero_id in hero_ids:
-		var hero_battle_data := _get_hero_battle_data_for_battle_context(hero_id, source_city_id)
-		if hero_battle_data.is_empty():
-			continue
-		var command_summary := _get_hero_command_summary_for_city_mvp(hero_battle_data, source_city_id)
-		hero_battle_data["command_rank"] = str(command_summary.get("command_rank", COMMAND_RANK_OFFICER))
-		hero_battle_data["command_label"] = str(command_summary.get("command_label", "군관"))
-		hero_battle_data["command_limit"] = int(command_summary.get("command_limit", 0))
-		var assigned_troops := mini(maxi(0, int(troop_allocation.get(hero_id, hero_battle_data.get("troops", 0)))), int(hero_battle_data.get("command_limit", 0)))
-		if assigned_troops > 0:
-			hero_battle_data["troop_count"] = assigned_troops
-			hero_battle_data["troops"] = assigned_troops
-			hero_battle_data["max_troops"] = assigned_troops
-			hero_battle_data["allocated_troops"] = assigned_troops
-			hero_battle_data["initial_allocated_troops"] = assigned_troops
-		heroes.append(hero_battle_data)
-	return {
-		"hero_ids": hero_ids,
-		"heroes": heroes,
-		"main_hero_ids": main_hero_ids,
-		"support_hero_ids": support_hero_ids,
-		"support_city_ids": support_city_ids,
-	}
+	return _ensure_battle_context_service()._build_selected_side_roster_for_battle_context(source_city_id, selected_hero_ids, troop_allocation, used_hero_ids, side_label)
 
 
 func _build_even_troop_allocation_for_heroes(hero_ids_source: Array, total_troops: int) -> Dictionary:
-	var allocation := {}
-	var hero_ids := _normalize_hero_id_array(hero_ids_source)
-	var remaining := maxi(0, int(total_troops))
-	if hero_ids.is_empty() or remaining <= 0:
-		return allocation
-	var base := int(floor(float(remaining) / float(hero_ids.size())))
-	var extra := remaining % hero_ids.size()
-	for index in range(hero_ids.size()):
-		var hero_id := str(hero_ids[index])
-		var amount := base + (1 if index < extra else 0)
-		if amount > 0:
-			allocation[hero_id] = amount
-	return allocation
+	return _ensure_battle_context_service()._build_even_troop_allocation_for_heroes(hero_ids_source, total_troops)
 
 
 func _build_command_limit_troop_allocation_for_heroes(hero_ids_source: Array, total_troops: int, source_city_id: String) -> Dictionary:
-	var allocation := {}
-	var hero_ids := _normalize_hero_id_array(hero_ids_source)
-	var active_heroes: Array[Dictionary] = []
-	var total_command_limit := 0
-	for hero_id in hero_ids:
-		allocation[hero_id] = 0
-		var hero_data := _get_hero_entry(hero_id)
-		if hero_data.is_empty():
-			continue
-		var command_limit := _get_hero_command_limit_for_city_mvp(hero_data, source_city_id)
-		if command_limit <= 0:
-			continue
-		active_heroes.append({
-			"hero_id": hero_id,
-			"limit": command_limit,
-		})
-		total_command_limit += command_limit
-	var remaining := mini(maxi(0, int(total_troops)), total_command_limit)
-	while remaining > 0:
-		var open_heroes: Array[Dictionary] = []
-		for entry in active_heroes:
-			var hero_id := str(entry.get("hero_id", ""))
-			var limit := maxi(0, int(entry.get("limit", 0)))
-			if int(allocation.get(hero_id, 0)) < limit:
-				open_heroes.append(entry)
-		if open_heroes.is_empty():
-			break
-		var share := maxi(1, int(ceil(float(remaining) / float(open_heroes.size()))))
-		var assigned_this_pass := 0
-		for entry in open_heroes:
-			var hero_id := str(entry.get("hero_id", ""))
-			var limit := maxi(0, int(entry.get("limit", 0)))
-			var room := maxi(0, limit - int(allocation.get(hero_id, 0)))
-			var amount := mini(mini(room, share), remaining)
-			if amount <= 0:
-				continue
-			allocation[hero_id] = int(allocation.get(hero_id, 0)) + amount
-			assigned_this_pass += amount
-			remaining -= amount
-			if remaining <= 0:
-				break
-		if assigned_this_pass <= 0:
-			break
-	return allocation
+	return _ensure_battle_context_service()._build_command_limit_troop_allocation_for_heroes(hero_ids_source, total_troops, source_city_id)
 
 
 func _apply_troop_allocation_to_roster(roster: Dictionary, allocation: Dictionary, fallback_city_id: String) -> Dictionary:
-	var next_roster := roster.duplicate(true)
-	var heroes: Array[Dictionary] = []
-	var hero_ids := _normalize_hero_id_array(next_roster.get("hero_ids", []))
-	for hero_id in hero_ids:
-		var hero_battle_data := _get_hero_battle_data_for_battle_context(hero_id, fallback_city_id)
-		if hero_battle_data.is_empty():
-			continue
-		var allocated := maxi(0, int(allocation.get(hero_id, hero_battle_data.get("troops", 0))))
-		var command_summary := _get_hero_command_summary_for_city_mvp(hero_battle_data, fallback_city_id)
-		hero_battle_data["command_rank"] = str(command_summary.get("command_rank", COMMAND_RANK_OFFICER))
-		hero_battle_data["command_label"] = str(command_summary.get("command_label", "군관"))
-		hero_battle_data["command_limit"] = int(command_summary.get("command_limit", 0))
-		if allocated > 0:
-			hero_battle_data["troops"] = allocated
-			hero_battle_data["troop_count"] = allocated
-			hero_battle_data["max_troops"] = allocated
-			hero_battle_data["allocated_troops"] = allocated
-			hero_battle_data["initial_allocated_troops"] = allocated
-		heroes.append(hero_battle_data)
-	next_roster["heroes"] = heroes
-	return next_roster
+	return _ensure_battle_context_service()._apply_troop_allocation_to_roster(roster, allocation, fallback_city_id)
 
 
 func _sum_troop_allocation(allocation: Dictionary) -> int:
-	var total := 0
-	for key in allocation.keys():
-		total += maxi(0, int(allocation.get(key, 0)))
-	return total
+	return _ensure_battle_context_service()._sum_troop_allocation(allocation)
 
 
 func _build_invasion_side_roster_for_battle_context(source_city_id: String, faction_id: String, used_hero_ids: Dictionary, context_side: String) -> Dictionary:
-	var hero_ids: Array[String] = []
-	var main_hero_ids: Array[String] = []
-	var support_hero_ids: Array[String] = []
-	var support_city_ids: Array[String] = []
-	if source_city_id.is_empty() or not _has_city_for_battle_context(source_city_id):
-		print("[REINFORCE_FALLBACK] side=%s reason=missing_city city=%s" % [context_side, source_city_id])
-		return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
-	for hero_id in _get_city_stationed_hero_ids_for_battle_context(source_city_id):
-		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, context_side, source_city_id, "main"):
-			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
-				return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
-	var candidate_city_ids := _get_reinforcement_candidate_city_ids_for_battle_context(source_city_id)
-	print("[REINFORCE_RULE] side=%s source_city=%s faction=%s candidate_cities=%s" % [context_side, source_city_id, faction_id, str(candidate_city_ids)])
-	for candidate_city_id in candidate_city_ids:
-		if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
-			break
-		if not _has_city_for_battle_context(candidate_city_id):
-			print("[REINFORCE_SKIP] side=%s city=%s reason=missing_city" % [context_side, candidate_city_id])
-			continue
-		var candidate_owner := _get_city_owner_id_for_battle_context(candidate_city_id)
-		if not _are_factions_reinforcement_compatible(faction_id, candidate_owner):
-			print("[REINFORCE_SKIP] side=%s city=%s owner=%s reason=wrong_faction" % [context_side, candidate_city_id, candidate_owner])
-			continue
-		var city_added_hero := false
-		for hero_id in _get_city_stationed_hero_ids_for_battle_context(candidate_city_id):
-			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
-				break
-			if _append_invasion_roster_hero_id(hero_ids, support_hero_ids, str(hero_id), used_hero_ids, context_side, candidate_city_id, "support"):
-				city_added_hero = true
-		if city_added_hero and not support_city_ids.has(candidate_city_id):
-			support_city_ids.append(candidate_city_id)
-		elif not city_added_hero:
-			print("[REINFORCE_SKIP] side=%s city=%s reason=no_heroes" % [context_side, candidate_city_id])
-	if hero_ids.is_empty():
-		print("[REINFORCE_FALLBACK] side=%s reason=empty_roster city=%s; sample fallback may be used only as crash guard" % [context_side, source_city_id])
-	return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
+	return _ensure_battle_context_service()._build_invasion_side_roster_for_battle_context(source_city_id, faction_id, used_hero_ids, context_side)
 
 
 func _append_invasion_roster_hero_id(target_hero_ids: Array[String], source_bucket: Array[String], hero_id: String, used_hero_ids: Dictionary, context_side: String, city_id: String, pick_type: String) -> bool:
-	if hero_id.is_empty():
-		return false
-	if used_hero_ids.has(hero_id) or target_hero_ids.has(hero_id):
-		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=duplicate" % [context_side, hero_id, city_id])
-		return false
-	var hero_entry := _get_hero_entry(hero_id)
-	if hero_entry.is_empty():
-		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=missing_hero" % [context_side, hero_id, city_id])
-		return false
-	if _is_hero_captured_for_battle(hero_id):
-		var reason := _get_hero_battle_exclusion_reason(hero_id)
-		var display_name := str(hero_entry.get("display_name", hero_entry.get("name", hero_id)))
-		print("[HERO_BATTLE_EXCLUDE] side=%s type=%s city=%s hero=%s display_name=%s status=%s captured=%s reason=%s" % [
-			context_side,
-			pick_type,
-			city_id,
-			hero_id,
-			display_name,
-			str(hero_entry.get("status", HERO_RUNTIME_STATUS_NORMAL)),
-			str(bool(hero_entry.get("captured", false))),
-			reason,
-		])
-		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=%s" % [context_side, hero_id, city_id, reason])
-		return false
-	used_hero_ids[hero_id] = true
-	target_hero_ids.append(hero_id)
-	source_bucket.append(hero_id)
-	print("[REINFORCE_PICK] side=%s type=%s city=%s hero=%s" % [context_side, pick_type, city_id, hero_id])
-	return true
+	return _ensure_battle_context_service()._append_invasion_roster_hero_id(target_hero_ids, source_bucket, hero_id, used_hero_ids, context_side, city_id, pick_type)
 
 
 func _build_invasion_roster_result(hero_ids: Array[String], main_hero_ids: Array[String], support_hero_ids: Array[String], support_city_ids: Array[String]) -> Dictionary:
-	var heroes: Array[Dictionary] = []
-	for hero_id in hero_ids:
-		var city_id := _get_hero_city_id_for_battle_context(hero_id)
-		var hero_battle_data := _get_hero_battle_data_for_battle_context(hero_id, city_id)
-		if not hero_battle_data.is_empty():
-			heroes.append(hero_battle_data)
-	return {
-		"hero_ids": hero_ids,
-		"heroes": heroes,
-		"main_hero_ids": main_hero_ids,
-		"support_hero_ids": support_hero_ids,
-		"support_city_ids": support_city_ids,
-	}
+	return _ensure_battle_context_service()._build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
 
 
 func _get_reinforcement_candidate_city_ids_for_battle_context(source_city_id: String) -> Array[String]:
-	var result: Array[String] = []
-	var seen := {}
-	seen[source_city_id] = true
-	var frontier: Array[String] = [source_city_id]
-	for _hop in range(1, INVASION_REINFORCEMENT_MAX_HOPS + 1):
-		var next_frontier: Array[String] = []
-		for city_id in frontier:
-			for neighbor_id in _get_city_neighbors_mvp(city_id):
-				if seen.has(neighbor_id):
-					continue
-				seen[neighbor_id] = true
-				result.append(neighbor_id)
-				next_frontier.append(neighbor_id)
-		frontier = next_frontier
-	return result
+	return _ensure_battle_context_service()._get_reinforcement_candidate_city_ids_for_battle_context(source_city_id)
 
 
 func _are_factions_reinforcement_compatible(source_faction_id: String, candidate_faction_id: String) -> bool:
-	if source_faction_id.is_empty() or candidate_faction_id.is_empty():
-		return false
-	if source_faction_id == candidate_faction_id:
-		return true
-	var allies: Variant = INVASION_REINFORCEMENT_ALLY_FACTIONS.get(source_faction_id, [])
-	return allies is Array and (allies as Array).has(candidate_faction_id)
+	return _ensure_battle_context_service()._are_factions_reinforcement_compatible(source_faction_id, candidate_faction_id)
 
 
 func _get_hero_city_id_for_battle_context(hero_id: String) -> String:
-	var hero_data := _get_hero_entry(hero_id)
-	return str(hero_data.get("current_city_id", hero_data.get("city_id", hero_data.get("location_city_id", ""))))
-
-
-func _log_invasion_reinforcement_rule_summary(attacker_city_id: String, defender_city_id: String, attacker_faction_id: String, defender_faction_id: String, attacker_roster: Dictionary, defender_roster: Dictionary) -> void:
-	print("[REINFORCE_RULE] attacker_city=%s defender_city=%s attacker_faction=%s defender_faction=%s" % [attacker_city_id, defender_city_id, attacker_faction_id, defender_faction_id])
-	print("[REINFORCE_RULE] attacker_main=%s attacker_support=%s attacker_support_cities=%s" % [str(attacker_roster.get("main_hero_ids", [])), str(attacker_roster.get("support_hero_ids", [])), str(attacker_roster.get("support_city_ids", []))])
-	print("[REINFORCE_RULE] defender_main=%s defender_support=%s defender_support_cities=%s" % [str(defender_roster.get("main_hero_ids", [])), str(defender_roster.get("support_hero_ids", [])), str(defender_roster.get("support_city_ids", []))])
+	return _ensure_battle_context_service()._get_hero_city_id_for_battle_context(hero_id)
 
 
 func _has_city_for_battle_context(city_id: String) -> bool:
@@ -16171,170 +15849,55 @@ func _get_city_owner_id_for_battle_context(city_id: String) -> String:
 
 
 func _get_city_troops_for_battle_context(city_id: String) -> int:
-	var city_data := _get_city_hud_entry(city_id)
-	return maxi(0, int(city_data.get("troops", 0)))
+	return maxi(0, int(_get_city_hud_entry(city_id).get("troops", 0)))
 
 
-func _get_city_stationed_hero_ids_for_battle_context(city_id: String) -> Array:
+func _battle_context_get_city_stationed_hero_ids(city_id: String) -> Array:
 	var hero_ids: Array = []
 	for hero_id in _get_stationed_hero_ids_for_city(_get_city_hud_entry(city_id)):
 		hero_ids.append(str(hero_id))
 	return hero_ids
 
 
+func _get_city_stationed_hero_ids_for_battle_context(city_id: String) -> Array:
+	return _ensure_battle_context_service()._get_city_stationed_hero_ids_for_battle_context(city_id)
+
+
 func _get_city_battle_heroes_for_battle_context(city_id: String) -> Array[Dictionary]:
-	var battle_heroes: Array[Dictionary] = []
-	for hero_id in _get_city_stationed_hero_ids_for_battle_context(city_id):
-		var hero_battle_data := _get_hero_battle_data_for_battle_context(str(hero_id), city_id)
-		if not hero_battle_data.is_empty():
-			battle_heroes.append(hero_battle_data)
-	return battle_heroes
+	return _ensure_battle_context_service()._get_city_battle_heroes_for_battle_context(city_id)
 
 
 func _apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data: Dictionary, city_id: String) -> Dictionary:
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return battle_data
-	var modifier := _get_player_battle_tech_modifier_mvp("combined", city_id)
-	if not _has_domestic_battle_modifier_data_mvp(modifier):
-		return battle_data
-	var unit_type := str(battle_data.get("unit_type", "infantry")).to_lower()
-	var attack_pct := float(modifier.get("global_attack_pct", 0.0))
-	var defense_pct := float(modifier.get("global_defense_pct", 0.0))
-	match unit_type:
-		"infantry", "melee":
-			attack_pct += float(modifier.get("infantry_attack_pct", 0.0))
-			defense_pct += float(modifier.get("infantry_defense_pct", 0.0))
-		"archer", "ranged":
-			attack_pct += float(modifier.get("archer_attack_pct", 0.0))
-			defense_pct += float(modifier.get("archer_defense_pct", 0.0))
-		"cavalry":
-			attack_pct += float(modifier.get("cavalry_attack_pct", 0.0)) + float(modifier.get("cavalry_charge_pct", 0.0))
-		"gunpowder":
-			attack_pct += float(modifier.get("gunpowder_attack_pct", 0.0))
-		"crossbow":
-			attack_pct += float(modifier.get("crossbow_attack_pct", 0.0))
-		"siege":
-			attack_pct += float(modifier.get("siege_attack_pct", 0.0))
-		_:
-			pass
-	attack_pct = clampf(attack_pct, 0.0, 0.25)
-	defense_pct = clampf(defense_pct, 0.0, 0.25)
-	if not is_equal_approx(attack_pct, 0.0):
-		battle_data["attack"] = maxi(1, int(round(float(int(battle_data.get("attack", 1))) * (1.0 + attack_pct))))
-	if not is_equal_approx(defense_pct, 0.0):
-		battle_data["defense"] = maxi(1, int(round(float(int(battle_data.get("defense", 1))) * (1.0 + defense_pct))))
-	return battle_data
+	return _ensure_battle_context_service()._apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data, city_id)
 
 
 func _get_hero_battle_data_for_battle_context(hero_id: String, fallback_city_id: String) -> Dictionary:
-	var hero_data := _get_hero_entry(hero_id)
-	if hero_data.is_empty():
-		return {}
-	var battle_data := HeroRuntimeFactory.build_runtime_hero(hero_data, hero_data)
-	if not HeroRuntimeFactory.is_valid_runtime_hero(battle_data):
-		push_error("[T06_9_PARITY] runtime hero rebuild failed hero=%s error=%s" % [
-			hero_id,
-			String(battle_data.get("runtime_factory_error", "unknown")),
-		])
-		return {}
-	var normalized_hero_id := str(battle_data.get("hero_id", battle_data.get("id", hero_id)))
-	var role := str(battle_data.get("web_role", battle_data.get("role", ""))).to_lower()
-	var role_contract: Dictionary = HERO_BATTLE_ROLE_CONTRACTS.get(role, HERO_BATTLE_DEFAULT_ROLE_CONTRACT).duplicate(true)
-	var faction_id := str(battle_data.get("faction_id", battle_data.get("force_id", battle_data.get("nation", ""))))
-	var current_city_id := str(battle_data.get("current_city_id", battle_data.get("city_id", battle_data.get("location_city_id", fallback_city_id))))
-	var skill_id := str(battle_data.get("skill_id", battle_data.get("unique_skill_id", "%s_skill" % normalized_hero_id)))
-	battle_data["hero_id"] = normalized_hero_id
-	battle_data["display_name"] = str(battle_data.get("display_name", battle_data.get("name", normalized_hero_id)))
-	battle_data["faction_id"] = faction_id
-	battle_data["force_id"] = str(battle_data.get("force_id", faction_id))
-	battle_data["nation"] = str(battle_data.get("nation", faction_id))
-	battle_data["owner"] = str(battle_data.get("owner", battle_data.get("nation", faction_id)))
-	battle_data["current_city_id"] = current_city_id
-	battle_data["city_id"] = current_city_id
-	battle_data["unit_type"] = str(battle_data.get("unit_type", role_contract.get("unit_type", "infantry")))
-	battle_data["troop_count"] = maxi(0, int(battle_data.get("troop_count", battle_data.get("troops", 0))))
-	battle_data["troops"] = int(battle_data["troop_count"])
-	battle_data["leadership"] = int(battle_data.get("leadership", battle_data.get("command", battle_data.get("war", 70))))
-	battle_data["command"] = int(battle_data["leadership"])
-	battle_data["war"] = int(battle_data.get("war", battle_data.get("attack", 60)))
-	battle_data["attack"] = int(battle_data.get("attack", maxi(10, floori(float(int(battle_data["war"])) / 3.0))))
-	battle_data["defense"] = int(battle_data.get("defense", 12))
-	battle_data["intelligence"] = int(battle_data.get("intelligence", 60))
-	battle_data["move_range"] = maxi(1, int(battle_data.get("move_range", role_contract.get("move_range", 3))))
-	battle_data["mobility"] = int(battle_data["move_range"])
-	battle_data["attack_range"] = maxi(1, int(battle_data.get("attack_range", role_contract.get("attack_range", 1))))
-	battle_data["portrait_path"] = str(battle_data.get("portrait_path", _get_hero_contract_portrait_path(normalized_hero_id, faction_id)))
-	battle_data["cutin_path"] = str(battle_data.get("cutin_path", _get_hero_contract_cutin_path(normalized_hero_id, faction_id)))
-	battle_data["skill_id"] = skill_id
-	battle_data["skill_name"] = _format_hero_contract_skill_name(battle_data)
-	battle_data["skill_desc"] = _format_hero_contract_skill_desc(battle_data, role_contract)
-	battle_data["skill_effect_type"] = str(battle_data.get("skill_effect_type", role_contract.get("skill_effect_type", "command_aura")))
-	battle_data["battle_effect_type"] = str(battle_data.get("battle_effect_type", role_contract.get("battle_effect_type", "ally_attack_buff")))
-	battle_data["skill_power"] = int(battle_data.get("skill_power", role_contract.get("skill_power", 6)))
-	battle_data["skill_value"] = int(battle_data["skill_power"])
-	battle_data["skill_range"] = maxi(0, int(battle_data.get("skill_range", role_contract.get("skill_range", 3))))
-	battle_data["skill_cooldown"] = maxi(0, int(battle_data.get("skill_cooldown", 0)))
-	battle_data["skill_toast_icon"] = str(battle_data.get("skill_toast_icon", HERO_BATTLE_TOAST_ICON_FALLBACK))
-	battle_data = _apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data, current_city_id)
-	return battle_data
+	return _ensure_battle_context_service()._get_hero_battle_data_for_battle_context(hero_id, fallback_city_id)
 
 
-func _get_hero_contract_nation_key(faction_id: String) -> String:
-	return str(HERO_PORTRAIT_NATION_BY_FACTION.get(faction_id, "unknown"))
-
-
-func _get_hero_contract_portrait_path(hero_id: String, faction_id: String) -> String:
-	var nation_key := _get_hero_contract_nation_key(faction_id)
-	return "res://assets/heroes/portraits/%s/%s_%s.png" % [nation_key, nation_key, hero_id]
-
-
-func _get_hero_contract_cutin_path(hero_id: String, faction_id: String) -> String:
-	var nation_key := _get_hero_contract_nation_key(faction_id)
-	return "res://assets/heroes/cutins/%s/%s_%s_cutin.png" % [nation_key, nation_key, hero_id]
-
-
-func _format_hero_contract_skill_name(hero_data: Dictionary) -> String:
-	return str(hero_data.get("skill_name", "%s 전법" % str(hero_data.get("display_name", "장수"))))
-
-
-func _format_hero_contract_skill_desc(hero_data: Dictionary, role_contract: Dictionary) -> String:
-	if hero_data.has("skill_desc") and not str(hero_data.get("skill_desc", "")).is_empty():
-		return str(hero_data.get("skill_desc"))
-	return "%s의 %s 계열 임시 고유특기입니다." % [
-		str(hero_data.get("display_name", "장수")),
-		str(role_contract.get("skill_effect_type", "command_aura")),
-	]
-
-
-func _get_city_governor_id_for_battle_context(city_id: String) -> String:
+func _battle_context_get_city_governor_id(city_id: String) -> String:
 	var city_entry := _get_city_hud_entry(city_id)
 	return str(city_entry.get("governor_id", city_entry.get("governorHeroId", "")))
 
 
+func _get_city_governor_id_for_battle_context(city_id: String) -> String:
+	return _ensure_battle_context_service()._get_city_governor_id_for_battle_context(city_id)
+
+
 func _normalize_command_rank_mvp(raw_rank: Variant) -> String:
-	return DefenseBattleHelpers.normalize_command_rank_mvp(raw_rank, COMMAND_RANK_LIMITS, COMMAND_RANK_LIEUTENANT, COMMAND_RANK_OFFICER)
+	return _ensure_battle_context_service()._normalize_command_rank_mvp(raw_rank)
 
 
 func _get_hero_command_rank_for_city_mvp(hero_data: Dictionary, city_id: String) -> String:
-	var hero_id := str(hero_data.get("hero_id", hero_data.get("id", "")))
-	var governor_id := _get_city_governor_id_for_battle_context(city_id)
-	if not hero_id.is_empty() and not governor_id.is_empty() and hero_id == governor_id:
-		return COMMAND_RANK_GOVERNOR
-	return _normalize_command_rank_mvp(hero_data.get("command_rank", hero_data.get("commandRank", COMMAND_RANK_OFFICER)))
+	return _ensure_battle_context_service()._get_hero_command_rank_for_city_mvp(hero_data, city_id)
 
 
 func _get_hero_command_limit_for_city_mvp(hero_data: Dictionary, city_id: String) -> int:
-	var rank := _get_hero_command_rank_for_city_mvp(hero_data, city_id)
-	return maxi(0, int(COMMAND_RANK_LIMITS.get(rank, COMMAND_RANK_LIMITS.get(COMMAND_RANK_OFFICER, 5000))))
+	return _ensure_battle_context_service()._get_hero_command_limit_for_city_mvp(hero_data, city_id)
 
 
 func _get_hero_command_summary_for_city_mvp(hero_data: Dictionary, city_id: String) -> Dictionary:
-	var rank := _get_hero_command_rank_for_city_mvp(hero_data, city_id)
-	return {
-		"command_rank": rank,
-		"command_label": str(COMMAND_RANK_LABELS.get(rank, COMMAND_RANK_LABELS.get(COMMAND_RANK_OFFICER, "군관"))),
-		"command_limit": _get_hero_command_limit_for_city_mvp(hero_data, city_id),
-	}
+	return _ensure_battle_context_service()._get_hero_command_summary_for_city_mvp(hero_data, city_id)
 
 
 func _set_pending_battle_context_mvp(battle_context: Dictionary) -> void:
