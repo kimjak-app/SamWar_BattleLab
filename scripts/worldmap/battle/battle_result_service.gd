@@ -21,7 +21,7 @@ func build_settlement_plan(raw_result: Dictionary) -> Dictionary:
 	var is_enemy_invasion := _is_enemy_invasion_battle_result(result)
 	var battle_kind := "player_attack" if is_player_attack else ("enemy_invasion" if is_enemy_invasion else "unknown")
 	var result_kind := _normalize_player_attack_battle_result_kind(result) if is_player_attack else _normalize_invasion_battle_result_kind(result)
-	var attacker_city_id := _get_invasion_result_city_id(result, ["attacker_city_id", "source_city_id", "origin_city_id", "attacker_source_city_id"])
+	var attacker_city_id := _get_invasion_result_city_id(result, ["attacker_source_city_id", "attacker_city_id", "source_city_id", "origin_city_id"])
 	var defender_city_id := _get_invasion_result_city_id(result, ["defender_city_id", "target_city_id", "city_id"])
 	var winner_side := ""
 	var loser_side := ""
@@ -43,6 +43,33 @@ func build_settlement_plan(raw_result: Dictionary) -> Dictionary:
 	var transfer_required := result_kind == RESULT_ATTACKER_WIN and not defender_city_id.is_empty() and not old_owner.is_empty() and not new_owner.is_empty() and old_owner != new_owner
 	var attacker_hero_outcomes := _normalize_battle_hero_outcomes(result.get("attacker_hero_outcomes", {}))
 	var defender_hero_outcomes := _normalize_battle_hero_outcomes(result.get("defender_hero_outcomes", {}))
+	var transaction_id := str(result.get("transaction_id", ""))
+	var settlement_profile := "t02_return" if battle_kind == "player_attack" and not transaction_id.is_empty() else "standard"
+	var attacker_healthy := maxi(0, int(result.get("attacker_healthy_survivors", casualty_plan.get("attacker_remaining_troops", 0))))
+	var defender_healthy := maxi(0, int(result.get("defender_healthy_survivors", casualty_plan.get("defender_remaining_troops", 0))))
+	var hero_status_plan := _build_hero_status_plan(result_kind, attacker_city_id, defender_city_id, attacker_hero_outcomes, defender_hero_outcomes, transaction_id)
+	if settlement_profile == "t02_return" and hero_status_plan.is_empty():
+		hero_status_plan = _build_t02_hero_status_plan(result)
+	var defender_disposition := {}
+	var hero_movements: Array[Dictionary] = []
+	if settlement_profile == "t02_return" and result_kind == RESULT_ATTACKER_WIN:
+		defender_disposition = _build_defender_disposition_plan(
+			defender_city_id,
+			old_owner,
+			new_owner,
+			_normalize_battle_result_hero_ids(result.get("defender_general_ids", [])),
+			_normalize_battle_result_hero_ids(result.get("defender_surviving_general_ids", [])),
+			transaction_id,
+			str(result.get("result_id", ""))
+		)
+	if settlement_profile == "t02_return":
+		var attacker_ids := _normalize_battle_result_hero_ids(result.get("attacker_general_ids", []))
+		if attacker_ids.is_empty():
+			for hero_id_variant in attacker_hero_outcomes.keys():
+				attacker_ids.append(str(hero_id_variant))
+		var destination_city_id := defender_city_id if result_kind == RESULT_ATTACKER_WIN else attacker_city_id
+		for hero_id in attacker_ids:
+			hero_movements.append({"hero_id": hero_id, "city_id": destination_city_id})
 	return {
 		"battle_kind": battle_kind,
 		"result_kind": result_kind,
@@ -54,10 +81,20 @@ func build_settlement_plan(raw_result: Dictionary) -> Dictionary:
 		"player_troop_outcome": player_outcome,
 		"enemy_troop_outcome": enemy_outcome,
 		"casualty_plan": casualty_plan,
-		"attacker_remaining_troops": int(casualty_plan.get("attacker_remaining_troops", 0)),
-		"defender_remaining_troops": int(casualty_plan.get("defender_remaining_troops", 0)),
-		"occupation_troops": int(casualty_plan.get("occupied_city_troops", 0)),
+		"attacker_remaining_troops": attacker_healthy if settlement_profile == "t02_return" else int(casualty_plan.get("attacker_remaining_troops", 0)),
+		"defender_remaining_troops": defender_healthy if settlement_profile == "t02_return" else int(casualty_plan.get("defender_remaining_troops", 0)),
+		"occupation_troops": attacker_healthy if settlement_profile == "t02_return" and result_kind == RESULT_ATTACKER_WIN else int(casualty_plan.get("occupied_city_troops", 0)),
 		"hero_outcomes": {"attacker": attacker_hero_outcomes, "defender": defender_hero_outcomes},
+		"hero_status_plan": hero_status_plan,
+		"defender_disposition": defender_disposition,
+		"hero_movements": hero_movements,
+		"settlement_profile": settlement_profile,
+		"troop_settlement": {
+			"attacker_healthy": attacker_healthy,
+			"attacker_wounded": maxi(0, int(result.get("attacker_wounded", 0))),
+			"defender_healthy": defender_healthy,
+			"defender_wounded": maxi(0, int(result.get("defender_wounded", 0))),
+		},
 		"faction_transfer": {
 			"required": transfer_required,
 			"city_id": defender_city_id,
@@ -79,9 +116,102 @@ func build_settlement_plan(raw_result: Dictionary) -> Dictionary:
 				"gold": maxi(0, int(result.get("attacker_remaining_gold", 0))),
 			},
 		},
-		"transaction_id": str(result.get("transaction_id", "")),
+		"apply_supply_settlement": settlement_profile == "t02_return",
+		"transaction_id": transaction_id,
 		"result_id": str(result.get("result_id", "")),
 		"raw_result": result,
+	}
+
+
+func _build_hero_status_plan(result_kind: String, attacker_city_id: String, defender_city_id: String, attacker_outcomes: Dictionary, defender_outcomes: Dictionary, transaction_id: String) -> Array[Dictionary]:
+	var status_plan: Array[Dictionary] = []
+	for outcomes in [attacker_outcomes, defender_outcomes]:
+		for hero_id_variant in outcomes.keys():
+			var hero_id := str(hero_id_variant)
+			var outcome: Dictionary = outcomes.get(hero_id, {})
+			status_plan.append({
+				"hero_id": hero_id,
+				"status": "normal" if bool(outcome.get("survived", false)) else "wounded",
+				"outcome": outcome.duplicate(true),
+			})
+	if not status_plan.is_empty() or not transaction_id.is_empty():
+		return status_plan
+	var losing_city_id := attacker_city_id if result_kind == RESULT_DEFENDER_WIN else (defender_city_id if result_kind == RESULT_ATTACKER_WIN else "")
+	if losing_city_id.is_empty():
+		return status_plan
+	var raw_ids: Variant = _q("city_hero_ids", [losing_city_id], [])
+	if not raw_ids is Array:
+		return status_plan
+	for hero_id_variant in raw_ids:
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty() or not bool(_q("hero_status_mutable", [hero_id], false)):
+			continue
+		status_plan.append({"hero_id": hero_id, "status": "wounded" if status_plan.is_empty() else "captured", "outcome": {}})
+		if status_plan.size() >= 2:
+			break
+	return status_plan
+
+
+func _build_t02_hero_status_plan(result: Dictionary) -> Array[Dictionary]:
+	var status_plan: Array[Dictionary] = []
+	for side in ["attacker", "defender"]:
+		var all_ids := _normalize_battle_result_hero_ids(result.get("%s_general_ids" % side, []))
+		var surviving_ids := _normalize_battle_result_hero_ids(result.get("%s_surviving_general_ids" % side, []))
+		for hero_id in all_ids:
+			status_plan.append({
+				"hero_id": hero_id,
+				"status": "normal" if surviving_ids.has(hero_id) else "wounded",
+				"outcome": {},
+			})
+	return status_plan
+
+
+func _build_defender_disposition_plan(target_city_id: String, defeated_owner: String, attacker_owner: String, all_hero_ids: Array[String], surviving_hero_ids: Array[String], transaction_id: String, result_id: String) -> Dictionary:
+	var participants: Array[String] = all_hero_ids.duplicate()
+	var raw_roster: Variant = _q("city_hero_ids", [target_city_id], [])
+	if raw_roster is Array:
+		for hero_id in _normalize_battle_result_hero_ids(raw_roster):
+			if not participants.has(hero_id):
+				participants.append(hero_id)
+	var survivors: Array[String] = surviving_hero_ids.duplicate()
+	if survivors.is_empty():
+		survivors = participants.duplicate()
+	var escape_city_ids: Array[String] = []
+	var raw_neighbors: Variant = _q("city_neighbors", [target_city_id], [])
+	if raw_neighbors is Array:
+		for city_id_variant in raw_neighbors:
+			var city_id := str(city_id_variant)
+			if _city_owner(city_id) == defeated_owner:
+				escape_city_ids.append(city_id)
+	escape_city_ids.sort()
+	var remaining_city_count := maxi(0, int(_q("faction_city_count", [defeated_owner], 0)) - 1)
+	var align_all := escape_city_ids.is_empty() or remaining_city_count <= 0
+	var aligned_count := survivors.size() if align_all else maxi(1, int(floor(float(survivors.size()) / 3.0)))
+	survivors.sort()
+	var assignments: Array[Dictionary] = []
+	var aligned_ids: Array[String] = []
+	var escaped_ids: Array[String] = []
+	for index in range(survivors.size()):
+		var hero_id: String = survivors[index]
+		if index < aligned_count:
+			aligned_ids.append(hero_id)
+			assignments.append({"hero_id": hero_id, "faction_id": attacker_owner, "city_id": target_city_id, "acquired": true})
+		else:
+			var destination: String = escape_city_ids[(index - aligned_count) % escape_city_ids.size()]
+			escaped_ids.append(hero_id)
+			assignments.append({"hero_id": hero_id, "faction_id": defeated_owner, "city_id": destination, "acquired": false})
+	var unstationed: Array[String] = []
+	for hero_id in participants:
+		if not survivors.has(hero_id):
+			unstationed.append(hero_id)
+	return {
+		"assignments": assignments,
+		"unstationed_hero_ids": unstationed,
+		"aligned_count": aligned_ids.size(), "escaped_count": escaped_ids.size(),
+		"aligned_ids": aligned_ids, "escaped_ids": escaped_ids,
+		"primary_escape_city_id": escape_city_ids[0] if not escape_city_ids.is_empty() else "",
+		"faction_defeated": remaining_city_count <= 0, "defeated_faction_id": defeated_owner,
+		"defeated_owner": defeated_owner, "transaction_id": transaction_id, "result_id": result_id,
 	}
 
 

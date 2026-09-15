@@ -24,6 +24,7 @@ const MilitaryControllerScript := preload("res://scripts/worldmap/military/milit
 const EnemyWarfareServiceScript := preload("res://scripts/worldmap/military/enemy_warfare_service.gd")
 const BattleContextServiceScript := preload("res://scripts/worldmap/battle/battle_context_service.gd")
 const BattleResultServiceScript := preload("res://scripts/worldmap/battle/battle_result_service.gd")
+const BattleSettlementApplierScript := preload("res://scripts/worldmap/battle/battle_settlement_applier.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -1027,6 +1028,7 @@ var _military_controller: MilitaryControllerScript = null
 var _enemy_warfare_service: EnemyWarfareServiceScript = null
 var _battle_context_service: BattleContextServiceScript = null
 var _battle_result_service: BattleResultServiceScript = null
+var _battle_settlement_applier: BattleSettlementApplierScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1859,6 +1861,21 @@ func _ensure_battle_result_service() -> BattleResultServiceScript:
 	return _battle_result_service
 
 
+func _ensure_battle_settlement_applier() -> BattleSettlementApplierScript:
+	if _battle_settlement_applier == null:
+		_battle_settlement_applier = BattleSettlementApplierScript.new()
+		_battle_settlement_applier.configure(
+			Callable(self, "_battle_settlement_query"),
+			Callable(self, "_battle_settlement_mutation"),
+			{
+				"legacy_wounded_turns": PLAYER_ATTACK_WOUNDED_QUEUE_TURNS,
+				"normal_wounded_turns": ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS,
+				"default_wounded_recovery_turns": DEFAULT_WOUNDED_RECOVERY_TURNS,
+			}
+		)
+	return _battle_settlement_applier
+
+
 func _battle_result_query(query_id: String, args: Array) -> Variant:
 	match query_id:
 		"has_city": return _has_city_for_battle_context(str(args[0]))
@@ -1867,7 +1884,88 @@ func _battle_result_query(query_id: String, args: Array) -> Variant:
 		"faction_label": return _format_faction_label(str(args[0]))
 		"player_faction": return _get_current_player_faction_id()
 		"has_hero": return not _get_hero_seed_entry(str(args[0])).is_empty()
+		"city_hero_ids": return _get_stationed_hero_ids_for_city(_get_city_hud_entry(str(args[0])))
+		"hero_status_mutable": return _is_hero_eligible_for_placeholder_state(str(args[0]))
+		"city_neighbors": return _get_city_neighbors_mvp(str(args[0]))
+		"faction_city_count": return _get_enemy_owned_city_count_mvp(str(args[0]))
 	return null
+
+
+func _battle_settlement_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"has_city": return _has_city_for_battle_context(str(args[0]))
+		"city_troops": return _get_city_troops_for_battle_context(str(args[0]))
+		"is_result_applied":
+			var raw_ids: Variant = _player_state.get("applied_battle_result_ids", [])
+			return raw_ids is Array and (raw_ids as Array).has(str(args[0]))
+		"pending_transaction_id":
+			var pending: Variant = _player_state.get("pending_battle_context", {})
+			return str((pending as Dictionary).get("transaction_id", "")) if pending is Dictionary else ""
+		"nearest_player_retreat_city": return _find_nearest_player_owned_neighbor_city_mvp(str(args[0]))
+	return null
+
+
+func _battle_settlement_mutation(mutation_id: String, args: Array) -> Variant:
+	match mutation_id:
+		"set_city_troops":
+			return _apply_battle_settlement_city_troops(str(args[0]), maxi(0, int(args[1])))
+		"set_city_owner":
+			return _apply_battle_settlement_city_owner(str(args[0]), str(args[1]))
+		"add_wounded":
+			_add_wounded_to_city_mvp(str(args[0]), maxi(0, int(args[1])), maxi(1, int(args[2])), str(args[3]), str(args[4]))
+			return true
+		"clear_wounded":
+			_clear_city_wounded_queue_mvp(str(args[0]))
+			return true
+		"move_hero": return _apply_battle_settlement_move_hero(str(args[0]), str(args[1]))
+		"set_hero_faction": return _apply_battle_settlement_hero_faction(str(args[0]), str(args[1]), str(args[2]), str(args[3]), str(args[4]))
+		"set_hero_status": return _apply_battle_settlement_hero_status(str(args[0]), str(args[1]), args[2] if args[2] is Dictionary else {}, str(args[3]))
+		"unstation_hero":
+			_remove_hero_from_other_city_runtime_rosters(str(args[0]), "")
+			return true
+		"clear_city_governor":
+			var city_id := str(args[0])
+			var city := _get_mutable_city_runtime_state(city_id)
+			city["governor_id"] = ""
+			city["governorHeroId"] = ""
+			_city_runtime_states[city_id] = city
+			return true
+		"record_defender_disposition":
+			_record_battle_defender_disposition(args[0] if args[0] is Dictionary else {})
+			return true
+		"set_defender_supply": return _apply_battle_settlement_defender_supply(str(args[0]), args[1] if args[1] is Dictionary else {})
+		"add_attacker_cargo": return _apply_battle_settlement_attacker_cargo(str(args[0]), args[1] if args[1] is Dictionary else {})
+		"mark_result_applied":
+			var applied: Array = _player_state.get("applied_battle_result_ids", []) if _player_state.get("applied_battle_result_ids", []) is Array else []
+			var result_id := str(args[0])
+			if not result_id.is_empty() and not applied.has(result_id):
+				applied.append(result_id)
+			_player_state["applied_battle_result_ids"] = applied
+			return true
+	return null
+
+
+func _apply_battle_settlement_city_troops(city_id: String, troops: int) -> bool:
+	var city := _get_mutable_city_runtime_state(city_id)
+	if city.is_empty():
+		return false
+	city["troops"] = maxi(0, troops)
+	_city_runtime_states[city_id] = city
+	return true
+
+
+func _apply_battle_settlement_city_owner(city_id: String, owner_id: String) -> bool:
+	if owner_id.is_empty():
+		return false
+	var city := _get_mutable_city_runtime_state(city_id)
+	if city.is_empty():
+		return false
+	city["owner"] = owner_id
+	city["nation"] = owner_id
+	city["owner_faction_id"] = owner_id
+	city["faction"] = owner_id
+	_city_runtime_states[city_id] = city
+	return true
 
 
 func _battle_context_query(query_id: String, args: Array) -> Variant:
@@ -7615,7 +7713,18 @@ func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
 	if str(result.get("transaction_id", "")).begins_with("t03-"):
 		_apply_t03_strategic_battle_result(result, true)
 		return
-	result["_settlement_plan"] = _ensure_battle_result_service().build_settlement_plan(result)
+	var settlement_plan := _ensure_battle_result_service().build_settlement_plan(result)
+	result["_settlement_plan"] = settlement_plan
+	result["_settlement_report"] = _ensure_battle_settlement_applier().apply(settlement_plan)
+	if not bool((result["_settlement_report"] as Dictionary).get("ok", false)) and str(settlement_plan.get("result_kind", "")) != INVASION_RESULT_UNKNOWN:
+		_set_save_management_status(_format_battle_settlement_rejection(result["_settlement_report"] as Dictionary))
+		return
+	if str(settlement_plan.get("settlement_profile", "standard")) == "standard" and bool((result["_settlement_report"] as Dictionary).get("ok", false)):
+		_rebuild_occupation_runtime_indexes_mvp()
+		(result["_settlement_report"] as Dictionary)["indexes_rebuilt"] = true
+		_sync_worldmap_hero_locations_from_city_runtime_states()
+		_refresh_city_marker_owner_states_from_runtime()
+		_refresh_city_hud_data_bindings()
 	if _is_player_attack_battle_result(result):
 		_apply_player_attack_battle_result(result)
 		return
@@ -7682,101 +7791,37 @@ func _apply_player_attack_battle_result(result_payload: Dictionary) -> void:
 
 
 func _apply_t02_player_attack_result(result: Dictionary) -> void:
-	var transaction_id := str(result.get("transaction_id", ""))
-	var result_id := str(result.get("result_id", ""))
-	var pending: Dictionary = _player_state.get("pending_battle_context", {}) if _player_state.get("pending_battle_context", {}) is Dictionary else {}
-	var applied_ids: Array[String] = []
-	var raw_applied_ids: Variant = _player_state.get("applied_battle_result_ids", [])
-	if raw_applied_ids is Array:
-		for raw_id in raw_applied_ids:
-			var normalized_id := str(raw_id)
-			if not normalized_id.is_empty() and not applied_ids.has(normalized_id):
-				applied_ids.append(normalized_id)
-	if transaction_id.is_empty() or result_id.is_empty() or str(pending.get("transaction_id", "")) != transaction_id:
-		_set_save_management_status("전투 결과 거부 · 트랜잭션 ID 불일치")
+	var plan: Dictionary = result.get("_settlement_plan", {}) if result.get("_settlement_plan", {}) is Dictionary else {}
+	if plan.is_empty():
+		plan = _ensure_battle_result_service().build_settlement_plan(result)
+	var report: Dictionary = result.get("_settlement_report", {}) if result.get("_settlement_report", {}) is Dictionary else {}
+	if report.is_empty():
+		report = _ensure_battle_settlement_applier().apply(plan)
+	if not bool(report.get("ok", false)):
+		_set_save_management_status(_format_battle_settlement_rejection(report))
 		return
-	if applied_ids.has(result_id):
-		_set_save_management_status("이미 적용된 전투 결과입니다.")
-		return
-	var source_city_id := str(result.get("attacker_source_city_id", result.get("attacker_city_id", "")))
-	var target_city_id := str(result.get("defender_city_id", ""))
-	if source_city_id.is_empty() or target_city_id.is_empty():
-		_set_save_management_status("전투 결과 거부 · 도시 ID 없음")
-		return
-	var winner := str(result.get("winner_side", result.get("winner", "defender")))
-	var attacker_won := winner == "attacker"
-	var healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
-	var wounded := maxi(0, int(result.get("attacker_wounded", 0)))
-	var surviving_generals := _normalize_battle_result_hero_ids(result.get("attacker_surviving_general_ids", []))
-	var attacker_general_ids := _normalize_battle_result_hero_ids(result.get("attacker_general_ids", []))
-	var attacker_hero_outcomes := _normalize_battle_hero_outcomes(result.get("attacker_hero_outcomes", {}))
-	var destination_city_id := target_city_id if attacker_won else source_city_id
-	if attacker_won:
-		var defeated_owner := _get_city_owner_id_for_battle_context(target_city_id)
-		var attacker_owner := str(result.get("attacker_owner", _get_current_player_faction_id()))
-		# Ownership must be applied before disposition: retreat candidates are the cities
-		# that remain with the defeated faction after this settlement.
-		_set_city_runtime_owner(target_city_id, attacker_owner)
-		var disposition := _settle_defender_generals_after_occupation(target_city_id, defeated_owner, attacker_owner, _normalize_battle_result_hero_ids(result.get("defender_general_ids", [])), _normalize_battle_result_hero_ids(result.get("defender_surviving_general_ids", [])), transaction_id, result_id)
-		var defender_retreat_city_id := str(disposition.get("primary_escape_city_id", ""))
-		if not defender_retreat_city_id.is_empty():
-			_set_city_runtime_troops(defender_retreat_city_id, _get_city_troops_for_battle_context(defender_retreat_city_id) + maxi(0, int(result.get("defender_healthy_survivors", 0))))
-			_add_wounded_to_city_mvp(defender_retreat_city_id, maxi(0, int(result.get("defender_wounded", 0))), ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		_set_city_runtime_troops(target_city_id, healthy)
-	else:
-		_set_city_runtime_troops(source_city_id, _get_city_troops_for_battle_context(source_city_id) + healthy)
-		_set_city_runtime_troops(target_city_id, maxi(0, int(result.get("defender_healthy_survivors", _get_city_troops_for_battle_context(target_city_id)))))
-	_apply_t02_defender_supply_result(target_city_id, result)
-	if attacker_won:
-		_add_t02_attacker_cargo_to_city(target_city_id, result)
-	if attacker_general_ids.is_empty():
-		for hero_id_variant in attacker_hero_outcomes.keys():
-			var fallback_hero_id := str(hero_id_variant)
-			if not fallback_hero_id.is_empty() and not attacker_general_ids.has(fallback_hero_id):
-				attacker_general_ids.append(fallback_hero_id)
-	for hero_id_variant in attacker_general_ids:
-		var hero_id := str(hero_id_variant)
-		if hero_id.is_empty():
-			continue
-		_move_hero_to_city_t02(hero_id, destination_city_id)
-		var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-		var outcome: Dictionary = attacker_hero_outcomes.get(hero_id, {})
-		var survived := bool(outcome.get("survived", surviving_generals.has(hero_id)))
-		if survived:
-			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
-			hero_state["wounded"] = false
-			hero_state["captured"] = false
-			hero_state["dead"] = false
-			hero_state["wounded_turns_remaining"] = 0
-		else:
-			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
-			hero_state["wounded"] = true
-			hero_state["captured"] = false
-			hero_state["dead"] = false
-			hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
-		hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
-		hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
-		hero_state["last_battle_transaction_id"] = transaction_id
-		_hero_runtime_states[hero_id] = hero_state
-	if wounded > 0:
-		_add_wounded_to_city_mvp(destination_city_id, wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+	var target_city_id := str(plan.get("target_city_id", ""))
+	var troop_settlement: Dictionary = plan.get("troop_settlement", {}) if plan.get("troop_settlement", {}) is Dictionary else {}
+	var healthy := maxi(0, int(troop_settlement.get("attacker_healthy", plan.get("attacker_remaining_troops", 0))))
+	var wounded := maxi(0, int(troop_settlement.get("attacker_wounded", 0)))
 	_player_state["last_wounded_treatment"] = {
-		"city_id": destination_city_id,
-		"transaction_id": transaction_id,
+		"city_id": target_city_id if str(plan.get("result_kind", "")) == INVASION_RESULT_ATTACKER_WIN else str(plan.get("attacker_city_id", "")),
+		"transaction_id": str(plan.get("transaction_id", "")),
 		"wounded_count": wounded,
 		"mode": "normal",
 	}
 	_player_state["pending_battle_context"] = {}
 	_player_state["pending_invasion_event"] = {}
-	applied_ids.append(result_id)
-	_player_state["applied_battle_result_ids"] = applied_ids
 	_player_state["korea_unification_victory"] = _get_player_owned_korea_mvp_city_count() >= 4
 	_rebuild_occupation_runtime_indexes_mvp()
+	report["indexes_rebuilt"] = true
+	result["_settlement_report"] = report
 	_sync_worldmap_hero_locations_from_city_runtime_states()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_select_city_after_invasion_result(target_city_id)
 	_refresh_city_info_attack_action_state(target_city_id)
+	var attacker_won := str(plan.get("result_kind", "")) == INVASION_RESULT_ATTACKER_WIN
 	var outcome_label := "점령 성공" if attacker_won else ("30턴 제한 패배" if str(result.get("result_reason", "")) == "turn_limit" else "공격 패배")
 	_set_save_management_status("%s · 정상병 %d / 부상병 %d / 전사 %d / 이탈 %d" % [outcome_label, healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))])
 	var result_lines: Array[String] = [
@@ -7786,105 +7831,44 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	if attacker_won:
 		result_lines.append("%s을 점령했습니다." % _format_city_name_by_id(target_city_id, target_city_id))
 		result_lines.append("출전 장수와 생존 병력이 %s에 주둔합니다." % _format_city_name_by_id(target_city_id, target_city_id))
-		var disposition_summary: Dictionary = _player_state.get("last_defender_disposition", {}) if _player_state.get("last_defender_disposition", {}) is Dictionary else {}
-		var aligned_count := int(disposition_summary.get("aligned_count", 0))
-		var escaped_count := int(disposition_summary.get("escaped_count", 0))
-		if aligned_count > 0:
-			result_lines.append("적 장수 %d명이 아군에 귀속되었습니다." % aligned_count)
-		if escaped_count > 0:
-			result_lines.append("적 장수 %d명이 인접한 적 도시로 피신했습니다." % escaped_count)
-		if bool(disposition_summary.get("faction_defeated", false)):
-			result_lines.append("%s가 멸망했습니다." % _format_faction_label(str(disposition_summary.get("defeated_faction_id", ""))))
+		var disposition: Dictionary = report.get("defender_disposition", {}) if report.get("defender_disposition", {}) is Dictionary else {}
+		if int(disposition.get("aligned_count", 0)) > 0:
+			result_lines.append("적 장수 %d명이 아군에 귀속되었습니다." % int(disposition.get("aligned_count", 0)))
+		if int(disposition.get("escaped_count", 0)) > 0:
+			result_lines.append("적 장수 %d명이 인접한 적 도시로 피신했습니다." % int(disposition.get("escaped_count", 0)))
+		if bool(disposition.get("faction_defeated", false)):
+			result_lines.append("%s가 멸망했습니다." % _format_faction_label(str(disposition.get("defeated_faction_id", ""))))
 	if bool(_player_state.get("korea_unification_victory", false)):
 		result_lines.append("한반도 네 도시를 모두 장악했습니다. T05 승리 화면 연결 대기 중입니다.")
-	_show_post_battle_result_summary({
-		"message_title": outcome_label,
-		"message_lines": result_lines,
-	})
+	_show_post_battle_result_summary({"message_title": outcome_label, "message_lines": result_lines})
 	_refresh_wounded_treatment_controls()
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
 	_save_worldmap_state()
 
 
+func _format_battle_settlement_rejection(report: Dictionary) -> String:
+	var warnings: Array = report.get("warnings", []) if report.get("warnings", []) is Array else []
+	if bool(report.get("duplicate", false)):
+		return "이미 적용된 전투 결과입니다."
+	if warnings.has("transaction_mismatch") or warnings.has("incomplete_result_identity"):
+		return "전투 결과 거부 · 트랜잭션 ID 불일치"
+	if warnings.has("missing_target_city") or warnings.has("missing_attacker_city"):
+		return "전투 결과 거부 · 도시 ID 없음"
+	return "전투 결과 정산을 적용하지 못했습니다."
+
+
 func _settle_defender_generals_after_occupation(target_city_id: String, defeated_owner: String, attacker_owner: String, all_hero_ids: Array[String], surviving_hero_ids: Array[String], transaction_id: String, result_id: String) -> Dictionary:
-	# A defender is never discarded by occupation.  The target roster is the
-	# authoritative fallback because battle payloads from older scenes omit ids.
-	var target_data := _get_city_hud_entry(target_city_id)
-	var target_roster := _normalize_hero_id_array(target_data.get("stationed_hero_ids", target_data.get("hero_ids", [])))
-	var participants := all_hero_ids.duplicate()
-	for hero_id in target_roster:
-		if not participants.has(hero_id):
-			participants.append(hero_id)
-	var survivors := surviving_hero_ids.duplicate()
-	if survivors.is_empty():
-		survivors = participants.duplicate()
-	var escape_city_ids: Array[String] = []
-	for neighbor_id in _get_city_neighbors_mvp(target_city_id):
-		var city_id := str(neighbor_id)
-		if _get_city_owner_id_for_battle_context(city_id) == defeated_owner:
-			escape_city_ids.append(city_id)
-	escape_city_ids.sort()
-	var remaining_city_count := _get_enemy_owned_city_count_mvp(defeated_owner)
-	var align_all := escape_city_ids.is_empty() or remaining_city_count <= 0
-	var aligned_count := survivors.size() if align_all else maxi(1, int(floor(float(survivors.size()) / 3.0)))
-	var aligned_ids: Array[String] = []
-	var escaped_ids: Array[String] = []
-	# IDs are sorted instead of using engine RNG so replay/load result processing
-	# is deterministic for transaction/result/target and survivor set.
-	survivors.sort()
-	for index in range(survivors.size()):
-		var hero_id := str(survivors[index])
-		if index < aligned_count:
-			aligned_ids.append(hero_id)
-			_set_hero_faction_after_conquest_mvp(hero_id, attacker_owner, target_city_id, transaction_id, defeated_owner)
-		else:
-			var destination := escape_city_ids[(index - aligned_count) % escape_city_ids.size()]
-			escaped_ids.append(hero_id)
-			_set_hero_faction_after_conquest_mvp(hero_id, defeated_owner, destination, "", "")
-	# Any non-survivors are removed from city rosters only; battle status is kept
-	# by its existing runtime state rather than inventing an unstationed status.
-	for hero_id in participants:
-		if not survivors.has(hero_id):
-			_remove_hero_from_other_city_runtime_rosters(hero_id, "")
-	# Occupied cities always begin ungoverned.  This prevents stale governor UI.
-	var occupied := _get_mutable_city_runtime_state(target_city_id)
-	occupied["governor_id"] = ""
-	occupied["governorHeroId"] = ""
-	_city_runtime_states[target_city_id] = occupied
-	var faction_defeated := remaining_city_count <= 0
-	if faction_defeated:
-		var defeated: Dictionary = _player_state.get("defeated_factions", {}) if _player_state.get("defeated_factions", {}) is Dictionary else {}
-		defeated[defeated_owner] = {"defeated": true, "transaction_id": transaction_id, "result_id": result_id}
-		_player_state["defeated_factions"] = defeated
-		var announced: Dictionary = _player_state.get("defeated_faction_notifications", {}) if _player_state.get("defeated_faction_notifications", {}) is Dictionary else {}
-		if not announced.has(defeated_owner):
-			announced[defeated_owner] = true
-		_player_state["defeated_faction_notifications"] = announced
-	var summary := {"aligned_count": aligned_ids.size(), "escaped_count": escaped_ids.size(), "aligned_ids": aligned_ids, "escaped_ids": escaped_ids, "primary_escape_city_id": escape_city_ids[0] if not escape_city_ids.is_empty() else "", "faction_defeated": faction_defeated, "defeated_faction_id": defeated_owner, "transaction_id": transaction_id, "result_id": result_id}
-	_player_state["last_defender_disposition"] = summary
-	return summary
+	var disposition := _ensure_battle_result_service()._build_defender_disposition_plan(target_city_id, defeated_owner, attacker_owner, all_hero_ids, surviving_hero_ids, transaction_id, result_id)
+	return _ensure_battle_settlement_applier().apply_defender_disposition(target_city_id, disposition)
 
 
 func _set_hero_faction_after_conquest_mvp(hero_id: String, faction_id: String, city_id: String, acquisition_transaction_id: String, acquired_from_faction_id: String) -> void:
-	_move_hero_to_city_t02(hero_id, city_id)
-	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-	hero_state["side"] = faction_id
-	hero_state["nation"] = faction_id
-	hero_state["faction_id"] = faction_id
-	hero_state["force_id"] = faction_id
-	hero_state["appointment"] = ""
-	hero_state["office"] = ""
-	hero_state["command_rank"] = "unappointed"
-	if not acquisition_transaction_id.is_empty():
-		hero_state["acquisition_type"] = "conquest_mvp"
-		hero_state["acquired_from_faction_id"] = acquired_from_faction_id
-		hero_state["acquired_transaction_id"] = acquisition_transaction_id
-	_hero_runtime_states[hero_id] = hero_state
+	_ensure_battle_settlement_applier().set_hero_faction(hero_id, faction_id, city_id, acquisition_transaction_id, acquired_from_faction_id)
 
 
 func _rebuild_occupation_runtime_indexes_mvp() -> void:
-	# owner_faction_id is authoritative; derived registry/caches are rebuilt.
+	# Global aggregation, AI cache generation and victory evaluation remain coordinator-owned.
 	var player_cities: Array[String] = []
 	for city_id_variant in CITY_HUD_DATA.keys():
 		var city_id := str(city_id_variant)
@@ -7910,14 +7894,100 @@ func _rebuild_occupation_runtime_indexes_mvp() -> void:
 
 
 func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
-	_remove_hero_from_other_city_runtime_rosters(hero_id, city_id)
-	_ensure_hero_in_city_runtime_roster(hero_id, city_id)
-	_set_hero_runtime_city(hero_id, city_id)
+	_ensure_battle_settlement_applier().move_hero(hero_id, city_id)
 
 
 func _normalize_battle_result_hero_ids(raw_hero_ids: Variant) -> Array[String]:
 	return _ensure_battle_result_service()._normalize_battle_result_hero_ids(raw_hero_ids)
 
+
+func _apply_battle_settlement_move_hero(hero_id: String, city_id: String) -> bool:
+	if hero_id.is_empty() or city_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
+		return false
+	_remove_hero_from_other_city_runtime_rosters(hero_id, city_id)
+	_ensure_hero_in_city_runtime_roster(hero_id, city_id)
+	_set_hero_runtime_city(hero_id, city_id)
+	return true
+
+
+func _apply_battle_settlement_hero_faction(hero_id: String, faction_id: String, city_id: String, acquisition_transaction_id: String, acquired_from_faction_id: String) -> bool:
+	if not _apply_battle_settlement_move_hero(hero_id, city_id):
+		return false
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	hero_state["side"] = faction_id
+	hero_state["nation"] = faction_id
+	hero_state["faction_id"] = faction_id
+	hero_state["force_id"] = faction_id
+	hero_state["appointment"] = ""
+	hero_state["office"] = ""
+	hero_state["command_rank"] = "unappointed"
+	if not acquisition_transaction_id.is_empty():
+		hero_state["acquisition_type"] = "conquest_mvp"
+		hero_state["acquired_from_faction_id"] = acquired_from_faction_id
+		hero_state["acquired_transaction_id"] = acquisition_transaction_id
+	_hero_runtime_states[hero_id] = hero_state
+	return true
+
+
+func _apply_battle_settlement_hero_status(hero_id: String, status: String, outcome: Dictionary, transaction_id: String) -> bool:
+	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
+		return false
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	if bool(hero_state.get("captured", false)) or bool(hero_state.get("dead", false)):
+		return false
+	hero_state["status"] = status
+	hero_state["wounded"] = status == HERO_RUNTIME_STATUS_WOUNDED
+	hero_state["captured"] = status == HERO_RUNTIME_STATUS_CAPTURED
+	hero_state["dead"] = status == HERO_RUNTIME_STATUS_DEAD
+	hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS if status == HERO_RUNTIME_STATUS_WOUNDED else 0
+	if not outcome.is_empty():
+		hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
+		hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
+		hero_state["last_battle_transaction_id"] = transaction_id
+	_hero_runtime_states[hero_id] = hero_state
+	return true
+
+
+func _record_battle_defender_disposition(disposition: Dictionary) -> void:
+	if bool(disposition.get("faction_defeated", false)):
+		var defeated_owner := str(disposition.get("defeated_faction_id", ""))
+		var defeated: Dictionary = _player_state.get("defeated_factions", {}) if _player_state.get("defeated_factions", {}) is Dictionary else {}
+		defeated[defeated_owner] = {"defeated": true, "transaction_id": str(disposition.get("transaction_id", "")), "result_id": str(disposition.get("result_id", ""))}
+		_player_state["defeated_factions"] = defeated
+		var announced: Dictionary = _player_state.get("defeated_faction_notifications", {}) if _player_state.get("defeated_faction_notifications", {}) is Dictionary else {}
+		if not announced.has(defeated_owner):
+			announced[defeated_owner] = true
+		_player_state["defeated_faction_notifications"] = announced
+	_player_state["last_defender_disposition"] = disposition.duplicate(true)
+
+
+func _apply_battle_settlement_defender_supply(city_id: String, settlement: Dictionary) -> Dictionary:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return {"ok": false, "city_id": city_id}
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var food_type := str(settlement.get("food_type", "rice"))
+	var before := stock.duplicate(true)
+	stock[food_type] = maxi(0, int(settlement.get("remaining_food", stock.get(food_type, 0))))
+	stock["salt"] = maxi(0, int(settlement.get("remaining_salt", stock.get("salt", 0))))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+	return {"ok": true, "city_id": city_id, "before": before, "after": stock.duplicate(true)}
+
+
+func _apply_battle_settlement_attacker_cargo(city_id: String, settlement: Dictionary) -> Dictionary:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return {"ok": false, "city_id": city_id}
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var before := stock.duplicate(true)
+	var food_type := str(settlement.get("food_type", "rice"))
+	stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int(settlement.get("food", 0)))
+	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(settlement.get("salt", 0)))
+	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(settlement.get("gold", 0)))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+	return {"ok": true, "city_id": city_id, "before": before, "after": stock.duplicate(true)}
 func _refresh_wounded_treatment_controls() -> void:
 	if _wounded_fast_treatment_button == null or _wounded_treatment_hint_label == null:
 		return
@@ -7964,25 +8034,20 @@ func _on_fast_wounded_treatment_pressed() -> void:
 
 
 func _apply_t02_defender_supply_result(city_id: String, result: Dictionary) -> void:
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	var food_type := str(result.get("defender_remaining_food_type", "rice"))
-	stock[food_type] = maxi(0, int(result.get("defender_remaining_food", stock.get(food_type, 0))))
-	stock["salt"] = maxi(0, int(result.get("defender_remaining_salt", stock.get("salt", 0))))
-	city_data["resource_stock"] = stock
-	_city_runtime_states[city_id] = city_data
+	_ensure_battle_settlement_applier().apply_defender_supply(city_id, {
+		"food_type": str(result.get("defender_remaining_food_type", "rice")),
+		"remaining_food": maxi(0, int(result.get("defender_remaining_food", 0))),
+		"remaining_salt": maxi(0, int(result.get("defender_remaining_salt", 0))),
+	})
 
 
 func _add_t02_attacker_cargo_to_city(city_id: String, result: Dictionary) -> void:
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	var food_type := str(result.get("attacker_remaining_food_type", "rice"))
-	stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int(result.get("attacker_remaining_food", 0)))
-	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(result.get("attacker_remaining_salt", 0)))
-	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(result.get("attacker_remaining_gold", 0)))
-	city_data["resource_stock"] = stock
-	_city_runtime_states[city_id] = city_data
-
+	_ensure_battle_settlement_applier().apply_attacker_cargo(city_id, {
+		"food_type": str(result.get("attacker_remaining_food_type", "rice")),
+		"food": maxi(0, int(result.get("attacker_remaining_food", 0))),
+		"salt": maxi(0, int(result.get("attacker_remaining_salt", 0))),
+		"gold": maxi(0, int(result.get("attacker_remaining_gold", 0))),
+	})
 
 func _get_player_owned_korea_mvp_city_count() -> int:
 	var count := 0
@@ -8105,119 +8170,47 @@ func _normalize_battle_hero_outcomes(raw_outcomes: Variant) -> Dictionary:
 	return _ensure_battle_result_service()._normalize_battle_hero_outcomes(raw_outcomes)
 
 func _apply_explicit_battle_hero_outcomes(result_payload: Dictionary) -> Dictionary:
-	var wounded_hero_ids: Array[String] = []
-	var normal_hero_ids: Array[String] = []
-	var skipped_hero_ids: Array[String] = []
-	var has_explicit_data := false
-	for context_side in ["attacker", "defender"]:
-		var outcomes := _normalize_battle_hero_outcomes(result_payload.get("%s_hero_outcomes" % context_side, {}))
-		if not outcomes.is_empty():
-			has_explicit_data = true
-		for hero_id_variant in outcomes.keys():
-			var hero_id := str(hero_id_variant)
-			var outcome: Dictionary = outcomes.get(hero_id, {})
-			if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
-				skipped_hero_ids.append(hero_id)
-				continue
-			var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-			if bool(hero_state.get("captured", false)) or bool(hero_state.get("dead", false)):
-				skipped_hero_ids.append(hero_id)
-				continue
-			if bool(outcome.get("survived", false)):
-				hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
-				hero_state["wounded"] = false
-				hero_state["wounded_turns_remaining"] = 0
-				normal_hero_ids.append(hero_id)
-			else:
-				hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
-				hero_state["wounded"] = true
-				hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
-				wounded_hero_ids.append(hero_id)
-			hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
-			hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
-			hero_state["last_battle_transaction_id"] = str(result_payload.get("transaction_id", ""))
-			_hero_runtime_states[hero_id] = hero_state
-	return {
-		"has_explicit_data": has_explicit_data,
-		"wounded_hero_ids": wounded_hero_ids,
-		"normal_hero_ids": normal_hero_ids,
-		"captured_hero_ids": [],
-		"dead_hero_ids": [],
-		"skipped_hero_ids": skipped_hero_ids,
-	}
-
+	var plan: Dictionary = result_payload.get("_settlement_plan", {}) if result_payload.get("_settlement_plan", {}) is Dictionary else {}
+	if plan.is_empty():
+		plan = _ensure_battle_result_service().build_settlement_plan(result_payload)
+	var status_plan: Array = plan.get("hero_status_plan", []) if plan.get("hero_status_plan", []) is Array else []
+	var changes := _ensure_battle_settlement_applier().apply_hero_statuses(status_plan, str(plan.get("transaction_id", "")))
+	return _summarize_battle_hero_changes(changes, not status_plan.is_empty())
 
 func _apply_invasion_hero_state_placeholder(result_payload: Dictionary, result_summary: Dictionary) -> Dictionary:
 	var updated_summary := result_summary.duplicate(true)
-	var explicit_result := _apply_explicit_battle_hero_outcomes(result_payload)
-	if bool(explicit_result.get("has_explicit_data", false)):
-		updated_summary["hero_state_result"] = explicit_result
-		_append_hero_state_result_lines(updated_summary)
-		print("[T06_9_HERO_OUTCOMES] wounded=%s normal=%s skipped=%s" % [
-			str(explicit_result.get("wounded_hero_ids", [])),
-			str(explicit_result.get("normal_hero_ids", [])),
-			str(explicit_result.get("skipped_hero_ids", [])),
-		])
-		return updated_summary
-	var result_kind := str(updated_summary.get("result", _normalize_invasion_battle_result_kind(result_payload)))
-	var losing_side := ""
-	var losing_city_id := ""
-	match result_kind:
-		INVASION_RESULT_DEFENDER_WIN:
-			losing_side = "attacker"
-			losing_city_id = str(updated_summary.get("attacker_source_city_id", _get_invasion_result_city_id(result_payload, ["attacker_city_id", "source_city_id", "origin_city_id"])))
-		INVASION_RESULT_ATTACKER_WIN:
-			losing_side = "defender"
-			losing_city_id = str(updated_summary.get("city_id", _get_invasion_result_city_id(result_payload, ["defender_city_id", "target_city_id", "city_id"])))
-		_:
-			updated_summary["hero_state_result"] = {
-				"wounded_hero_ids": [],
-				"captured_hero_ids": [],
-				"dead_hero_ids": [],
-				"skipped_hero_ids": [],
-				"losing_side": losing_side,
-			}
-			_append_hero_state_result_lines(updated_summary)
-			print("[HERO_STATE_RESULT] result=%s losing_side=%s wounded=[] captured=[] skipped=[] dead=[]" % [result_kind, losing_side])
-			return updated_summary
-	var losing_hero_ids := _get_city_stationed_hero_ids_for_battle_context(losing_city_id)
-	var wounded_hero_ids: Array[String] = []
-	var captured_hero_ids: Array[String] = []
-	var skipped_hero_ids: Array[String] = []
-	for hero_id_variant in losing_hero_ids:
-		var hero_id := str(hero_id_variant)
-		if not _is_hero_eligible_for_placeholder_state(hero_id):
-			skipped_hero_ids.append(hero_id)
-			print("[HERO_STATE_SKIP] result=%s side=%s hero=%s reason=already_captured_or_dead_or_missing" % [result_kind, losing_side, hero_id])
-			continue
-		if wounded_hero_ids.is_empty():
-			if _set_hero_runtime_status_placeholder(hero_id, HERO_RUNTIME_STATUS_WOUNDED):
-				wounded_hero_ids.append(hero_id)
-			continue
-		if captured_hero_ids.is_empty() and not wounded_hero_ids.has(hero_id):
-			if _set_hero_runtime_status_placeholder(hero_id, HERO_RUNTIME_STATUS_CAPTURED):
-				captured_hero_ids.append(hero_id)
-			continue
-		if not wounded_hero_ids.is_empty() and not captured_hero_ids.is_empty():
-			break
-	updated_summary["hero_state_result"] = {
-		"wounded_hero_ids": wounded_hero_ids,
-		"captured_hero_ids": captured_hero_ids,
-		"dead_hero_ids": [],
-		"skipped_hero_ids": skipped_hero_ids,
-		"losing_side": losing_side,
-		"losing_city_id": losing_city_id,
-	}
+	var report: Dictionary = result_payload.get("_settlement_report", {}) if result_payload.get("_settlement_report", {}) is Dictionary else {}
+	var changes: Array = report.get("hero_changes", []) if report.get("hero_changes", []) is Array else []
+	updated_summary["hero_state_result"] = _summarize_battle_hero_changes(changes, not changes.is_empty())
 	_append_hero_state_result_lines(updated_summary)
-	print("[HERO_STATE_RESULT] result=%s losing_side=%s wounded=%s captured=%s skipped=%s dead=[]" % [
-		result_kind,
-		losing_side,
-		str(wounded_hero_ids),
-		str(captured_hero_ids),
-		str(skipped_hero_ids)
-	])
 	return updated_summary
 
+
+func _summarize_battle_hero_changes(changes: Array, has_explicit_data: bool) -> Dictionary:
+	var wounded: Array[String] = []
+	var normal: Array[String] = []
+	var captured: Array[String] = []
+	var dead: Array[String] = []
+	for change_variant in changes:
+		if not change_variant is Dictionary:
+			continue
+		var change := change_variant as Dictionary
+		if str(change.get("kind", "")) != "status":
+			continue
+		var hero_id := str(change.get("hero_id", ""))
+		match str(change.get("status", "")):
+			HERO_RUNTIME_STATUS_WOUNDED: wounded.append(hero_id)
+			HERO_RUNTIME_STATUS_CAPTURED: captured.append(hero_id)
+			HERO_RUNTIME_STATUS_DEAD: dead.append(hero_id)
+			_: normal.append(hero_id)
+	return {
+		"has_explicit_data": has_explicit_data,
+		"wounded_hero_ids": wounded,
+		"normal_hero_ids": normal,
+		"captured_hero_ids": captured,
+		"dead_hero_ids": dead,
+		"skipped_hero_ids": [],
+	}
 
 func _is_hero_eligible_for_placeholder_state(hero_id: String) -> bool:
 	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
@@ -8234,41 +8227,7 @@ func _get_existing_hero_runtime_state(hero_id: String) -> Dictionary:
 
 
 func _set_hero_runtime_status_placeholder(hero_id: String, status: String) -> bool:
-	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
-		print("[HERO_STATE_SKIP] hero=%s status=%s reason=missing_hero" % [hero_id, status])
-		return false
-	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-	match status:
-		HERO_RUNTIME_STATUS_WOUNDED:
-			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
-			hero_state["wounded"] = true
-			hero_state["captured"] = false
-			hero_state["dead"] = false
-			hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
-		HERO_RUNTIME_STATUS_CAPTURED:
-			hero_state["status"] = HERO_RUNTIME_STATUS_CAPTURED
-			hero_state["wounded"] = false
-			hero_state["captured"] = true
-			hero_state["dead"] = false
-			hero_state["wounded_turns_remaining"] = 0
-		_:
-			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
-			hero_state["wounded"] = false
-			hero_state["captured"] = false
-			hero_state["dead"] = false
-			hero_state["wounded_turns_remaining"] = 0
-	_hero_runtime_states[hero_id] = hero_state
-	print("[HERO_STATE_APPLY] hero=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d city=%s" % [
-		hero_id,
-		str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL)),
-		str(hero_state.get("wounded", false)),
-		str(hero_state.get("captured", false)),
-		str(hero_state.get("dead", false)),
-		int(hero_state.get("wounded_turns_remaining", 0)),
-		str(hero_state.get("current_city_id", ""))
-	])
-	return true
-
+	return _ensure_battle_settlement_applier().set_hero_status(hero_id, status)
 
 func _append_hero_state_result_lines(result_summary: Dictionary) -> void:
 	var hero_state_result: Variant = result_summary.get("hero_state_result", {})
@@ -8348,191 +8307,45 @@ func _get_hero_battle_exclusion_reason(hero_id: String) -> String:
 
 
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
-	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var defender_before := _get_city_troops_for_battle_context(defender_city_id)
-	var attacker_before := _get_city_troops_for_battle_context(attacker_city_id)
-	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
-	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
-	var player_survivors := maxi(0, int(player_outcome.get("survivors", 0)))
-	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
-	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	var enemy_wounded := maxi(0, int(enemy_outcome.get("wounded", 0)))
-	var defender_after := defender_before + player_survivors
-	_set_city_runtime_troops(defender_city_id, defender_after)
-	_add_wounded_to_city_mvp(defender_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	_add_wounded_to_city_mvp(attacker_city_id, enemy_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	var casualty_result := {
-		"defender_before": defender_before,
-		"defender_remaining_troops": defender_after,
-		"attacker_before": attacker_before,
-		"attacker_remaining_troops": attacker_before,
-		"attacker_source_remaining_troops": attacker_before,
-		"occupied_city_troops": 0,
-		"player_troop_outcome": player_outcome,
-		"enemy_troop_outcome": enemy_outcome,
-	}
-	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d survivors=%d wounded=%d after=%d reason=defender_city_survived" % [
-		defender_city_id,
-		defender_before,
-		player_survivors,
-		player_wounded,
-		defender_after
-	])
-	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d enemy_wounded=%d after=%d reason=attacker_wounded_return" % [
-		attacker_city_id,
-		attacker_before,
-		enemy_wounded,
-		_get_city_troops_for_battle_context(attacker_city_id)
-	])
-	return _build_invasion_result_summary(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "방어 성공", [
-		"%s을 지켜냈습니다." % defender_city_name,
-		"방어군 출전 %d / 생존 %d / 부상 %d / 전사 %d" % [
-			int(player_outcome.get("allocated", 0)),
-			player_survivors,
-			player_wounded,
-			player_dead,
-		],
-		"적 부상병 %d명은 %s에서 %d턴 후 회복됩니다." % [enemy_wounded, attacker_city_name, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS],
-	])
+	return _build_applied_battle_result_summary(result_payload, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "방어 성공", ["%s을 지켜냈습니다." % defender_city_name])
 
 
 func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
-	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var attacker_owner := str(result_payload.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
-	var defender_before_troops := _get_city_troops_for_battle_context(defender_city_id)
-	var attacker_before_troops := _get_city_troops_for_battle_context(attacker_city_id)
-	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
-	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
-	var enemy_survivors := maxi(0, int(enemy_outcome.get("survivors", 0)))
-	var enemy_wounded := maxi(0, int(enemy_outcome.get("wounded", 0)))
-	var enemy_dead := maxi(0, int(enemy_outcome.get("dead", 0)))
-	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
-	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	var retreat_city_id := _find_nearest_player_owned_neighbor_city_mvp(defender_city_id)
-	if attacker_owner.is_empty():
-		return _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, {}, "전투 결과 확인 필요", [
-			"%s이 함락되었으나 공격 세력 정보가 없어 소유권 변화 없이 정리했습니다." % defender_city_name,
-		])
-	_set_city_runtime_owner(defender_city_id, attacker_owner)
-	_set_city_runtime_troops(defender_city_id, enemy_survivors)
-	_clear_city_wounded_queue_mvp(defender_city_id)
-	_add_wounded_to_city_mvp(defender_city_id, enemy_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	if not retreat_city_id.is_empty():
-		_add_wounded_to_city_mvp(retreat_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	else:
-		print("[INVASION_TROOP_APPLY] result=attacker_win defender=%s player_wounded_lost=%d reason=no_retreat_city" % [defender_city_id, player_wounded])
-	var casualty_result := {
-		"defender_before": defender_before_troops,
-		"defender_remaining_troops": enemy_survivors,
-		"attacker_before": attacker_before_troops,
-		"attacker_remaining_troops": attacker_before_troops,
-		"attacker_source_remaining_troops": attacker_before_troops,
-		"occupied_city_troops": enemy_survivors,
-		"player_troop_outcome": player_outcome,
-		"enemy_troop_outcome": enemy_outcome,
-		"retreat_city_id": retreat_city_id,
-	}
-	print("[INVASION_TROOP_APPLY] result=attacker_win city=%s before=%d after=%d reason=occupied_city" % [
-		defender_city_id,
-		defender_before_troops,
-		enemy_survivors
-	])
-	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, attacker_owner, casualty_result, "도시 함락", [
-		"%s이 %s에 점령되었습니다." % [defender_city_name, _format_faction_label(attacker_owner)],
-		"공격군 출전 %d / 생존 %d / 부상 %d / 전사 %d" % [
-			int(enemy_outcome.get("allocated", 0)),
-			enemy_survivors,
-			enemy_wounded,
-			enemy_dead,
-		],
-		"방어군 부상 %d / 전사 %d%s" % [
-			player_wounded,
-			player_dead,
-			(" · 후송지: %s" % _format_city_name_by_id(retreat_city_id, retreat_city_id)) if not retreat_city_id.is_empty() else " · 후송지 없음",
-		],
-	])
+	return _build_applied_battle_result_summary(result_payload, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "도시 함락", ["%s이 함락되었습니다." % defender_city_name])
 
 
 func _apply_player_attack_win_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
-	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var defender_before_troops := _get_city_troops_for_battle_context(defender_city_id)
-	var attacker_before_troops := _get_city_troops_for_battle_context(attacker_city_id)
-	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
-	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
-	var player_survivors := maxi(0, int(player_outcome.get("survivors", 0)))
-	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
-	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	_set_city_runtime_owner(defender_city_id, _get_current_player_faction_id())
-	_set_city_runtime_troops(defender_city_id, player_survivors)
-	_clear_city_wounded_queue_mvp(defender_city_id)
-	_add_wounded_to_city_mvp(defender_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	var casualty_result := {
-		"defender_before": defender_before_troops,
-		"defender_remaining_troops": player_survivors,
-		"attacker_before": attacker_before_troops,
-		"attacker_remaining_troops": attacker_before_troops,
-		"attacker_source_remaining_troops": attacker_before_troops,
-		"occupied_city_troops": player_survivors,
-		"player_troop_outcome": player_outcome,
-		"enemy_troop_outcome": enemy_outcome,
-	}
-	print("[PLAYER_ATTACK_RESULT] apply=attacker_win city=%s before=%d after=%d reason=occupied_by_player" % [
-		defender_city_id,
-		defender_before_troops,
-		player_survivors
-	])
-	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, _get_current_player_faction_id(), casualty_result, "도시 점령", [
-		"%s 점령 성공!" % defender_city_name,
-		"%s의 출정군이 %s을 장악했습니다." % [attacker_city_name, defender_city_name],
-		"출정 %d / 생존 %d / 부상 %d / 전사 %d" % [
-			int(player_outcome.get("allocated", 0)),
-			player_survivors,
-			player_wounded,
-			player_dead,
-		],
-		"생존병은 %s에 주둔, 부상병은 %d턴 후 회복됩니다." % [defender_city_name, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS],
-	])
+	return _build_applied_battle_result_summary(result_payload, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "도시 점령", ["%s 점령 성공!" % defender_city_name])
 
 
 func _apply_player_attack_loss_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
-	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var defender_before := _get_city_troops_for_battle_context(defender_city_id)
-	var attacker_before := _get_city_troops_for_battle_context(attacker_city_id)
-	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
-	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
-	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
-	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	var enemy_survivors := maxi(0, int(enemy_outcome.get("survivors", 0)))
-	var defender_after := defender_before + enemy_survivors
-	_set_city_runtime_troops(defender_city_id, defender_after)
-	_add_wounded_to_city_mvp(defender_city_id, maxi(0, int(enemy_outcome.get("wounded", 0))), PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	_add_wounded_to_city_mvp(attacker_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
-	var casualty_result := {
-		"defender_before": defender_before,
-		"defender_remaining_troops": defender_after,
-		"attacker_before": attacker_before,
-		"attacker_remaining_troops": attacker_before,
-		"attacker_source_remaining_troops": attacker_before,
-		"occupied_city_troops": 0,
-		"player_troop_outcome": player_outcome,
-		"enemy_troop_outcome": enemy_outcome,
-	}
-	print("[PLAYER_ATTACK_RESULT] apply=defender_win city=%s before=%d after=%d reason=target_defended" % [
-		defender_city_id,
-		defender_before,
-		defender_after
-	])
-	return _build_invasion_result_summary(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "공격 실패", [
-		"%s 공격 실패" % defender_city_name,
-		"출정군이 패퇴했습니다.",
-		"출정 %d / 부상 %d / 전사 %d" % [
-			int(player_outcome.get("allocated", 0)),
-			player_wounded,
-			player_dead,
-		],
-		"부상병은 %s으로 후송되어 %d턴 후 회복됩니다." % [attacker_city_name, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS],
-	])
+	return _build_applied_battle_result_summary(result_payload, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "공격 실패", ["%s 공격 실패" % defender_city_name])
 
+
+func _build_applied_battle_result_summary(result_payload: Dictionary, defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, title: String, leading_lines: Array) -> Dictionary:
+	var plan: Dictionary = result_payload.get("_settlement_plan", {}) if result_payload.get("_settlement_plan", {}) is Dictionary else {}
+	if plan.is_empty():
+		plan = _ensure_battle_result_service().build_settlement_plan(result_payload)
+		result_payload["_settlement_plan"] = plan
+	var report: Dictionary = result_payload.get("_settlement_report", {}) if result_payload.get("_settlement_report", {}) is Dictionary else {}
+	if report.is_empty():
+		report = _ensure_battle_settlement_applier().apply(plan)
+		result_payload["_settlement_report"] = report
+	var transfer: Dictionary = plan.get("faction_transfer", {}) if plan.get("faction_transfer", {}) is Dictionary else {}
+	var old_owner := str(transfer.get("old_owner", _get_city_owner_id_for_battle_context(defender_city_id)))
+	var new_owner := str(transfer.get("new_owner", old_owner))
+	return _build_invasion_result_summary(
+		str(plan.get("result_kind", INVASION_RESULT_UNKNOWN)),
+		defender_city_id,
+		attacker_city_id,
+		defender_city_name,
+		attacker_city_name,
+		old_owner,
+		new_owner,
+		plan.get("casualty_plan", {}) if plan.get("casualty_plan", {}) is Dictionary else {},
+		title,
+		leading_lines
+	)
 
 func _get_player_troop_outcome_from_result(result_payload: Dictionary) -> Dictionary:
 	return _ensure_battle_result_service()._get_player_troop_outcome_from_result(result_payload)

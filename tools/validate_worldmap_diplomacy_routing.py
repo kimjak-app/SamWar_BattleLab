@@ -126,6 +126,23 @@ _get_hero_command_rank_for_city_mvp
 _get_hero_command_limit_for_city_mvp
 _get_hero_command_summary_for_city_mvp
 """.split())
+M5_SETTLEMENT_REWIRED = {
+    "_apply_returned_battle_result_mvp",
+    "_apply_t02_player_attack_result",
+    "_apply_defender_win_invasion_result",
+    "_apply_attacker_win_invasion_result",
+    "_apply_player_attack_win_result",
+    "_apply_player_attack_loss_result",
+    "_settle_defender_generals_after_occupation",
+    "_set_hero_faction_after_conquest_mvp",
+    "_move_hero_to_city_t02",
+    "_apply_explicit_battle_hero_outcomes",
+    "_apply_invasion_hero_state_placeholder",
+    "_set_hero_runtime_status_placeholder",
+    "_apply_t02_defender_supply_result",
+    "_add_t02_attacker_cargo_to_city",
+    "_rebuild_occupation_runtime_indexes_mvp",
+}
 SERVICE_REMOVED = {
     "_log_invasion_reinforcement_rule_summary",
     "_get_hero_contract_nation_key",
@@ -278,6 +295,8 @@ def main():
                 assert body.count(old_call) == 1, f"baseline SFX call contract changed: {name}"
                 expected_body = body.replace(old_call, new_call)
                 assert after[name] == expected_body, f"out-of-scope function changed beyond SFX routing: {name}"
+            elif name in M5_SETTLEMENT_REWIRED:
+                continue
             elif name in SERVICE_REWIRED:
                 assert name in service_checkpoint, f"service checkpoint function missing: {name}"
                 assert after[name] == service_checkpoint[name], f"service extraction wrapper changed: {name}"
@@ -285,6 +304,16 @@ def main():
                 assert after[name] == body, f"out-of-scope function changed: {name}"
 
     worldmap_source = current(MAIN)
+    assert 'BattleResultService.build_settlement_plan' not in worldmap_source
+    returned_result = after["_apply_returned_battle_result_mvp"]
+    assert "build_settlement_plan(result)" in returned_result, "M-5 coordinator lost settlement planning"
+    assert "_ensure_battle_settlement_applier().apply(settlement_plan)" in returned_result, "M-5 coordinator lost settlement application"
+    for name in [
+        "_set_hero_faction_after_conquest_mvp", "_move_hero_to_city_t02",
+        "_set_hero_runtime_status_placeholder", "_apply_t02_defender_supply_result",
+        "_add_t02_attacker_cargo_to_city",
+    ]:
+        assert "_ensure_battle_settlement_applier()" in after[name], f"M-5 compatibility wrapper does not delegate: {name}"
     sfx_helper = after.get("_play_worldmap_sfx", "")
     assert 'get_node_or_null("/root/GameAudio")' in sfx_helper, "worldmap SFX helper lost runtime autoload lookup"
     assert "if game_audio != null:" in sfx_helper, "worldmap SFX helper lost null guard"
