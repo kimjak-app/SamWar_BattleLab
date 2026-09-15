@@ -184,6 +184,21 @@ _show_t03_battle_report_card
 _on_t03_battle_report_confirmed
 _present_t05_outcome_if_needed
 """.split())
+M9_DEPLOYMENT_SUPPLY_REWIRED = set("""
+_confirm_player_attack_deployment
+_build_player_attack_deployment_payload
+_get_deployable_player_heroes_for_city
+_validate_player_attack_deployment
+_calculate_player_attack_supply_cost
+_can_pay_player_attack_supply_cost
+_pay_player_attack_supply_cost
+_move_generals_for_pending_expedition
+_select_city_battle_supply
+_rollback_player_attack_handoff
+_calculate_troop_rebalance_suggestions
+_apply_troop_rebalance_suggestion
+_apply_context_side_troop_pre_decrement_mvp
+""".split())
 SERVICE_REMOVED = {
     "_log_invasion_reinforcement_rule_summary",
     "_get_hero_contract_nation_key",
@@ -343,6 +358,8 @@ def main():
             elif name in M7_WOUNDED_RECOVERY_REWIRED:
                 continue
             elif name in M8_T03_PRESENTATION_REWIRED:
+                continue
+            elif name in M9_DEPLOYMENT_SUPPLY_REWIRED:
                 continue
             elif name in SERVICE_REWIRED:
                 assert name in service_checkpoint, f"service checkpoint function missing: {name}"
