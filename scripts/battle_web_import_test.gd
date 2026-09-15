@@ -2834,6 +2834,7 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"attacker_general_ids": worldmap_battle_context.get("attacker_general_ids", worldmap_battle_context.get("attacker_hero_ids", [])),
 		"defender_general_ids": worldmap_battle_context.get("defender_general_ids", worldmap_battle_context.get("defender_hero_ids", [])),
 		"worldmap_state_snapshot": worldmap_battle_context.get("worldmap_state_snapshot", {}),
+		"rollback_worldmap_state": worldmap_battle_context.get("rollback_worldmap_state", {}),
 	}
 	if is_player_attack:
 		var player_did_win := result == "victory"

@@ -143,6 +143,22 @@ M5_SETTLEMENT_REWIRED = {
     "_add_t02_attacker_cargo_to_city",
     "_rebuild_occupation_runtime_indexes_mvp",
 }
+M6_T03_TRANSACTION_REWIRED = set("""
+_get_t03_city_food_stock
+_get_t03_city_food_total
+_make_t03_transaction_id
+_build_t03_expedition_cargo_plan
+_filter_t03_context_heroes
+_prepare_t03_battle_transaction
+_select_t03_food_type
+_sum_t03_food_stock
+_pay_t03_expedition_cargo
+_rollback_t03_battle_transaction
+_resolve_t03_automatic_invasion
+_apply_t03_strategic_battle_result
+_apply_t03_defender_supply_result
+_add_t03_attacker_cargo_to_city
+""".split())
 SERVICE_REMOVED = {
     "_log_invasion_reinforcement_rule_summary",
     "_get_hero_contract_nation_key",
@@ -296,6 +312,8 @@ def main():
                 expected_body = body.replace(old_call, new_call)
                 assert after[name] == expected_body, f"out-of-scope function changed beyond SFX routing: {name}"
             elif name in M5_SETTLEMENT_REWIRED:
+                continue
+            elif name in M6_T03_TRANSACTION_REWIRED:
                 continue
             elif name in SERVICE_REWIRED:
                 assert name in service_checkpoint, f"service checkpoint function missing: {name}"

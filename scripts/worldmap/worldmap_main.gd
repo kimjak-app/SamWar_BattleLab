@@ -27,6 +27,7 @@ const BattleResultServiceScript := preload("res://scripts/worldmap/battle/battle
 const BattleSettlementApplierScript := preload("res://scripts/worldmap/battle/battle_settlement_applier.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
+const StrategicBattleTransactionServiceScript := preload("res://scripts/worldmap/t03/strategic_battle_transaction_service.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
@@ -1029,6 +1030,7 @@ var _enemy_warfare_service: EnemyWarfareServiceScript = null
 var _battle_context_service: BattleContextServiceScript = null
 var _battle_result_service: BattleResultServiceScript = null
 var _battle_settlement_applier: BattleSettlementApplierScript = null
+var _t03_transaction_service: StrategicBattleTransactionServiceScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1874,6 +1876,100 @@ func _ensure_battle_settlement_applier() -> BattleSettlementApplierScript:
 			}
 		)
 	return _battle_settlement_applier
+
+
+func _ensure_t03_transaction_service() -> StrategicBattleTransactionServiceScript:
+	if _t03_transaction_service == null:
+		_t03_transaction_service = StrategicBattleTransactionServiceScript.new()
+		_t03_transaction_service.configure(
+			Callable(self, "_t03_transaction_query"),
+			Callable(self, "_t03_transaction_mutation"),
+			Callable(T03AutoBattleResolverScript, "resolve"),
+			{
+				"minimum_source_troops": PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS,
+				"normal_wounded_turns": ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS,
+			}
+		)
+	return _t03_transaction_service
+
+
+func _t03_transaction_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"turn_number": return maxi(1, int(_player_state.get("turn_number", 1)))
+		"scenario_id": return str(_player_state.get("active_scenario_id", "korea_mvp_four_cities"))
+		"invasion_pair_eligible": return _is_enemy_invasion_pair_eligible_mvp(str(args[0]), str(args[1]))
+		"has_city": return _has_city_for_battle_context(str(args[0]))
+		"city_troops": return _get_city_troops_for_battle_context(str(args[0]))
+		"city_owner": return _get_city_owner_id_for_battle_context(str(args[0]))
+		"player_faction": return _get_current_player_faction_id()
+		"city_owned_by_player": return _is_city_owned_by_player_mvp(str(args[0]))
+		"build_troop_allocation": return _build_command_limit_troop_allocation_for_heroes(_normalize_hero_id_array(args[0]), maxi(0, int(args[1])), str(args[2]))
+		"city_resource_amount": return _get_city_supply_resource_amount(str(args[0]), str(args[1]))
+		"city_resource_stock":
+			_ensure_city_supply_resource_defaults(str(args[0]))
+			return (_get_city_hud_entry(str(args[0])).get("resource_stock", {}) as Dictionary).duplicate(true)
+		"city_defense": return float(_get_city_hud_entry(str(args[0])).get("defense", 0))
+		"player_defense_bonus": return float(_get_player_battle_tech_modifier_mvp("combined", str(args[0])).get("global_defense_pct", 0.0))
+		"serialize_state": return _serialize_worldmap_state()
+		"result_applied":
+			var applied_result_ids: Variant = _player_state.get("applied_battle_result_ids", [])
+			return applied_result_ids is Array and (applied_result_ids as Array).has(str(args[0]))
+		"pending_invasion_transaction_id": return str(_get_pending_invasion_event_mvp().get("transaction_id", ""))
+	return null
+
+
+func _t03_transaction_mutation(mutation_id: String, args: Array) -> Variant:
+	match mutation_id:
+		"set_resource_stock":
+			var city_id := str(args[0])
+			var city_data := _get_mutable_city_runtime_state(city_id)
+			if city_data.is_empty() or not args[1] is Dictionary:
+				return false
+			city_data["resource_stock"] = (args[1] as Dictionary).duplicate(true)
+			_city_runtime_states[city_id] = city_data
+			return true
+		"set_city_troops":
+			_set_city_runtime_troops(str(args[0]), maxi(0, int(args[1])))
+			return true
+		"set_city_owner":
+			_set_city_runtime_owner(str(args[0]), str(args[1]))
+			return true
+		"move_pending_generals":
+			_move_generals_for_pending_expedition(str(args[0]), _normalize_hero_id_array(args[1]))
+			return true
+		"move_hero":
+			_move_hero_to_city_t02(str(args[0]), str(args[1]))
+			return true
+		"add_wounded":
+			_add_wounded_to_city_mvp(str(args[0]), maxi(0, int(args[1])), maxi(1, int(args[2])), str(args[3]), str(args[4]))
+			return true
+		"clear_wounded":
+			_clear_city_wounded_queue_mvp(str(args[0]))
+			return true
+		"settle_defender_generals":
+			return _settle_defender_generals_after_occupation(
+				str(args[0]), str(args[1]), str(args[2]),
+				_normalize_battle_result_hero_ids(args[3]), _normalize_battle_result_hero_ids(args[4]),
+				str(args[5]), str(args[6])
+			)
+		"set_pending_invasion_event":
+			_player_state["pending_invasion_event"] = (args[0] as Dictionary).duplicate(true)
+			return true
+		"set_pending_battle_context":
+			_set_pending_battle_context_mvp(args[0] as Dictionary)
+			return true
+		"mark_result_applied":
+			var applied_ids: Array = _player_state.get("applied_battle_result_ids", []) if _player_state.get("applied_battle_result_ids", []) is Array else []
+			if not applied_ids.has(str(args[0])):
+				applied_ids.append(str(args[0]))
+			_player_state["applied_battle_result_ids"] = applied_ids
+			return true
+		"clear_transaction_state":
+			_player_state["pending_battle_context"] = {}
+			_player_state["pending_invasion_event"] = {}
+			return true
+		"apply_state": return _apply_worldmap_state(args[0] as Dictionary)
+	return null
 
 
 func _battle_result_query(query_id: String, args: Array) -> Variant:
@@ -15571,270 +15667,73 @@ func _get_t03_eligible_city_hero_ids(city_id: String) -> Array[String]:
 
 
 func _get_t03_city_food_stock(city_id: String) -> Dictionary:
-	_ensure_city_supply_resource_defaults(city_id)
-	var stock := {"rice": 0, "barley": 0, "seafood": 0}
-	var city_data := _get_city_hud_entry(city_id)
-	var raw_stock: Variant = city_data.get("resource_stock", {})
-	if raw_stock is Dictionary:
-		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-			stock[food_type] = maxi(0, int((raw_stock as Dictionary).get(food_type, 0)))
-	return stock
+	return _ensure_t03_transaction_service().get_city_food_stock(city_id)
 
 
 func _get_t03_city_food_total(city_id: String) -> int:
-	var total := 0
-	for amount in _get_t03_city_food_stock(city_id).values():
-		total += maxi(0, int(amount))
-	return total
+	return _ensure_t03_transaction_service().sum_food_stock(_get_t03_city_food_stock(city_id))
 
 
 func _make_t03_transaction_id(attacker_city_id: String, defender_city_id: String) -> String:
-	return "t03-%d-%s-%s" % [maxi(1, int(_player_state.get("turn_number", 1))), attacker_city_id, defender_city_id]
+	return _ensure_t03_transaction_service().make_transaction_id(attacker_city_id, defender_city_id)
 
 
 func _build_t03_expedition_cargo_plan(city_id: String, troops: int) -> Dictionary:
-	_ensure_city_supply_resource_defaults(city_id)
-	var stock := _get_t03_city_food_stock(city_id)
-	# Load for the no-salt ceiling so optional salt shortage cannot make the
-	# nominal 30-turn expedition under-provisioned at confirmation time.
-	var target_food := ExpeditionSupplyCalculator.food_per_turn(troops, false) * ExpeditionSupplyCalculator.BATTLE_MAX_TURNS
-	var food_stock := {"rice": 0, "barley": 0, "seafood": 0}
-	var load_target := mini(target_food, _get_t03_city_food_total(city_id))
-	var food_left := load_target
-	while food_left > 0:
-		var selected_type := "rice"
-		var selected_amount := -1
-		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-			var available := maxi(0, int(stock.get(food_type, 0)))
-			if available > selected_amount:
-				selected_type = food_type
-				selected_amount = available
-		if selected_amount <= 0:
-			break
-		var loaded := mini(selected_amount, food_left)
-		food_stock[selected_type] = int(food_stock.get(selected_type, 0)) + loaded
-		stock[selected_type] = selected_amount - loaded
-		food_left -= loaded
-	var gold := ExpeditionSupplyCalculator.minimum_gold(troops)
-	var salt := mini(_get_city_supply_resource_amount(city_id, "salt"), ExpeditionSupplyCalculator.salt_per_turn(troops) * ExpeditionSupplyCalculator.BATTLE_MAX_TURNS)
-	return {
-		"gold": gold,
-		"food_stock": food_stock,
-		"food_total": load_target - food_left,
-		"salt": salt,
-		"ok": _get_city_supply_resource_amount(city_id, "gold") >= gold and load_target - food_left >= ExpeditionSupplyCalculator.minimum_food(troops),
-	}
+	return _ensure_t03_transaction_service().build_expedition_cargo_plan(city_id, troops)
 
 
 func _filter_t03_context_heroes(raw_heroes: Variant, hero_ids: Array[String], allocation: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	if not raw_heroes is Array:
-		return result
-	for hero_variant in raw_heroes:
-		if not hero_variant is Dictionary:
-			continue
-		var hero := (hero_variant as Dictionary).duplicate(true)
-		var hero_id := str(hero.get("hero_id", hero.get("id", "")))
-		if not hero_ids.has(hero_id):
-			continue
-		var troops := maxi(0, int(allocation.get(hero_id, 0)))
-		if troops <= 0:
-			continue
-		hero["troops"] = troops
-		hero["troop_count"] = troops
-		hero["allocated_troops"] = troops
-		result.append(hero)
-	return result
+	return _ensure_t03_transaction_service().filter_context_heroes(raw_heroes, hero_ids, allocation)
 
 
 func _prepare_t03_battle_transaction(event: Dictionary, base_context: Dictionary, resolution_mode: String) -> Dictionary:
-	var attacker_city_id := str(event.get("attacker_city_id", ""))
-	var defender_city_id := str(event.get("defender_city_id", ""))
-	if not _is_enemy_invasion_pair_eligible_mvp(attacker_city_id, defender_city_id):
-		return {}
-	var context := base_context.duplicate(true)
-	var attacker_hero_ids := _normalize_hero_id_array(context.get("attacker_main_hero_ids", context.get("attacker_hero_ids", [])))
-	var defender_hero_ids := _normalize_hero_id_array(context.get("selected_defender_hero_ids", []))
-	if defender_hero_ids.is_empty():
-		defender_hero_ids = _normalize_hero_id_array(context.get("defender_main_hero_ids", context.get("defender_hero_ids", [])))
-	if attacker_hero_ids.is_empty() or defender_hero_ids.is_empty():
-		return {}
-	var attacker_available := maxi(0, _get_city_troops_for_battle_context(attacker_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
-	var defender_available := maxi(0, _get_city_troops_for_battle_context(defender_city_id))
-	var attacker_allocation := _build_command_limit_troop_allocation_for_heroes(attacker_hero_ids, attacker_available, attacker_city_id)
-	var defender_allocation: Dictionary = context.get("defender_troop_allocation", {}).duplicate(true)
-	if resolution_mode == "automatic" or defender_allocation.is_empty():
-		defender_allocation = _build_command_limit_troop_allocation_for_heroes(defender_hero_ids, defender_available, defender_city_id)
-	var attacker_total := _sum_troop_allocation(attacker_allocation)
-	var defender_total := _sum_troop_allocation(defender_allocation)
-	if attacker_total <= 0 or defender_total <= 0:
-		return {}
-	var cargo := _build_t03_expedition_cargo_plan(attacker_city_id, attacker_total)
-	if not bool(cargo.get("ok", false)):
-		return {}
-	var rollback_state := _serialize_worldmap_state()
-	var rollback_player: Dictionary = rollback_state.get("player_state", {}).duplicate(true)
-	rollback_player["pending_invasion_event"] = event.duplicate(true)
-	rollback_state["player_state"] = rollback_player
-	var attacker_food_stock: Dictionary = cargo.get("food_stock", {}).duplicate(true)
-	var defender_food_stock := _get_t03_city_food_stock(defender_city_id)
-	context["type"] = "defense"
-	context["source"] = "enemy_invasion"
-	context["transaction_id"] = str(event.get("transaction_id", _make_t03_transaction_id(attacker_city_id, defender_city_id)))
-	context["scenario_id"] = str(_player_state.get("active_scenario_id", "korea_mvp_four_cities"))
-	context["resolution_mode"] = resolution_mode
-	context["mode"] = "auto" if resolution_mode == "automatic" else "manual"
-	context["player_side"] = "defender" if _get_city_owner_id_for_battle_context(defender_city_id) == _get_current_player_faction_id() else ""
-	context["attacker_faction_id"] = _get_city_owner_id_for_battle_context(attacker_city_id)
-	context["defender_faction_id"] = _get_city_owner_id_for_battle_context(defender_city_id)
-	context["attacker_general_ids"] = attacker_hero_ids
-	context["defender_general_ids"] = defender_hero_ids
-	context["attacker_troop_allocation"] = attacker_allocation
-	context["defender_troop_allocation"] = defender_allocation
-	context["attacker_total_allocated_troops"] = attacker_total
-	context["defender_total_allocated_troops"] = defender_total
-	context["attacker_heroes"] = _filter_t03_context_heroes(context.get("attacker_heroes", []), attacker_hero_ids, attacker_allocation)
-	context["defender_heroes"] = _filter_t03_context_heroes(context.get("defender_heroes", []), defender_hero_ids, defender_allocation)
-	context["attacker_food_stock"] = attacker_food_stock
-	context["attacker_food_type"] = _select_t03_food_type(attacker_food_stock)
-	context["attacker_food_amount"] = int(cargo.get("food_total", 0))
-	context["attacker_carried_gold"] = int(cargo.get("gold", 0))
-	context["attacker_salt_amount"] = int(cargo.get("salt", 0))
-	context["defender_food_stock"] = defender_food_stock
-	context["defender_food_type"] = _select_t03_food_type(defender_food_stock)
-	context["defender_food_amount"] = _sum_t03_food_stock(defender_food_stock)
-	context["defender_carried_gold"] = _get_city_supply_resource_amount(defender_city_id, "gold")
-	context["defender_salt_amount"] = _get_city_supply_resource_amount(defender_city_id, "salt")
-	var defender_city := _get_city_hud_entry(defender_city_id)
-	var city_defense_bonus := clampf(float(defender_city.get("defense", 0)) * 0.01, 0.0, 0.05)
-	var technology_defense_bonus := 0.0
-	if _is_city_owned_by_player_mvp(defender_city_id):
-		var defense_modifier := _get_player_battle_tech_modifier_mvp("combined", defender_city_id)
-		technology_defense_bonus = float(defense_modifier.get("global_defense_pct", 0.0))
-	context["defender_auto_defense_bonus"] = clampf(city_defense_bonus + technology_defense_bonus, 0.0, 0.15)
-	context["rollback_worldmap_state"] = rollback_state
-	_pay_t03_expedition_cargo(attacker_city_id, cargo)
-	context = _apply_context_side_troop_pre_decrement_mvp(context, "attacker", "attacker_troop_deployed_from_city")
-	context = _apply_context_side_troop_pre_decrement_mvp(context, "defender", "defender_troop_deployed_from_city")
-	_move_generals_for_pending_expedition(attacker_city_id, attacker_hero_ids)
-	_move_generals_for_pending_expedition(defender_city_id, defender_hero_ids)
-	var next_event := event.duplicate(true)
-	next_event["stage"] = "battle_handoff" if resolution_mode == "direct" else "automatic_settlement"
-	if str(context.get("player_side", "")).is_empty():
-		_player_state["pending_invasion_event"] = {}
-	else:
-		_player_state["pending_invasion_event"] = next_event
-	return context
+	var prepared := _ensure_t03_transaction_service().prepare(event, base_context, resolution_mode)
+	return (prepared.get("context", {}) as Dictionary).duplicate(true) if bool(prepared.get("ok", false)) else {}
 
 
 func _select_t03_food_type(food_stock: Dictionary) -> String:
-	var selected := "rice"
-	var selected_amount := -1
-	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-		var amount := maxi(0, int(food_stock.get(food_type, 0)))
-		if amount > selected_amount:
-			selected = food_type
-			selected_amount = amount
-	return selected
+	return _ensure_t03_transaction_service().select_food_type(food_stock)
 
 
 func _sum_t03_food_stock(food_stock: Dictionary) -> int:
-	var total := 0
-	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-		total += maxi(0, int(food_stock.get(food_type, 0)))
-	return total
+	return _ensure_t03_transaction_service().sum_food_stock(food_stock)
 
 
 func _pay_t03_expedition_cargo(city_id: String, cargo: Dictionary) -> void:
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	var food_stock: Dictionary = cargo.get("food_stock", {})
-	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-		stock[food_type] = maxi(0, int(stock.get(food_type, 0)) - int(food_stock.get(food_type, 0)))
-	stock["gold"] = maxi(0, int(stock.get("gold", 0)) - int(cargo.get("gold", 0)))
-	stock["salt"] = maxi(0, int(stock.get("salt", 0)) - int(cargo.get("salt", 0)))
-	city_data["resource_stock"] = stock
-	_city_runtime_states[city_id] = city_data
+	_ensure_t03_transaction_service().pay_expedition_cargo(city_id, cargo)
 
 
 func _rollback_t03_battle_transaction(context: Dictionary) -> void:
-	var rollback: Variant = context.get("rollback_worldmap_state", {})
-	if rollback is Dictionary and not (rollback as Dictionary).is_empty():
-		_apply_worldmap_state(rollback as Dictionary)
+	var rollback := _ensure_t03_transaction_service().rollback(context)
+	if bool(rollback.get("ok", false)):
 		_refresh_left_world_status_panel()
 
 
 func _resolve_t03_automatic_invasion(event: Dictionary) -> Dictionary:
 	if event.is_empty():
 		return {}
-	var transaction_id := str(event.get("transaction_id", _make_t03_transaction_id(str(event.get("attacker_city_id", "")), str(event.get("defender_city_id", "")))))
-	if _normalize_hero_id_array(_player_state.get("applied_battle_result_ids", [])).has("%s-result" % transaction_id):
-		return {}
 	var context := _build_battle_context_from_pending_invasion(event, "auto")
 	if context.is_empty():
 		return {}
-	context = _prepare_t03_battle_transaction(event, context, "automatic")
-	if context.is_empty():
+	var transaction := _ensure_t03_transaction_service().execute(event, context)
+	if not bool(transaction.get("ok", false)):
 		return {}
-	_set_pending_battle_context_mvp({"transaction_id": str(context.get("transaction_id", "")), "stage": "automatic_settlement"})
-	var result: Dictionary = T03AutoBattleResolverScript.resolve(context)
-	_apply_t03_strategic_battle_result(result, false)
+	var result: Dictionary = transaction.get("battle_result", {})
+	_finalize_t03_strategic_battle_result(result, transaction.get("settlement", {}), false)
 	return result
 
 
 func _apply_t03_strategic_battle_result(result: Dictionary, from_direct_battle: bool) -> void:
-	var transaction_id := str(result.get("transaction_id", ""))
-	var result_id := str(result.get("result_id", ""))
-	var applied_ids := _normalize_hero_id_array(_player_state.get("applied_battle_result_ids", []))
-	if transaction_id.is_empty() or result_id.is_empty() or applied_ids.has(result_id):
+	var settlement := _ensure_t03_transaction_service().apply_result(result, from_direct_battle)
+	if not bool(settlement.get("ok", false)):
+		_set_save_management_status("T03 전투 결과 정산 실패 · %s" % str(settlement.get("error_code", "unknown")))
+		_refresh_left_world_status_panel()
 		return
-	if from_direct_battle:
-		var pending_event := _get_pending_invasion_event_mvp()
-		if pending_event.is_empty() or str(pending_event.get("transaction_id", "")) != transaction_id:
-			print("[T03_SETTLEMENT_REJECT] transaction mismatch result=%s pending=%s" % [transaction_id, str(pending_event.get("transaction_id", ""))])
-			return
-	var attacker_city_id := str(result.get("attacker_source_city_id", result.get("attacker_city_id", "")))
-	var defender_city_id := str(result.get("defender_city_id", ""))
-	if attacker_city_id.is_empty() or defender_city_id.is_empty():
-		return
-	var attacker_owner := str(result.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
-	var defender_owner := str(result.get("defender_owner", _get_city_owner_id_for_battle_context(defender_city_id)))
-	var attacker_won := str(result.get("winner_side", result.get("winner", "defender"))) == "attacker"
-	var attacker_healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
-	var defender_healthy := maxi(0, int(result.get("defender_healthy_survivors", 0)))
-	var attacker_wounded := maxi(0, int(result.get("attacker_wounded", 0)))
-	var defender_wounded := maxi(0, int(result.get("defender_wounded", 0)))
-	var attacker_generals := _normalize_battle_result_hero_ids(result.get("attacker_general_ids", []))
-	var defender_generals := _normalize_battle_result_hero_ids(result.get("defender_general_ids", []))
-	var attacker_surviving_generals := _normalize_battle_result_hero_ids(result.get("attacker_surviving_general_ids", attacker_generals))
-	var defender_surviving_generals := _normalize_battle_result_hero_ids(result.get("defender_surviving_general_ids", defender_generals))
-	_apply_t03_defender_supply_result(defender_city_id, result)
-	if attacker_won:
-		_set_city_runtime_owner(defender_city_id, attacker_owner)
-		var disposition := _settle_defender_generals_after_occupation(defender_city_id, defender_owner, attacker_owner, defender_generals, defender_surviving_generals, transaction_id, result_id)
-		var retreat_city_id := str(disposition.get("primary_escape_city_id", ""))
-		if not retreat_city_id.is_empty():
-			_set_city_runtime_troops(retreat_city_id, _get_city_troops_for_battle_context(retreat_city_id) + defender_healthy)
-			_add_wounded_to_city_mvp(retreat_city_id, defender_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		_set_city_runtime_troops(defender_city_id, attacker_healthy)
-		_clear_city_wounded_queue_mvp(defender_city_id)
-		_add_wounded_to_city_mvp(defender_city_id, attacker_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		_add_t03_attacker_cargo_to_city(defender_city_id, result)
-		for hero_id in attacker_surviving_generals:
-			_move_hero_to_city_t02(hero_id, defender_city_id)
-	else:
-		_set_city_runtime_troops(attacker_city_id, _get_city_troops_for_battle_context(attacker_city_id) + attacker_healthy)
-		_set_city_runtime_troops(defender_city_id, _get_city_troops_for_battle_context(defender_city_id) + defender_healthy)
-		_add_wounded_to_city_mvp(attacker_city_id, attacker_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		_add_wounded_to_city_mvp(defender_city_id, defender_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		for hero_id in attacker_surviving_generals:
-			_move_hero_to_city_t02(hero_id, attacker_city_id)
-		for hero_id in defender_surviving_generals:
-			_move_hero_to_city_t02(hero_id, defender_city_id)
-	applied_ids.append(result_id)
-	_player_state["applied_battle_result_ids"] = applied_ids
-	_player_state["pending_battle_context"] = {}
-	_player_state["pending_invasion_event"] = {}
+	_finalize_t03_strategic_battle_result(result, settlement, from_direct_battle)
+
+
+func _finalize_t03_strategic_battle_result(result: Dictionary, settlement: Dictionary, from_direct_battle: bool) -> void:
+	result["_t03_transaction_settlement"] = settlement.duplicate(true)
 	_player_state["korea_unification_victory"] = _get_player_owned_korea_mvp_city_count() >= 4
 	_player_state["korea_player_defeat"] = _get_player_owned_korea_mvp_city_count() <= 0
 	_rebuild_occupation_runtime_indexes_mvp()
@@ -15851,31 +15750,11 @@ func _apply_t03_strategic_battle_result(result: Dictionary, from_direct_battle: 
 
 
 func _apply_t03_defender_supply_result(city_id: String, result: Dictionary) -> void:
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	var remaining: Variant = result.get("defender_remaining_food_stock", {})
-	if remaining is Dictionary:
-		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-			stock[food_type] = maxi(0, int((remaining as Dictionary).get(food_type, 0)))
-	else:
-		stock[str(result.get("defender_remaining_food_type", "rice"))] = maxi(0, int(result.get("defender_remaining_food", 0)))
-	stock["gold"] = maxi(0, int(result.get("defender_remaining_gold", stock.get("gold", 0))))
-	stock["salt"] = maxi(0, int(result.get("defender_remaining_salt", stock.get("salt", 0))))
-	city_data["resource_stock"] = stock
-	_city_runtime_states[city_id] = city_data
+	_ensure_t03_transaction_service().apply_defender_supply(city_id, result)
 
 
 func _add_t03_attacker_cargo_to_city(city_id: String, result: Dictionary) -> void:
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	var remaining: Variant = result.get("attacker_remaining_food_stock", {})
-	if remaining is Dictionary:
-		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
-			stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int((remaining as Dictionary).get(food_type, 0)))
-	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(result.get("attacker_remaining_gold", 0)))
-	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(result.get("attacker_remaining_salt", 0)))
-	city_data["resource_stock"] = stock
-	_city_runtime_states[city_id] = city_data
+	_ensure_t03_transaction_service().add_attacker_cargo(city_id, result)
 
 
 func _build_t03_battle_report(result: Dictionary) -> Dictionary:

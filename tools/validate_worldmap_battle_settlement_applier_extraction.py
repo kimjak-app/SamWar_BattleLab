@@ -42,12 +42,16 @@ for wrapper in [
 
 m4_functions = functions(M4)
 for protected in [
-    "_prepare_t03_battle_transaction", "_pay_t03_expedition_cargo",
-    "_rollback_t03_battle_transaction", "_resolve_t03_automatic_invasion",
-    "_apply_t03_strategic_battle_result", "_build_t03_battle_report",
-    "_queue_t03_automatic_battle_report", "_try_present_next_t03_battle_report",
-    "_show_t03_battle_report_card",
+    "_build_t03_battle_report", "_queue_t03_automatic_battle_report",
+    "_try_present_next_t03_battle_report", "_show_t03_battle_report_card",
 ]:
     assert main_functions[protected] == m4_functions[protected], f"T03 protected function changed: {protected}"
+
+for extracted in [
+    "_prepare_t03_battle_transaction", "_pay_t03_expedition_cargo",
+    "_rollback_t03_battle_transaction", "_resolve_t03_automatic_invasion",
+    "_apply_t03_strategic_battle_result",
+]:
+    assert "_ensure_t03_transaction_service()" in main_functions[extracted], f"M-6 T03 wrapper does not delegate: {extracted}"
 
 print("PASS: M-5 settlement applier boundary, coordinator route, report contract, wrappers, and T03 protection")
