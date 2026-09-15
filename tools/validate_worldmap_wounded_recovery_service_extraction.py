@@ -77,10 +77,6 @@ assert '"set_hero_status"' in settlement and "_apply_battle_settlement_hero_stat
 assert "BattleResultService" not in SERVICE and "BattleSettlementApplier" not in SERVICE
 
 for protected in [
-    "_build_t03_battle_report", "_queue_t03_automatic_battle_report",
-    "_setup_t03_battle_presentation", "_try_present_next_t03_battle_report",
-    "_on_t03_battle_video_skipped", "_on_t03_battle_video_finished",
-    "_show_t03_battle_report_card", "_on_t03_battle_report_confirmed",
     "_is_hero_captured_for_battle", "_get_hero_battle_exclusion_reason",
     "_sync_worldmap_hero_locations_from_city_runtime_states",
     "_rebuild_occupation_runtime_indexes_mvp",

@@ -23,6 +23,7 @@ const SpyPresentationHelperScript := preload("res://scripts/worldmap/actions/spy
 const MilitaryControllerScript := preload("res://scripts/worldmap/military/military_controller.gd")
 const EnemyWarfareServiceScript := preload("res://scripts/worldmap/military/enemy_warfare_service.gd")
 const WoundedRecoveryServiceScript := preload("res://scripts/worldmap/military/wounded_recovery_service.gd")
+const T03BattlePresentationControllerScript := preload("res://scripts/worldmap/t03/t03_battle_presentation_controller.gd")
 const BattleContextServiceScript := preload("res://scripts/worldmap/battle/battle_context_service.gd")
 const BattleResultServiceScript := preload("res://scripts/worldmap/battle/battle_result_service.gd")
 const BattleSettlementApplierScript := preload("res://scripts/worldmap/battle/battle_settlement_applier.gd")
@@ -1033,6 +1034,7 @@ var _battle_result_service: BattleResultServiceScript = null
 var _battle_settlement_applier: BattleSettlementApplierScript = null
 var _t03_transaction_service: StrategicBattleTransactionServiceScript = null
 var _wounded_recovery_service: WoundedRecoveryServiceScript = null
+var _t03_battle_presentation: T03BattlePresentationControllerScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1255,9 +1257,6 @@ var _domestic_tech_completion_confirm_button: Button = null
 @onready var _t05_outcome_body: Label = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/Body
 @onready var _t05_outcome_save_button: Button = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow/SaveButton
 @onready var _t05_outcome_new_game_button: Button = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow/NewGameButton
-var _t03_active_report: Dictionary = {}
-
-
 func _ready() -> void:
 	_default_player_state = _player_state.duplicate(true)
 	var new_game_faction_id: String = str(_get_game_session().consume_new_game_faction_id())
@@ -2051,6 +2050,50 @@ func _wounded_recovery_mutation(mutation_id: String, args: Array) -> Variant:
 			return true
 		"set_last_wounded_treatment":
 			_player_state["last_wounded_treatment"] = (args[0] as Dictionary).duplicate(true)
+			return true
+	return null
+
+
+func _ensure_t03_battle_presentation() -> T03BattlePresentationControllerScript:
+	if _t03_battle_presentation == null:
+		_t03_battle_presentation = T03BattlePresentationControllerScript.new()
+		_t03_battle_presentation.name = "T03BattlePresentationController"
+		add_child(_t03_battle_presentation)
+		_t03_battle_presentation.configure(
+			{
+				"root": _t03_battle_presentation_root,
+				"video_player": _t03_battle_video_player,
+				"video_labels": _t03_battle_video_labels,
+				"skip_button": _t03_battle_skip_button,
+				"result_card": _t03_battle_result_card,
+				"result_title": _t03_battle_result_title,
+				"result_body": _t03_battle_result_body,
+				"confirm_button": _t03_battle_result_confirm_button,
+			},
+			Callable(self, "_t03_battle_presentation_query"),
+			Callable(self, "_t03_battle_presentation_mutation"),
+			Callable(self, "_format_faction_label"),
+			Callable(self, "_format_city_name_by_id"),
+			T03_AI_BATTLE_VIDEO_PATH
+		)
+		_t03_battle_presentation.presentation_completed.connect(_on_t03_battle_presentation_completed)
+	return _t03_battle_presentation
+
+
+func _t03_battle_presentation_query(query_id: String, _args: Array) -> Variant:
+	match query_id:
+		"report_queue": return (_player_state.get("t03_automatic_battle_reports", []) as Array).duplicate(true)
+		"acknowledged_report_ids": return (_player_state.get("t03_acknowledged_report_ids", []) as Array).duplicate()
+	return null
+
+
+func _t03_battle_presentation_mutation(mutation_id: String, args: Array) -> Variant:
+	match mutation_id:
+		"set_report_queue":
+			_player_state["t03_automatic_battle_reports"] = (args[0] as Array).duplicate(true)
+			return true
+		"set_acknowledged_report_ids":
+			_player_state["t03_acknowledged_report_ids"] = (args[0] as Array).duplicate()
 			return true
 	return null
 
@@ -15806,54 +15849,16 @@ func _add_t03_attacker_cargo_to_city(city_id: String, result: Dictionary) -> voi
 
 
 func _build_t03_battle_report(result: Dictionary) -> Dictionary:
-	var attacker_city_id := str(result.get("attacker_city_id", result.get("attacker_source_city_id", "")))
-	var defender_city_id := str(result.get("defender_city_id", ""))
-	var attacker_owner := str(result.get("attacker_owner", ""))
-	var defender_owner := str(result.get("defender_owner", ""))
-	var attacker_won := str(result.get("winner_side", result.get("winner", "defender"))) == "attacker"
-	var title := "%s군이 %s을 점령했습니다." % [_format_faction_label(attacker_owner), _format_city_name_by_id(defender_city_id, defender_city_id)] if attacker_won else "%s군이 방어에 성공했습니다." % _format_faction_label(defender_owner)
-	return {
-		"report_id": str(result.get("result_id", "")),
-		"transaction_id": str(result.get("transaction_id", "")),
-		"attacker_city_id": attacker_city_id,
-		"defender_city_id": defender_city_id,
-		"attacker_owner": attacker_owner,
-		"defender_owner": defender_owner,
-		"title": title,
-		"labels": "%s군\n%s → %s\n%s군" % [_format_faction_label(attacker_owner), _format_city_name_by_id(attacker_city_id, attacker_city_id), _format_city_name_by_id(defender_city_id, defender_city_id), _format_faction_label(defender_owner)],
-		"lines": [
-			"%s군이 %s을 공격했습니다." % [_format_faction_label(attacker_owner), _format_city_name_by_id(defender_city_id, defender_city_id)],
-			"공격군 · 정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [int(result.get("attacker_healthy_survivors", 0)), int(result.get("attacker_wounded", 0)), int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))],
-			"방어군 · 정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [int(result.get("defender_healthy_survivors", 0)), int(result.get("defender_wounded", 0)), int(result.get("defender_dead", 0)), int(result.get("defender_deserters", 0))],
-			"전투 %d턴 종료 · %s" % [int(result.get("completed_turn", 0)), "30턴 수비 승리" if str(result.get("result_reason", "")) == "turn_limit" else "전투 종료"],
-		],
-	}
+	return _ensure_t03_battle_presentation().build_report(result)
 
 
 func _queue_t03_automatic_battle_report(report: Dictionary) -> void:
-	if report.is_empty():
-		return
-	var queue: Array = _player_state.get("t03_automatic_battle_reports", [])
-	var report_id := str(report.get("report_id", ""))
-	for queued_variant in queue:
-		if queued_variant is Dictionary and str((queued_variant as Dictionary).get("report_id", "")) == report_id:
-			return
-	queue.append(report.duplicate(true))
-	_player_state["t03_automatic_battle_reports"] = queue
+	_ensure_t03_battle_presentation().enqueue_report(report)
 
 
 
 func _setup_t03_battle_presentation() -> void:
-	_t03_battle_presentation_root.visible = false
-	_t03_battle_result_card.visible = false
-	if not _t03_battle_skip_button.pressed.is_connected(_on_t03_battle_video_skipped):
-		_t03_battle_skip_button.pressed.connect(_on_t03_battle_video_skipped)
-	if not _t03_battle_result_confirm_button.pressed.is_connected(_on_t03_battle_report_confirmed):
-		_t03_battle_result_confirm_button.pressed.connect(_on_t03_battle_report_confirmed)
-	if not _t03_battle_video_player.finished.is_connected(_on_t03_battle_video_finished):
-		_t03_battle_video_player.finished.connect(_on_t03_battle_video_finished)
-	if ResourceLoader.exists(T03_AI_BATTLE_VIDEO_PATH):
-		_t03_battle_video_player.stream = load(T03_AI_BATTLE_VIDEO_PATH) as VideoStream
+	_ensure_t03_battle_presentation().setup()
 	call_deferred("_try_present_next_t03_battle_report")
 
 
@@ -15861,70 +15866,28 @@ func _try_present_next_t03_battle_report() -> void:
 	if _has_terminal_korea_outcome_mvp():
 		_present_t05_outcome_if_needed()
 		return
-	if _t03_battle_presentation_root.visible or _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
 		return
-	var acknowledged: Array = _player_state.get("t03_acknowledged_report_ids", [])
-	var queue: Array = _player_state.get("t03_automatic_battle_reports", [])
-	while not queue.is_empty():
-		var candidate: Variant = queue[0]
-		if candidate is Dictionary and not acknowledged.has(str((candidate as Dictionary).get("report_id", ""))):
-			_t03_active_report = (candidate as Dictionary).duplicate(true)
-			break
-		queue.pop_front()
-	_player_state["t03_automatic_battle_reports"] = queue
-	if _t03_active_report.is_empty():
-		return
-	_t03_battle_presentation_root.visible = true
-	_t03_battle_result_card.visible = false
-	_t03_battle_video_labels.visible = true
-	_t03_battle_video_labels.text = str(_t03_active_report.get("labels", ""))
-	_t03_battle_skip_button.visible = true
-	_t03_battle_video_player.visible = true
-	if _t03_battle_video_player.stream != null:
-		_t03_battle_video_player.play()
-	else:
-		_show_t03_battle_report_card()
+	_ensure_t03_battle_presentation().try_present_next()
 
 
 func _on_t03_battle_video_skipped() -> void:
-	_t03_battle_video_player.stop()
-	_show_t03_battle_report_card()
+	_ensure_t03_battle_presentation().skip_video()
 
 
 func _on_t03_battle_video_finished() -> void:
-	_show_t03_battle_report_card()
+	_ensure_t03_battle_presentation().finish_video()
 
 
 func _show_t03_battle_report_card() -> void:
-	if _t03_active_report.is_empty():
-		return
-	_t03_battle_video_player.visible = false
-	_t03_battle_video_labels.visible = false
-	_t03_battle_skip_button.visible = false
-	_t03_battle_result_card.visible = true
-	_t03_battle_result_title.text = str(_t03_active_report.get("title", "전투 결과"))
-	var lines: Variant = _t03_active_report.get("lines", [])
-	var formatted_lines: Array[String] = []
-	if lines is Array:
-		for line in lines:
-			formatted_lines.append(str(line))
-	_t03_battle_result_body.text = "\n\n".join(formatted_lines) if lines is Array else str(lines)
+	_ensure_t03_battle_presentation().show_result_card()
 
 
 func _on_t03_battle_report_confirmed() -> void:
-	var report_id := str(_t03_active_report.get("report_id", ""))
-	var acknowledged: Array = _player_state.get("t03_acknowledged_report_ids", [])
-	if not report_id.is_empty() and not acknowledged.has(report_id):
-		acknowledged.append(report_id)
-	_player_state["t03_acknowledged_report_ids"] = acknowledged
-	var next_queue: Array = []
-	for queued_variant in (_player_state.get("t03_automatic_battle_reports", []) as Array):
-		if queued_variant is Dictionary and str((queued_variant as Dictionary).get("report_id", "")) == report_id:
-			continue
-		next_queue.append(queued_variant)
-	_player_state["t03_automatic_battle_reports"] = next_queue
-	_t03_active_report = {}
-	_t03_battle_presentation_root.visible = false
+	_ensure_t03_battle_presentation().confirm_report()
+
+
+func _on_t03_battle_presentation_completed(_result: Dictionary) -> void:
 	_save_worldmap_state()
 	if _has_terminal_korea_outcome_mvp():
 		call_deferred("_present_t05_outcome_if_needed")
@@ -15976,10 +15939,7 @@ func _has_terminal_korea_outcome_mvp() -> bool:
 func _present_t05_outcome_if_needed() -> void:
 	if not _has_terminal_korea_outcome_mvp() or _t05_outcome_presentation_root == null:
 		return
-	if _t03_battle_video_player != null:
-		_t03_battle_video_player.stop()
-	if _t03_battle_presentation_root != null:
-		_t03_battle_presentation_root.visible = false
+	_ensure_t03_battle_presentation().reset_presentation()
 	_t05_outcome_presentation_root.visible = true
 	var outcome: Dictionary = _player_state.get("game_outcome", {})
 	var status := str(outcome.get("status", TurnOutcomeRulesScript.OUTCOME_ACTIVE))

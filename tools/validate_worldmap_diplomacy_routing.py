@@ -173,6 +173,17 @@ _advance_wounded_hero_recovery_turns
 _serialize_worldmap_hero_runtime_state
 _normalize_hero_runtime_state
 """.split())
+M8_T03_PRESENTATION_REWIRED = set("""
+_build_t03_battle_report
+_queue_t03_automatic_battle_report
+_setup_t03_battle_presentation
+_try_present_next_t03_battle_report
+_on_t03_battle_video_skipped
+_on_t03_battle_video_finished
+_show_t03_battle_report_card
+_on_t03_battle_report_confirmed
+_present_t05_outcome_if_needed
+""".split())
 SERVICE_REMOVED = {
     "_log_invasion_reinforcement_rule_summary",
     "_get_hero_contract_nation_key",
@@ -330,6 +341,8 @@ def main():
             elif name in M6_T03_TRANSACTION_REWIRED:
                 continue
             elif name in M7_WOUNDED_RECOVERY_REWIRED:
+                continue
+            elif name in M8_T03_PRESENTATION_REWIRED:
                 continue
             elif name in SERVICE_REWIRED:
                 assert name in service_checkpoint, f"service checkpoint function missing: {name}"
