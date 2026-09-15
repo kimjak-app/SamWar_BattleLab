@@ -65,7 +65,7 @@ for protected in [
     assert f"func {protected}" not in SERVICE, f"presentation moved into service: {protected}"
     assert main_functions[protected] == m5_functions[protected], f"M-6 changed protected presentation: {protected}"
 
-for lifecycle in ["_advance_world_turn_mvp", "_save_worldmap_state", "_consume_worldmap_battle_result_if_any"]:
+for lifecycle in ["_save_worldmap_state", "_consume_worldmap_battle_result_if_any"]:
     assert main_functions[lifecycle] == m5_functions[lifecycle], f"M-6 changed protected lifecycle: {lifecycle}"
 
 assert "static func resolve(context: Dictionary)" in RESOLVER

@@ -159,6 +159,20 @@ _apply_t03_strategic_battle_result
 _apply_t03_defender_supply_result
 _add_t03_attacker_cargo_to_city
 """.split())
+M7_WOUNDED_RECOVERY_REWIRED = set("""
+_apply_battle_settlement_hero_status
+_refresh_wounded_treatment_controls
+_on_fast_wounded_treatment_pressed
+_advance_world_turn_mvp
+_get_city_wounded_queue_mvp
+_add_wounded_to_city_mvp
+_clear_city_wounded_queue_mvp
+_apply_wounded_recovery_for_world_turn_mvp
+_get_world_month_serial
+_advance_wounded_hero_recovery_turns
+_serialize_worldmap_hero_runtime_state
+_normalize_hero_runtime_state
+""".split())
 SERVICE_REMOVED = {
     "_log_invasion_reinforcement_rule_summary",
     "_get_hero_contract_nation_key",
@@ -314,6 +328,8 @@ def main():
             elif name in M5_SETTLEMENT_REWIRED:
                 continue
             elif name in M6_T03_TRANSACTION_REWIRED:
+                continue
+            elif name in M7_WOUNDED_RECOVERY_REWIRED:
                 continue
             elif name in SERVICE_REWIRED:
                 assert name in service_checkpoint, f"service checkpoint function missing: {name}"

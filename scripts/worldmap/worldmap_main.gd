@@ -22,6 +22,7 @@ const SpyControllerScript := preload("res://scripts/worldmap/actions/spy_control
 const SpyPresentationHelperScript := preload("res://scripts/worldmap/actions/spy_presentation_helper.gd")
 const MilitaryControllerScript := preload("res://scripts/worldmap/military/military_controller.gd")
 const EnemyWarfareServiceScript := preload("res://scripts/worldmap/military/enemy_warfare_service.gd")
+const WoundedRecoveryServiceScript := preload("res://scripts/worldmap/military/wounded_recovery_service.gd")
 const BattleContextServiceScript := preload("res://scripts/worldmap/battle/battle_context_service.gd")
 const BattleResultServiceScript := preload("res://scripts/worldmap/battle/battle_result_service.gd")
 const BattleSettlementApplierScript := preload("res://scripts/worldmap/battle/battle_settlement_applier.gd")
@@ -1031,6 +1032,7 @@ var _battle_context_service: BattleContextServiceScript = null
 var _battle_result_service: BattleResultServiceScript = null
 var _battle_settlement_applier: BattleSettlementApplierScript = null
 var _t03_transaction_service: StrategicBattleTransactionServiceScript = null
+var _wounded_recovery_service: WoundedRecoveryServiceScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1151,6 +1153,7 @@ var _player_state := {
 	"owned_city_ids": ["hanseong"],
 	"owned_hero_ids": ["yi_sun_sin", "jeong_do_jeon", "kwon_yul", "cheok_jun_gyeong"],
 	"turn_number": 1,
+	"last_wounded_recovery_month_serial": -1,
 	"turn_phase": TURN_PHASE_PLAYER,
 	"turn_label": "제 1턴",
 	"year_label": "154년 봄 1일",
@@ -1969,6 +1972,86 @@ func _t03_transaction_mutation(mutation_id: String, args: Array) -> Variant:
 			_player_state["pending_invasion_event"] = {}
 			return true
 		"apply_state": return _apply_worldmap_state(args[0] as Dictionary)
+	return null
+
+
+func _ensure_wounded_recovery_service() -> WoundedRecoveryServiceScript:
+	if _wounded_recovery_service == null:
+		_wounded_recovery_service = WoundedRecoveryServiceScript.new()
+		_wounded_recovery_service.configure(
+			Callable(self, "_wounded_recovery_query"),
+			Callable(self, "_wounded_recovery_mutation"),
+			{
+				"normal_status": HERO_RUNTIME_STATUS_NORMAL,
+				"wounded_status": HERO_RUNTIME_STATUS_WOUNDED,
+				"captured_status": HERO_RUNTIME_STATUS_CAPTURED,
+				"dead_status": HERO_RUNTIME_STATUS_DEAD,
+				"allowed_statuses": [HERO_RUNTIME_STATUS_NORMAL, HERO_RUNTIME_STATUS_WOUNDED, HERO_RUNTIME_STATUS_CAPTURED, HERO_RUNTIME_STATUS_DEAD],
+				"normal_recovery_months": DEFAULT_WOUNDED_RECOVERY_TURNS,
+				"fast_recovery_months": ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS,
+				"world_calendar_year_turns": WORLD_CALENDAR_YEAR_TURNS,
+			}
+		)
+	return _wounded_recovery_service
+
+
+func _wounded_recovery_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"has_hero": return not _get_hero_seed_entry(str(args[0])).is_empty()
+		"hero_state":
+			var hero_id := str(args[0])
+			var raw_state := _get_existing_hero_runtime_state(hero_id)
+			var normalized := _normalize_hero_runtime_state(hero_id, raw_state)
+			for key in ["last_battle_current_troops", "last_battle_max_troops", "last_battle_transaction_id"]:
+				if raw_state.has(key):
+					normalized[key] = raw_state.get(key)
+			return normalized
+		"hero_ids": return _hero_runtime_states.keys()
+		"has_city": return _has_city_for_battle_context(str(args[0]))
+		"city_ids": return _city_runtime_states.keys()
+		"city_state": return _get_mutable_city_runtime_state(str(args[0])).duplicate(true)
+		"city_troops": return _get_city_troops_for_battle_context(str(args[0]))
+		"city_resource_amount": return _get_city_supply_resource_amount(str(args[0]), str(args[1]))
+		"last_recovery_month_serial": return int(_player_state.get("last_wounded_recovery_month_serial", -1))
+	return null
+
+
+func _wounded_recovery_mutation(mutation_id: String, args: Array) -> Variant:
+	match mutation_id:
+		"set_hero_state":
+			var hero_id := str(args[0])
+			if hero_id.is_empty() or not args[1] is Dictionary:
+				return false
+			_hero_runtime_states[hero_id] = (args[1] as Dictionary).duplicate(true)
+			return true
+		"set_city_wounded_queue":
+			var city_id := str(args[0])
+			var city_data := _get_mutable_city_runtime_state(city_id)
+			if city_data.is_empty() or not args[1] is Array:
+				return false
+			city_data["woundedQueue"] = (args[1] as Array).duplicate(true)
+			city_data["wounded_queue"] = (args[1] as Array).duplicate(true)
+			_city_runtime_states[city_id] = city_data
+			return true
+		"set_city_troops":
+			_set_city_runtime_troops(str(args[0]), maxi(0, int(args[1])))
+			return true
+		"set_city_resource_amount":
+			var city_id := str(args[0])
+			var city_data := _get_mutable_city_runtime_state(city_id)
+			if city_data.is_empty():
+				return false
+			var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+			stock[str(args[1])] = maxi(0, int(args[2]))
+			city_data["resource_stock"] = stock
+			_city_runtime_states[city_id] = city_data
+			return true
+		"set_last_recovery_month_serial":
+			_player_state["last_wounded_recovery_month_serial"] = int(args[0])
+			return true
+		"set_last_wounded_treatment":
+			_player_state["last_wounded_treatment"] = (args[0] as Dictionary).duplicate(true)
+			return true
 	return null
 
 
@@ -8026,22 +8109,8 @@ func _apply_battle_settlement_hero_faction(hero_id: String, faction_id: String, 
 
 
 func _apply_battle_settlement_hero_status(hero_id: String, status: String, outcome: Dictionary, transaction_id: String) -> bool:
-	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
-		return false
-	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-	if bool(hero_state.get("captured", false)) or bool(hero_state.get("dead", false)):
-		return false
-	hero_state["status"] = status
-	hero_state["wounded"] = status == HERO_RUNTIME_STATUS_WOUNDED
-	hero_state["captured"] = status == HERO_RUNTIME_STATUS_CAPTURED
-	hero_state["dead"] = status == HERO_RUNTIME_STATUS_DEAD
-	hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS if status == HERO_RUNTIME_STATUS_WOUNDED else 0
-	if not outcome.is_empty():
-		hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
-		hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
-		hero_state["last_battle_transaction_id"] = transaction_id
-	_hero_runtime_states[hero_id] = hero_state
-	return true
+	var result := _ensure_wounded_recovery_service().apply_battle_hero_status(hero_id, status, outcome, transaction_id)
+	return bool(result.get("ok", false))
 
 
 func _record_battle_defender_disposition(disposition: Dictionary) -> void:
@@ -8088,42 +8157,21 @@ func _refresh_wounded_treatment_controls() -> void:
 	if _wounded_fast_treatment_button == null or _wounded_treatment_hint_label == null:
 		return
 	var treatment: Dictionary = _player_state.get("last_wounded_treatment", {}) if _player_state.get("last_wounded_treatment", {}) is Dictionary else {}
-	var wounded := maxi(0, int(treatment.get("wounded_count", 0)))
-	var city_id := str(treatment.get("city_id", ""))
-	var required_salt := ExpeditionSupplyCalculator.fast_recovery_salt(wounded)
-	var available_salt := _get_city_supply_resource_amount(city_id, "salt") if not city_id.is_empty() else 0
+	var eligibility := _ensure_wounded_recovery_service().evaluate_fast_treatment(treatment)
+	var required_salt := maxi(0, int(eligibility.get("required_salt", 0)))
+	var available_salt := maxi(0, int(eligibility.get("available_salt", 0)))
 	var is_fast := str(treatment.get("mode", "normal")) == "fast"
 	_wounded_fast_treatment_button.text = "집중 치료 (소금 %d · 1개월)" % required_salt
-	_wounded_fast_treatment_button.disabled = wounded <= 0 or is_fast or available_salt < required_salt
+	_wounded_fast_treatment_button.disabled = not bool(eligibility.get("ok", false))
 	_wounded_treatment_hint_label.text = "집중 치료 필요 소금 %d / 도시 보유 %d%s" % [required_salt, available_salt, " · 적용 완료" if is_fast else ""]
 
 
 func _on_fast_wounded_treatment_pressed() -> void:
 	var treatment: Dictionary = _player_state.get("last_wounded_treatment", {}) if _player_state.get("last_wounded_treatment", {}) is Dictionary else {}
-	var city_id := str(treatment.get("city_id", ""))
-	var transaction_id := str(treatment.get("transaction_id", ""))
-	var wounded := maxi(0, int(treatment.get("wounded_count", 0)))
-	var required_salt := ExpeditionSupplyCalculator.fast_recovery_salt(wounded)
-	if city_id.is_empty() or wounded <= 0 or _get_city_supply_resource_amount(city_id, "salt") < required_salt:
+	var result := _ensure_wounded_recovery_service().apply_fast_treatment(treatment)
+	if not bool(result.get("ok", false)):
 		_refresh_wounded_treatment_controls()
 		return
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
-	stock["salt"] = maxi(0, int(stock.get("salt", 0)) - required_salt)
-	var queue := _get_city_wounded_queue_mvp(city_data)
-	for index in range(queue.size()):
-		var entry: Dictionary = queue[index]
-		if str(entry.get("source_transaction_id", "")) == transaction_id:
-			entry["recovery_mode"] = "fast"
-			entry["recovery_months_remaining"] = ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS
-			entry["turnsLeft"] = ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS
-			queue[index] = entry
-	city_data["resource_stock"] = stock
-	city_data["woundedQueue"] = queue
-	city_data["wounded_queue"] = queue.duplicate(true)
-	_city_runtime_states[city_id] = city_data
-	treatment["mode"] = "fast"
-	_player_state["last_wounded_treatment"] = treatment
 	_refresh_wounded_treatment_controls()
 	_refresh_city_hud_data_bindings()
 	_save_worldmap_state()
@@ -15996,127 +16044,37 @@ func _advance_world_turn_mvp() -> void:
 	var previous_month_serial := _get_world_month_serial(current_turn)
 	var next_turn := current_turn + 1
 	_player_state["turn_number"] = next_turn
-	if _get_world_month_serial(next_turn) != previous_month_serial:
-		_advance_wounded_hero_recovery_turns()
-		_apply_wounded_recovery_for_world_turn_mvp()
+	var next_month_serial := _get_world_month_serial(next_turn)
+	if next_month_serial != previous_month_serial:
+		_ensure_wounded_recovery_service().advance_recovery_month(next_month_serial)
 	_update_world_turn_labels()
 	_refresh_city_hud_data_bindings()
 
 
 func _get_city_wounded_queue_mvp(city_data: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	var raw_queue: Variant = city_data.get("woundedQueue", city_data.get("wounded_queue", []))
-	if not raw_queue is Array:
-		return result
-	for raw_entry in raw_queue:
-		if not raw_entry is Dictionary:
-			continue
-		var entry := raw_entry as Dictionary
-		var troops := maxi(0, int(entry.get("wounded_count", entry.get("troops", 0))))
-		var turns_left := maxi(0, int(entry.get("recovery_months_remaining", entry.get("turnsLeft", entry.get("turns_left", 0)))))
-		if troops <= 0:
-			continue
-		result.append({
-			"wounded_count": troops,
-			"recovery_months_remaining": turns_left,
-			"recovery_mode": str(entry.get("recovery_mode", "normal")),
-			"source_transaction_id": str(entry.get("source_transaction_id", "legacy")),
-			"turnsLeft": turns_left,
-			"troops": troops,
-		})
-	return result
+	return _ensure_wounded_recovery_service().get_city_wounded_queue(city_data)
 
 
 func _add_wounded_to_city_mvp(city_id: String, wounded_troops: int, turns_left: int = PLAYER_ATTACK_WOUNDED_QUEUE_TURNS, recovery_mode: String = "normal", transaction_id: String = "legacy") -> void:
-	var troops := maxi(0, int(wounded_troops))
-	if city_id.is_empty() or troops <= 0:
-		return
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	if city_data.is_empty():
-		return
-	var queue := _get_city_wounded_queue_mvp(city_data)
-	var entry := WoundedRecovery.make_entry(troops, recovery_mode, transaction_id)
-	entry["recovery_months_remaining"] = maxi(1, int(turns_left))
-	entry["turnsLeft"] = maxi(1, int(turns_left))
-	entry["troops"] = troops
-	queue.append(entry)
-	city_data["woundedQueue"] = queue
-	city_data["wounded_queue"] = queue.duplicate(true)
-	_city_runtime_states[city_id] = city_data
-	print("[TROOP_WOUNDED_QUEUE_ADD] city=%s troops=%d turns=%d queue_size=%d" % [city_id, troops, maxi(1, int(turns_left)), queue.size()])
+	_ensure_wounded_recovery_service().add_wounded_to_city(city_id, wounded_troops, turns_left, recovery_mode, transaction_id)
 
 
 func _clear_city_wounded_queue_mvp(city_id: String) -> void:
-	if city_id.is_empty():
-		return
-	var city_data := _get_mutable_city_runtime_state(city_id)
-	if city_data.is_empty():
-		return
-	city_data["woundedQueue"] = []
-	city_data["wounded_queue"] = []
-	_city_runtime_states[city_id] = city_data
+	_ensure_wounded_recovery_service().clear_city_wounded_queue(city_id)
 
 
 func _apply_wounded_recovery_for_world_turn_mvp() -> void:
-	for city_id_variant in _city_runtime_states.keys():
-		var city_id := str(city_id_variant)
-		var city_data := _get_mutable_city_runtime_state(city_id)
-		if city_data.is_empty():
-			continue
-		var queue := _get_city_wounded_queue_mvp(city_data)
-		if queue.is_empty():
-			continue
-		var recovery := WoundedRecovery.advance_month(queue)
-		var remaining_queue: Array = recovery.get("queue", [])
-		var recovered_troops := maxi(0, int(recovery.get("recovered", 0)))
-		if recovered_troops > 0:
-			var before_troops := maxi(0, int(city_data.get("troops", 0)))
-			city_data["troops"] = before_troops + recovered_troops
-			print("[TROOP_WOUNDED_RECOVERED] city=%s before=%d recovered=%d after=%d" % [
-				city_id,
-				before_troops,
-				recovered_troops,
-				int(city_data.get("troops", 0)),
-			])
-		city_data["woundedQueue"] = remaining_queue
-		city_data["wounded_queue"] = remaining_queue.duplicate(true)
-		_city_runtime_states[city_id] = city_data
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	_ensure_wounded_recovery_service().advance_recovery_month(_get_world_month_serial(turn_number))
 
 
 func _get_world_month_serial(turn_number: int) -> int:
-	# The existing calendar has 40 turns per year; recovery advances only when
-	# the derived 12-month boundary changes, never once per world turn.
-	var zero_based := maxi(0, turn_number - 1)
-	return int(floor(float(zero_based) * 12.0 / float(WORLD_CALENDAR_YEAR_TURNS)))
+	return _ensure_wounded_recovery_service().world_month_serial(turn_number)
 
 
 func _advance_wounded_hero_recovery_turns() -> void:
-	for hero_id_variant in _hero_runtime_states.keys():
-		var hero_id := str(hero_id_variant)
-		var raw_state: Variant = _hero_runtime_states.get(hero_id, {})
-		if not raw_state is Dictionary:
-			continue
-		var hero_state := _normalize_hero_runtime_state(hero_id, raw_state as Dictionary)
-		if bool(hero_state.get("dead", false)) or bool(hero_state.get("captured", false)):
-			hero_state["wounded"] = false
-			hero_state["wounded_turns_remaining"] = 0
-			_hero_runtime_states[hero_id] = hero_state
-			continue
-		if not bool(hero_state.get("wounded", false)) and str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL)) != HERO_RUNTIME_STATUS_WOUNDED:
-			continue
-		var before_turns := maxi(0, int(hero_state.get("wounded_turns_remaining", DEFAULT_WOUNDED_RECOVERY_TURNS)))
-		var after_turns := maxi(0, before_turns - 1)
-		print("[HERO_RECOVERY_TICK] hero=%s before=%d after=%d" % [hero_id, before_turns, after_turns])
-		if after_turns <= 0:
-			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
-			hero_state["wounded"] = false
-			hero_state["wounded_turns_remaining"] = 0
-			print("[HERO_RECOVERED] hero=%s status=normal" % hero_id)
-		else:
-			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
-			hero_state["wounded"] = true
-			hero_state["wounded_turns_remaining"] = after_turns
-		_hero_runtime_states[hero_id] = hero_state
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	_ensure_wounded_recovery_service().advance_recovery_month(_get_world_month_serial(turn_number))
 
 
 func _apply_domestic_turn_mvp() -> String:
@@ -18207,6 +18165,9 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 			"captured": bool(source.get("captured", false)),
 			"dead": bool(source.get("dead", false)),
 			"wounded_turns_remaining": maxi(0, int(source.get("wounded_turns_remaining", 0))),
+			"last_battle_current_troops": maxi(0, int(source.get("last_battle_current_troops", 0))),
+			"last_battle_max_troops": maxi(0, int(source.get("last_battle_max_troops", 0))),
+			"last_battle_transaction_id": str(source.get("last_battle_transaction_id", "")),
 			"side": str(source.get("side", source.get("nation", ""))),
 			"nation": str(source.get("nation", source.get("side", ""))),
 			"faction_id": str(source.get("faction_id", source.get("side", ""))),
@@ -18448,6 +18409,9 @@ func _normalize_hero_runtime_state(hero_id: String, raw_state: Dictionary = {}) 
 		"captured": is_captured,
 		"dead": is_dead,
 		"wounded_turns_remaining": wounded_turns,
+		"last_battle_current_troops": maxi(0, int(raw_state.get("last_battle_current_troops", 0))),
+		"last_battle_max_troops": maxi(0, int(raw_state.get("last_battle_max_troops", 0))),
+		"last_battle_transaction_id": str(raw_state.get("last_battle_transaction_id", "")),
 		"side": str(raw_state.get("side", seed_entry.get("side", ""))),
 		"nation": str(raw_state.get("nation", seed_entry.get("nation", ""))),
 		"faction_id": str(raw_state.get("faction_id", seed_entry.get("faction_id", ""))),
