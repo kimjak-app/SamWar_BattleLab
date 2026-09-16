@@ -17,6 +17,7 @@ const DomesticTechEffectProviderScript := preload("res://scripts/worldmap/domest
 const DomesticTechTreePresentationControllerScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_tree_presentation_controller.gd")
 const DomesticTechCompletionPresentationControllerScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_completion_presentation_controller.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
+const CityAdministrationServiceScript := preload("res://scripts/worldmap/economy_city/city_administration_service.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
 const WorldMapActionCoordinatorScript := preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")
@@ -131,8 +132,6 @@ const COMMERCE_TAX_POINT_PER_RATING := 3
 const TAX_POINT_TO_GOLD := 1
 const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
-const GOVERNOR_PRIMARY_RATE := 0.025
-const GOVERNOR_SECONDARY_RATE := 0.0125
 const CITY_PUBLIC_SUPPORT_DEFAULT := 70
 const PUBLIC_SUPPORT_DELTA_MIN := -7
 const PUBLIC_SUPPORT_DELTA_MAX := 3
@@ -668,24 +667,7 @@ const BATTLE_RESULT_HERO_ID_COMPATIBILITY := {
 }
 const T02_INITIAL_SALT_PER_RESOURCE_RATING := 20
 
-const GOVERNOR_POLICY_DATA := {
-	"follow_chancellor": {
-		"name": "균형 운영",
-		"description": "효과: 국가 운영 방향을 따른 도시 보정",
-	},
-	"agriculture": {
-		"name": "농업 중심",
-		"description": "효과: 농업 산출 강화",
-	},
-	"commerce": {
-		"name": "상업 중심",
-		"description": "효과: 상업 수입 강화",
-	},
-	"military": {
-		"name": "군사 중심",
-		"description": "효과: 병력 운영 보정",
-	},
-}
+const GOVERNOR_POLICY_DATA := CityAdministrationServiceScript.GOVERNOR_POLICY_DATA
 
 # v0.68b-12b-1 WorldMap Hero City Seed Data Import
 # v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
@@ -840,6 +822,7 @@ var _domestic_tech_research_service: DomesticTechResearchServiceScript = null
 var _domestic_tech_effect_provider: DomesticTechEffectProviderScript = null
 var _domestic_tech_tree_presentation_controller: DomesticTechTreePresentationControllerScript = null
 var _domestic_tech_completion_presentation_controller: DomesticTechCompletionPresentationControllerScript = null
+var _city_administration_service: CityAdministrationServiceScript = null
 var _t03_battle_presentation: T03BattlePresentationControllerScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
@@ -1536,6 +1519,12 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	_refresh_unified_panel_content()
 	if _is_domestic_tech_tree_overlay_open_mvp():
 		_refresh_domestic_tech_tree_overlay_mvp()
+
+
+func _ensure_city_administration_service() -> CityAdministrationServiceScript:
+	if _city_administration_service == null:
+		_city_administration_service = CityAdministrationServiceScript.new()
+	return _city_administration_service
 
 
 func _ensure_domestic_tech_catalog() -> DomesticTechCatalogScript:
@@ -2443,18 +2432,15 @@ func _on_city_info_attack_requested(city_id: String) -> void:
 
 
 func _on_city_info_governor_assignment_requested(city_id: String, governor_id: String) -> void:
-	if city_id.is_empty():
-		return
 	var city_state := _get_mutable_city_runtime_state(city_id)
-	if city_state.is_empty():
-		return
 	var normalized_governor_id := governor_id.strip_edges()
-	if not normalized_governor_id.is_empty():
-		var stationed_hero_ids := _normalize_hero_id_array(city_state.get("stationed_hero_ids", city_state.get("hero_ids", [])))
-		if not stationed_hero_ids.has(normalized_governor_id):
+	var hero_snapshot := _get_hero_entry(normalized_governor_id) if not normalized_governor_id.is_empty() else {}
+	var result := _ensure_city_administration_service().validate_governor_assignment(city_id, normalized_governor_id, city_state, hero_snapshot)
+	if not bool(result.get("ok", false)):
+		if str(result.get("error_code", "")) == "hero_not_stationed":
 			push_warning("[WorldMap] Ignored governor assignment outside stationed heroes: city=%s hero=%s" % [city_id, normalized_governor_id])
-			return
-	city_state["governor_id"] = normalized_governor_id
+		return
+	city_state["governor_id"] = str(result.get("governor_id", ""))
 	_refresh_city_hud_data_bindings()
 	if _city_markers_by_id.has(city_id):
 		city_info_panel.show_city(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
@@ -12487,36 +12473,20 @@ func _calculate_active_chancellor_national_effects() -> Dictionary:
 
 
 func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_id: String) -> Dictionary:
-	var effect := {
-		"rice_multiplier": 1.0,
-		"barley_multiplier": 1.0,
-		"seafood_multiplier": 1.0,
-		"gold_multiplier": 1.0,
-		"hero_upkeep_multiplier": 1.0,
-		"soldier_upkeep_preview_multiplier": 1.0,
-		"salt_preservation_multiplier": 1.0,
-		"national_loyalty_loss_multiplier": 1.0,
-		"city_loyalty_loss_multiplier": 1.0,
-		"recruitable_troops_bonus": 0,
-	}
 	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
 	var city_id := str(city_data.get("id", ""))
 	var governor_data := _get_hero_entry(governor_id)
-	if not governor_data.is_empty() and str(governor_data.get("side", "")) == _get_current_player_faction_id() and str(governor_data.get("location_city_id", governor_data.get("city_id", ""))) == city_id:
-		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_primary_type", "")), float(governor_data.get("chancellor_primary_aptitude", 0)), GOVERNOR_PRIMARY_RATE)
-		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_secondary_type", "")), float(governor_data.get("chancellor_secondary_aptitude", 0)), GOVERNOR_SECONDARY_RATE)
-	else:
-		var chancellor_id := str(_player_state.get("chancellor_id", ""))
-		var chancellor_data := _get_hero_entry(chancellor_id)
-		if not chancellor_data.is_empty() and str(chancellor_data.get("side", "")) == _get_current_player_faction_id():
-			var primary_strength := maxf(0.0, float(chancellor_data.get("chancellor_primary_aptitude", 0))) * CHANCELLOR_PRIMARY_RATE
-			var secondary_strength := maxf(0.0, float(chancellor_data.get("chancellor_secondary_aptitude", 0))) * CHANCELLOR_SECONDARY_RATE
-			if str(chancellor_data.get("chancellor_primary_type", "")) == "political" and primary_strength > 0.0:
-				effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - (primary_strength * 0.4)), 0.85, 1.0)
-			if str(chancellor_data.get("chancellor_secondary_type", "")) == "political" and secondary_strength > 0.0:
-				effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - (secondary_strength * 0.4)), 0.85, 1.0)
-	_apply_governor_policy_effect(effect, _get_city_policy_id(city_id, city_data), chancellor_policy_id)
-	return effect
+	var chancellor_data := _get_hero_entry(str(_player_state.get("chancellor_id", "")))
+	return _ensure_city_administration_service().calculate_city_domestic_effects(
+		city_data,
+		governor_data,
+		chancellor_data,
+		_get_current_player_faction_id(),
+		_get_city_policy_id(city_id, city_data),
+		chancellor_policy_id,
+		CHANCELLOR_PRIMARY_RATE,
+		CHANCELLOR_SECONDARY_RATE
+	)
 
 
 func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
@@ -12538,45 +12508,11 @@ func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude
 
 
 func _apply_governor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
-	var strength := maxf(0.0, aptitude) * rate
-	if type_id.is_empty() or strength <= 0.0:
-		return
-	match type_id:
-		"political":
-			effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - strength), 0.72, 1.0)
-		"economic":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + strength), 1.0, 1.22)
-		"administrative":
-			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * (1.0 + (strength * 0.45)), 1.0, 1.14)
-			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * (1.0 + (strength * 0.45)), 1.0, 1.14)
-			effect["seafood_multiplier"] = clampf(float(effect.get("seafood_multiplier", 1.0)) * (1.0 + (strength * 0.3)), 1.0, 1.1)
-		"diplomatic":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + (strength * 0.55)), 1.0, 1.12)
-		"militaryAdmin":
-			effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + int(round(maxf(0.0, aptitude) * 12.0))
+	_ensure_city_administration_service().apply_governor_type_effect(effect, type_id, aptitude, rate)
 
 
 func _apply_governor_policy_effect(effect: Dictionary, governor_policy_id: String, chancellor_policy_id: String) -> void:
-	match governor_policy_id:
-		"agriculture":
-			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 1.08, 0.75, 1.35)
-			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 1.08, 0.75, 1.35)
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 0.97, 0.75, 1.4)
-		"commerce":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 1.08, 0.75, 1.4)
-			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 0.97, 0.75, 1.35)
-			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 0.97, 0.75, 1.35)
-		"military":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 0.97, 0.75, 1.4)
-			effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + 40
-		"follow_chancellor":
-			if chancellor_policy_id == "agriculture":
-				effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 1.03, 0.75, 1.35)
-				effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 1.03, 0.75, 1.35)
-			elif chancellor_policy_id == "commerce" or chancellor_policy_id == "trade":
-				effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 1.03, 0.75, 1.4)
-			elif chancellor_policy_id == "military":
-				effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + 20
+	_ensure_city_administration_service().apply_governor_policy_effect(effect, governor_policy_id, chancellor_policy_id)
 
 
 func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary) -> Dictionary:
@@ -15266,11 +15202,11 @@ func _normalize_chancellor_policy_id(policy_id: String) -> String:
 
 
 func _get_governor_policy_entry(policy_id: String) -> Dictionary:
-	return GOVERNOR_POLICY_DATA.get(policy_id, GOVERNOR_POLICY_DATA["follow_chancellor"])
+	return _ensure_city_administration_service().get_governor_policy_entry(policy_id)
 
 
 func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
-	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "follow_chancellor")))
+	return _ensure_city_administration_service().get_city_policy_id(city_id, city_data, _city_policy_state)
 
 
 func _format_hero_stats(hero_data: Dictionary) -> String:
