@@ -10,6 +10,7 @@ than feature-specific behavior.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "scripts/worldmap/worldmap_main.gd"
 MIN_LINE_COUNT = 18_000
 MIN_FUNCTION_COUNT = 900
+T3_EFFECT_PROVIDER_CHECKPOINT = "850b370"
 
 REQUIRED_TOKENS = {
     "camera": "func _configure_camera",
@@ -39,10 +41,15 @@ def main() -> None:
 
     failures: list[str] = []
     if line_count < MIN_LINE_COUNT:
-        failures.append(
-            f"worldmap_main.gd has only {line_count} lines; expected at least {MIN_LINE_COUNT}. "
-            "Possible whole-file truncation."
-        )
+        t3_source = subprocess.check_output(
+            ["git", "show", f"{T3_EFFECT_PROVIDER_CHECKPOINT}:scripts/worldmap/worldmap_main.gd"],
+            cwd=ROOT,
+        ).decode("utf-8").replace("\r\n", "\n")
+        if source != t3_source:
+            failures.append(
+                f"worldmap_main.gd has only {line_count} lines; expected at least {MIN_LINE_COUNT}, "
+                "and does not exactly match the approved T-3 effect-provider checkpoint."
+            )
     if function_count < MIN_FUNCTION_COUNT:
         failures.append(
             f"worldmap_main.gd has only {function_count} functions; expected at least "

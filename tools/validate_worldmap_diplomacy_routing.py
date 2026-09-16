@@ -18,6 +18,7 @@ PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
 SERVICE_EXTRACTION_CHECKPOINT = "2ee28db607cc5b6f2060a3a3c2087b53b89188be"
 T1_TECH_CATALOG_CHECKPOINT = "87bd41ee705094081649eb34a7d9f3d858164ad0"
 T2_TECH_RESEARCH_CHECKPOINT = "852d5b058c6e681973a53ccc927017ff45235051"
+T3_TECH_EFFECT_PROVIDER_CHECKPOINT = "850b370"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 T1_TECH_CATALOG_REWIRED = {
     "_get_domestic_tech_categories_mvp",
@@ -78,6 +79,63 @@ _advance_city_tech_research_for_world_turn_mvp
 _complete_national_tech_research_mvp
 _complete_city_tech_research_mvp
 _get_player_city_ids_for_domestic_tech_research_mvp
+""".split())
+T3_TECH_EFFECT_PROVIDER_REWIRED = set("""
+_add_domestic_battle_modifier_values_mvp
+_append_domestic_modifier_source_if_completed_mvp
+_format_domestic_tech_city_spy_intel_bonus_lines_mvp
+_get_domestic_tech_city_economy_bonus_mvp
+_get_domestic_tech_city_military_defense_bonus_mvp
+_get_domestic_tech_city_naval_siege_bonus_mvp
+_get_domestic_tech_city_spy_intel_bonus_mvp
+_get_domestic_tech_completion_direct_effect_lines_mvp
+_get_domestic_tech_diplomacy_spy_bonus_mvp
+_get_domestic_tech_diplomacy_spy_effect_summary_mvp
+_get_domestic_tech_economy_turn_summary_mvp
+_get_domestic_tech_effect_phase1_display_mvp
+_get_domestic_tech_effect_phase1_summary_mvp
+_get_domestic_tech_full_effect_integration_summary_mvp
+_get_domestic_tech_gameplay_effect_integration_map_summary_mvp
+_get_domestic_tech_military_defense_effect_summary_mvp
+_get_domestic_tech_national_policy_bonus_mvp
+_get_domestic_tech_national_policy_effect_summary_mvp
+_get_domestic_tech_naval_siege_effect_summary_mvp
+_get_domestic_tech_numeric_effect_phase1_summary_mvp
+_get_empty_domestic_battle_modifier_mvp
+_get_empty_domestic_defense_modifier_mvp
+_get_empty_domestic_economy_modifier_mvp
+_get_empty_domestic_tech_city_economy_bonus_mvp
+_get_empty_domestic_tech_city_military_defense_bonus_mvp
+_get_empty_domestic_tech_city_naval_siege_bonus_mvp
+_get_empty_domestic_tech_city_spy_intel_bonus_mvp
+_get_empty_domestic_tech_diplomacy_spy_bonus_mvp
+_get_empty_domestic_tech_national_policy_bonus_mvp
+_get_national_domestic_economy_modifier_mvp
+_get_player_battle_tech_modifier_mvp
+_get_player_city_battle_modifier_mvp
+_get_player_city_defense_modifier_mvp
+_get_player_city_domestic_economy_modifier_mvp
+_get_player_national_battle_modifier_mvp
+_get_player_naval_unlock_modifier_mvp
+_get_player_siege_unlock_modifier_mvp
+_has_domestic_battle_modifier_data_mvp
+_has_domestic_defense_modifier_data_mvp
+_has_domestic_tech_city_economy_bonus_mvp
+_has_domestic_tech_city_military_defense_bonus_mvp
+_has_domestic_tech_city_naval_siege_bonus_data_mvp
+_has_domestic_tech_city_naval_siege_bonus_mvp
+_has_domestic_tech_city_spy_intel_bonus_data_mvp
+_has_domestic_tech_city_spy_intel_bonus_mvp
+_has_domestic_tech_diplomacy_spy_bonus_data_mvp
+_has_domestic_tech_diplomacy_spy_bonus_mvp
+_has_domestic_tech_national_policy_bonus_data_mvp
+_has_domestic_tech_national_policy_bonus_mvp
+_has_player_naval_unlock_modifier_data_mvp
+_has_player_siege_unlock_modifier_data_mvp
+_is_player_ship_unlocked_by_domestic_tech_mvp
+_is_player_siege_unlocked_by_domestic_tech_mvp
+_merge_domestic_battle_source_techs_mvp
+_merge_domestic_economy_source_techs_mvp
 """.split())
 SFX_REWIRED = {
     "_on_city_marker_selected": (
@@ -308,6 +366,7 @@ def main():
     service_checkpoint = functions(at_commit(SERVICE_EXTRACTION_CHECKPOINT, MAIN))
     t1_tech_catalog_checkpoint = functions(at_commit(T1_TECH_CATALOG_CHECKPOINT, MAIN))
     t2_tech_research_checkpoint = functions(at_commit(T2_TECH_RESEARCH_CHECKPOINT, MAIN))
+    t3_tech_effect_provider_checkpoint = functions(at_commit(T3_TECH_EFFECT_PROVIDER_CHECKPOINT, MAIN))
     trade_removed = {
         "_get_trade_control_mode_label", "_get_trade_control_hint",
         "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
@@ -416,6 +475,9 @@ def main():
             elif name in T2_TECH_RESEARCH_REWIRED:
                 assert name in t2_tech_research_checkpoint, f"T-2 tech research checkpoint function missing: {name}"
                 assert after[name] == t2_tech_research_checkpoint[name], f"T-2 tech research wrapper changed: {name}"
+            elif name in T3_TECH_EFFECT_PROVIDER_REWIRED:
+                assert name in t3_tech_effect_provider_checkpoint, f"T-3 tech effect checkpoint function missing: {name}"
+                assert after[name] == t3_tech_effect_provider_checkpoint[name], f"T-3 tech effect wrapper changed: {name}"
             elif name in SFX_REWIRED:
                 old_call, new_call = SFX_REWIRED[name]
                 assert body.count(old_call) == 1, f"baseline SFX call contract changed: {name}"
