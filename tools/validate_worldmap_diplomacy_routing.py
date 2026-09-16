@@ -18,7 +18,8 @@ PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
 SERVICE_EXTRACTION_CHECKPOINT = "2ee28db607cc5b6f2060a3a3c2087b53b89188be"
 T1_TECH_CATALOG_CHECKPOINT = "87bd41ee705094081649eb34a7d9f3d858164ad0"
 T2_TECH_RESEARCH_CHECKPOINT = "852d5b058c6e681973a53ccc927017ff45235051"
-T3_TECH_EFFECT_PROVIDER_CHECKPOINT = "850b370"
+T3_TECH_EFFECT_PROVIDER_CHECKPOINT = "850b37095146688ed80c52c330cfbf069216024e"
+T4_TECH_PRESENTATION_CHECKPOINT = "d3decdc9b89a3a3a3989b568a625c58bab245e0f"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 T1_TECH_CATALOG_REWIRED = {
     "_get_domestic_tech_categories_mvp",
@@ -136,6 +137,123 @@ _is_player_ship_unlocked_by_domestic_tech_mvp
 _is_player_siege_unlocked_by_domestic_tech_mvp
 _merge_domestic_battle_source_techs_mvp
 _merge_domestic_economy_source_techs_mvp
+""".split())
+T4_TECH_PRESENTATION_REWIRED = set("""
+_add_domestic_tech_graph_branch_labels_mvp
+_add_domestic_tech_graph_hline_mvp
+_add_domestic_tech_graph_line_mvp
+_add_domestic_tech_graph_lines_mvp
+_add_domestic_tech_graph_vline_mvp
+_add_domestic_tech_icon_mvp
+_append_domestic_tech_completion_city_unlock_lines_mvp
+_append_domestic_tech_completion_national_unlock_lines_mvp
+_append_domestic_tech_completion_value_line_mvp
+_apply_domestic_tech_compact_node_selection_style_mvp
+_assign_domestic_tech_completion_video_stream_mvp
+_build_city_tech_tree_panel_mvp
+_build_domestic_tech_category_group_mvp
+_build_domestic_tech_compact_node_mvp
+_build_domestic_tech_detail_inspector_mvp
+_build_domestic_tech_detail_placeholders_mvp
+_build_domestic_tech_graph_canvas_mvp
+_build_domestic_tech_graph_node_mvp
+_build_domestic_tech_node_mvp
+_build_national_tech_tree_panel_mvp
+_clear_domestic_tech_tree_children_mvp
+_close_domestic_tech_tree_overlay_mvp
+_complete_domestic_tech_completion_video_mvp
+_create_domestic_tech_completion_theora_stream_direct_mvp
+_domestic_tech_completion_object_has_property_mvp
+_enqueue_domestic_tech_completion_presentations_mvp
+_ensure_domestic_tech_completion_presentation_overlay
+_ensure_domestic_tech_tree_overlay_mvp
+_finish_domestic_tech_completion_presentation_item_mvp
+_format_domestic_tech_actual_charge_shortage_mvp
+_format_domestic_tech_aptitude_label_mvp
+_format_domestic_tech_branch_label_mvp
+_format_domestic_tech_city_requirement_lines_mvp
+_format_domestic_tech_compact_status_mvp
+_format_domestic_tech_completion_gate_status_mvp
+_format_domestic_tech_condition_met_label_mvp
+_format_domestic_tech_cost_mvp
+_format_domestic_tech_detail_text_mvp
+_format_domestic_tech_duration_hint_mvp
+_format_domestic_tech_governor_aptitudes_mvp
+_format_domestic_tech_lock_reason_mvp
+_format_domestic_tech_rarity_mvp
+_format_domestic_tech_readiness_state_label_mvp
+_format_domestic_tech_requirement_atom_mvp
+_format_domestic_tech_requirement_key_label_mvp
+_format_domestic_tech_requirement_value_mvp
+_format_domestic_tech_research_action_button_text_mvp
+_format_domestic_tech_research_action_hint_mvp
+_format_domestic_tech_research_action_slot_text_mvp
+_format_domestic_tech_research_cost_display_mvp
+_format_domestic_tech_research_cost_plan_mvp
+_format_domestic_tech_research_plan_lines_mvp
+_format_domestic_tech_research_readiness_text_mvp
+_format_domestic_tech_resource_label_mvp
+_format_domestic_tech_special_requirements_mvp
+_get_current_domestic_tech_selection_key_mvp
+_get_domestic_tech_completion_category_fallback_lines_mvp
+_get_domestic_tech_completion_debug_object_class_name_mvp
+_get_domestic_tech_completion_direct_effect_lines_mvp
+_get_domestic_tech_completion_effect_summary_mvp
+_get_domestic_tech_completion_video_panel_rect_mvp
+_get_domestic_tech_completion_video_path_mvp
+_get_domestic_tech_display_name_mvp
+_get_domestic_tech_effect_phase1_display_mvp
+_get_domestic_tech_graph_canvas_size_mvp
+_get_domestic_tech_graph_line_color_mvp
+_get_domestic_tech_graph_positions_mvp
+_get_domestic_tech_readiness_condition_lines_mvp
+_get_domestic_tech_relation_lines_mvp
+_get_domestic_tech_requirement_summary_mvp
+_get_domestic_tech_resolved_icon_path_mvp
+_get_domestic_tech_selection_key_mvp
+_get_domestic_tech_state_body_color_mvp
+_get_domestic_tech_state_text_color_mvp
+_get_domestic_tech_ui64_icon_filename_mvp
+_get_domestic_tech_unlock_relation_status_mvp
+_get_sorted_domestic_tech_definitions_for_category_mvp
+_get_unique_domestic_tech_completion_lines_mvp
+_hide_domestic_tech_completion_presentation_overlay
+_is_domestic_tech_completion_card_visible
+_is_domestic_tech_completion_space_confirm_event
+_is_domestic_tech_tree_overlay_open_mvp
+_is_selected_domestic_tech_for_inspector_mvp
+_layout_domestic_tech_completion_presentation_overlay
+_make_domestic_tech_compact_node_style_mvp
+_make_domestic_tech_completion_card_style_mvp
+_make_domestic_tech_completion_presentation_item_mvp
+_make_domestic_tech_detail_placeholder_mvp
+_make_domestic_tech_icon_box_style_mvp
+_make_domestic_tech_label_mvp
+_make_domestic_tech_node_style_mvp
+_make_domestic_tech_overlay_style_mvp
+_make_domestic_tech_scroll_mvp
+_make_domestic_tech_section_content_mvp
+_make_domestic_tech_section_panel_mvp
+_make_domestic_tech_section_style_mvp
+_on_city_marker_selected
+_on_domestic_tech_compact_node_gui_input_mvp
+_on_domestic_tech_completion_confirm_pressed
+_on_domestic_tech_completion_video_fallback_timeout
+_on_domestic_tech_completion_video_finished
+_on_domestic_tech_research_action_pressed_mvp
+_open_domestic_tech_tree_overlay_mvp
+_play_domestic_tech_completion_video_mvp
+_play_next_domestic_tech_completion_presentation
+_refresh_domestic_tech_detail_inspector_mvp
+_refresh_domestic_tech_tree_overlay_mvp
+_register_tech_tree_hidden_panel_mvp
+_route_domestic_tech_detail_region_mvp
+_select_city_after_invasion_result
+_set_selected_domestic_tech_for_inspector_mvp
+_show_domestic_tech_completion_card_mvp
+_sort_domestic_tech_definition_mvp
+_update_domestic_tech_research_action_slot_mvp
+_update_domestic_tech_selected_node_styles_mvp
 """.split())
 SFX_REWIRED = {
     "_on_city_marker_selected": (
@@ -367,6 +485,7 @@ def main():
     t1_tech_catalog_checkpoint = functions(at_commit(T1_TECH_CATALOG_CHECKPOINT, MAIN))
     t2_tech_research_checkpoint = functions(at_commit(T2_TECH_RESEARCH_CHECKPOINT, MAIN))
     t3_tech_effect_provider_checkpoint = functions(at_commit(T3_TECH_EFFECT_PROVIDER_CHECKPOINT, MAIN))
+    t4_tech_presentation_checkpoint = functions(at_commit(T4_TECH_PRESENTATION_CHECKPOINT, MAIN))
     trade_removed = {
         "_get_trade_control_mode_label", "_get_trade_control_hint",
         "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
@@ -469,7 +588,10 @@ def main():
             continue
         assert name in after, f"removed function: {name}"
         if not spy_owned and name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
-            if name in T1_TECH_CATALOG_REWIRED | T1_TECH_RULES_REWIRED:
+            if name in T4_TECH_PRESENTATION_REWIRED:
+                assert name in t4_tech_presentation_checkpoint, f"T-4 tech presentation checkpoint function missing: {name}"
+                assert after[name] == t4_tech_presentation_checkpoint[name], f"T-4 tech presentation wrapper changed: {name}"
+            elif name in T1_TECH_CATALOG_REWIRED | T1_TECH_RULES_REWIRED:
                 assert name in t1_tech_catalog_checkpoint, f"T-1 tech catalog checkpoint function missing: {name}"
                 assert after[name] == t1_tech_catalog_checkpoint[name], f"T-1 tech catalog/rules wrapper changed: {name}"
             elif name in T2_TECH_RESEARCH_REWIRED:

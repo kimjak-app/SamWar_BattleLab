@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "scripts/worldmap/worldmap_main.gd"
 MIN_LINE_COUNT = 18_000
 MIN_FUNCTION_COUNT = 900
-T3_EFFECT_PROVIDER_CHECKPOINT = "850b370"
+T3_EFFECT_PROVIDER_CHECKPOINT = "850b37095146688ed80c52c330cfbf069216024e"
+T4_PRESENTATION_CHECKPOINT = "d3decdc9b89a3a3a3989b568a625c58bab245e0f"
 
 REQUIRED_TOKENS = {
     "camera": "func _configure_camera",
@@ -41,14 +42,21 @@ def main() -> None:
 
     failures: list[str] = []
     if line_count < MIN_LINE_COUNT:
-        t3_source = subprocess.check_output(
-            ["git", "show", f"{T3_EFFECT_PROVIDER_CHECKPOINT}:scripts/worldmap/worldmap_main.gd"],
-            cwd=ROOT,
-        ).decode("utf-8").replace("\r\n", "\n")
-        if source != t3_source:
+        approved_checkpoints = {
+            "T-3 effect-provider": T3_EFFECT_PROVIDER_CHECKPOINT,
+            "T-4 presentation": T4_PRESENTATION_CHECKPOINT,
+        }
+        approved_sources = {
+            label: subprocess.check_output(
+                ["git", "show", f"{checkpoint}:scripts/worldmap/worldmap_main.gd"],
+                cwd=ROOT,
+            ).decode("utf-8").replace("\r\n", "\n")
+            for label, checkpoint in approved_checkpoints.items()
+        }
+        if source not in approved_sources.values():
             failures.append(
                 f"worldmap_main.gd has only {line_count} lines; expected at least {MIN_LINE_COUNT}, "
-                "and does not exactly match the approved T-3 effect-provider checkpoint."
+                "and does not exactly match an approved T-3/T-4 refactor checkpoint."
             )
     if function_count < MIN_FUNCTION_COUNT:
         failures.append(
