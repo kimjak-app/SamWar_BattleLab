@@ -1,0 +1,162 @@
+name: Verify C-track refactor
+
+on:
+  push:
+    branches:
+      - recovery/worldmap-iso-sfx-services-20260912
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Godot 4.6
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Versions
+        run: |
+          python3 --version
+          git --version
+          godot --version
+
+      - name: Static validators
+        shell: bash
+        run: |
+          set -euo pipefail
+          validators=(
+            tools/validate_worldmap_main_integrity.py
+            tools/validate_worldmap_diplomacy_controller_extraction.py
+            tools/validate_worldmap_diplomacy_routing.py
+            tools/validate_worldmap_diplomacy_service_separation.py
+            tools/validate_worldmap_trade_routing.py
+            tools/validate_worldmap_trade_controller_extraction.py
+            tools/validate_worldmap_trade_phase2_extraction.py
+            tools/validate_worldmap_spy_routing.py
+            tools/validate_worldmap_spy_controller_extraction.py
+            tools/validate_worldmap_battle_settlement_applier_extraction.py
+            tools/validate_worldmap_t03_strategic_battle_transaction_extraction.py
+            tools/validate_worldmap_t03_battle_presentation_extraction.py
+            tools/validate_worldmap_player_attack_deployment_service_extraction.py
+            tools/validate_worldmap_wounded_recovery_service_extraction.py
+          )
+          for validator in "${validators[@]}"; do
+            echo "===== $validator ====="
+            python3 "$validator"
+          done
+
+      - name: C-track Godot tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests=(
+            tests/scripts/test_worldmap_city_administration_service_extraction.gd
+            tests/scripts/test_worldmap_city_resource_service_extraction.gd
+            tests/scripts/test_worldmap_city_detail_presentation_extraction.gd
+          )
+          for test_script in "${tests[@]}"; do
+            echo "===== $test_script ====="
+            godot --headless --path . --script "res://$test_script"
+          done
+
+      - name: Tech-tree regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests=(
+            tests/scripts/test_worldmap_domestic_tech_catalog_extraction.gd
+            tests/scripts/test_worldmap_domestic_tech_research_rules_extraction.gd
+            tests/scripts/test_worldmap_domestic_tech_research_service_extraction.gd
+            tests/scripts/test_worldmap_domestic_tech_effect_provider_extraction.gd
+            tests/scripts/test_worldmap_domestic_tech_tree_presentation_extraction.gd
+            tests/scripts/test_worldmap_domestic_tech_completion_presentation_extraction.gd
+          )
+          for test_script in "${tests[@]}"; do
+            echo "===== $test_script ====="
+            godot --headless --path . --script "res://$test_script"
+          done
+
+      - name: Military regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests=(
+            tests/scripts/test_worldmap_military_controller_extraction.gd
+            tests/scripts/test_worldmap_enemy_warfare_service_extraction.gd
+            tests/scripts/test_worldmap_battle_context_service_extraction.gd
+            tests/scripts/test_worldmap_battle_result_service_extraction.gd
+            tests/scripts/test_worldmap_battle_settlement_applier_extraction.gd
+            tests/scripts/test_worldmap_t03_strategic_battle_transaction_extraction.gd
+            tests/scripts/test_worldmap_t03_battle_presentation_extraction.gd
+            tests/scripts/test_worldmap_player_attack_deployment_service_extraction.gd
+            tests/scripts/test_worldmap_troop_rebalance_service_extraction.gd
+            tests/scripts/test_worldmap_wounded_recovery_service_extraction.gd
+          )
+          for test_script in "${tests[@]}"; do
+            echo "===== $test_script ====="
+            godot --headless --path . --script "res://$test_script"
+          done
+
+      - name: Diplomacy Trade Spy regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests=(
+            tests/scripts/test_worldmap_diplomacy_routing.gd
+            tests/scripts/test_worldmap_diplomacy_controller_extraction.gd
+            tests/scripts/test_worldmap_diplomacy_validation_extraction.gd
+            tests/scripts/test_worldmap_diplomacy_mutation_extraction.gd
+            tests/scripts/test_worldmap_diplomacy_state_extraction.gd
+            tests/scripts/test_worldmap_diplomacy_alliance_extraction.gd
+            tests/scripts/test_worldmap_trade_routing.gd
+            tests/scripts/test_worldmap_trade_controller_extraction.gd
+            tests/scripts/test_worldmap_trade_automation_extraction.gd
+            tests/scripts/test_worldmap_internal_trade_transfer_extraction.gd
+            tests/scripts/test_worldmap_spy_routing.gd
+            tests/scripts/test_worldmap_spy_controller_extraction.gd
+          )
+          for test_script in "${tests[@]}"; do
+            echo "===== $test_script ====="
+            godot --headless --path . --script "res://$test_script"
+          done
+
+      - name: Project parse and WorldMap load
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --editor --quit-after 1
+          cat > tests/_ci_worldmap_scene_load.gd <<'GDSCRIPT'
+          extends SceneTree
+          func _initialize() -> void:
+              var packed := load("res://WorldMap.tscn") as PackedScene
+              if packed == null:
+                  push_error("[CI_WORLDMAP_LOAD] failed to load WorldMap.tscn")
+                  quit(1)
+                  return
+              var instance := packed.instantiate()
+              if instance == null:
+                  push_error("[CI_WORLDMAP_LOAD] failed to instantiate WorldMap.tscn")
+                  quit(1)
+                  return
+              print("[CI_WORLDMAP_LOAD] PASS")
+              instance.free()
+              quit(0)
+          GDSCRIPT
+          godot --headless --path . --script res://tests/_ci_worldmap_scene_load.gd
+          rm tests/_ci_worldmap_scene_load.gd
+
+      - name: Diff check
+        run: |
+          git diff --check
+          test -z "$(git status --short)"
