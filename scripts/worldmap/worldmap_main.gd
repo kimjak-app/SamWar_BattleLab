@@ -13,6 +13,7 @@ const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/dom
 const DomesticTechCatalogScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_catalog.gd")
 const DomesticTechResearchRulesScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_research_rules.gd")
 const DomesticTechResearchServiceScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_research_service.gd")
+const DomesticTechEffectProviderScript := preload("res://scripts/worldmap/domestic_tech/domestic_tech_effect_provider.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
@@ -169,11 +170,6 @@ const DOMESTIC_TECH_CATEGORY_NATION_ADMIN := DomesticTechCatalogScript.DOMESTIC_
 const DOMESTIC_TECH_CATEGORY_NATION_ECONOMY := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_NATION_ECONOMY
 const DOMESTIC_TECH_CATEGORY_NATION_MILITARY := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_NATION_MILITARY
 const DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY
-const DOMESTIC_TECH_ECONOMY_SAFE_CATEGORIES_MVP := [
-	DOMESTIC_TECH_CATEGORY_AGRI,
-	DOMESTIC_TECH_CATEGORY_FISH,
-	DOMESTIC_TECH_CATEGORY_COMMERCE,
-]
 const DOMESTIC_TECH_VIEW_COMPLETED := "completed"
 const DOMESTIC_TECH_VIEW_AVAILABLE := "available"
 const DOMESTIC_TECH_VIEW_LOCKED := "locked"
@@ -200,96 +196,6 @@ const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 138.0
 const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 106.0
 const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(110.0, 48.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
-const DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP := {
-	"agri_tool_upgrade": {"food_percent": 0.04},
-	"agri_irrigation": {"food_percent": 0.07},
-	"agri_reservoir": {"food_percent": 0.10},
-	"agri_double_cropping": {"food_percent": 0.14},
-	"agri_granary_zone": {"food_flat": 60},
-	"fish_village": {"food_flat": 18},
-	"fish_coastal_fishing": {"food_percent": 0.05},
-	"fish_fleet": {"food_percent": 0.08},
-	"fish_deep_sea_fishing": {"food_percent": 0.12},
-	"fish_dried_supply_base": {"supply_flat": 40},
-	"commerce_street_market": {"gold_flat": 15},
-	"commerce_permanent_market": {"gold_percent": 0.06},
-	"commerce_merchant_guild": {"gold_percent": 0.08},
-	"commerce_mint": {"gold_flat": 80},
-	"commerce_grand_market": {"gold_percent": 0.11},
-}
-const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP := ["infantry", "archer", "cavalry", "defense"]
-const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
-	"mil_barracks": {"recruit_capacity_flat": 80},
-	"mil_infantry_training": {"infantry_training_percent": 0.04},
-	"mil_elite_infantry": {"infantry_training_percent": 0.07},
-	"mil_heavy_infantry": {"infantry_training_percent": 0.10},
-	"mil_archer_training": {"archer_training_percent": 0.04},
-	"mil_elite_archer": {"archer_training_percent": 0.07},
-	"mil_singijeon": {"archer_training_percent": 0.08},
-	"mil_cavalry_training": {"cavalry_training_percent": 0.04},
-	"mil_light_cavalry": {"cavalry_training_percent": 0.06},
-	"mil_heavy_cavalry": {"cavalry_training_percent": 0.08},
-	"mil_iron_cavalry": {"cavalry_training_percent": 0.10},
-	"mil_cavalry_charge_tactics": {"cavalry_charge_percent": 0.08},
-	"mil_wall_upgrade": {"defense_flat": 35},
-	"mil_moat": {"defense_percent": 0.05},
-	"mil_double_moat": {"defense_percent": 0.08},
-	"mil_watchtower": {"defense_flat": 30},
-	"mil_beacon": {"defense_flat": 20},
-	"mil_beacon_network": {"defense_percent": 0.06},
-	"mil_iron_gate": {"defense_flat": 70},
-	"mil_iron_fortress": {"defense_percent": 0.14},
-}
-const DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP := {
-	"nation_military_training_order": {"global_attack_percent": 0.03, "global_defense_percent": 0.03},
-	"nation_military_reform": {"global_attack_percent": 0.04, "global_defense_percent": 0.04},
-	"nation_standing_army": {"global_attack_percent": 0.03, "global_defense_percent": 0.03},
-	"nation_logistics_system": {"logistics_percent": 0.05, "global_defense_percent": 0.02},
-	"nation_expedition_system": {"logistics_percent": 0.05, "global_attack_percent": 0.02},
-	"nation_weapon_standardization": {"global_attack_percent": 0.03},
-	"nation_weapon_factory": {"global_attack_percent": 0.03},
-}
-const DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP := {
-	"nation_law_reform": {"law_order_flat": 5},
-	"nation_bureaucracy": {"admin_efficiency_percent": 0.06},
-	"nation_centralization": {"admin_efficiency_percent": 0.12},
-	"nation_tax_reform": {"tax_gold_percent": 0.04},
-	"nation_conscription": {"recruit_capacity_percent": 0.04},
-	"nation_logistics_system": {"logistics_supply_percent": 0.06},
-	"nation_population_policy": {"population_growth_percent": 0.10},
-	"nation_foundation": {"storage_flat": 120},
-	"nation_national_monopoly": {"tax_gold_percent": 0.08},
-}
-const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP := ["sea_trade", "naval", "siege"]
-const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP := {
-	"commerce_port": {"naval_support_percent": 0.03},
-	"commerce_shipyard": {"shipyard_capacity_flat": 1},
-	"commerce_trade_port": {"naval_supply_percent": 0.05},
-	"fish_fleet": {"naval_supply_percent": 0.03},
-	"fish_dried_supply_base": {"naval_supply_percent": 0.05},
-	"naval_training": {"naval_training_percent": 0.04},
-	"naval_warship_building": {"shipyard_capacity_flat": 1, "ship_maintenance_percent": 0.04},
-	"naval_panokseon": {"naval_training_percent": 0.08},
-	"naval_turtle_ship": {"naval_training_percent": 0.14},
-	"naval_crane_wing_formation": {"naval_training_percent": 0.12},
-	"naval_fire_ship": {"naval_supply_percent": 0.08},
-	"naval_cannon_mount": {"ship_maintenance_percent": 0.08},
-	"mil_siege_unit": {"siege_preparation_flat": 15, "siege_training_percent": 0.04},
-	"mil_siege_engine": {"siege_engineering_percent": 0.08},
-}
-const DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP := {
-	"nation_envoy": {"diplomacy_influence_flat": 8},
-	"nation_diplomacy_system": {"diplomacy_preparation_percent": 0.05},
-	"nation_tribute_system": {"tribute_readiness_percent": 0.05},
-	"nation_tribute_network": {"tribute_readiness_percent": 0.08},
-	"nation_world_diplomacy": {"world_diplomacy_display_percent": 0.12},
-	"nation_centralization": {"diplomacy_preparation_percent": 0.02},
-	"nation_bureaucracy": {"diplomacy_preparation_percent": 0.02, "spy_preparation_percent": 0.02},
-	"nation_intelligence_system": {"spy_network_flat": 8},
-	"nation_intelligence_org": {"spy_preparation_percent": 0.08},
-	"nation_inspection_system": {"counter_intel_display_percent": 0.05},
-}
-const DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP := {}
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -1044,6 +950,7 @@ var _troop_rebalance_service: TroopRebalanceServiceScript = null
 var _domestic_tech_catalog: DomesticTechCatalogScript = null
 var _domestic_tech_research_rules: DomesticTechResearchRulesScript = null
 var _domestic_tech_research_service: DomesticTechResearchServiceScript = null
+var _domestic_tech_effect_provider: DomesticTechEffectProviderScript = null
 var _t03_battle_presentation: T03BattlePresentationControllerScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
@@ -1771,6 +1678,13 @@ func _ensure_domestic_tech_catalog() -> DomesticTechCatalogScript:
 	if _domestic_tech_catalog == null:
 		_domestic_tech_catalog = DomesticTechCatalogScript.new()
 	return _domestic_tech_catalog
+
+
+func _ensure_domestic_tech_effect_provider() -> DomesticTechEffectProviderScript:
+	if _domestic_tech_effect_provider == null:
+		_domestic_tech_effect_provider = DomesticTechEffectProviderScript.new()
+		_domestic_tech_effect_provider.configure(_ensure_domestic_tech_catalog())
+	return _domestic_tech_effect_provider
 
 
 func _ensure_domestic_tech_research_rules() -> DomesticTechResearchRulesScript:
@@ -9051,615 +8965,115 @@ func _has_completed_city_domestic_tech_mvp(city_id: String, tech_id: String) -> 
 
 
 func _get_empty_domestic_tech_city_economy_bonus_mvp() -> Dictionary:
-	return {
-		"food_flat": 0,
-		"food_percent": 0.0,
-		"gold_flat": 0,
-		"gold_percent": 0.0,
-		"supply_flat": 0,
-		"supply_percent": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("economy_bonus")
 
 
 func _get_empty_domestic_economy_modifier_mvp() -> Dictionary:
-	return {
-		"gold_income_pct": 0.0,
-		"food_income_pct": 0.0,
-		"rice_bonus_pct": 0.0,
-		"barley_bonus_pct": 0.0,
-		"seafood_bonus_pct": 0.0,
-		"commerce_pct": 0.0,
-		"tax_pct": 0.0,
-		"storage_cap_pct": 0.0,
-		"admin_pct": 0.0,
-		"population_growth_pct": 0.0,
-		"food_flat": 0,
-		"gold_flat": 0,
-		"supply_flat": 0,
-		"storage_flat": 0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("economy_modifier")
 
 
 func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
-	var bonus := _get_empty_domestic_tech_city_economy_bonus_mvp()
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return bonus
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
-			continue
-		if not DOMESTIC_TECH_ECONOMY_SAFE_CATEGORIES_MVP.has(str(definition.get("category", ""))):
-			continue
-		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
-		bonus["food_flat"] = int(bonus.get("food_flat", 0)) + int(mapping.get("food_flat", 0))
-		bonus["food_percent"] = float(bonus.get("food_percent", 0.0)) + float(mapping.get("food_percent", 0.0))
-		bonus["gold_flat"] = int(bonus.get("gold_flat", 0)) + int(mapping.get("gold_flat", 0))
-		bonus["gold_percent"] = float(bonus.get("gold_percent", 0.0)) + float(mapping.get("gold_percent", 0.0))
-		bonus["supply_flat"] = int(bonus.get("supply_flat", 0)) + int(mapping.get("supply_flat", 0))
-		bonus["supply_percent"] = float(bonus.get("supply_percent", 0.0)) + float(mapping.get("supply_percent", 0.0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_city_economy_bonus(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_player_city_domestic_economy_modifier_mvp(city_id: String) -> Dictionary:
-	var modifier := _get_empty_domestic_economy_modifier_mvp()
-	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
-	modifier["city_id"] = city_id
-	modifier["player_only"] = true
-	modifier["same_city_only"] = true
-	modifier["income_generation_connected"] = true
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return modifier
-	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-	var food_percent := float(bonus.get("food_percent", 0.0))
-	var gold_percent := float(bonus.get("gold_percent", 0.0))
-	var supply_percent := float(bonus.get("supply_percent", 0.0))
-	modifier["food_income_pct"] = food_percent
-	modifier["rice_bonus_pct"] = food_percent
-	modifier["barley_bonus_pct"] = food_percent
-	modifier["seafood_bonus_pct"] = food_percent
-	modifier["gold_income_pct"] = gold_percent
-	modifier["commerce_pct"] = gold_percent
-	modifier["storage_cap_pct"] = supply_percent
-	modifier["food_flat"] = int(bonus.get("food_flat", 0))
-	modifier["gold_flat"] = int(bonus.get("gold_flat", 0))
-	modifier["supply_flat"] = int(bonus.get("supply_flat", 0))
-	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return modifier
+	return _ensure_domestic_tech_effect_provider().get_city_economy_modifier(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
-	return {
-		"defense_flat": 0,
-		"defense_percent": 0.0,
-		"recruit_capacity_flat": 0,
-		"training_percent": 0.0,
-		"infantry_training_percent": 0.0,
-		"archer_training_percent": 0.0,
-		"cavalry_training_percent": 0.0,
-		"cavalry_charge_percent": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("military_bonus")
 
 
 func _get_empty_domestic_defense_modifier_mvp() -> Dictionary:
-	return {
-		"city_defense_flat": 0,
-		"city_defense_pct": 0.0,
-		"wall_defense_pct": 0.0,
-		"moat_defense_pct": 0.0,
-		"tower_defense_pct": 0.0,
-		"gate_defense_pct": 0.0,
-		"garrison_defense_pct": 0.0,
-		"siege_resistance_pct": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("defense_modifier")
 
 
 func _get_empty_domestic_battle_modifier_mvp() -> Dictionary:
-	return {
-		"global_attack_pct": 0.0,
-		"global_defense_pct": 0.0,
-		"infantry_attack_pct": 0.0,
-		"infantry_defense_pct": 0.0,
-		"archer_attack_pct": 0.0,
-		"archer_defense_pct": 0.0,
-		"cavalry_attack_pct": 0.0,
-		"cavalry_charge_pct": 0.0,
-		"gunpowder_attack_pct": 0.0,
-		"crossbow_attack_pct": 0.0,
-		"logistics_pct": 0.0,
-		"siege_attack_pct": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("battle_modifier")
 
 
 func _get_empty_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
-	return {
-		"tax_gold_percent": 0.0,
-		"admin_efficiency_percent": 0.0,
-		"recruit_capacity_percent": 0.0,
-		"logistics_supply_percent": 0.0,
-		"population_growth_percent": 0.0,
-		"storage_flat": 0,
-		"law_order_flat": 0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("policy_bonus")
 
 
 func _get_empty_domestic_tech_city_naval_siege_bonus_mvp() -> Dictionary:
-	return {
-		"shipyard_capacity_flat": 0,
-		"naval_training_percent": 0.0,
-		"naval_supply_percent": 0.0,
-		"ship_maintenance_percent": 0.0,
-		"siege_preparation_flat": 0,
-		"siege_training_percent": 0.0,
-		"siege_engineering_percent": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("naval_siege_bonus")
 
 
 func _get_empty_domestic_tech_diplomacy_spy_bonus_mvp() -> Dictionary:
-	return {
-		"diplomacy_influence_flat": 0,
-		"diplomacy_preparation_percent": 0.0,
-		"tribute_readiness_percent": 0.0,
-		"world_diplomacy_display_percent": 0.0,
-		"spy_network_flat": 0,
-		"spy_preparation_percent": 0.0,
-		"counter_intel_display_percent": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("diplomacy_spy_bonus")
 
 
 func _get_empty_domestic_tech_city_spy_intel_bonus_mvp() -> Dictionary:
-	return {
-		"local_spy_network_flat": 0,
-		"local_counter_intel_display_percent": 0.0,
-		"local_intel_readiness_percent": 0.0,
-		"source_techs": [],
-	}
+	return _ensure_domestic_tech_effect_provider().get_empty_effect("city_spy_bonus")
 
 
 func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dictionary:
-	var bonus := _get_empty_domestic_tech_city_military_defense_bonus_mvp()
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return bonus
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
-			continue
-		if str(definition.get("category", "")) != DOMESTIC_TECH_CATEGORY_MILITARY:
-			continue
-		if not DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
-			continue
-		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
-		bonus["defense_flat"] = int(bonus.get("defense_flat", 0)) + int(mapping.get("defense_flat", 0))
-		bonus["defense_percent"] = float(bonus.get("defense_percent", 0.0)) + float(mapping.get("defense_percent", 0.0))
-		bonus["recruit_capacity_flat"] = int(bonus.get("recruit_capacity_flat", 0)) + int(mapping.get("recruit_capacity_flat", 0))
-		bonus["training_percent"] = float(bonus.get("training_percent", 0.0)) + float(mapping.get("training_percent", 0.0))
-		bonus["infantry_training_percent"] = float(bonus.get("infantry_training_percent", 0.0)) + float(mapping.get("infantry_training_percent", 0.0))
-		bonus["archer_training_percent"] = float(bonus.get("archer_training_percent", 0.0)) + float(mapping.get("archer_training_percent", 0.0))
-		bonus["cavalry_training_percent"] = float(bonus.get("cavalry_training_percent", 0.0)) + float(mapping.get("cavalry_training_percent", 0.0))
-		bonus["cavalry_charge_percent"] = float(bonus.get("cavalry_charge_percent", 0.0)) + float(mapping.get("cavalry_charge_percent", 0.0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_city_military_defense_bonus(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_player_city_defense_modifier_mvp(city_id: String) -> Dictionary:
-	var modifier := _get_empty_domestic_defense_modifier_mvp()
-	modifier["city_id"] = city_id
-	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
-	modifier["player_only"] = true
-	modifier["same_city_only"] = true
-	modifier["enemy_research_effect"] = false
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return modifier
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
-			continue
-		if str(definition.get("category", "")) != DOMESTIC_TECH_CATEGORY_MILITARY:
-			continue
-		if str(definition.get("branch", "")) != "defense":
-			continue
-		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
-		var defense_flat := int(mapping.get("defense_flat", 0))
-		var defense_percent := float(mapping.get("defense_percent", 0.0))
-		modifier["city_defense_flat"] = int(modifier.get("city_defense_flat", 0)) + defense_flat
-		modifier["city_defense_pct"] = float(modifier.get("city_defense_pct", 0.0)) + defense_percent
-		match tech_id:
-			"mil_wall_upgrade", "mil_iron_fortress":
-				modifier["wall_defense_pct"] = float(modifier.get("wall_defense_pct", 0.0)) + defense_percent
-				modifier["siege_resistance_pct"] = float(modifier.get("siege_resistance_pct", 0.0)) + defense_percent
-			"mil_moat", "mil_double_moat":
-				modifier["moat_defense_pct"] = float(modifier.get("moat_defense_pct", 0.0)) + defense_percent
-				modifier["siege_resistance_pct"] = float(modifier.get("siege_resistance_pct", 0.0)) + defense_percent
-			"mil_watchtower", "mil_beacon", "mil_beacon_network":
-				modifier["tower_defense_pct"] = float(modifier.get("tower_defense_pct", 0.0)) + defense_percent
-				modifier["garrison_defense_pct"] = float(modifier.get("garrison_defense_pct", 0.0)) + defense_percent
-			"mil_iron_gate":
-				modifier["gate_defense_pct"] = float(modifier.get("gate_defense_pct", 0.0)) + defense_percent
-			_:
-				pass
-		if defense_flat > 0 and (tech_id == "mil_watchtower" or tech_id == "mil_beacon"):
-			modifier["tower_defense_pct"] = float(modifier.get("tower_defense_pct", 0.0)) + 0.03
-			modifier["garrison_defense_pct"] = float(modifier.get("garrison_defense_pct", 0.0)) + 0.03
-		if defense_flat > 0 and tech_id == "mil_iron_gate":
-			modifier["gate_defense_pct"] = float(modifier.get("gate_defense_pct", 0.0)) + 0.08
-		(modifier["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
-	return modifier
+	return _ensure_domestic_tech_effect_provider().get_city_defense_modifier(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _merge_domestic_battle_source_techs_mvp(first: Variant, second: Variant) -> Array[String]:
-	var source_techs: Array = []
-	if first is Array:
-		source_techs.append_array(first as Array)
-	if second is Array:
-		source_techs.append_array(second as Array)
-	return _get_unique_domestic_tech_source_ids_mvp(source_techs)
+	return _ensure_domestic_tech_effect_provider().merge_source_ids(first, second)
 
 
 func _add_domestic_battle_modifier_values_mvp(base: Dictionary, addition: Dictionary) -> Dictionary:
-	for key in [
-		"global_attack_pct",
-		"global_defense_pct",
-		"infantry_attack_pct",
-		"infantry_defense_pct",
-		"archer_attack_pct",
-		"archer_defense_pct",
-		"cavalry_attack_pct",
-		"cavalry_charge_pct",
-		"gunpowder_attack_pct",
-		"crossbow_attack_pct",
-		"logistics_pct",
-		"siege_attack_pct",
-	]:
-		base[key] = float(base.get(key, 0.0)) + float(addition.get(key, 0.0))
-	base["source_techs"] = _merge_domestic_battle_source_techs_mvp(base.get("source_techs", []), addition.get("source_techs", []))
-	return base
+	return _ensure_domestic_tech_effect_provider().add_battle_modifier_values(base, addition)
 
 
 func _get_player_national_battle_modifier_mvp() -> Dictionary:
-	var modifier := _get_empty_domestic_battle_modifier_mvp()
-	modifier["scope"] = DOMESTIC_TECH_SCOPE_NATIONAL
-	modifier["player_only"] = true
-	modifier["enemy_research_effect"] = false
-	for tech_id_variant in DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if not _has_completed_national_domestic_tech_mvp(tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.get(tech_id, {})
-		modifier["global_attack_pct"] = float(modifier.get("global_attack_pct", 0.0)) + float(mapping.get("global_attack_percent", 0.0))
-		modifier["global_defense_pct"] = float(modifier.get("global_defense_pct", 0.0)) + float(mapping.get("global_defense_percent", 0.0))
-		modifier["logistics_pct"] = float(modifier.get("logistics_pct", 0.0)) + float(mapping.get("logistics_percent", 0.0))
-		modifier["siege_attack_pct"] = float(modifier.get("siege_attack_pct", 0.0)) + float(mapping.get("siege_attack_percent", 0.0))
-		(modifier["source_techs"] as Array).append(tech_id)
-	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
-	return modifier
+	return _ensure_domestic_tech_effect_provider().get_national_battle_modifier(_get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _get_player_city_battle_modifier_mvp(city_id: String) -> Dictionary:
-	var modifier := _get_empty_domestic_battle_modifier_mvp()
-	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
-	modifier["city_id"] = city_id
-	modifier["player_only"] = true
-	modifier["same_city_only"] = true
-	modifier["enemy_research_effect"] = false
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return modifier
-	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-	var defense_modifier := _get_player_city_defense_modifier_mvp(city_id)
-	var infantry_percent := float(bonus.get("infantry_training_percent", 0.0))
-	var archer_percent := float(bonus.get("archer_training_percent", 0.0))
-	var cavalry_percent := float(bonus.get("cavalry_training_percent", 0.0))
-	modifier["global_defense_pct"] = float(defense_modifier.get("garrison_defense_pct", 0.0))
-	modifier["infantry_attack_pct"] = infantry_percent
-	modifier["infantry_defense_pct"] = infantry_percent
-	modifier["archer_attack_pct"] = archer_percent
-	modifier["archer_defense_pct"] = float(defense_modifier.get("tower_defense_pct", 0.0))
-	modifier["cavalry_attack_pct"] = cavalry_percent
-	modifier["cavalry_charge_pct"] = minf(float(bonus.get("cavalry_charge_percent", 0.0)), 0.08)
-	modifier["source_techs"] = _merge_domestic_battle_source_techs_mvp(bonus.get("source_techs", []), defense_modifier.get("source_techs", []))
-	return modifier
+	return _ensure_domestic_tech_effect_provider().get_city_battle_modifier(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_player_battle_tech_modifier_mvp(scope: String, city_id: String = "") -> Dictionary:
-	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
-		return _get_player_national_battle_modifier_mvp()
-	if scope == DOMESTIC_TECH_SCOPE_CITY:
-		return _get_player_city_battle_modifier_mvp(city_id)
-	var combined := _get_player_national_battle_modifier_mvp()
-	combined["scope"] = "combined"
-	if not city_id.is_empty():
-		combined = _add_domestic_battle_modifier_values_mvp(combined, _get_player_city_battle_modifier_mvp(city_id))
-		combined["city_id"] = city_id
-		combined["same_city_only"] = true
-	return combined
+	return _ensure_domestic_tech_effect_provider().get_battle_modifier(scope, city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id), _get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionary:
-	var bonus := _get_empty_domestic_tech_city_naval_siege_bonus_mvp()
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return bonus
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
-			continue
-		if not DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
-			continue
-		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(tech_id, {})
-		bonus["shipyard_capacity_flat"] = int(bonus.get("shipyard_capacity_flat", 0)) + int(mapping.get("shipyard_capacity_flat", 0))
-		bonus["naval_training_percent"] = float(bonus.get("naval_training_percent", 0.0)) + float(mapping.get("naval_training_percent", 0.0))
-		bonus["naval_supply_percent"] = float(bonus.get("naval_supply_percent", 0.0)) + float(mapping.get("naval_supply_percent", 0.0))
-		bonus["ship_maintenance_percent"] = float(bonus.get("ship_maintenance_percent", 0.0)) + float(mapping.get("ship_maintenance_percent", 0.0))
-		bonus["siege_preparation_flat"] = int(bonus.get("siege_preparation_flat", 0)) + int(mapping.get("siege_preparation_flat", 0))
-		bonus["siege_training_percent"] = float(bonus.get("siege_training_percent", 0.0)) + float(mapping.get("siege_training_percent", 0.0))
-		bonus["siege_engineering_percent"] = float(bonus.get("siege_engineering_percent", 0.0)) + float(mapping.get("siege_engineering_percent", 0.0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_city_naval_siege_bonus(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_player_naval_unlock_modifier_mvp(city_id: String = "") -> Dictionary:
-	var unlock := {
-		"scope": DOMESTIC_TECH_SCOPE_CITY,
-		"city_id": city_id,
-		"player_only": true,
-		"same_city_only": true,
-		"enemy_research_effect": false,
-		"port_enabled": false,
-		"shipyard_enabled": false,
-		"small_shipyard_enabled": false,
-		"large_shipyard_enabled": false,
-		"trade_ship_enabled": false,
-		"warship_enabled": false,
-		"panokseon_enabled": false,
-		"turtle_ship_enabled": false,
-		"fire_ship_enabled": false,
-		"naval_training_pct": 0.0,
-		"naval_formation_pct": 0.0,
-		"naval_support_pct": 0.0,
-		"source_techs": [],
-	}
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return unlock
-	var source_techs: Array[String] = []
-	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_port"):
-		unlock["port_enabled"] = true
-		unlock["trade_ship_enabled"] = true
-		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.03
-		source_techs.append("commerce_port")
-	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_shipyard"):
-		unlock["shipyard_enabled"] = true
-		unlock["small_shipyard_enabled"] = true
-		source_techs.append("commerce_shipyard")
-	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_trade_port"):
-		unlock["trade_ship_enabled"] = true
-		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.05
-		source_techs.append("commerce_trade_port")
-	if _has_completed_city_domestic_tech_mvp(city_id, "fish_fleet"):
-		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.03
-		source_techs.append("fish_fleet")
-	if _has_completed_city_domestic_tech_mvp(city_id, "fish_dried_supply_base"):
-		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.05
-		source_techs.append("fish_dried_supply_base")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_training"):
-		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.04
-		source_techs.append("naval_training")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_warship_building"):
-		unlock["warship_enabled"] = true
-		unlock["shipyard_enabled"] = true
-		source_techs.append("naval_warship_building")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_panokseon"):
-		unlock["panokseon_enabled"] = true
-		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.08
-		source_techs.append("naval_panokseon")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_turtle_ship"):
-		unlock["turtle_ship_enabled"] = true
-		unlock["large_shipyard_enabled"] = true
-		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.14
-		source_techs.append("naval_turtle_ship")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_crane_wing_formation"):
-		unlock["naval_formation_pct"] = float(unlock.get("naval_formation_pct", 0.0)) + 0.08
-		source_techs.append("naval_crane_wing_formation")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_fire_ship"):
-		unlock["fire_ship_enabled"] = true
-		source_techs.append("naval_fire_ship")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_cannon_mount"):
-		unlock["warship_enabled"] = true
-		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.04
-		source_techs.append("naval_cannon_mount")
-	unlock["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(source_techs)
-	return unlock
+	return _ensure_domestic_tech_effect_provider().get_naval_unlock_modifier(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _get_player_siege_unlock_modifier_mvp(city_id: String = "") -> Dictionary:
-	var unlock := {
-		"scope": "combined",
-		"city_id": city_id,
-		"player_only": true,
-		"same_city_only": true,
-		"enemy_research_effect": false,
-		"siege_unit_enabled": false,
-		"siege_engine_enabled": false,
-		"artillery_enabled": false,
-		"siege_attack_pct": 0.0,
-		"logistics_pct": 0.0,
-		"expedition_pct": 0.0,
-		"source_techs": [],
-	}
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return unlock
-	var source_techs: Array[String] = []
-	if _has_completed_city_domestic_tech_mvp(city_id, "mil_siege_unit"):
-		unlock["siege_unit_enabled"] = true
-		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.04
-		source_techs.append("mil_siege_unit")
-	if _has_completed_city_domestic_tech_mvp(city_id, "mil_siege_engine"):
-		unlock["siege_engine_enabled"] = true
-		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.08
-		source_techs.append("mil_siege_engine")
-	if _has_completed_city_domestic_tech_mvp(city_id, "naval_cannon_mount"):
-		unlock["artillery_enabled"] = true
-		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.04
-		source_techs.append("naval_cannon_mount")
-	if _has_completed_national_domestic_tech_mvp("nation_logistics_system"):
-		unlock["logistics_pct"] = float(unlock.get("logistics_pct", 0.0)) + 0.05
-		source_techs.append("nation_logistics_system")
-	if _has_completed_national_domestic_tech_mvp("nation_expedition_system"):
-		unlock["expedition_pct"] = float(unlock.get("expedition_pct", 0.0)) + 0.05
-		source_techs.append("nation_expedition_system")
-	if _has_completed_national_domestic_tech_mvp("nation_military_reform"):
-		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.03
-		source_techs.append("nation_military_reform")
-	if _has_completed_national_domestic_tech_mvp("nation_weapon_factory"):
-		unlock["artillery_enabled"] = true
-		source_techs.append("nation_weapon_factory")
-	unlock["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(source_techs)
-	return unlock
+	return _ensure_domestic_tech_effect_provider().get_siege_unlock_modifier(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id), _get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _has_player_naval_unlock_modifier_data_mvp(unlock: Dictionary) -> bool:
-	return bool(unlock.get("port_enabled", false)) \
-		or bool(unlock.get("shipyard_enabled", false)) \
-		or bool(unlock.get("small_shipyard_enabled", false)) \
-		or bool(unlock.get("large_shipyard_enabled", false)) \
-		or bool(unlock.get("trade_ship_enabled", false)) \
-		or bool(unlock.get("warship_enabled", false)) \
-		or bool(unlock.get("panokseon_enabled", false)) \
-		or bool(unlock.get("turtle_ship_enabled", false)) \
-		or bool(unlock.get("fire_ship_enabled", false)) \
-		or not is_equal_approx(float(unlock.get("naval_training_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(unlock.get("naval_formation_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(unlock.get("naval_support_pct", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_naval_unlock_data(unlock)
 
 
 func _has_player_siege_unlock_modifier_data_mvp(unlock: Dictionary) -> bool:
-	return bool(unlock.get("siege_unit_enabled", false)) \
-		or bool(unlock.get("siege_engine_enabled", false)) \
-		or bool(unlock.get("artillery_enabled", false)) \
-		or not is_equal_approx(float(unlock.get("siege_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(unlock.get("logistics_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(unlock.get("expedition_pct", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_siege_unlock_data(unlock)
 
 
 func _is_player_ship_unlocked_by_domestic_tech_mvp(ship_id: String, city_id: String = "") -> bool:
-	var unlock := _get_player_naval_unlock_modifier_mvp(city_id)
-	match ship_id:
-		"trade_ship", "fishing_fleet":
-			return bool(unlock.get("trade_ship_enabled", false)) or bool(unlock.get("port_enabled", false))
-		"small_ship", "small_warship":
-			return bool(unlock.get("small_shipyard_enabled", false)) or bool(unlock.get("shipyard_enabled", false))
-		"warship":
-			return bool(unlock.get("warship_enabled", false))
-		"panokseon":
-			return bool(unlock.get("panokseon_enabled", false))
-		"turtle_ship":
-			return bool(unlock.get("turtle_ship_enabled", false))
-		"fire_ship":
-			return bool(unlock.get("fire_ship_enabled", false))
-		_:
-			return false
+	return _ensure_domestic_tech_effect_provider().is_ship_unlocked(ship_id, _get_player_naval_unlock_modifier_mvp(city_id))
 
 
 func _is_player_siege_unlocked_by_domestic_tech_mvp(siege_id: String, city_id: String = "") -> bool:
-	var unlock := _get_player_siege_unlock_modifier_mvp(city_id)
-	match siege_id:
-		"siege_unit":
-			return bool(unlock.get("siege_unit_enabled", false))
-		"siege_engine":
-			return bool(unlock.get("siege_engine_enabled", false))
-		"artillery":
-			return bool(unlock.get("artillery_enabled", false))
-		_:
-			return false
+	return _ensure_domestic_tech_effect_provider().is_siege_unlocked(siege_id, _get_player_siege_unlock_modifier_mvp(city_id))
 
 
 func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
-	var bonus := _get_empty_domestic_tech_national_policy_bonus_mvp()
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_NATIONAL:
-			continue
-		if not _has_completed_national_domestic_tech_mvp(tech_id):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
-		bonus["tax_gold_percent"] = float(bonus.get("tax_gold_percent", 0.0)) + float(mapping.get("tax_gold_percent", 0.0))
-		bonus["admin_efficiency_percent"] = float(bonus.get("admin_efficiency_percent", 0.0)) + float(mapping.get("admin_efficiency_percent", 0.0))
-		bonus["recruit_capacity_percent"] = float(bonus.get("recruit_capacity_percent", 0.0)) + float(mapping.get("recruit_capacity_percent", 0.0))
-		bonus["logistics_supply_percent"] = float(bonus.get("logistics_supply_percent", 0.0)) + float(mapping.get("logistics_supply_percent", 0.0))
-		bonus["population_growth_percent"] = float(bonus.get("population_growth_percent", 0.0)) + float(mapping.get("population_growth_percent", 0.0))
-		bonus["storage_flat"] = int(bonus.get("storage_flat", 0)) + int(mapping.get("storage_flat", 0))
-		bonus["law_order_flat"] = int(bonus.get("law_order_flat", 0)) + int(mapping.get("law_order_flat", 0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_national_policy_bonus(_get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _get_national_domestic_economy_modifier_mvp() -> Dictionary:
-	var modifier := _get_empty_domestic_economy_modifier_mvp()
-	modifier["scope"] = DOMESTIC_TECH_SCOPE_NATIONAL
-	modifier["player_only"] = true
-	modifier["income_generation_connected"] = true
-	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	var tax_percent := float(bonus.get("tax_gold_percent", 0.0))
-	modifier["gold_income_pct"] = tax_percent
-	modifier["tax_pct"] = tax_percent
-	modifier["admin_pct"] = float(bonus.get("admin_efficiency_percent", 0.0))
-	modifier["population_growth_pct"] = float(bonus.get("population_growth_percent", 0.0))
-	modifier["storage_flat"] = int(bonus.get("storage_flat", 0))
-	modifier["supply_flat"] = int(bonus.get("logistics_supply_percent", 0.0) * 100.0)
-	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return modifier
+	return _ensure_domestic_tech_effect_provider().get_national_economy_modifier(_get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _merge_domestic_economy_source_techs_mvp(first: Variant, second: Variant) -> Array[String]:
-	var source_techs: Array = []
-	if first is Array:
-		source_techs.append_array(first as Array)
-	if second is Array:
-		source_techs.append_array(second as Array)
-	return _get_unique_domestic_tech_source_ids_mvp(source_techs)
+	return _ensure_domestic_tech_effect_provider().merge_source_ids(first, second)
 
 
 func _get_city_economy_tech_modifier_summary_mvp(city_id: String) -> Dictionary:
@@ -9696,63 +9110,19 @@ func _get_city_economy_tech_modifier_summary_mvp(city_id: String) -> Dictionary:
 
 
 func _get_domestic_tech_diplomacy_spy_bonus_mvp() -> Dictionary:
-	var bonus := _get_empty_domestic_tech_diplomacy_spy_bonus_mvp()
-	var completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_NATIONAL:
-			continue
-		if not bool(completed.get(tech_id, false)):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.get(tech_id, {})
-		bonus["diplomacy_influence_flat"] = int(bonus.get("diplomacy_influence_flat", 0)) + int(mapping.get("diplomacy_influence_flat", 0))
-		bonus["diplomacy_preparation_percent"] = float(bonus.get("diplomacy_preparation_percent", 0.0)) + float(mapping.get("diplomacy_preparation_percent", 0.0))
-		bonus["tribute_readiness_percent"] = float(bonus.get("tribute_readiness_percent", 0.0)) + float(mapping.get("tribute_readiness_percent", 0.0))
-		bonus["world_diplomacy_display_percent"] = float(bonus.get("world_diplomacy_display_percent", 0.0)) + float(mapping.get("world_diplomacy_display_percent", 0.0))
-		bonus["spy_network_flat"] = int(bonus.get("spy_network_flat", 0)) + int(mapping.get("spy_network_flat", 0))
-		bonus["spy_preparation_percent"] = float(bonus.get("spy_preparation_percent", 0.0)) + float(mapping.get("spy_preparation_percent", 0.0))
-		bonus["counter_intel_display_percent"] = float(bonus.get("counter_intel_display_percent", 0.0)) + float(mapping.get("counter_intel_display_percent", 0.0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_diplomacy_spy_bonus(_get_completed_national_domestic_tech_snapshot_mvp())
 
 
 func _get_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> Dictionary:
-	var bonus := _get_empty_domestic_tech_city_spy_intel_bonus_mvp()
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-		return bonus
-	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
-		return bonus
-	var completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
-	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
-	var source_seen := {}
-	for tech_id_variant in DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.keys():
-		var tech_id := str(tech_id_variant)
-		if source_seen.has(tech_id):
-			continue
-		var definition := _get_domestic_tech_definition_mvp(tech_id)
-		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
-			continue
-		if not bool(city_completed.get(tech_id, false)):
-			continue
-		var mapping: Dictionary = DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.get(tech_id, {})
-		bonus["local_spy_network_flat"] = int(bonus.get("local_spy_network_flat", 0)) + int(mapping.get("local_spy_network_flat", 0))
-		bonus["local_counter_intel_display_percent"] = float(bonus.get("local_counter_intel_display_percent", 0.0)) + float(mapping.get("local_counter_intel_display_percent", 0.0))
-		bonus["local_intel_readiness_percent"] = float(bonus.get("local_intel_readiness_percent", 0.0)) + float(mapping.get("local_intel_readiness_percent", 0.0))
-		(bonus["source_techs"] as Array).append(tech_id)
-		source_seen[tech_id] = true
-	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-	return bonus
+	return _ensure_domestic_tech_effect_provider().get_city_spy_intel_bonus(city_id, _is_city_owned_by_player_mvp(city_id), _get_completed_city_domestic_tech_snapshot_mvp(city_id))
 
 
 func _append_domestic_modifier_source_if_completed_mvp(modifier: Dictionary, tech_id: String) -> void:
-	if _has_completed_national_domestic_tech_mvp(tech_id):
-		(modifier["source_techs"] as Array).append(tech_id)
+	_ensure_domestic_tech_effect_provider().append_source_if_completed(
+		modifier,
+		tech_id,
+		_get_completed_national_domestic_tech_snapshot_mvp()
+	)
 
 
 func _get_player_spy_tech_modifier_mvp(city_id: String = "") -> Dictionary:
@@ -9764,107 +9134,51 @@ func _get_modified_diplomacy_success_chance_mvp(base_chance: int, action_id: Str
 
 
 func _has_domestic_tech_national_policy_bonus_data_mvp(bonus: Dictionary) -> bool:
-	return not is_equal_approx(float(bonus.get("tax_gold_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("admin_efficiency_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("recruit_capacity_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("logistics_supply_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("population_growth_percent", 0.0)), 0.0) \
-		or int(bonus.get("storage_flat", 0)) != 0 \
-		or int(bonus.get("law_order_flat", 0)) != 0
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("policy", bonus)
 
 
 func _has_domestic_tech_diplomacy_spy_bonus_data_mvp(bonus: Dictionary) -> bool:
-	return int(bonus.get("diplomacy_influence_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("diplomacy_preparation_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("tribute_readiness_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("world_diplomacy_display_percent", 0.0)), 0.0) \
-		or int(bonus.get("spy_network_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("spy_preparation_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("counter_intel_display_percent", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("diplomacy_spy", bonus)
 
 
 func _has_domestic_tech_city_spy_intel_bonus_data_mvp(bonus: Dictionary) -> bool:
-	return int(bonus.get("local_spy_network_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("local_counter_intel_display_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("local_intel_readiness_percent", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("city_spy", bonus)
 
 
 func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
-	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-	return int(bonus.get("food_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("food_percent", 0.0)), 0.0) \
-		or int(bonus.get("gold_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("gold_percent", 0.0)), 0.0) \
-		or int(bonus.get("supply_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("supply_percent", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("economy", _get_domestic_tech_city_economy_bonus_mvp(city_id))
 
 
 func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool:
-	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-	return int(bonus.get("defense_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("defense_percent", 0.0)), 0.0) \
-		or int(bonus.get("recruit_capacity_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("cavalry_charge_percent", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("military", _get_domestic_tech_city_military_defense_bonus_mvp(city_id))
 
 
 func _has_domestic_defense_modifier_data_mvp(modifier: Dictionary) -> bool:
-	return int(modifier.get("city_defense_flat", 0)) != 0 \
-		or not is_equal_approx(float(modifier.get("city_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("wall_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("moat_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("tower_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("gate_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("garrison_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("siege_resistance_pct", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("defense", modifier)
 
 
 func _has_domestic_battle_modifier_data_mvp(modifier: Dictionary) -> bool:
-	return not is_equal_approx(float(modifier.get("global_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("global_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("infantry_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("infantry_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("archer_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("archer_defense_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("cavalry_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("cavalry_charge_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("gunpowder_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("crossbow_attack_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("logistics_pct", 0.0)), 0.0) \
-		or not is_equal_approx(float(modifier.get("siege_attack_pct", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("battle", modifier)
 
 
 func _has_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> bool:
-	var bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
-	return _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus)
+	return _has_domestic_tech_city_naval_siege_bonus_data_mvp(_get_domestic_tech_city_naval_siege_bonus_mvp(city_id))
 
 
 func _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus: Dictionary) -> bool:
-	return int(bonus.get("shipyard_capacity_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("naval_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("naval_supply_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("ship_maintenance_percent", 0.0)), 0.0) \
-		or int(bonus.get("siege_preparation_flat", 0)) != 0 \
-		or not is_equal_approx(float(bonus.get("siege_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("siege_engineering_percent", 0.0)), 0.0)
+	return _ensure_domestic_tech_effect_provider().has_bonus_data("naval_siege", bonus)
 
 
 func _has_domestic_tech_national_policy_bonus_mvp() -> bool:
-	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	return _has_domestic_tech_national_policy_bonus_data_mvp(bonus)
+	return _has_domestic_tech_national_policy_bonus_data_mvp(_get_domestic_tech_national_policy_bonus_mvp())
 
 
 func _has_domestic_tech_diplomacy_spy_bonus_mvp() -> bool:
-	var bonus := _get_domestic_tech_diplomacy_spy_bonus_mvp()
-	return _has_domestic_tech_diplomacy_spy_bonus_data_mvp(bonus)
+	return _has_domestic_tech_diplomacy_spy_bonus_data_mvp(_get_domestic_tech_diplomacy_spy_bonus_mvp())
 
 
 func _has_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> bool:
-	var bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
-	return _has_domestic_tech_city_spy_intel_bonus_data_mvp(bonus)
+	return _has_domestic_tech_city_spy_intel_bonus_data_mvp(_get_domestic_tech_city_spy_intel_bonus_mvp(city_id))
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
@@ -10258,7 +9572,7 @@ func _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id: String, inclu
 	var result: Array[String] = []
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return result
-	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
+	if _ensure_domestic_tech_effect_provider().is_effect_group_empty("city_spy_intel"):
 		return result
 	var bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
 	if not _has_domestic_tech_city_spy_intel_bonus_data_mvp(bonus):
@@ -10280,39 +9594,7 @@ func _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id: String, inclu
 
 
 func _get_domestic_tech_economy_turn_summary_mvp() -> Dictionary:
-	var result := {
-		"enabled": true,
-		"city_count": 0,
-		"source_count": 0,
-		"cities": [],
-	}
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if not owned_city_ids is Array:
-		return result
-	for city_id_variant in owned_city_ids:
-		var city_id := str(city_id_variant)
-		if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
-			continue
-		var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-		if not _has_domestic_tech_city_economy_bonus_mvp(city_id):
-			continue
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if source_techs.is_empty():
-			continue
-		var city_entry := {
-			"city_id": city_id,
-			"food_flat": int(bonus.get("food_flat", 0)),
-			"food_percent": float(bonus.get("food_percent", 0.0)),
-			"gold_flat": int(bonus.get("gold_flat", 0)),
-			"gold_percent": float(bonus.get("gold_percent", 0.0)),
-			"supply_flat": int(bonus.get("supply_flat", 0)),
-			"supply_percent": float(bonus.get("supply_percent", 0.0)),
-			"source_techs": source_techs,
-		}
-		(result["cities"] as Array).append(city_entry)
-		result["city_count"] = int(result.get("city_count", 0)) + 1
-		result["source_count"] = int(result.get("source_count", 0)) + source_techs.size()
-	return result
+	return _ensure_domestic_tech_effect_provider().get_economy_turn_summary(_player_state.get("owned_city_ids", []), _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {})))
 
 
 func _format_domestic_tech_economy_turn_summary_mvp(summary: Dictionary) -> String:
@@ -11259,12 +10541,13 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 		result.append("해금 상태: 조건 충족 시 관련 테크 연구 가능")
 	elif scope == DOMESTIC_TECH_SCOPE_CITY and (not required_national_techs.is_empty() or not enhanced_by_national_techs.is_empty()):
 		result.append("국가 테크 조건은 완료 상태만 인정")
-	var has_economy_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id)
-	var has_military_defense_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.has(tech_id)
-	var has_naval_siege_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.has(tech_id)
-	var has_national_policy_safe_effect := scope == DOMESTIC_TECH_SCOPE_NATIONAL and DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.has(tech_id)
-	var has_diplomacy_spy_safe_effect := scope == DOMESTIC_TECH_SCOPE_NATIONAL and DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.has(tech_id)
-	var has_city_spy_intel_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.has(tech_id)
+	var provider := _ensure_domestic_tech_effect_provider()
+	var has_economy_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and provider.has_effect_mapping("economy", tech_id)
+	var has_military_defense_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and provider.has_effect_mapping("military_defense", tech_id)
+	var has_naval_siege_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and provider.has_effect_mapping("naval_siege", tech_id)
+	var has_national_policy_safe_effect := scope == DOMESTIC_TECH_SCOPE_NATIONAL and provider.has_effect_mapping("national_policy", tech_id)
+	var has_diplomacy_spy_safe_effect := scope == DOMESTIC_TECH_SCOPE_NATIONAL and provider.has_effect_mapping("diplomacy_spy", tech_id)
+	var has_city_spy_intel_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and provider.has_effect_mapping("city_spy_intel", tech_id)
 	if has_economy_safe_effect and is_completed:
 		result.append("경제 효과: 선택 도시 수입에 적용 중")
 	elif has_economy_safe_effect:
@@ -11297,503 +10580,39 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 
 func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	_normalize_domestic_tech_state_mvp()
-	var national_completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
-	var city_completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
-	var city_completed_count := 0
-	for city_completed_variant in city_completed_by_city.values():
-		if city_completed_variant is Dictionary:
-			city_completed_count += (city_completed_variant as Dictionary).size()
-	var unlock_ready_count := 0
-	var required_national_checks := 0
-	var city_prerequisite_checks := 0
-	var numeric_economy_effects_applied := 0
-	var agri_effect_count := 0
-	var fish_effect_count := 0
-	var commerce_effect_count := 0
-	var city_defense_effects_applied := 0
-	var training_display_effects_applied := 0
-	var naval_display_effects_applied := 0
-	var siege_display_effects_applied := 0
-	var naval_siege_sources_unique := true
-	var diplomacy_display_effects_applied := 0
-	var spy_display_effects_applied := 0
-	var city_spy_intel_display_effects_applied := 0
-	var city_spy_intel_sources_unique := true
-	var diplomacy_spy_bonus := _get_domestic_tech_diplomacy_spy_bonus_mvp()
-	var diplomacy_spy_sources := _get_unique_domestic_tech_source_ids_mvp(diplomacy_spy_bonus.get("source_techs", []))
-	var diplomacy_spy_source_raw: Variant = diplomacy_spy_bonus.get("source_techs", [])
-	var diplomacy_spy_sources_unique := true
-	if diplomacy_spy_source_raw is Array and (diplomacy_spy_source_raw as Array).size() != diplomacy_spy_sources.size():
-		diplomacy_spy_sources_unique = false
-	for diplomacy_spy_source_tech_id in diplomacy_spy_sources:
-		var diplomacy_spy_mapping: Dictionary = DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.get(diplomacy_spy_source_tech_id, {})
-		if int(diplomacy_spy_mapping.get("diplomacy_influence_flat", 0)) != 0 \
-			or not is_equal_approx(float(diplomacy_spy_mapping.get("diplomacy_preparation_percent", 0.0)), 0.0) \
-			or not is_equal_approx(float(diplomacy_spy_mapping.get("tribute_readiness_percent", 0.0)), 0.0) \
-			or not is_equal_approx(float(diplomacy_spy_mapping.get("world_diplomacy_display_percent", 0.0)), 0.0):
-			diplomacy_display_effects_applied += 1
-		if int(diplomacy_spy_mapping.get("spy_network_flat", 0)) != 0 \
-			or not is_equal_approx(float(diplomacy_spy_mapping.get("spy_preparation_percent", 0.0)), 0.0) \
-			or not is_equal_approx(float(diplomacy_spy_mapping.get("counter_intel_display_percent", 0.0)), 0.0):
-			spy_display_effects_applied += 1
-	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	var national_policy_sources := _get_unique_domestic_tech_source_ids_mvp(national_policy_bonus.get("source_techs", []))
-	var tax_gold_effects_applied := 0
-	var admin_display_effects_applied := 0
-	var recruit_display_effects_applied := 0
-	var logistics_display_effects_applied := 0
-	var population_display_effects_applied := 0
-	var law_order_display_effects_applied := 0
-	var storage_display_effects_applied := 0
-	for national_policy_tech_id in national_policy_sources:
-		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(national_policy_tech_id, {})
-		if not is_equal_approx(float(mapping.get("tax_gold_percent", 0.0)), 0.0):
-			tax_gold_effects_applied += 1
-		if not is_equal_approx(float(mapping.get("admin_efficiency_percent", 0.0)), 0.0):
-			admin_display_effects_applied += 1
-		if not is_equal_approx(float(mapping.get("recruit_capacity_percent", 0.0)), 0.0):
-			recruit_display_effects_applied += 1
-		if not is_equal_approx(float(mapping.get("logistics_supply_percent", 0.0)), 0.0):
-			logistics_display_effects_applied += 1
-		if not is_equal_approx(float(mapping.get("population_growth_percent", 0.0)), 0.0):
-			population_display_effects_applied += 1
-		if int(mapping.get("law_order_flat", 0)) != 0:
-			law_order_display_effects_applied += 1
-		if int(mapping.get("storage_flat", 0)) != 0:
-			storage_display_effects_applied += 1
-	for national_tech_id_variant in national_completed.keys():
-		var national_tech_id := str(national_tech_id_variant)
-		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
-		if national_def.is_empty():
-			continue
-		var unlocks: Array = national_def.get("unlocks_city_techs", []) if national_def.get("unlocks_city_techs", []) is Array else []
-		var enhances: Array = national_def.get("enhances_city_techs", []) if national_def.get("enhances_city_techs", []) is Array else []
-		unlock_ready_count += unlocks.size()
-		unlock_ready_count += enhances.size()
-	for tech_def_variant in _get_domestic_tech_definitions_mvp().values():
-		if not tech_def_variant is Dictionary:
-			continue
-		var tech_def := tech_def_variant as Dictionary
-		var required_national: Array = tech_def.get("required_national_techs", []) if tech_def.get("required_national_techs", []) is Array else []
-		required_national_checks += required_national.size()
-		if str(tech_def.get("tree_scope", "")) == DOMESTIC_TECH_SCOPE_CITY:
-			var prerequisites: Array = tech_def.get("prerequisites", []) if tech_def.get("prerequisites", []) is Array else []
-			city_prerequisite_checks += prerequisites.size()
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if owned_city_ids is Array:
-		for city_id_variant in owned_city_ids:
-			var city_id := str(city_id_variant)
-			if not _is_city_owned_by_player_mvp(city_id):
-				continue
-			var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-			var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-			numeric_economy_effects_applied += source_techs.size()
-			for source_tech_id in source_techs:
-				var source_def := _get_domestic_tech_definition_mvp(source_tech_id)
-				match str(source_def.get("category", "")):
-					DOMESTIC_TECH_CATEGORY_AGRI:
-						agri_effect_count += 1
-					DOMESTIC_TECH_CATEGORY_FISH:
-						fish_effect_count += 1
-					DOMESTIC_TECH_CATEGORY_COMMERCE:
-						commerce_effect_count += 1
-			var military_defense_bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-			var military_defense_sources := _get_unique_domestic_tech_source_ids_mvp(military_defense_bonus.get("source_techs", []))
-			for military_source_tech_id in military_defense_sources:
-				var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(military_source_tech_id, {})
-				if int(mapping.get("defense_flat", 0)) != 0 or not is_equal_approx(float(mapping.get("defense_percent", 0.0)), 0.0):
-					city_defense_effects_applied += 1
-				if int(mapping.get("recruit_capacity_flat", 0)) != 0 \
-					or not is_equal_approx(float(mapping.get("training_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("infantry_training_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("archer_training_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("cavalry_training_percent", 0.0)), 0.0):
-					training_display_effects_applied += 1
-			var naval_siege_bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
-			var naval_siege_sources := _get_unique_domestic_tech_source_ids_mvp(naval_siege_bonus.get("source_techs", []))
-			var naval_siege_source_raw: Variant = naval_siege_bonus.get("source_techs", [])
-			if naval_siege_source_raw is Array and (naval_siege_source_raw as Array).size() != naval_siege_sources.size():
-				naval_siege_sources_unique = false
-			for naval_siege_source_tech_id in naval_siege_sources:
-				var mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(naval_siege_source_tech_id, {})
-				if int(mapping.get("shipyard_capacity_flat", 0)) != 0 \
-					or not is_equal_approx(float(mapping.get("naval_training_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("naval_supply_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("ship_maintenance_percent", 0.0)), 0.0):
-					naval_display_effects_applied += 1
-				if int(mapping.get("siege_preparation_flat", 0)) != 0 \
-					or not is_equal_approx(float(mapping.get("siege_training_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(mapping.get("siege_engineering_percent", 0.0)), 0.0):
-					siege_display_effects_applied += 1
-			var city_spy_intel_bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
-			var city_spy_intel_sources := _get_unique_domestic_tech_source_ids_mvp(city_spy_intel_bonus.get("source_techs", []))
-			var city_spy_intel_source_raw: Variant = city_spy_intel_bonus.get("source_techs", [])
-			if city_spy_intel_source_raw is Array and (city_spy_intel_source_raw as Array).size() != city_spy_intel_sources.size():
-				city_spy_intel_sources_unique = false
-			for city_spy_intel_source_tech_id in city_spy_intel_sources:
-				var city_spy_intel_mapping: Dictionary = DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.get(city_spy_intel_source_tech_id, {})
-				if int(city_spy_intel_mapping.get("local_spy_network_flat", 0)) != 0 \
-					or not is_equal_approx(float(city_spy_intel_mapping.get("local_counter_intel_display_percent", 0.0)), 0.0) \
-					or not is_equal_approx(float(city_spy_intel_mapping.get("local_intel_readiness_percent", 0.0)), 0.0):
-					city_spy_intel_display_effects_applied += 1
-	var national_policy_source_count := 0
-	var national_policy_source_raw: Variant = national_policy_bonus.get("source_techs", [])
-	if national_policy_source_raw is Array:
-		national_policy_source_count = (national_policy_source_raw as Array).size()
-	return {
-		"national_completed_count": national_completed.size(),
-		"city_completed_count": city_completed_count,
-		"unlock_ready_count": unlock_ready_count,
-		"numeric_effects_applied": numeric_economy_effects_applied,
-		"numeric_economy_effects_applied": numeric_economy_effects_applied,
-		"economy_effects_enabled": true,
-		"military_defense_effects_enabled": true,
-		"national_policy_effects_enabled": true,
-		"naval_siege_effects_enabled": true,
-		"diplomacy_spy_effects_enabled": true,
-		"agri_effect_count": agri_effect_count,
-		"fish_effect_count": fish_effect_count,
-		"commerce_effect_count": commerce_effect_count,
-		"city_defense_effects_applied": city_defense_effects_applied,
-		"training_display_effects_applied": training_display_effects_applied,
-		"naval_display_effects_applied": naval_display_effects_applied,
-		"siege_display_effects_applied": siege_display_effects_applied,
-		"diplomacy_display_effects_applied": diplomacy_display_effects_applied,
-		"spy_display_effects_applied": spy_display_effects_applied,
-		"city_spy_intel_display_effects_applied": city_spy_intel_display_effects_applied,
-		"national_policy_effects_applied": national_policy_sources.size(),
-		"tax_gold_effects_applied": tax_gold_effects_applied,
-		"admin_display_effects_applied": admin_display_effects_applied,
-		"recruit_display_effects_applied": recruit_display_effects_applied,
-		"logistics_display_effects_applied": logistics_display_effects_applied,
-		"population_display_effects_applied": population_display_effects_applied,
-		"law_order_display_effects_applied": law_order_display_effects_applied,
-		"storage_display_effects_applied": storage_display_effects_applied,
-		"same_city_only": true,
-		"completed_city_tech_only": true,
-		"player_city_completed_only": true,
-		"national_completed_only": true,
-		"player_national_completed_only": true,
-		"player_city_only": true,
-		"researching_has_effect": false,
-		"researching_has_naval_siege_effect": false,
-		"researching_has_policy_effect": false,
-		"display_safe_only": true,
-		"bonus_state_persisted": false,
-		"tax_gold_applied_once": true,
-		"source_techs_unique": national_policy_sources.size() == national_policy_source_count and naval_siege_sources_unique and diplomacy_spy_sources_unique and city_spy_intel_sources_unique,
-		"naval_siege_source_techs_unique": naval_siege_sources_unique,
-		"diplomacy_spy_source_techs_unique": diplomacy_spy_sources_unique,
-		"city_spy_intel_source_techs_unique": city_spy_intel_sources_unique,
-		"city_spy_intel_safe_mapping_empty": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty(),
-		"empty_city_spy_intel_mapping_no_display": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty() and city_spy_intel_display_effects_applied == 0,
-		"required_national_checks": required_national_checks,
-		"city_prerequisite_checks": city_prerequisite_checks,
-		"researching_treated_as_completed": false,
-		"combat_effects_applied": 0,
-		"battle_effects_applied": 0,
-		"troop_stat_effects_applied": 0,
-		"troop_count_effects_applied": 0,
-		"ship_count_effects_applied": 0,
-		"siege_weapon_count_effects_applied": 0,
-		"diplomacy_effects_applied": 0,
-		"spy_effects_applied": 0,
-		"diplomacy_success_effects_applied": 0,
-		"spy_success_effects_applied": 0,
-		"relation_effects_applied": 0,
-		"city_intel_effects_applied": 0,
-		"market_effects_applied": 0,
-		"enemy_effects_applied": 0,
-}
+	return _ensure_domestic_tech_effect_provider().get_effect_summary(
+		_get_completed_national_domestic_tech_snapshot_mvp(),
+		_normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {})),
+		_get_player_city_ids_for_domestic_tech_research_mvp()
+	)
 
 
 func _get_domestic_tech_national_policy_effect_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	return {
-		"national_policy_effects_enabled": true,
-		"national_completed_only": true,
-		"player_national_completed_only": true,
-		"researching_has_effect": false,
-		"researching_has_policy_effect": false,
-		"bonus_state_persisted": false,
-		"tax_gold_applied_once": true,
-		"source_techs_unique": bool(summary.get("source_techs_unique", true)),
-		"tax_gold_effects_applied": int(summary.get("tax_gold_effects_applied", 0)),
-		"admin_display_effects_applied": int(summary.get("admin_display_effects_applied", 0)),
-		"recruit_display_effects_applied": int(summary.get("recruit_display_effects_applied", 0)),
-		"logistics_display_effects_applied": int(summary.get("logistics_display_effects_applied", 0)),
-		"population_display_effects_applied": int(summary.get("population_display_effects_applied", 0)),
-		"law_order_display_effects_applied": int(summary.get("law_order_display_effects_applied", 0)),
-		"storage_display_effects_applied": int(summary.get("storage_display_effects_applied", 0)),
-		"battle_effects_applied": 0,
-		"troop_stat_effects_applied": 0,
-		"troop_count_effects_applied": 0,
-		"diplomacy_effects_applied": 0,
-		"spy_effects_applied": 0,
-		"market_effects_applied": 0,
-		"enemy_effects_applied": 0,
-	}
+	return _ensure_domestic_tech_effect_provider().get_summary_slice("national_policy", _get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_numeric_effect_phase1_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	return {
-		"economy_effects_enabled": true,
-		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
-		"agri_effect_count": int(summary.get("agri_effect_count", 0)),
-		"fish_effect_count": int(summary.get("fish_effect_count", 0)),
-		"commerce_effect_count": int(summary.get("commerce_effect_count", 0)),
-		"same_city_only": true,
-		"researching_has_effect": false,
-		"bonus_state_persisted": false,
-		"combat_effects_applied": 0,
-		"diplomacy_effects_applied": 0,
-		"spy_effects_applied": 0,
-		"market_effects_applied": 0,
-		"enemy_effects_applied": 0,
-	}
+	return _ensure_domestic_tech_effect_provider().get_summary_slice("numeric", _get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_military_defense_effect_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	return {
-		"military_defense_effects_enabled": true,
-		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
-		"training_display_effects_applied": int(summary.get("training_display_effects_applied", 0)),
-		"battle_effects_applied": 0,
-		"troop_stat_effects_applied": 0,
-		"troop_count_effects_applied": 0,
-		"enemy_effects_applied": 0,
-		"same_city_only": true,
-		"completed_city_tech_only": true,
-		"player_city_only": true,
-		"researching_has_effect": false,
-		"bonus_state_persisted": false,
-	}
+	return _ensure_domestic_tech_effect_provider().get_summary_slice("military", _get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_naval_siege_effect_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	return {
-		"naval_siege_effects_enabled": true,
-		"player_city_completed_only": true,
-		"completed_city_tech_only": true,
-		"same_city_only": true,
-		"player_city_only": true,
-		"researching_has_effect": false,
-		"researching_has_naval_siege_effect": false,
-		"display_safe_only": true,
-		"bonus_state_persisted": false,
-		"source_techs_unique": bool(summary.get("naval_siege_source_techs_unique", true)),
-		"naval_display_effects_applied": int(summary.get("naval_display_effects_applied", 0)),
-		"siege_display_effects_applied": int(summary.get("siege_display_effects_applied", 0)),
-		"ship_count_effects_applied": 0,
-		"siege_weapon_count_effects_applied": 0,
-		"battle_effects_applied": 0,
-		"troop_stat_effects_applied": 0,
-		"troop_count_effects_applied": 0,
-		"enemy_effects_applied": 0,
-	}
+	return _ensure_domestic_tech_effect_provider().get_summary_slice("naval_siege", _get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_diplomacy_spy_effect_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	var city_spy_intel_display_count := int(summary.get("city_spy_intel_display_effects_applied", 0))
-	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
-		city_spy_intel_display_count = 0
-	return {
-		"diplomacy_spy_effects_enabled": true,
-		"player_national_completed_only": true,
-		"player_city_completed_only": true,
-		"same_city_only": true,
-		"display_safe_only": true,
-		"diplomacy_display_effects_applied": int(summary.get("diplomacy_display_effects_applied", 0)),
-		"spy_display_effects_applied": int(summary.get("spy_display_effects_applied", 0)),
-		"city_spy_intel_display_effects_applied": city_spy_intel_display_count,
-		"diplomacy_success_effects_applied": 0,
-		"spy_success_effects_applied": 0,
-		"relation_effects_applied": 0,
-		"city_intel_effects_applied": 0,
-		"enemy_effects_applied": 0,
-		"researching_has_diplomacy_spy_effect": false,
-		"bonus_state_persisted": false,
-		"source_techs_unique": bool(summary.get("diplomacy_spy_source_techs_unique", true)) and bool(summary.get("city_spy_intel_source_techs_unique", true)),
-		"city_spy_intel_source_techs_unique": bool(summary.get("city_spy_intel_source_techs_unique", true)),
-		"city_spy_intel_safe_mapping_empty": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty(),
-		"empty_city_spy_intel_mapping_no_display": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty() and city_spy_intel_display_count == 0,
-	}
+	return _ensure_domestic_tech_effect_provider().get_summary_slice("diplomacy_spy", _get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
-	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
-	return {
-		"economy_effects_enabled": bool(summary.get("economy_effects_enabled", true)),
-		"military_defense_effects_enabled": bool(summary.get("military_defense_effects_enabled", true)),
-		"national_policy_effects_enabled": bool(summary.get("national_policy_effects_enabled", true)),
-		"naval_siege_effects_enabled": bool(summary.get("naval_siege_effects_enabled", true)),
-		"diplomacy_spy_effects_enabled": bool(summary.get("diplomacy_spy_effects_enabled", true)),
-		"completed_only": bool(summary.get("completed_city_tech_only", true)) and bool(summary.get("national_completed_only", true)),
-		"completed_city_tech_only": bool(summary.get("completed_city_tech_only", true)),
-		"completed_national_tech_only": bool(summary.get("national_completed_only", true)),
-		"researching_has_effect": false,
-		"researching_treated_as_completed": false,
-		"player_only": bool(summary.get("player_city_only", true)) and bool(summary.get("player_national_completed_only", true)),
-		"player_city_completed_only": bool(summary.get("player_city_completed_only", true)),
-		"player_national_completed_only": bool(summary.get("player_national_completed_only", true)),
-		"same_city_only": bool(summary.get("same_city_only", true)),
-		"display_safe_only": bool(summary.get("display_safe_only", true)),
-		"bonus_state_persisted": false,
-		"source_techs_unique": bool(summary.get("source_techs_unique", true)),
-		"tax_gold_applied_once": bool(summary.get("tax_gold_applied_once", true)),
-		"empty_mapping_false_display": false,
-		"empty_city_spy_intel_mapping_no_display": bool(summary.get("empty_city_spy_intel_mapping_no_display", true)),
-		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
-		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
-		"training_display_effects_applied": int(summary.get("training_display_effects_applied", 0)),
-		"national_policy_effects_applied": int(summary.get("national_policy_effects_applied", 0)),
-		"naval_display_effects_applied": int(summary.get("naval_display_effects_applied", 0)),
-		"siege_display_effects_applied": int(summary.get("siege_display_effects_applied", 0)),
-		"diplomacy_display_effects_applied": int(summary.get("diplomacy_display_effects_applied", 0)),
-		"spy_display_effects_applied": int(summary.get("spy_display_effects_applied", 0)),
-		"city_spy_intel_display_effects_applied": int(summary.get("city_spy_intel_display_effects_applied", 0)),
-		"battle_effects_applied": 0,
-		"troop_stat_effects_applied": 0,
-		"troop_count_effects_applied": 0,
-		"ship_count_effects_applied": 0,
-		"siege_weapon_count_effects_applied": 0,
-		"diplomacy_success_effects_applied": 0,
-		"spy_success_effects_applied": 0,
-		"relation_effects_applied": 0,
-		"city_intel_effects_applied": 0,
-		"market_effects_applied": 0,
-		"enemy_effects_applied": 0,
-	}
+	return _ensure_domestic_tech_effect_provider().get_full_integration_summary(_get_domestic_tech_effect_phase1_summary_mvp())
 
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
-	return {
-		"version": "v0.70-98 Domestic Tech Complete Lock",
-		"map_only": false,
-		"domestic_tech_complete_lock_version": "v0.70-98",
-		"domestic_tech_complete_lock_status": "complete",
-		"domestic_tech_first_pass_complete": true,
-		"domestic_tech_gameplay_effect_integrated": true,
-		"domestic_tech_route_closed": true,
-		"future_domestic_tech_scope": "bugfix_balance_ui_or_separate_second_pass_only",
-		"economy_city_effect_integrated": true,
-		"defense_battle_effect_integrated": true,
-		"diplomacy_spy_effect_integrated": true,
-		"naval_siege_unlock_integrated": true,
-		"full_gameplay_f6_qa_verified": true,
-		"research_flow_qa_pass_ready": true,
-		"economy_city_qa_pass_ready": true,
-		"defense_battle_qa_pass_ready": true,
-		"diplomacy_spy_qa_pass_ready": true,
-		"naval_siege_qa_pass_ready": true,
-		"enemy_baseline_no_enemy_research_qa_pass_ready": true,
-		"preservation_qa_pass_ready": true,
-		"godot_headless_qa_passed": true,
-		"blocker_found": false,
-		"enemy_city_baseline_helper_added": true,
-		"enemy_defense_battle_baseline_helper_added": true,
-		"enemy_naval_siege_baseline_helper_added": true,
-		"domestic_tech_enemy_research_enabled": false,
-		"domestic_tech_enemy_completed_storage_enabled": false,
-		"battle_roster_stat_modifier_connected": true,
-		"naval_action_eligibility_connected": true,
-		"siege_action_eligibility_connected": true,
-		"naval_siege_deployment_preview_connected": true,
-		"battle_formula_changed": false,
-		"gameplay_formula_changed": false,
-		"actual_charge_logic_changed": false,
-		"save_load_schema_changed": false,
-		"active_payload_schema_changed": false,
-		"battle_context_schema_changed": false,
-		"pending_invasion_schema_changed": false,
-		"naval_siege_production_implemented": false,
-		"ship_count_mutation_added": false,
-		"siege_count_mutation_added": false,
-		"ship_siege_persistent_storage_added": false,
-		"enemy_research_effect_added": false,
-		"completed_lookup_contract": {
-			"national_helper": "_has_completed_national_domestic_tech_mvp",
-			"city_helper": "_has_completed_city_domestic_tech_mvp",
-			"existing_national_helper": "_is_national_domestic_tech_completed_mvp",
-			"existing_city_helper": "_is_city_domestic_tech_completed_mvp",
-			"normalizers": ["_normalize_national_domestic_tech_state_map_mvp", "_normalize_city_domestic_tech_state_map_mvp"],
-			"national_storage": "_player_state[\"national_domestic_tech_completed\"]",
-			"city_storage": "_player_state[\"city_domestic_tech_completed\"][city_id]",
-			"same_city_only": true,
-			"player_only": true,
-			"enemy_unknown_no_effect": true,
-		},
-		"candidate_hooks": {
-			"economy_city": [
-				"_calculate_player_domestic_income_delta",
-				"_calculate_city_domestic_income",
-				"_apply_domestic_tech_city_economy_bonus_to_income_mvp",
-				"_get_player_city_domestic_economy_modifier_mvp",
-				"_get_national_domestic_economy_modifier_mvp",
-				"_get_city_economy_tech_modifier_summary_mvp",
-				"_get_enemy_city_economy_baseline_mvp",
-				"_apply_resource_delta",
-				"_format_city_storage_summary",
-				"_format_warehouse_summary",
-				"_format_domestic_apply_summary",
-			],
-			"defense_battle": [
-				"_get_player_city_defense_modifier_mvp",
-				"_get_player_battle_tech_modifier_mvp",
-				"_get_enemy_city_defense_baseline_mvp",
-				"_get_enemy_battle_baseline_modifier_mvp",
-				"_get_domestic_tech_city_defense_display_value_mvp",
-				"_format_city_defense_battle_modifier_summary_mvp",
-				"_format_domestic_tech_city_military_defense_bonus_lines_mvp",
-				"_build_battle_context_from_pending_invasion",
-				"_build_player_attack_battle_context",
-				"_get_hero_battle_data_for_battle_context",
-				"_apply_domestic_battle_tech_modifier_to_hero_data_mvp",
-				"_apply_troop_allocation_to_roster",
-			],
-			"diplomacy_spy": [
-				"_validate_diplomacy_action",
-				"_apply_diplomacy_action",
-				"_calculate_alliance_acceptance_chance",
-				"_calculate_military_support_acceptance_chance",
-				"_validate_spy_action",
-				"_get_spy_info_success_chance",
-				"_calculate_spy_detection_chance",
-				"_get_spy_info_visibility_level",
-				"_roll_spy_info_result",
-				"_get_spy_wedge_success_chance",
-			],
-			"naval_siege_unlock": [
-				"_get_player_naval_unlock_modifier_mvp",
-				"_get_player_siege_unlock_modifier_mvp",
-				"_is_player_ship_unlocked_by_domestic_tech_mvp",
-				"_is_player_siege_unlocked_by_domestic_tech_mvp",
-				"_get_enemy_naval_baseline_mvp",
-				"_get_enemy_siege_baseline_mvp",
-				"_get_domestic_tech_city_naval_siege_bonus_mvp",
-				"_format_domestic_tech_city_naval_siege_bonus_lines_mvp",
-				"_get_domestic_tech_unlock_relation_status_mvp",
-				"_get_player_naval_siege_attack_unlock_block_reason_mvp",
-				"_get_player_attack_block_reason",
-				"_can_start_domestic_tech_research_mvp",
-				"_validate_player_attack_deployment",
-				"_build_player_attack_deployment_payload",
-				"_build_defense_deployment_payload",
-			],
-		},
-		"next_route": [
-			"v0.70-93 Economy / City Effect Integration",
-			"v0.70-94 Defense / Battle Effect Integration",
-			"v0.70-95 Diplomacy / Spy Effect Integration",
-			"v0.70-96 Naval / Siege Unlock Integration",
-			"v0.70-97 Full Gameplay F6 QA",
-			"v0.70-98 Domestic Tech Complete Lock",
-		],
-	}
+	return _ensure_domestic_tech_effect_provider().get_gameplay_integration_map_summary()
 
 
 func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
@@ -12994,21 +11813,21 @@ func _get_domestic_tech_completion_direct_effect_lines_mvp(tech_id: String, defi
 	var branch_id := str(definition.get("branch", ""))
 	var city_prefix := "%s " % city_name if not city_name.is_empty() else ""
 	if scope == DOMESTIC_TECH_SCOPE_CITY:
-		if DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id):
-			var economy_mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("economy", tech_id):
+			var economy_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("economy", tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s군량 생산" % city_prefix, float(economy_mapping.get("food_percent", 0.0)), int(economy_mapping.get("food_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s금전 수입" % city_prefix, float(economy_mapping.get("gold_percent", 0.0)), int(economy_mapping.get("gold_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s보급/저장 기반" % city_prefix, float(economy_mapping.get("supply_percent", 0.0)), int(economy_mapping.get("supply_flat", 0)))
-		if DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.has(tech_id):
-			var military_mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("military_defense", tech_id):
+			var military_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("military_defense", tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s도시 방어" % city_prefix, float(military_mapping.get("defense_percent", 0.0)), int(military_mapping.get("defense_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s모집 기반" % city_prefix, 0.0, int(military_mapping.get("recruit_capacity_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s보병 전투 기반" % city_prefix, float(military_mapping.get("infantry_training_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s궁병 전투 기반" % city_prefix, float(military_mapping.get("archer_training_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s기병 전투 기반" % city_prefix, float(military_mapping.get("cavalry_training_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s기병 돌격" % city_prefix, float(military_mapping.get("cavalry_charge_percent", 0.0)), 0)
-		if DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.has(tech_id):
-			var naval_siege_mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("naval_siege", tech_id):
+			var naval_siege_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("naval_siege", tech_id)
 			_append_domestic_tech_completion_city_unlock_lines_mvp(lines, tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s조선 준비" % city_prefix, 0.0, int(naval_siege_mapping.get("shipyard_capacity_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s수군 전투 기반" % city_prefix, float(naval_siege_mapping.get("naval_training_percent", 0.0)), 0)
@@ -13018,8 +11837,8 @@ func _get_domestic_tech_completion_direct_effect_lines_mvp(tech_id: String, defi
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s공성 훈련" % city_prefix, float(naval_siege_mapping.get("siege_training_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "%s공성 공학" % city_prefix, float(naval_siege_mapping.get("siege_engineering_percent", 0.0)), 0)
 	elif scope == DOMESTIC_TECH_SCOPE_NATIONAL:
-		if DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.has(tech_id):
-			var policy_mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("national_policy", tech_id):
+			var policy_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("national_policy", tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 세금 수입", float(policy_mapping.get("tax_gold_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 행정 효율", float(policy_mapping.get("admin_efficiency_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 징병 기반", float(policy_mapping.get("recruit_capacity_percent", 0.0)), 0)
@@ -13027,14 +11846,14 @@ func _get_domestic_tech_completion_direct_effect_lines_mvp(tech_id: String, defi
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 인구 기반", float(policy_mapping.get("population_growth_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 비축 기반", 0.0, int(policy_mapping.get("storage_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "국가 질서 기반", 0.0, int(policy_mapping.get("law_order_flat", 0)))
-		if DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.has(tech_id):
-			var battle_mapping: Dictionary = DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("national_battle", tech_id):
+			var battle_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("national_battle", tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 전군 공격", float(battle_mapping.get("global_attack_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 전군 방어", float(battle_mapping.get("global_defense_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 병참", float(battle_mapping.get("logistics_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 공성 공격", float(battle_mapping.get("siege_attack_percent", 0.0)), 0)
-		if DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.has(tech_id):
-			var diplomacy_spy_mapping: Dictionary = DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.get(tech_id, {})
+		if _ensure_domestic_tech_effect_provider().has_effect_mapping("diplomacy_spy", tech_id):
+			var diplomacy_spy_mapping := _ensure_domestic_tech_effect_provider().get_effect_mapping("diplomacy_spy", tech_id)
 			_append_domestic_tech_completion_value_line_mvp(lines, "외교 기반", 0.0, int(diplomacy_spy_mapping.get("diplomacy_influence_flat", 0)))
 			_append_domestic_tech_completion_value_line_mvp(lines, "외교 성공 준비", float(diplomacy_spy_mapping.get("diplomacy_preparation_percent", 0.0)), 0)
 			_append_domestic_tech_completion_value_line_mvp(lines, "조공 외교 준비", float(diplomacy_spy_mapping.get("tribute_readiness_percent", 0.0)), 0)
