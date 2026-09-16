@@ -31,6 +31,29 @@ jobs:
           git --version
           godot --version
 
+      - name: Verify source assets exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            assets/audio/sfx/arrow.wav
+            assets/worldmap/tiles/worldmap_tile_A1_top_left.png
+            assets/source/worldmap/worldmap_master_4096x2304.png
+            assets/font/noto_serif_kr/NotoSerifKR-Bold.otf
+          )
+          for path in "${required[@]}"; do
+            test -f "$path" || { echo "Missing source asset: $path"; exit 1; }
+          done
+
+      - name: Import Godot resources and build class cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .godot
+          timeout 240s godot --headless --editor --path . --import
+          test -d .godot
+          test -f .godot/global_script_class_cache.cfg
+
       - name: Static validators
         shell: bash
         run: |
@@ -67,7 +90,7 @@ jobs:
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
-            godot --headless --path . --script "res://$test_script"
+            timeout 120s godot --headless --path . --script "res://$test_script"
           done
 
       - name: Tech-tree regression tests
@@ -84,7 +107,7 @@ jobs:
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
-            godot --headless --path . --script "res://$test_script"
+            timeout 120s godot --headless --path . --script "res://$test_script"
           done
 
       - name: Military regression tests
@@ -105,7 +128,7 @@ jobs:
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
-            godot --headless --path . --script "res://$test_script"
+            timeout 120s godot --headless --path . --script "res://$test_script"
           done
 
       - name: Diplomacy Trade Spy regression tests
@@ -128,14 +151,14 @@ jobs:
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
-            godot --headless --path . --script "res://$test_script"
+            timeout 120s godot --headless --path . --script "res://$test_script"
           done
 
       - name: Project parse and WorldMap load
         shell: bash
         run: |
           set -euo pipefail
-          godot --headless --path . --editor --quit-after 1
+          timeout 120s godot --headless --path . --editor --quit-after 2
           cat > tests/_ci_worldmap_scene_load.gd <<'GDSCRIPT'
           extends SceneTree
           func _initialize() -> void:
@@ -153,7 +176,7 @@ jobs:
               instance.free()
               quit(0)
           GDSCRIPT
-          godot --headless --path . --script res://tests/_ci_worldmap_scene_load.gd
+          timeout 120s godot --headless --path . --script res://tests/_ci_worldmap_scene_load.gd
           rm tests/_ci_worldmap_scene_load.gd
 
       - name: Diff check
