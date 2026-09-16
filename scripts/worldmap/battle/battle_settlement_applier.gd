@@ -143,7 +143,7 @@ func _apply_t02_troops(plan: Dictionary, report: Dictionary) -> void:
 			_m("add_wounded", [retreat_city_id, defender_wounded, int(_config.get("normal_wounded_turns", 3)), "normal", str(plan.get("transaction_id", ""))], null)
 
 
-func _apply_standard_wounded(plan: Dictionary, report: Dictionary) -> void:
+func _apply_standard_wounded(plan: Dictionary, _report: Dictionary) -> void:
 	var battle_kind := str(plan.get("battle_kind", ""))
 	var result_kind := str(plan.get("result_kind", ""))
 	var attacker_city_id := str(plan.get("attacker_city_id", ""))
