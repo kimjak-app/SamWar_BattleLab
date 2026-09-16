@@ -49,7 +49,8 @@ func _run() -> void:
 	_expect(worldmap.call("_get_domestic_tech_definitions_mvp") == catalog.get_definitions(), "main catalog wrappers preserve definition contract")
 	worldmap.call("_open_domestic_tech_tree_overlay_mvp")
 	await process_frame
-	var overlay: Variant = worldmap.get("_tech_tree_overlay_mvp")
+	var presentation_controller: Variant = worldmap.call("_ensure_domestic_tech_tree_presentation_controller")
+	var overlay: Variant = presentation_controller.call("get_overlay")
 	_expect(overlay is PanelContainer and (overlay as PanelContainer).visible, "Tech Tree overlay still opens")
 	current_scene.queue_free()
 	await process_frame
