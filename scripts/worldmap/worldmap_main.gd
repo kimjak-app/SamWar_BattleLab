@@ -19,6 +19,7 @@ const DomesticTechCompletionPresentationControllerScript := preload("res://scrip
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const CityAdministrationServiceScript := preload("res://scripts/worldmap/economy_city/city_administration_service.gd")
 const CityResourceServiceScript := preload("res://scripts/worldmap/economy_city/city_resource_service.gd")
+const CityDetailPresentationControllerScript := preload("res://scripts/worldmap/economy_city/city_detail_presentation_controller.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
 const WorldMapActionCoordinatorScript := preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")
@@ -824,6 +825,7 @@ var _domestic_tech_tree_presentation_controller: DomesticTechTreePresentationCon
 var _domestic_tech_completion_presentation_controller: DomesticTechCompletionPresentationControllerScript = null
 var _city_administration_service: CityAdministrationServiceScript = null
 var _city_resource_service: CityResourceServiceScript = null
+var _city_detail_presentation_controller: CityDetailPresentationControllerScript = null
 var _t03_battle_presentation: T03BattlePresentationControllerScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
@@ -1561,6 +1563,37 @@ func _mutate_city_resource_service(mutation_id: String, args: Array) -> Variant:
 			_player_state["resource_stock"] = (args[0] as Dictionary).duplicate(true)
 			return true
 	return false
+
+
+func _ensure_city_detail_presentation_controller() -> CityDetailPresentationControllerScript:
+	if _city_detail_presentation_controller == null:
+		_city_detail_presentation_controller = CityDetailPresentationControllerScript.new()
+		_city_detail_presentation_controller.name = "CityDetailPresentationController"
+		add_child(_city_detail_presentation_controller)
+		_city_detail_presentation_controller.attack_requested.connect(_on_city_info_attack_requested)
+		_city_detail_presentation_controller.governor_assignment_requested.connect(_on_city_info_governor_assignment_requested)
+		_city_detail_presentation_controller.hero_transfer_confirmed.connect(_on_city_info_hero_transfer_confirmed)
+		_city_detail_presentation_controller.recruitment_requested.connect(_on_city_info_recruitment_requested)
+	_city_detail_presentation_controller.set_ui_nodes({
+		"city_info_panel": city_info_panel,
+		"resource_tab": city_detail_resource_tab_button_placeholder,
+		"internal_trade_tab": city_detail_internal_trade_tab_button_placeholder,
+		"external_trade_tab": city_detail_external_trade_tab_button_placeholder,
+		"type": city_detail_type_label,
+		"region_owner": city_detail_region_owner_label,
+		"resource": city_detail_resource_label,
+		"security": city_detail_security_label,
+		"military": city_detail_military_label,
+		"commerce": city_detail_commerce_label,
+		"rating": city_detail_rating_label,
+		"status": city_detail_status_label,
+		"hint": city_detail_hint_label,
+		"domestic_button": city_detail_domestic_button_placeholder,
+		"resource_card": _city_resource_potential_card,
+		"storage_card": _city_storage_card,
+		"trade_card": _trade_control_card,
+	})
+	return _city_detail_presentation_controller
 
 
 func _ensure_domestic_tech_catalog() -> DomesticTechCatalogScript:
@@ -2446,16 +2479,17 @@ func _resolve_contextual_worldmap_action_without_video(action_type: String, resu
 func _connect_city_info_panel_actions() -> void:
 	if city_info_panel == null:
 		return
-	var callback := Callable(self, "_on_city_info_attack_requested")
+	var presentation := _ensure_city_detail_presentation_controller()
+	var callback := Callable(presentation, "relay_attack_requested")
 	if city_info_panel.has_signal("attack_requested") and not city_info_panel.is_connected("attack_requested", callback):
 		city_info_panel.connect("attack_requested", callback)
-	var governor_assignment_callback := Callable(self, "_on_city_info_governor_assignment_requested")
+	var governor_assignment_callback := Callable(presentation, "relay_governor_assignment_requested")
 	if city_info_panel.has_signal("governor_assignment_requested") and not city_info_panel.is_connected("governor_assignment_requested", governor_assignment_callback):
 		city_info_panel.connect("governor_assignment_requested", governor_assignment_callback)
-	var hero_transfer_callback := Callable(self, "_on_city_info_hero_transfer_confirmed")
+	var hero_transfer_callback := Callable(presentation, "relay_hero_transfer_confirmed")
 	if city_info_panel.has_signal("hero_transfer_confirmed") and not city_info_panel.is_connected("hero_transfer_confirmed", hero_transfer_callback):
 		city_info_panel.connect("hero_transfer_confirmed", hero_transfer_callback)
-	var recruitment_callback := Callable(self, "_on_city_info_recruitment_requested")
+	var recruitment_callback := Callable(presentation, "relay_recruitment_requested")
 	if city_info_panel.has_signal("recruitment_requested") and not city_info_panel.is_connected("recruitment_requested", recruitment_callback):
 		city_info_panel.connect("recruitment_requested", recruitment_callback)
 	var help_callback := Callable(self, "_show_worldmap_help_modal")
@@ -2526,24 +2560,11 @@ func _on_city_info_recruitment_requested(city_id: String, amount: int) -> void:
 
 
 func _show_city_info_recruitment_result(message: String) -> void:
-	if city_info_panel != null and city_info_panel.has_method("show_recruitment_result"):
-		city_info_panel.call("show_recruitment_result", message)
+	_ensure_city_detail_presentation_controller().show_recruitment_result(message)
 
 
 func _format_recruitment_failure_hint(reason: String) -> String:
-	match reason:
-		"loyalty", "loyalty_limit":
-			return "충성도 부족 · 모병 불가"
-		"resources":
-			return "자원 부족 · 금전/식량 확인"
-		"not_peacetime":
-			return "전투/침공 처리 중에는 모병 불가"
-		"ownership":
-			return "아군 도시에서만 모병 가능"
-		"amount":
-			return "모병 단위 오류"
-		_:
-			return "모병 불가"
+	return _ensure_city_detail_presentation_controller().format_recruitment_failure_hint(reason)
 
 
 func _transfer_stationed_hero_between_player_cities(source_city_id: String, hero_id: String, target_city_id: String) -> Dictionary:
@@ -2884,45 +2905,19 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 
 
 func _apply_city_detail_resource_tab_content(city_id: String, city_data: Dictionary) -> void:
-	_set_city_detail_body_labels_visible(true)
-	_set_city_detail_resource_cards_enabled(true)
-	city_detail_type_label.text = "자원 잠재력\n식량 자원"
-	city_detail_type_label.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
-	city_detail_region_owner_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
-	city_detail_region_owner_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
-	city_detail_resource_label.text = "전략 자원"
-	city_detail_resource_label.add_theme_color_override("font_color", Color(0.62, 0.76, 0.88, 1.0))
-	city_detail_security_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["목재", "철", "말"])
-	city_detail_security_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
-	city_detail_military_label.text = "특산 자원"
-	city_detail_military_label.add_theme_color_override("font_color", Color(0.78, 0.56, 0.88, 1.0))
-	city_detail_commerce_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"])
-	city_detail_commerce_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
-	city_detail_rating_label.text = "경제 잠재력\n인구 %s / 상업력 %s" % [
-		_format_star_rating(_get_city_numeric_rating(city_data, "population_rating", 0)),
-		_format_star_rating(_get_city_numeric_rating(city_data, "commerce_rating", 0)),
-	]
-	var economy_bonus_lines := _format_domestic_tech_city_economy_bonus_lines_mvp(city_id)
-	if not economy_bonus_lines.is_empty():
-		city_detail_rating_label.text += "\n%s" % "\n".join(economy_bonus_lines)
-	var military_defense_bonus_lines := _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id, city_data)
-	if not military_defense_bonus_lines.is_empty():
-		city_detail_rating_label.text += "\n%s" % "\n".join(military_defense_bonus_lines)
-	var naval_siege_bonus_lines := _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id)
-	if not naval_siege_bonus_lines.is_empty():
-		city_detail_rating_label.text += "\n%s" % "\n".join(naval_siege_bonus_lines)
-	var city_spy_intel_bonus_lines := _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id)
-	if not city_spy_intel_bonus_lines.is_empty():
-		city_detail_rating_label.text += "\n%s" % "\n".join(city_spy_intel_bonus_lines)
-	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
-	city_detail_status_label.visible = true
-	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
-	var economy_modifier_summary := _format_city_economy_tech_modifier_summary_mvp(city_id)
-	if not economy_modifier_summary.is_empty():
-		city_detail_status_label.text += "\n%s" % economy_modifier_summary
-	city_detail_status_label.add_theme_color_override("font_color", Color(0.86, 0.92, 0.88, 1.0))
-	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량입니다."
-	city_detail_domestic_button_placeholder.visible = false
+	_ensure_city_detail_presentation_controller().apply_resource_tab({
+		"food_resources": _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"]),
+		"strategy_resources": _extract_resource_group(str(city_data.get("resources", "")), ["목재", "철", "말"]),
+		"special_resources": _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"]),
+		"population_rating": _format_star_rating(_get_city_numeric_rating(city_data, "population_rating", 0)),
+		"commerce_rating": _format_star_rating(_get_city_numeric_rating(city_data, "commerce_rating", 0)),
+		"economy_bonus_lines": _format_domestic_tech_city_economy_bonus_lines_mvp(city_id),
+		"military_bonus_lines": _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id, city_data),
+		"naval_bonus_lines": _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id),
+		"spy_bonus_lines": _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id),
+		"storage_summary": _format_city_storage_summary(_get_city_storage(city_id, city_data)),
+		"economy_modifier_summary": _format_city_economy_tech_modifier_summary_mvp(city_id),
+	})
 
 
 func _ensure_city_detail_resource_cards() -> void:
@@ -3042,57 +3037,15 @@ func _move_city_detail_label_to_container(label: Label, target_container: Contai
 
 
 func _set_city_detail_resource_cards_enabled(is_enabled: bool) -> void:
-	if _city_resource_potential_card == null or _city_storage_card == null:
-		return
-	_city_resource_potential_card.add_theme_stylebox_override("panel", _make_city_detail_resource_card_style(is_enabled))
-	_city_storage_card.add_theme_stylebox_override("panel", _make_city_detail_resource_card_style(is_enabled))
+	_ensure_city_detail_presentation_controller().set_resource_cards_enabled(is_enabled)
 
 
 func _make_city_detail_resource_card_style(is_enabled: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	if is_enabled:
-		style.bg_color = Color(0.08, 0.075, 0.055, 0.74)
-		style.border_color = Color(0.70, 0.54, 0.26, 0.88)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(5)
-		style.content_margin_left = 8.0
-		style.content_margin_top = 7.0
-		style.content_margin_right = 8.0
-		style.content_margin_bottom = 7.0
-	else:
-		style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-		style.border_color = Color(0.0, 0.0, 0.0, 0.0)
-		style.set_border_width_all(0)
-		style.set_corner_radius_all(0)
-		style.content_margin_left = 0.0
-		style.content_margin_top = 0.0
-		style.content_margin_right = 0.0
-		style.content_margin_bottom = 0.0
-	return style
+	return _ensure_city_detail_presentation_controller().make_resource_card_style(is_enabled)
 
 
 func _set_city_detail_body_labels_visible(should_show: bool) -> void:
-	for label in [
-		city_detail_type_label,
-		city_detail_region_owner_label,
-		city_detail_resource_label,
-		city_detail_security_label,
-		city_detail_military_label,
-		city_detail_commerce_label,
-		city_detail_rating_label,
-		city_detail_status_label,
-		city_detail_hint_label,
-	]:
-		if label != null:
-			label.visible = should_show
-	if _city_resource_potential_card != null:
-		_city_resource_potential_card.visible = should_show
-	if _city_storage_card != null:
-		_city_storage_card.visible = should_show
-	if _trade_control_card != null and not _is_trade_control_tab_active():
-		_trade_control_card.visible = false
-	if city_detail_domestic_button_placeholder != null:
-		city_detail_domestic_button_placeholder.visible = should_show
+	_ensure_city_detail_presentation_controller().set_body_labels_visible(should_show, _is_trade_control_tab_active())
 
 
 func _apply_city_detail_default_text_tone() -> void:
@@ -4489,25 +4442,21 @@ func _get_diplomacy_spy_tab_label(tab_id: String) -> String:
 
 
 func _refresh_city_detail_tab_styles() -> void:
-	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
+	var route := _ensure_city_detail_presentation_controller().refresh_tab_styles(
+		_unified_primary_tab,
+		_selected_city_detail_tab,
+		UNIFIED_PANEL_TAB_DIPLOMACY_SPY,
+		UNIFIED_PANEL_TAB_TRADE
+	)
+	if route == "refresh_chrome":
 		_refresh_unified_panel_chrome()
-		return
-	if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
-		_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE)
-		_set_city_detail_tab_active(city_detail_external_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE)
-		return
-
-	_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_RESOURCES)
 
 
 func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
 	if button == null:
 		_warn_missing_unified_panel_chrome("CityDetailTabButton")
 		return
-	var tab_color := Color(0.82, 0.86, 0.92, 1.0)
-	if is_active:
-		tab_color = Color(1.0, 0.9, 0.68, 1.0)
-	button.modulate = tab_color
+	_ensure_city_detail_presentation_controller().set_tab_active(button, is_active)
 
 
 func _extract_resource_group(resource_summary: String, resource_names: Array[String]) -> String:
@@ -14553,27 +14502,12 @@ func _build_default_city_storage(city_id: String, _city_data: Dictionary) -> Dic
 
 
 func _format_city_storage_summary(storage: Dictionary) -> String:
-	var food_total := _get_city_storage_group_total(storage, CITY_STORAGE_FOOD_RESOURCE_IDS)
-	var strategy_total := _get_city_storage_group_total(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS)
-	var special_total := _get_city_storage_group_total(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS)
-	var lines: Array[String] = ["성 창고"]
-	lines.append("금전 %d" % _get_city_storage_amount(storage, "gold"))
-	lines.append("식량 %d %s" % [
-		food_total,
-		_get_city_storage_status_label(food_total),
-	])
-	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_FOOD_RESOURCE_IDS))
-	lines.append("전략 %d %s" % [
-		strategy_total,
-		_get_city_storage_status_label(strategy_total),
-	])
-	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS))
-	lines.append("특산 %d %s" % [
-		special_total,
-		_get_city_storage_status_label(special_total),
-	])
-	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS))
-	return "\n".join(lines)
+	return _ensure_city_detail_presentation_controller().format_city_storage_summary(
+		storage, RESOURCE_LABELS,
+		CITY_STORAGE_FOOD_RESOURCE_IDS,
+		CITY_STORAGE_STRATEGY_RESOURCE_IDS,
+		CITY_STORAGE_SPECIAL_RESOURCE_IDS
+	)
 
 
 func _get_city_storage_group_total(storage: Dictionary, resource_ids: Array) -> int:
@@ -14581,14 +14515,7 @@ func _get_city_storage_group_total(storage: Dictionary, resource_ids: Array) -> 
 
 
 func _format_city_storage_group_details(storage: Dictionary, resource_ids: Array) -> String:
-	var parts: Array[String] = []
-	for resource_id in resource_ids:
-		var resource_key := str(resource_id)
-		parts.append("%s %d" % [
-			str(RESOURCE_LABELS.get(resource_key, resource_key)),
-			_get_city_storage_amount(storage, resource_key),
-		])
-	return " / ".join(parts)
+	return _ensure_city_detail_presentation_controller().format_city_storage_group_details(storage, resource_ids, RESOURCE_LABELS)
 
 
 func _get_city_storage_amount(storage: Dictionary, resource_id: String) -> int:
@@ -14596,7 +14523,7 @@ func _get_city_storage_amount(storage: Dictionary, resource_id: String) -> int:
 
 
 func _get_city_storage_status_label(total: int) -> String:
-	return EconomyCityHelpers.get_city_storage_status_label(total)
+	return _ensure_city_detail_presentation_controller().get_city_storage_status_label(total)
 
 
 func _refresh_warehouse_card() -> void:
