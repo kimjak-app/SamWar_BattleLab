@@ -10,6 +10,9 @@ CONTROLLER_PATH = "scripts/worldmap/t03/t03_battle_presentation_controller.gd"
 MAIN = (ROOT / MAIN_PATH).read_text(encoding="utf-8")
 CONTROLLER = (ROOT / CONTROLLER_PATH).read_text(encoding="utf-8")
 M7_MAIN = subprocess.check_output(["git", "show", f"ccd0f4b:{MAIN_PATH}"], cwd=ROOT, text=True, encoding="utf-8")
+BATTLE_SETTLEMENT_PATH = "scripts/worldmap/battle/battle_settlement_applier.gd"
+OLD_STANDARD_WOUNDED_SIGNATURE = b"func _apply_standard_wounded(plan: Dictionary, report: Dictionary) -> void:"
+NEW_STANDARD_WOUNDED_SIGNATURE = b"func _apply_standard_wounded(plan: Dictionary, _report: Dictionary) -> void:"
 
 
 def functions(source: str) -> dict[str, str]:
@@ -18,6 +21,14 @@ def functions(source: str) -> dict[str, str]:
         match.group(1): source[match.start() : matches[index + 1].start() if index + 1 < len(matches) else len(source)].rstrip()
         for index, match in enumerate(matches)
     }
+
+
+def assert_af1_standard_wounded_rename(current_bytes: bytes, baseline_bytes: bytes) -> None:
+    assert baseline_bytes.count(OLD_STANDARD_WOUNDED_SIGNATURE) == 1, "M-7 baseline AF-1 signature contract changed"
+    assert current_bytes.count(NEW_STANDARD_WOUNDED_SIGNATURE) == 1, "current AF-1 signature missing or duplicated"
+    assert current_bytes.count(OLD_STANDARD_WOUNDED_SIGNATURE) == 0, "current file retains pre-AF-1 signature"
+    expected_bytes = baseline_bytes.replace(OLD_STANDARD_WOUNDED_SIGNATURE, NEW_STANDARD_WOUNDED_SIGNATURE, 1)
+    assert current_bytes == expected_bytes, "battle settlement changed beyond the exact AF-1 parameter rename"
 
 
 current = functions(MAIN)
@@ -90,10 +101,13 @@ for unchanged_path in [
     "scripts/worldmap/t03/auto_battle_resolver.gd",
     "scripts/worldmap/military/wounded_recovery_service.gd",
     "scripts/worldmap/battle/battle_result_service.gd",
-    "scripts/worldmap/battle/battle_settlement_applier.gd",
+    BATTLE_SETTLEMENT_PATH,
 ]:
     current_bytes = (ROOT / unchanged_path).read_bytes()
     baseline_bytes = subprocess.check_output(["git", "show", f"ccd0f4b:{unchanged_path}"], cwd=ROOT)
-    assert current_bytes == baseline_bytes, f"M-8 changed protected domain module: {unchanged_path}"
+    if unchanged_path == BATTLE_SETTLEMENT_PATH:
+        assert_af1_standard_wounded_rename(current_bytes, baseline_bytes)
+    else:
+        assert current_bytes == baseline_bytes, f"M-8 changed protected domain module: {unchanged_path}"
 
 print("PASS: M-8 T03 presentation controller, queue ownership, exactly-once callback, and turn/save boundary")

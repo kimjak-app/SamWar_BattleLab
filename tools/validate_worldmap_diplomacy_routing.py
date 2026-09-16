@@ -16,7 +16,69 @@ PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
 PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
 PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
 SERVICE_EXTRACTION_CHECKPOINT = "2ee28db607cc5b6f2060a3a3c2087b53b89188be"
+T1_TECH_CATALOG_CHECKPOINT = "87bd41ee705094081649eb34a7d9f3d858164ad0"
+T2_TECH_RESEARCH_CHECKPOINT = "852d5b058c6e681973a53ccc927017ff45235051"
 MAIN = "scripts/worldmap/worldmap_main.gd"
+T1_TECH_CATALOG_REWIRED = {
+    "_get_domestic_tech_categories_mvp",
+    "_get_domestic_city_tech_definitions_mvp",
+    "_get_domestic_national_tech_definitions_mvp",
+    "_make_domestic_city_tech_definition_mvp",
+    "_make_domestic_national_tech_definition_mvp",
+    "_make_domestic_tech_definition_mvp",
+    "_get_domestic_tech_duration_class_mvp",
+    "_get_domestic_tech_duration_turns_hint_mvp",
+    "_get_domestic_tech_tier_duration_turns_mvp",
+    "_get_domestic_tech_scope_duration_turns_mvp",
+    "_get_domestic_tech_definitions_mvp",
+    "_get_domestic_tech_definition_mvp",
+    "_get_domestic_techs_by_scope_mvp",
+    "_get_domestic_techs_by_category_mvp",
+    "_get_domestic_techs_by_branch_mvp",
+    "_is_domestic_city_tech_mvp",
+    "_is_domestic_national_tech_mvp",
+}
+T1_TECH_RULES_REWIRED = {
+    "_are_domestic_tech_prerequisites_met_mvp",
+    "_are_domestic_tech_national_requirements_met_mvp",
+    "_are_domestic_tech_city_requirements_met_mvp",
+    "_get_domestic_tech_research_duration_turns_mvp",
+    "_get_domestic_tech_research_cost_balance_adjustment_mvp",
+    "_get_domestic_tech_research_cost_plan_mvp",
+    "_get_domestic_tech_view_state_mvp",
+    "_are_required_national_techs_completed_mvp",
+}
+T2_TECH_RESEARCH_REWIRED = set("""
+_normalize_domestic_tech_state_mvp
+_normalize_city_domestic_tech_state_map_mvp
+_normalize_national_domestic_tech_state_map_mvp
+_normalize_national_domestic_tech_research_state_mvp
+_normalize_city_domestic_tech_research_state_mvp
+_normalize_domestic_tech_research_container_mvp
+_normalize_domestic_tech_research_turn_value_mvp
+_normalize_domestic_tech_research_duration_value_mvp
+_parse_positive_domestic_tech_research_turn_value_mvp
+_mark_domestic_tech_completed_from_normalize_mvp
+_sync_city_domestic_tech_completed_mirror_mvp
+_get_national_domestic_tech_active_research_mvp
+_get_city_domestic_tech_active_research_mvp
+_is_domestic_tech_researching_mvp
+_is_city_domestic_tech_completed_mvp
+_is_national_domestic_tech_completed_mvp
+_build_domestic_tech_actual_charge_plan_mvp
+_has_domestic_tech_national_food_group_scope_mvp
+_validate_domestic_tech_actual_charge_mvp
+_apply_domestic_tech_actual_charge_mvp
+_get_domestic_tech_research_actual_charge_summary_mvp
+_can_start_domestic_tech_research_mvp
+_start_domestic_tech_research_mvp
+_advance_domestic_tech_research_for_world_turn_mvp
+_advance_national_tech_research_for_world_turn_mvp
+_advance_city_tech_research_for_world_turn_mvp
+_complete_national_tech_research_mvp
+_complete_city_tech_research_mvp
+_get_player_city_ids_for_domestic_tech_research_mvp
+""".split())
 SFX_REWIRED = {
     "_on_city_marker_selected": (
         'GameAudio.play_sfx("city_select")',
@@ -244,6 +306,8 @@ def main():
     check_presentation_moves()
     before, after = functions(original(MAIN)), functions(current(MAIN))
     service_checkpoint = functions(at_commit(SERVICE_EXTRACTION_CHECKPOINT, MAIN))
+    t1_tech_catalog_checkpoint = functions(at_commit(T1_TECH_CATALOG_CHECKPOINT, MAIN))
+    t2_tech_research_checkpoint = functions(at_commit(T2_TECH_RESEARCH_CHECKPOINT, MAIN))
     trade_removed = {
         "_get_trade_control_mode_label", "_get_trade_control_hint",
         "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
@@ -346,7 +410,13 @@ def main():
             continue
         assert name in after, f"removed function: {name}"
         if not spy_owned and name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
-            if name in SFX_REWIRED:
+            if name in T1_TECH_CATALOG_REWIRED | T1_TECH_RULES_REWIRED:
+                assert name in t1_tech_catalog_checkpoint, f"T-1 tech catalog checkpoint function missing: {name}"
+                assert after[name] == t1_tech_catalog_checkpoint[name], f"T-1 tech catalog/rules wrapper changed: {name}"
+            elif name in T2_TECH_RESEARCH_REWIRED:
+                assert name in t2_tech_research_checkpoint, f"T-2 tech research checkpoint function missing: {name}"
+                assert after[name] == t2_tech_research_checkpoint[name], f"T-2 tech research wrapper changed: {name}"
+            elif name in SFX_REWIRED:
                 old_call, new_call = SFX_REWIRED[name]
                 assert body.count(old_call) == 1, f"baseline SFX call contract changed: {name}"
                 expected_body = body.replace(old_call, new_call)
