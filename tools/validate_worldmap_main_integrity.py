@@ -20,6 +20,9 @@ MIN_LINE_COUNT = 18_000
 MIN_FUNCTION_COUNT = 900
 T3_EFFECT_PROVIDER_CHECKPOINT = "850b37095146688ed80c52c330cfbf069216024e"
 T4_PRESENTATION_CHECKPOINT = "d3decdc9b89a3a3a3989b568a625c58bab245e0f"
+C1_CITY_ADMIN_CHECKPOINT = "dfa9f179dc026800e694e9442131edaf10cf0ef9"
+C2_CITY_RESOURCE_CHECKPOINT = "6a3e73e5133ab6a24209d41f99e309a53166cf97"
+C3_CITY_DETAIL_CHECKPOINT = "6cfea9a1651999a9b97b96eb3a56ece213f2b04f"
 
 REQUIRED_TOKENS = {
     "camera": "func _configure_camera",
@@ -45,6 +48,9 @@ def main() -> None:
         approved_checkpoints = {
             "T-3 effect-provider": T3_EFFECT_PROVIDER_CHECKPOINT,
             "T-4 presentation": T4_PRESENTATION_CHECKPOINT,
+            "C-1 city-administration": C1_CITY_ADMIN_CHECKPOINT,
+            "C-2 city-resource": C2_CITY_RESOURCE_CHECKPOINT,
+            "C-3 city-detail": C3_CITY_DETAIL_CHECKPOINT,
         }
         approved_sources = {
             label: subprocess.check_output(
@@ -56,7 +62,7 @@ def main() -> None:
         if source not in approved_sources.values():
             failures.append(
                 f"worldmap_main.gd has only {line_count} lines; expected at least {MIN_LINE_COUNT}, "
-                "and does not exactly match an approved T-3/T-4 refactor checkpoint."
+                "and does not exactly match an approved T-3/T-4/C-1/C-2/C-3 refactor checkpoint."
             )
     if function_count < MIN_FUNCTION_COUNT:
         failures.append(
