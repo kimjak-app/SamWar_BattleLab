@@ -180,6 +180,13 @@ jobs:
           rm tests/_ci_worldmap_scene_load.gd
 
       - name: Diff check
+        shell: bash
         run: |
+          set -euo pipefail
           git diff --check
-          test -z "$(git status --short)"
+          status="$(git status --short)"
+          if [[ -n "$status" ]]; then
+            echo "Working tree is not clean after verification:"
+            printf '%s\n' "$status"
+            exit 1
+          fi
