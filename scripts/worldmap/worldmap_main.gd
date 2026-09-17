@@ -46,6 +46,7 @@ const WorldMapHudControllerScript := preload("res://scripts/worldmap/hud/worldma
 const WorldMapSharedUiControllerScript := preload("res://scripts/worldmap/ui/worldmap_shared_ui_controller.gd")
 const WorldCalendarServiceScript := preload("res://scripts/worldmap/turn/world_calendar_service.gd")
 const WorldTurnEconomyServiceScript := preload("res://scripts/worldmap/turn/world_turn_economy_service.gd")
+const WorldTurnStateServiceScript := preload("res://scripts/worldmap/turn/world_turn_state_service.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -107,12 +108,6 @@ const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
 const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
-const CITY_PUBLIC_SUPPORT_DEFAULT := 70
-const PUBLIC_SUPPORT_DELTA_MIN := -7
-const PUBLIC_SUPPORT_DELTA_MAX := 3
-const CITY_LOYALTY_DRIFT_MIN := -3
-const CITY_LOYALTY_DRIFT_MAX := 3
-const STATIONED_HERO_SECURITY_WEIGHT := 1.0
 const FACTION_RELATION_STATUS := {
 	"ALLIED": "allied",
 	"NEUTRAL": "neutral",
@@ -763,6 +758,7 @@ var _hud_controller: WorldMapHudControllerScript = null
 var _shared_ui_controller: WorldMapSharedUiControllerScript = null
 var _world_calendar_service: WorldCalendarServiceScript = null
 var _world_turn_economy_service: WorldTurnEconomyServiceScript = null
+var _world_turn_state_service: WorldTurnStateServiceScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
@@ -1303,6 +1299,64 @@ func _ensure_world_turn_economy_service() -> WorldTurnEconomyServiceScript:
 	if _world_turn_economy_service == null:
 		_world_turn_economy_service = WorldTurnEconomyServiceScript.new()
 	return _world_turn_economy_service
+
+
+func _ensure_world_turn_state_service() -> WorldTurnStateServiceScript:
+	if _world_turn_state_service == null:
+		_world_turn_state_service = WorldTurnStateServiceScript.new()
+		_world_turn_state_service.configure(Callable(self, "_world_turn_state_query"), Callable(self, "_world_turn_state_mutation"))
+	return _world_turn_state_service
+
+
+func _world_turn_state_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"turn_number":
+			return maxi(1, int(_player_state.get("turn_number", 1)))
+		"owned_city_ids":
+			return _player_state.get("owned_city_ids", [])
+		"city_data":
+			return _get_mutable_city_runtime_state(str(args[0]))
+		"public_support":
+			return _get_city_public_support(str(args[0]))
+		"public_support_context":
+			var city_id := str(args[0])
+			return {
+				"food_surplus": _has_city_public_support_food_surplus(city_id),
+				"commerce_surplus": _has_city_public_support_commerce_surplus(city_id),
+			}
+		"loyalty_inputs":
+			var city_id := str(args[0])
+			var tax_level := int(args[1])
+			var policy_id := str(args[2])
+			var city_data := _get_mutable_city_runtime_state(city_id)
+			var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
+			var stationed_hero_troops := 0
+			for hero_id in _get_stationed_hero_ids_for_city(city_data):
+				var hero_data := _get_hero_entry(str(hero_id))
+				stationed_hero_troops += maxi(0, int(hero_data.get("troops", hero_data.get("troop_count", 0))))
+			var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
+			var governor_data := _get_hero_entry(governor_id)
+			return {
+				"city_effects": city_effects,
+				"tax_delta": _adjust_loyalty_delta(_get_tax_loyalty_delta(tax_level), float(city_effects.get("city_loyalty_loss_multiplier", 1.0))),
+				"stationed_hero_troops": stationed_hero_troops,
+				"security_required_troops": _get_city_security_required_troops(city_data),
+				"governor_controls_loss": not governor_data.is_empty() and (_governor_has_aptitude(governor_data, "administrative", 3) or _governor_has_aptitude(governor_data, "political", 3)),
+			}
+	return null
+
+
+func _world_turn_state_mutation(mutation_id: String, args: Array) -> Variant:
+	match mutation_id:
+		"set_public_support":
+			_set_city_public_support(str(args[0]), int(args[1]))
+		"set_city_loyalty":
+			_set_city_loyalty_value(str(args[0]), int(args[1]))
+		"set_player_result":
+			_player_state[str(args[0])] = args[1]
+		"refresh_city_hud":
+			_refresh_city_hud_data_bindings()
+	return null
 
 
 func _update_camera_debug_label() -> void:
@@ -12608,8 +12662,8 @@ func _set_city_loyalty_value(city_id: String, value: int) -> void:
 func _get_city_public_support(city_id: String) -> int:
 	var city_data := _get_city_hud_entry(city_id)
 	if city_data.is_empty():
-		return CITY_PUBLIC_SUPPORT_DEFAULT
-	return clampi(int(city_data.get("publicSupport", CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
+		return WorldTurnStateServiceScript.CITY_PUBLIC_SUPPORT_DEFAULT
+	return clampi(int(city_data.get("publicSupport", WorldTurnStateServiceScript.CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
 
 
 func _set_city_public_support(city_id: String, value: int) -> void:
@@ -12621,34 +12675,7 @@ func _set_city_public_support(city_id: String, value: int) -> void:
 
 
 func _calculate_city_public_support_delta(city_id: String, tax_level: int, supply_state: Dictionary = {}) -> Dictionary:
-	var normalized_tax := _normalize_tax_level(tax_level)
-	var tax_delta := 1
-	if normalized_tax > 90:
-		tax_delta = -3
-	elif normalized_tax > 60:
-		tax_delta = -2
-	elif normalized_tax > 30:
-		tax_delta = -1
-	var food_delta := 1 if _has_city_public_support_food_surplus(city_id) else -1
-	var commerce_delta := 1 if _has_city_public_support_commerce_surplus(city_id) else -1
-	var supply_delta := -2 if bool(supply_state.get("isolated", false)) else 0
-	var delta := clampi(tax_delta + food_delta + commerce_delta + supply_delta, PUBLIC_SUPPORT_DELTA_MIN, PUBLIC_SUPPORT_DELTA_MAX)
-	var reasons: Array[String] = [
-		"tax=%s" % _format_signed_int(tax_delta),
-		"food=%s" % _format_signed_int(food_delta),
-		"commerce=%s" % _format_signed_int(commerce_delta),
-		"supply=%s" % _format_signed_int(supply_delta),
-	]
-	return {
-		"city_id": city_id,
-		"delta": delta,
-		"reasons": reasons,
-		"tax_delta": tax_delta,
-		"food_delta": food_delta,
-		"commerce_delta": commerce_delta,
-		"supply_delta": supply_delta,
-		"supply_state": supply_state,
-	}
+	return _ensure_world_turn_state_service().calculate_public_support_delta(city_id, tax_level, _has_city_public_support_food_surplus(city_id), _has_city_public_support_commerce_surplus(city_id), supply_state)
 
 
 func _has_city_public_support_food_surplus(_city_id: String) -> bool:
@@ -12678,218 +12705,41 @@ func _has_city_public_support_commerce_surplus(_city_id: String) -> bool:
 
 
 func _apply_city_public_support_drift_for_world_turn(tax_level: int, supply_states: Dictionary = {}) -> Dictionary:
-	var result := {
-		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-		"city_results": {},
-	}
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if not owned_city_ids is Array:
-		_player_state["last_public_support_result"] = result
-		return result
-	for city_id_variant in owned_city_ids:
-		var city_id := str(city_id_variant)
-		var city_data := _get_mutable_city_runtime_state(city_id)
-		if city_data.is_empty():
-			continue
-		var before_support := _get_city_public_support(city_id)
-		var drift := _calculate_city_public_support_delta(city_id, tax_level, _get_supply_city_state(supply_states, city_id))
-		var after_support := clampi(before_support + int(drift.get("delta", 0)), 0, 100)
-		city_data["publicSupport"] = after_support
-		_city_runtime_states[city_id] = city_data
-		var city_result := {
-			"before": before_support,
-			"after": after_support,
-			"delta": after_support - before_support,
-			"reasons": drift.get("reasons", []),
-			"tax_delta": int(drift.get("tax_delta", 0)),
-			"food_delta": int(drift.get("food_delta", 0)),
-			"commerce_delta": int(drift.get("commerce_delta", 0)),
-			"supply_delta": int(drift.get("supply_delta", 0)),
-		}
-		(result["city_results"] as Dictionary)[city_id] = city_result
-		print("[PUBLIC_SUPPORT_DRIFT] city=%s before=%d delta=%d after=%d reasons=%s" % [
-			city_id,
-			before_support,
-			int(city_result.get("delta", 0)),
-			after_support,
-			str(city_result.get("reasons", [])),
-		])
-	_player_state["last_public_support_result"] = result
-	_refresh_city_hud_data_bindings()
-	return result
+	return _ensure_world_turn_state_service().apply_public_support_tick(tax_level, supply_states)
 
 
 func _calculate_loyalty_delta_from_public_support(public_support: int) -> int:
-	var value := clampi(public_support, 0, 100)
-	if value >= 90:
-		return 2
-	if value >= 80:
-		return 1
-	if value >= 60:
-		return -1
-	if value >= 40:
-		return -2
-	return -3
+	return _ensure_world_turn_state_service().calculate_loyalty_delta_from_public_support(public_support)
 
 
 func _apply_seasonal_loyalty_from_public_support(turn_number: int, _supply_states: Dictionary = {}) -> Dictionary:
 	var safe_turn := maxi(1, turn_number)
-	var result := {
-		"turn": safe_turn,
-		"applied": false,
-		"city_results": {},
-	}
-	if not _is_seasonal_loyalty_turn(safe_turn):
-		result["next_turn"] = _get_next_seasonal_loyalty_turn(safe_turn)
-		result["reason"] = "not_seasonal_turn"
-		_player_state["last_seasonal_loyalty_result"] = result
-		return result
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if not owned_city_ids is Array:
-		result["applied"] = true
-		_player_state["last_seasonal_loyalty_result"] = result
-		return result
-	result["applied"] = true
-	for city_id_variant in owned_city_ids:
-		var city_id := str(city_id_variant)
-		var city_data := _get_mutable_city_runtime_state(city_id)
-		if city_data.is_empty():
-			continue
-		var public_support := _get_city_public_support(city_id)
-		var before_loyalty := _get_city_loyalty_value(city_data)
-		var delta := _calculate_loyalty_delta_from_public_support(public_support)
-		var after_loyalty := clampi(before_loyalty + delta, 0, 100)
-		city_data["loyalty"] = after_loyalty
-		city_data["cityLoyalty"] = after_loyalty
-		_city_runtime_states[city_id] = city_data
-		var reasons: Array[String] = ["publicSupport=%d" % public_support]
-		var city_result := {
-			"publicSupport": public_support,
-			"before_loyalty": before_loyalty,
-			"after_loyalty": after_loyalty,
-			"delta": after_loyalty - before_loyalty,
-			"raw_delta": delta,
-			"reasons": reasons,
-		}
-		(result["city_results"] as Dictionary)[city_id] = city_result
-		print("[SEASONAL_LOYALTY_PUBLIC_SUPPORT] turn=%d city=%s publicSupport=%d before=%d delta=%d after=%d" % [
-			safe_turn,
-			city_id,
-			public_support,
-			before_loyalty,
-			int(city_result.get("delta", 0)),
-			after_loyalty,
-		])
-	_player_state["last_seasonal_loyalty_result"] = result
-	_refresh_city_hud_data_bindings()
-	return result
+	return _ensure_world_turn_state_service().apply_seasonal_loyalty_tick(safe_turn, _is_seasonal_loyalty_turn(safe_turn), _get_next_seasonal_loyalty_turn(safe_turn))
 
 
 func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String, supply_states: Dictionary = {}) -> Dictionary:
-	var result := {"tax_level": tax_level, "policy_id": policy_id, "cities": []}
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if not owned_city_ids is Array:
-		_player_state["last_city_loyalty_drift_result"] = result
-		return result
-	for city_id_variant in owned_city_ids:
-		var city_id := str(city_id_variant)
-		var city_data := _get_mutable_city_runtime_state(city_id)
-		if city_data.is_empty():
-			continue
-		var before_loyalty := _get_city_loyalty_value(city_data)
-		var drift := _calculate_city_loyalty_drift(city_data, tax_level, policy_id, _get_supply_city_state(supply_states, city_id))
-		var after_loyalty := clampi(before_loyalty + int(drift.get("delta", 0)), 0, 100)
-		city_data["loyalty"] = after_loyalty
-		city_data["cityLoyalty"] = after_loyalty
-		_city_runtime_states[city_id] = city_data
-		drift["before_loyalty"] = before_loyalty
-		drift["after_loyalty"] = after_loyalty
-		(result["cities"] as Array).append(drift)
-		print("[CITY_LOYALTY_DRIFT] city=%s before=%d delta=%d after=%d reasons=%s" % [
-			city_id,
-			before_loyalty,
-			int(drift.get("delta", 0)),
-			after_loyalty,
-			str(drift.get("reasons", [])),
-		])
-	_player_state["last_city_loyalty_drift_result"] = result
-	_refresh_city_hud_data_bindings()
-	return result
+	return _ensure_world_turn_state_service().apply_city_loyalty_tick(tax_level, policy_id, supply_states)
 
 
 func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy_id: String, supply_state: Dictionary = {}) -> Dictionary:
+	var city_id := str(city_data.get("id", ""))
 	var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
-	var tax_delta := _adjust_loyalty_delta(_get_tax_loyalty_delta(tax_level), float(city_effects.get("city_loyalty_loss_multiplier", 1.0)))
-	var garrison_troops := maxi(0, int(city_data.get("troops", 0)))
 	var stationed_hero_troops := 0
 	for hero_id in _get_stationed_hero_ids_for_city(city_data):
 		var hero_data := _get_hero_entry(str(hero_id))
 		stationed_hero_troops += maxi(0, int(hero_data.get("troops", hero_data.get("troop_count", 0))))
-	var security_troops := int(round(float(garrison_troops) + (float(stationed_hero_troops) * STATIONED_HERO_SECURITY_WEIGHT)))
-	var security_required_troops := _get_city_security_required_troops(city_data)
-	var security_delta := 0
-	if security_troops >= int(ceil(float(security_required_troops) * 1.2)):
-		security_delta = 1
-	elif security_troops < security_required_troops:
-		security_delta = -1
-	var supply_security_delta := int(supply_state.get("security_delta", 0))
-	security_delta += supply_security_delta
-	var commerce_rating := _get_city_numeric_rating(city_data, "commerce_rating", 3)
-	var population_rating := _get_city_numeric_rating(city_data, "population_rating", 3)
-	var economy_score := clampi((commerce_rating * 10) + (population_rating * 8) + int(round((float(city_effects.get("gold_multiplier", 1.0)) - 1.0) * 80.0)), 0, 100)
-	var economy_delta := 0
-	if economy_score >= 75:
-		economy_delta = 1
-	elif economy_score < 50:
-		economy_delta = -1
-	var population := maxi(1, int(city_data.get("population", 30000)))
-	var troop_population_ratio := float(garrison_troops) / float(population)
-	var military_burden_delta := 0
-	if troop_population_ratio > 0.45:
-		military_burden_delta = -2
-	elif troop_population_ratio > 0.35:
-		military_burden_delta = -1
-	var supply_delta := int(supply_state.get("loyalty_delta", 0))
-	var preliminary_delta := tax_delta + security_delta + economy_delta + military_burden_delta + supply_delta
 	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
 	var governor_data := _get_hero_entry(governor_id)
-	var control_delta := 0
-	if preliminary_delta < 0 and not governor_data.is_empty() and (_governor_has_aptitude(governor_data, "administrative", 3) or _governor_has_aptitude(governor_data, "political", 3)):
-		control_delta = 1
-	var delta := clampi(preliminary_delta + control_delta, CITY_LOYALTY_DRIFT_MIN, CITY_LOYALTY_DRIFT_MAX)
-	var reasons: Array[String] = []
-	if tax_delta != 0:
-		reasons.append("tax=%s" % _format_signed_int(tax_delta))
-	if security_delta != 0:
-		reasons.append("security=%s" % _format_signed_int(security_delta))
-	if economy_delta != 0:
-		reasons.append("economy=%s" % _format_signed_int(economy_delta))
-	if military_burden_delta != 0:
-		reasons.append("military=%s" % _format_signed_int(military_burden_delta))
-	if supply_delta != 0:
-		reasons.append("supply=%s" % _format_signed_int(supply_delta))
-	if supply_security_delta != 0:
-		reasons.append("supply_security=%s" % _format_signed_int(supply_security_delta))
-	if control_delta != 0:
-		reasons.append("control=%s" % _format_signed_int(control_delta))
-	return {
-		"city_id": str(city_data.get("id", "")),
-		"delta": delta,
-		"tax_delta": tax_delta,
-		"security_delta": security_delta,
-		"supply_delta": supply_delta,
-		"supply_security_delta": supply_security_delta,
-		"economy_delta": economy_delta,
-		"military_burden_delta": military_burden_delta,
-		"control_delta": control_delta,
-		"security_troops": security_troops,
-		"security_required_troops": security_required_troops,
-		"economy_score": economy_score,
-		"troop_population_ratio": troop_population_ratio,
-		"city_loyalty_loss_multiplier": float(city_effects.get("city_loyalty_loss_multiplier", 1.0)),
-		"supply_state": supply_state,
-		"reasons": reasons,
+	var inputs := {
+		"city_effects": city_effects,
+		"tax_delta": _adjust_loyalty_delta(_get_tax_loyalty_delta(tax_level), float(city_effects.get("city_loyalty_loss_multiplier", 1.0))),
+		"stationed_hero_troops": stationed_hero_troops,
+		"security_required_troops": _get_city_security_required_troops(city_data),
+		"governor_controls_loss": not governor_data.is_empty() and (_governor_has_aptitude(governor_data, "administrative", 3) or _governor_has_aptitude(governor_data, "political", 3)),
 	}
+	var result := _ensure_world_turn_state_service().calculate_city_loyalty_drift(city_data, inputs, supply_state)
+	result["city_id"] = city_id
+	return result
 
 
 func _get_city_security_required_troops(city_data: Dictionary) -> int:
@@ -13612,7 +13462,7 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 			city_state["loyalty"] = loaded_loyalty
 			city_state["cityLoyalty"] = loaded_loyalty
 		if source.has("publicSupport"):
-			city_state["publicSupport"] = clampi(int(source.get("publicSupport", CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
+			city_state["publicSupport"] = clampi(int(source.get("publicSupport", WorldTurnStateServiceScript.CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			var resource_stock := {}
 			for resource_id in (source.get("resource_stock") as Dictionary).keys():
