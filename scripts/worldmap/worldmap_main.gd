@@ -3,7 +3,6 @@ extends Node2D
 signal contextual_worldmap_action_presentation_requested(action_type: String, action_id: String, target_city_id: String)
 signal contextual_worldmap_action_resolved(action_type: String, result: Dictionary)
 
-const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const HeroDefinitionRegistryScript := preload(
 	"res://scripts/worldmap/hero_definition_registry.gd"
 )
@@ -43,6 +42,7 @@ const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_ba
 const StrategicBattleTransactionServiceScript := preload("res://scripts/worldmap/t03/strategic_battle_transaction_service.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
 const WorldMapCameraControllerScript := preload("res://scripts/worldmap/camera/worldmap_camera_controller.gd")
+const WorldMapHudControllerScript := preload("res://scripts/worldmap/hud/worldmap_hud_controller.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -781,6 +781,7 @@ const HERO_BATTLE_TOAST_ICON_FALLBACK := "skill_unknown"
 @onready var city_detail_domestic_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/DomesticButtonPlaceholder
 
 var _camera_controller: WorldMapCameraController = null
+var _hud_controller: WorldMapHudControllerScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
@@ -875,8 +876,6 @@ var _internal_trade_preview_label: Label = null
 var _internal_trade_status_label: Label = null
 var _internal_trade_amount_spinboxes: Dictionary = {}
 var _internal_trade_current_source_city_id := ""
-var _warehouse_card: PanelContainer
-var _warehouse_resource_row_labels: Dictionary = {}
 var _pending_invasion_choice_card: PanelContainer
 var _pending_invasion_title_label: Label
 var _pending_invasion_detail_label: Label
@@ -1356,6 +1355,50 @@ func _ensure_camera_controller() -> WorldMapCameraController:
 			[tile_a1_top_left, tile_a2_top_right, tile_b1_bottom_left, tile_b2_bottom_right]
 		)
 	return _camera_controller
+
+
+func _ensure_hud_controller() -> WorldMapHudControllerScript:
+	if _hud_controller == null:
+		_hud_controller = WorldMapHudControllerScript.new()
+		_hud_controller.name = "WorldMapHudController"
+		add_child(_hud_controller)
+	_hud_controller.set_ui_nodes({
+		"left_world_status_panel": left_world_status_panel,
+		"city_info_panel": city_info_panel_control,
+		"eyebrow": left_world_status_eyebrow_label,
+		"turn": turn_label,
+		"calendar": calendar_label,
+		"nation": nation_label,
+		"power": power_label,
+		"power_bar": power_bar,
+		"tax": tax_label,
+		"tax_bar": tax_bar,
+		"tax_slider": tax_slider,
+		"security": security_label,
+		"security_bar": security_bar,
+		"chancellor": chancellor_label,
+		"chancellor_portrait": chancellor_portrait_label,
+		"chancellor_portrait_texture": _chancellor_portrait_texture_rect,
+		"chancellor_name": chancellor_name_label,
+		"chancellor_stats": chancellor_stats_label,
+		"chancellor_assignment": chancellor_assignment_option,
+		"chancellor_policy": chancellor_policy_option,
+		"chancellor_policy_description": chancellor_policy_description_label,
+		"resource": resource_label,
+		"supply": supply_label,
+		"military_logistics": military_logistics_label,
+		"external_trade": external_trade_label,
+		"world_status_hint": world_status_hint_label,
+		"turn_end": wild_army_edit_button_placeholder,
+		"save": save_button_placeholder,
+		"load": load_button_placeholder,
+		"reset": reset_button_placeholder,
+		"save_management_title": _save_management_title_label,
+		"save_management_status": _save_management_status_label,
+		"resource_order": RESOURCE_DISPLAY_ORDER,
+		"resource_labels": RESOURCE_LABELS,
+	})
+	return _hud_controller
 
 
 func _update_camera_debug_label() -> void:
@@ -4966,36 +5009,15 @@ func _setup_left_world_controls() -> void:
 
 
 func _setup_left_world_status_panel_layout() -> void:
-	_lock_left_world_status_panel_anchor()
-	_lock_world_turn_header_order()
-	_setup_left_world_header_slim_ui()
-	_setup_left_world_tax_slim_ui()
-	_setup_warehouse_card_ui()
+	_ensure_hud_controller().setup_world_status_panel(
+		Callable(self, "_request_hud_panel_position_mvp"),
+		LEFT_WORLD_STATUS_PANEL_TOP_LEFT,
+		LEFT_WORLD_STATUS_PANEL_SIZE
+	)
 	_setup_pending_invasion_choice_ui()
 	_setup_post_battle_result_ui()
 	_setup_save_management_ui()
 	_ensure_left_world_status_help_buttons()
-	for label in [
-		power_label,
-		tax_label,
-		security_label,
-		chancellor_stats_label,
-		chancellor_policy_description_label,
-		resource_label,
-		supply_label,
-		military_logistics_label,
-		external_trade_label,
-		world_status_hint_label,
-	]:
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var national_bonus_display := _format_domestic_tech_national_policy_bonus_lines_mvp()
-	national_bonus_display.append_array(_format_domestic_tech_diplomacy_spy_bonus_lines_mvp())
-	resource_label.visible = not national_bonus_display.is_empty()
-	resource_label.text = "\n".join(national_bonus_display)
-	resource_label.add_theme_font_size_override("font_size", 10)
-	supply_label.add_theme_font_size_override("font_size", 10)
-	military_logistics_label.add_theme_font_size_override("font_size", 10)
-	external_trade_label.add_theme_font_size_override("font_size", 10)
 
 
 func _ensure_left_world_status_help_buttons() -> void:
@@ -5017,51 +5039,12 @@ func _ensure_left_world_status_help_buttons() -> void:
 	_left_national_loyalty_help_button.pressed.connect(_show_worldmap_help_modal.bind("national_loyalty"))
 
 
-func _setup_left_world_header_slim_ui() -> void:
-	left_world_status_eyebrow_label.visible = false
-	left_world_status_eyebrow_label.text = ""
-	turn_label.visible = false
-	turn_label.text = ""
-	nation_label.visible = false
-	nation_label.text = ""
-	calendar_label.visible = true
-	calendar_label.add_theme_font_size_override("font_size", 16)
-
-
-func _setup_left_world_tax_slim_ui() -> void:
-	tax_bar.visible = false
-	security_label.visible = false
-	security_label.text = ""
-	security_bar.visible = false
-
-
 func _lock_left_world_status_panel_anchor() -> void:
-	if left_world_status_panel == null:
-		return
-	left_world_status_panel.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
-	if not _request_hud_panel_position_mvp(left_world_status_panel, LEFT_WORLD_STATUS_PANEL_TOP_LEFT):
-		left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
-	left_world_status_panel.size = LEFT_WORLD_STATUS_PANEL_SIZE
-	left_world_status_panel.custom_minimum_size = LEFT_WORLD_STATUS_PANEL_SIZE
-
-
-func _lock_world_turn_header_order() -> void:
-	var content := left_world_status_eyebrow_label.get_parent() as VBoxContainer
-	if content == null:
-		return
-	var ordered_nodes: Array[Node] = [
-		left_world_status_eyebrow_label,
-		turn_label,
-		calendar_label,
-		nation_label,
-	]
-	var separator := content.get_node_or_null("WorldTurnSeparator") as HSeparator
-	if separator != null:
-		ordered_nodes.append(separator)
-	for node_index in range(ordered_nodes.size()):
-		var child := ordered_nodes[node_index]
-		if child != null and child.get_parent() == content:
-			content.move_child(child, node_index)
+	_ensure_hud_controller().setup_world_status_panel(
+		Callable(self, "_request_hud_panel_position_mvp"),
+		LEFT_WORLD_STATUS_PANEL_TOP_LEFT,
+		LEFT_WORLD_STATUS_PANEL_SIZE
+	)
 
 
 func _setup_pending_invasion_choice_ui() -> void:
@@ -5367,105 +5350,11 @@ func _setup_save_management_ui() -> void:
 	_save_management_status_label.visible = not _save_management_status.is_empty()
 
 
-func _setup_warehouse_card_ui() -> void:
-	if _warehouse_card != null:
-		return
-	var parent := supply_label.get_parent()
-	_warehouse_card = PanelContainer.new()
-	_warehouse_card.name = "WarehouseCard"
-	_warehouse_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.05, 0.08, 0.12, 0.86)
-	panel_style.border_color = Color(0.85, 0.66, 0.32, 0.58)
-	panel_style.set_border_width_all(1)
-	panel_style.set_corner_radius_all(4)
-	panel_style.content_margin_left = 8.0
-	panel_style.content_margin_top = 7.0
-	panel_style.content_margin_right = 8.0
-	panel_style.content_margin_bottom = 7.0
-	_warehouse_card.add_theme_stylebox_override("panel", panel_style)
-	parent.add_child(_warehouse_card)
-	parent.move_child(_warehouse_card, supply_label.get_index())
-
-	var content := VBoxContainer.new()
-	content.name = "WarehouseCardContent"
-	content.add_theme_constant_override("separation", 4)
-	_warehouse_card.add_child(content)
-
-	var title_label := Label.new()
-	title_label.name = "WarehouseTitleLabel"
-	title_label.text = "국가 창고"
-	title_label.add_theme_color_override("font_color", Color(0.98, 0.82, 0.46, 1.0))
-	title_label.add_theme_font_size_override("font_size", 12)
-	content.add_child(title_label)
-
-	for resource_id in RESOURCE_DISPLAY_ORDER:
-		var resource_id_string := str(resource_id)
-		var row := HBoxContainer.new()
-		row.name = "WarehouseRow_%s" % resource_id_string
-		row.add_theme_constant_override("separation", 6)
-		content.add_child(row)
-
-		var name_label := Label.new()
-		name_label.name = "ResourceNameLabel"
-		name_label.text = str(RESOURCE_LABELS.get(resource_id_string, resource_id_string))
-		name_label.custom_minimum_size.x = 52.0
-		name_label.add_theme_color_override("font_color", Color(0.82, 0.86, 0.92, 1.0))
-		name_label.add_theme_font_size_override("font_size", 10)
-		row.add_child(name_label)
-
-		var amount_label := Label.new()
-		amount_label.name = "ResourceAmountLabel"
-		amount_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		amount_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		amount_label.add_theme_color_override("font_color", Color(0.90, 0.91, 0.86, 1.0))
-		amount_label.add_theme_font_size_override("font_size", 10)
-		row.add_child(amount_label)
-
-		var status_label := Label.new()
-		status_label.name = "ResourceStatusLabel"
-		status_label.custom_minimum_size.x = 38.0
-		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		status_label.add_theme_color_override("font_color", Color(0.68, 0.88, 0.72, 1.0))
-		status_label.add_theme_font_size_override("font_size", 10)
-		row.add_child(status_label)
-
-		_warehouse_resource_row_labels[resource_id_string] = {
-			"name": name_label,
-			"amount": amount_label,
-			"status": status_label,
-		}
-
-	supply_label.visible = false
-	supply_label.text = ""
-
-
 func _refresh_left_world_status_panel() -> void:
 	_ensure_worldmap_runtime_state_defaults()
-	left_world_status_eyebrow_label.visible = true
-	left_world_status_eyebrow_label.text = "플레이어 국가 · %s" % _format_faction_label(_get_current_player_faction_id())
-	turn_label.visible = false
-	calendar_label.text = "%s · %s · %s" % [
-		str(_player_state.get("turn_label", "제 1턴")),
-		str(_player_state.get("year_label", "154년 봄 1턴")),
-		str(_player_state.get("current_phase_label", "아군 턴")),
-	]
-	nation_label.visible = true
-	nation_label.text = "수도: %s" % _format_city_name_by_id(str(_player_state.get("capital_city_id", _player_state.get("origin_city_id", ""))), "미설정")
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
-	power_label.text = "국가충성도 %d · %s" % [national_loyalty, _get_loyalty_status(national_loyalty)]
-	power_bar.value = national_loyalty
-	tax_label.text = "세금 수준 %d · %s" % [tax_level, _get_tax_description(tax_level)]
-	tax_bar.value = tax_level
-	tax_bar.visible = false
-	tax_slider.set_value_no_signal(float(tax_level))
-	security_label.text = ""
-	security_label.visible = false
-	security_bar.value = public_order
-	security_bar.visible = false
-
 	_sync_chancellor_assignment_for_selected_city({})
 	_populate_chancellor_assignment_dropdown()
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
@@ -5476,29 +5365,9 @@ func _refresh_left_world_status_panel() -> void:
 		policy_id = "balanced"
 		_player_state["chancellor_policy_id"] = policy_id
 	var policy_data := _get_chancellor_policy_entry(policy_id)
-	chancellor_label.text = "재상"
-	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_chancellor_portrait_texture_rect, chancellor_portrait_label, chancellor_data)
-	chancellor_name_label.text = chancellor_name
-	chancellor_stats_label.visible = not chancellor_data.is_empty()
-	chancellor_stats_label.text = _format_chancellor_type_summary(chancellor_data) if not chancellor_data.is_empty() else ""
-	chancellor_policy_description_label.text = "효과: %s\n정책: %s" % [
-		_get_chancellor_effect_text(chancellor_data),
-		str(policy_data.get("description", "재상 정책 설명 준비 중")),
-	]
-	_select_option_by_metadata(chancellor_assignment_option, chancellor_id)
-	_select_option_by_metadata(chancellor_policy_option, policy_id)
 	var national_bonus_display := _format_domestic_tech_national_policy_bonus_lines_mvp()
 	national_bonus_display.append_array(_format_domestic_tech_diplomacy_spy_bonus_lines_mvp())
-	resource_label.visible = not national_bonus_display.is_empty()
-	resource_label.text = "\n".join(national_bonus_display)
-	supply_label.visible = false
-	supply_label.text = ""
-	_refresh_warehouse_card()
-	military_logistics_label.visible = false
-	military_logistics_label.text = ""
 	var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
-	external_trade_label.visible = not last_trade_result.is_empty()
-	external_trade_label.text = _format_inter_faction_trade_summary(last_trade_result) if external_trade_label.visible else ""
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	city_info_panel.set_pending_invasion_event(pending_invasion_event)
 	_refresh_city_info_attack_action_state(selected_city_id)
@@ -5507,19 +5376,29 @@ func _refresh_left_world_status_panel() -> void:
 		world_status_hint = _format_enemy_faction_turn_result_hint(_player_state.get("last_enemy_faction_turn_result", {}))
 	if world_status_hint.is_empty():
 		world_status_hint = _format_last_turn_resolution_hint_mvp()
-	world_status_hint_label.text = world_status_hint
-	world_status_hint_label.visible = not world_status_hint.is_empty()
 	_refresh_pending_invasion_choice_ui(pending_invasion_event)
-	wild_army_edit_button_placeholder.text = "아군 턴 종료"
-	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending or not pending_invasion_event.is_empty() or _has_terminal_korea_outcome_mvp()
-	save_button_placeholder.text = "저장"
-	load_button_placeholder.text = "불러오기"
-	reset_button_placeholder.text = "초기화"
-	if _save_management_title_label != null:
-		_save_management_title_label.text = "저장 관리"
-	if _save_management_status_label != null:
-		_save_management_status_label.text = _save_management_status
-		_save_management_status_label.visible = not _save_management_status.is_empty()
+	_ensure_hud_controller().refresh_world_status({
+		"eyebrow": "플레이어 국가 · %s" % _format_faction_label(_get_current_player_faction_id()),
+		"calendar": "%s · %s · %s" % [str(_player_state.get("turn_label", "제 1턴")), str(_player_state.get("year_label", "154년 봄 1턴")), str(_player_state.get("current_phase_label", "아군 턴"))],
+		"nation": "수도: %s" % _format_city_name_by_id(str(_player_state.get("capital_city_id", _player_state.get("origin_city_id", ""))), "미설정"),
+		"power": "국가충성도 %d · %s" % [national_loyalty, _get_loyalty_status(national_loyalty)],
+		"national_loyalty": national_loyalty,
+		"tax": "세금 수준 %d · %s" % [tax_level, _get_tax_description(tax_level)],
+		"tax_level": tax_level,
+		"public_order": public_order,
+		"chancellor_id": chancellor_id,
+		"chancellor_data": chancellor_data,
+		"chancellor_name": chancellor_name,
+		"chancellor_stats": _format_chancellor_type_summary(chancellor_data) if not chancellor_data.is_empty() else "",
+		"policy_id": policy_id,
+		"chancellor_policy_description": "효과: %s\n정책: %s" % [_get_chancellor_effect_text(chancellor_data), str(policy_data.get("description", "재상 정책 설명 준비 중"))],
+		"national_bonus_lines": national_bonus_display,
+		"external_trade": _format_inter_faction_trade_summary(last_trade_result) if not last_trade_result.is_empty() else "",
+		"world_status_hint": world_status_hint,
+		"turn_end_disabled": _enemy_turn_mvp_pending or not pending_invasion_event.is_empty() or _has_terminal_korea_outcome_mvp(),
+		"save_status": _save_management_status,
+		"warehouse_rows": _build_warehouse_hud_rows(),
+	})
 	_refresh_post_battle_result_panel()
 
 
@@ -13829,15 +13708,16 @@ func _get_hero_data_for_ui() -> Dictionary:
 func _refresh_city_hud_data_bindings() -> void:
 	if city_info_panel == null:
 		return
-	if city_info_panel.has_method("set_player_faction_id"):
-		city_info_panel.call("set_player_faction_id", _get_current_player_faction_id())
-	if city_info_panel.has_method("set_enemy_city_intel"):
-		city_info_panel.call("set_enemy_city_intel", _normalize_city_intel_registry(_player_state.get("city_intel", {})))
-	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
-	if city_info_panel.has_method("set_recruitment_summaries"):
-		city_info_panel.call("set_recruitment_summaries", _get_recruitment_summaries_for_ui())
-	if city_info_panel.has_method("set_revolt_risk_summaries"):
-		city_info_panel.call("set_revolt_risk_summaries", _get_revolt_risk_summaries_for_ui())
+	_ensure_hud_controller().refresh_selected_city_binding({
+		"player_faction_id": _get_current_player_faction_id(),
+		"enemy_city_intel": _normalize_city_intel_registry(_player_state.get("city_intel", {})),
+		"hero_data": _get_hero_data_for_ui(),
+		"city_data": _get_city_hud_data_for_ui(),
+		"governor_policy_data": GOVERNOR_POLICY_DATA,
+		"city_policy_state": _city_policy_state,
+		"recruitment_summaries": _get_recruitment_summaries_for_ui(),
+		"revolt_risk_summaries": _get_revolt_risk_summaries_for_ui(),
+	})
 
 
 func _serialize_worldmap_city_runtime_state() -> Dictionary:
@@ -14356,25 +14236,24 @@ func _get_city_storage_status_label(total: int) -> String:
 
 
 func _refresh_warehouse_card() -> void:
-	if _warehouse_card == null:
-		return
-	_warehouse_card.visible = true
+	_ensure_hud_controller().refresh_warehouse(_build_warehouse_hud_rows())
+
+
+func _build_warehouse_hud_rows() -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
 	var resource_stock := _get_player_national_resource_stock_mvp()
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var resource_id_string := str(resource_id)
-		var row_labels: Dictionary = _warehouse_resource_row_labels.get(resource_id_string, {})
-		if row_labels.is_empty():
-			continue
 		var value := int(resource_stock.get(resource_id_string, 0))
 		var capacity := int(WAREHOUSE_CAPACITY.get(resource_id_string, 0))
 		var status := _get_resource_status_label(resource_id_string, value, capacity)
-		var amount_label := row_labels.get("amount") as Label
-		var status_label := row_labels.get("status") as Label
-		if amount_label != null:
-			amount_label.text = "%d / %d" % [value, capacity]
-		if status_label != null:
-			status_label.text = status
-			status_label.add_theme_color_override("font_color", _get_resource_status_color(status))
+		rows.append({
+			"resource_id": resource_id_string,
+			"amount": "%d / %d" % [value, capacity],
+			"status": status,
+			"status_color": _get_resource_status_color(status),
+		})
+	return rows
 
 
 func _format_warehouse_summary(_policy_id: String) -> String:

@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "scripts/worldmap/worldmap_main.gd"
 CAMERA_CONTROLLER = ROOT / "scripts/worldmap/camera/worldmap_camera_controller.gd"
+HUD_CONTROLLER = ROOT / "scripts/worldmap/hud/worldmap_hud_controller.gd"
 MIN_MAIN_LINE_COUNT = 14_000
 MIN_WORLD_MAP_ORCHESTRATION_LINE_COUNT = 15_000
 MIN_FUNCTION_COUNT = 900
@@ -40,12 +41,20 @@ REQUIRED_CAMERA_TOKENS = {
     "battle handoff state": "_battle_entry_handoff_in_progress",
 }
 
+REQUIRED_HUD_TOKENS = {
+    "world status refresh": "func refresh_world_status",
+    "selected city binding": "func refresh_selected_city_binding",
+    "HUD visibility": "func set_hud_visible",
+    "warehouse presentation": "func refresh_warehouse",
+}
+
 
 def main() -> None:
     source = MAIN.read_text(encoding="utf-8")
     camera_source = CAMERA_CONTROLLER.read_text(encoding="utf-8")
+    hud_source = HUD_CONTROLLER.read_text(encoding="utf-8")
     line_count = len(source.splitlines())
-    orchestration_line_count = line_count + len(camera_source.splitlines())
+    orchestration_line_count = line_count + len(camera_source.splitlines()) + len(hud_source.splitlines())
     function_count = len(re.findall(r"^(?:static\s+)?func\s+", source, flags=re.MULTILINE))
 
     failures: list[str] = []
@@ -71,6 +80,9 @@ def main() -> None:
     for label, token in REQUIRED_CAMERA_TOKENS.items():
         if token not in camera_source:
             failures.append(f"missing camera-controller sentinel [{label}]: {token}")
+    for label, token in REQUIRED_HUD_TOKENS.items():
+        if token not in hud_source:
+            failures.append(f"missing HUD-controller sentinel [{label}]: {token}")
 
     if failures:
         raise SystemExit("FAIL: WorldMap main integrity guard\n- " + "\n- ".join(failures))
