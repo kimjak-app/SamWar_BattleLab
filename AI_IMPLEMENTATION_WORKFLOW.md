@@ -66,3 +66,26 @@
 5. 구현 후 main에 도메인 로직이 새로 쌓이지 않았는지 스스로 검수한다.
 
 이 원칙을 앞으로의 삼국WAR 월드맵 기능 추가·수정 작업의 상시 기본값으로 사용한다.
+
+## 6. 전투엔진 리팩토링 문서 우선순위
+
+전투엔진 리팩토링 작업에서는 일반적인 AI 협업/구현 규칙보다 먼저 현재 승인된 전투 리팩토링 설계 경계를 확인한다.
+
+읽기 및 판단 순서는 다음과 같다.
+
+1. `agent/WORKFLOW_MANAGER.md` — 작업 권한, 안전, 커밋/푸시 경계.
+2. `BATTLE_RUNTIME_REFACTOR_PLAN.md` — 현재 전투 리팩토링의 기준 설계, Test→Production 전환 시점, B-0A/B/B-0C 및 B-1+ 진행 순서.
+3. `agent/BATTLE_ENGINE_RULES.md` — 전투엔진의 불변 책임 경계와 현재 안정 동작 보존 규칙.
+4. 월드맵↔전투 연결을 건드리는 경우에만 `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`를 추가로 읽는다.
+
+상시 원칙:
+
+- 오전에 만든 삼국WAR 작업 스킬/일반 실행 프로토콜은 **어떻게 작업할지**를 정한다.
+- `BATTLE_RUNTIME_REFACTOR_PLAN.md`는 이번 전투엔진 리팩토링에서 **무엇을 어떤 순서와 소유권으로 바꿀지**를 정한다.
+- 두 지침이 겹쳐 보일 경우, 전투 리팩토링의 단계/구조/Production-vs-Test 소유권은 `BATTLE_RUNTIME_REFACTOR_PLAN.md`를 따른다.
+- 단, `WORKFLOW_MANAGER.md`의 안전/권한 경계와 `BATTLE_ENGINE_RULES.md`의 전투 동작·공식·타이밍 보존 규칙은 덮어쓰지 않는다.
+- B-0 완료 전에는 편의상 실제 게임 로직을 새 `*_test.gd`에 추가하지 않는다.
+- B-0 이후에는 새 전투 기능의 책임 소유자를 먼저 판단하고 Production Controller/Service/Helper에 배치하며, 테스트는 Production 동작을 검증하는 소비자/fixture로 유지한다.
+
+이 우선순위를 새 채팅, 채코치 직접 작업, Codex 작업 모두의 전투엔진 리팩토링 기본값으로 사용한다.
+
