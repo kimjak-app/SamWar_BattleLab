@@ -45,6 +45,7 @@ const WorldMapCameraControllerScript := preload("res://scripts/worldmap/camera/w
 const WorldMapHudControllerScript := preload("res://scripts/worldmap/hud/worldmap_hud_controller.gd")
 const WorldMapSharedUiControllerScript := preload("res://scripts/worldmap/ui/worldmap_shared_ui_controller.gd")
 const WorldCalendarServiceScript := preload("res://scripts/worldmap/turn/world_calendar_service.gd")
+const WorldTurnEconomyServiceScript := preload("res://scripts/worldmap/turn/world_turn_economy_service.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -106,16 +107,6 @@ const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
 const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
-const DOMESTIC_INCOME_RULES := {
-	"seafood_per_rating_per_turn": 2,
-	"barley_per_rating_in_spring": 5,
-	"rice_per_rating_in_autumn": 5,
-}
-const POPULATION_TAX_POINT_PER_RATING := 3
-const COMMERCE_TAX_POINT_PER_RATING := 3
-const TAX_POINT_TO_GOLD := 1
-const CHANCELLOR_PRIMARY_RATE := 0.03
-const CHANCELLOR_SECONDARY_RATE := 0.015
 const CITY_PUBLIC_SUPPORT_DEFAULT := 70
 const PUBLIC_SUPPORT_DELTA_MIN := -7
 const PUBLIC_SUPPORT_DELTA_MAX := 3
@@ -187,14 +178,10 @@ const TRADE_ROUTE_CAP := {
 # v0.68b-13-2B Trade balance tuning (web parity restore)
 const TRADE_GLOBAL_DAMPENER := 0.5
 const TRADE_FOOD_FACTOR := 1.5
-const SUPPLY_INCOME_BONUS := 1.10
-const SUPPLY_INCOME_PENALTY := 0.80
 const SUPPLY_LOYALTY_BONUS := 1
 const SUPPLY_LOYALTY_PENALTY := -2
 const SUPPLY_SECURITY_BONUS := 1
 const SUPPLY_SECURITY_PENALTY := -1
-const SUPPLY_UPKEEP_DISCOUNT_PER_CITY := 0.03
-const SUPPLY_UPKEEP_DISCOUNT_FLOOR := 0.85
 const ROLE_TARGET_GARRISON_RATIO := {
 	"hub": 0.006,
 	"rear": 0.006,
@@ -775,6 +762,7 @@ var _camera_controller: WorldMapCameraController = null
 var _hud_controller: WorldMapHudControllerScript = null
 var _shared_ui_controller: WorldMapSharedUiControllerScript = null
 var _world_calendar_service: WorldCalendarServiceScript = null
+var _world_turn_economy_service: WorldTurnEconomyServiceScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
@@ -1309,6 +1297,12 @@ func _ensure_world_calendar_service() -> WorldCalendarServiceScript:
 	if _world_calendar_service == null:
 		_world_calendar_service = WorldCalendarServiceScript.new()
 	return _world_calendar_service
+
+
+func _ensure_world_turn_economy_service() -> WorldTurnEconomyServiceScript:
+	if _world_turn_economy_service == null:
+		_world_turn_economy_service = WorldTurnEconomyServiceScript.new()
+	return _world_turn_economy_service
 
 
 func _update_camera_debug_label() -> void:
@@ -11794,7 +11788,7 @@ func _get_next_seasonal_loyalty_turn(turn_number: int) -> int:
 
 
 func _create_empty_domestic_income_totals() -> Dictionary:
-	return {"rice": 0, "barley": 0, "seafood": 0, "gold": 0}
+	return _ensure_world_turn_economy_service().empty_income_totals()
 
 
 func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, policy_id: String, national_effects: Dictionary, supply_states: Dictionary = {}) -> Dictionary:
@@ -11820,22 +11814,11 @@ func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, p
 
 
 func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary, tax_level: int, city_effects: Dictionary = {}) -> Dictionary:
-	var resource_seed: Dictionary = city_data.get("resource_seed", {})
-	var income := _create_empty_domestic_income_totals()
-	income["seafood"] = _get_rating(resource_seed, "seafood") * int(DOMESTIC_INCOME_RULES.get("seafood_per_rating_per_turn", 2))
-	if str(calendar.get("season", "")) == "spring":
-		income["barley"] = _get_rating(resource_seed, "barley") * int(DOMESTIC_INCOME_RULES.get("barley_per_rating_in_spring", 5))
-	if str(calendar.get("season", "")) == "autumn":
-		income["rice"] = _get_rating(resource_seed, "rice") * int(DOMESTIC_INCOME_RULES.get("rice_per_rating_in_autumn", 5))
-	income["gold"] = _calculate_city_gold_tax_income(city_data, tax_level)
-	return _apply_income_multipliers_to_totals(income, city_effects)
+	return _ensure_world_turn_economy_service().calculate_city_income(city_data, calendar, tax_level, city_effects)
 
 
 func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> int:
-	var population_tax_points := _get_city_numeric_rating(city_data, "population_rating", 3) * POPULATION_TAX_POINT_PER_RATING
-	var commerce_tax_points := _get_city_numeric_rating(city_data, "commerce_rating", 0) * COMMERCE_TAX_POINT_PER_RATING
-	var taxable_value := (population_tax_points + commerce_tax_points) * TAX_POINT_TO_GOLD
-	return maxi(0, int(round(float(taxable_value) * _get_tax_gold_multiplier(tax_level))))
+	return _ensure_world_turn_economy_service().calculate_city_gold_tax_income(city_data, tax_level)
 
 
 func _apply_domestic_tech_economy_numeric_bonus_value_mvp(base_value: Variant, percent_bonus: float, flat_bonus: int = 0) -> int:
@@ -11878,35 +11861,17 @@ func _get_city_numeric_rating(city_data: Dictionary, key: String, fallback: int)
 
 func _apply_chancellor_policy_to_income_totals(totals: Dictionary, policy_id: String) -> Dictionary:
 	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
-	var income_multiplier := float(policy_data.get("income_multiplier", 1.0))
-	return {
-		"rice": maxi(0, int(round(float(totals.get("rice", 0)) * income_multiplier * float(policy_data.get("rice_multiplier", 1.0))))),
-		"barley": maxi(0, int(round(float(totals.get("barley", 0)) * income_multiplier * float(policy_data.get("barley_multiplier", 1.0))))),
-		"seafood": maxi(0, int(round(float(totals.get("seafood", 0)) * income_multiplier * float(policy_data.get("seafood_multiplier", 1.0))))),
-		"gold": maxi(0, int(round(float(totals.get("gold", 0)) * income_multiplier * float(policy_data.get("gold_multiplier", 1.0))))),
-	}
+	return _ensure_world_turn_economy_service().apply_chancellor_policy(totals, policy_data)
 
 
 func _calculate_active_chancellor_national_effects() -> Dictionary:
-	var effect := {
-		"rice_multiplier": 1.0,
-		"barley_multiplier": 1.0,
-		"seafood_multiplier": 1.0,
-		"gold_multiplier": 1.0,
-		"hero_upkeep_multiplier": 1.0,
-		"soldier_upkeep_preview_multiplier": 1.0,
-		"salt_preservation_multiplier": 1.0,
-		"national_loyalty_loss_multiplier": 1.0,
-	}
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
 	if chancellor_id.is_empty():
-		return effect
+		return _ensure_world_turn_economy_service().default_chancellor_national_effects()
 	var hero_data := _get_hero_entry(chancellor_id)
 	if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
-		return effect
-	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_primary_type", "")), float(hero_data.get("chancellor_primary_aptitude", 0)), CHANCELLOR_PRIMARY_RATE)
-	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_secondary_type", "")), float(hero_data.get("chancellor_secondary_aptitude", 0)), CHANCELLOR_SECONDARY_RATE)
-	return effect
+		return _ensure_world_turn_economy_service().default_chancellor_national_effects()
+	return _ensure_world_turn_economy_service().calculate_chancellor_national_effects(hero_data)
 
 
 func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_id: String) -> Dictionary:
@@ -11921,27 +11886,13 @@ func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_i
 		_get_current_player_faction_id(),
 		_get_city_policy_id(city_id, city_data),
 		chancellor_policy_id,
-		CHANCELLOR_PRIMARY_RATE,
-		CHANCELLOR_SECONDARY_RATE
+		WorldTurnEconomyServiceScript.CHANCELLOR_PRIMARY_RATE,
+		WorldTurnEconomyServiceScript.CHANCELLOR_SECONDARY_RATE
 	)
 
 
 func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
-	var strength := maxf(0.0, aptitude) * rate
-	if type_id.is_empty() or strength <= 0.0:
-		return
-	match type_id:
-		"political":
-			effect["national_loyalty_loss_multiplier"] = clampf(float(effect.get("national_loyalty_loss_multiplier", 1.0)) * (1.0 - strength), 0.7, 1.0)
-		"economic":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + strength), 1.0, 1.22)
-		"administrative":
-			effect["hero_upkeep_multiplier"] = clampf(float(effect.get("hero_upkeep_multiplier", 1.0)) * (1.0 - (strength * 0.45)), 0.82, 1.0)
-			effect["salt_preservation_multiplier"] = clampf(float(effect.get("salt_preservation_multiplier", 1.0)) * (1.0 - (strength * 0.45)), 0.82, 1.0)
-		"diplomatic":
-			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + (strength * 0.55)), 1.0, 1.12)
-		"militaryAdmin":
-			effect["soldier_upkeep_preview_multiplier"] = clampf(float(effect.get("soldier_upkeep_preview_multiplier", 1.0)) * (1.0 - (strength * 0.55)), 0.82, 1.0)
+	_ensure_world_turn_economy_service().apply_chancellor_type_effect(effect, type_id, aptitude, rate)
 
 
 func _apply_governor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
@@ -11953,22 +11904,11 @@ func _apply_governor_policy_effect(effect: Dictionary, governor_policy_id: Strin
 
 
 func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary) -> Dictionary:
-	return {
-		"rice": maxi(0, int(round(float(totals.get("rice", 0)) * float(effect.get("rice_multiplier", 1.0))))),
-		"barley": maxi(0, int(round(float(totals.get("barley", 0)) * float(effect.get("barley_multiplier", 1.0))))),
-		"seafood": maxi(0, int(round(float(totals.get("seafood", 0)) * float(effect.get("seafood_multiplier", 1.0))))),
-		"gold": maxi(0, int(round(float(totals.get("gold", 0)) * float(effect.get("gold_multiplier", 1.0))))),
-	}
+	return _ensure_world_turn_economy_service().apply_income_multipliers(totals, effect)
 
 
 func _apply_supply_income_effect(effect: Dictionary, supply_state: Dictionary) -> void:
-	var income_multiplier := float(supply_state.get("income_multiplier", 1.0))
-	if is_equal_approx(income_multiplier, 1.0):
-		return
-	effect["rice_multiplier"] = float(effect.get("rice_multiplier", 1.0)) * income_multiplier
-	effect["barley_multiplier"] = float(effect.get("barley_multiplier", 1.0)) * income_multiplier
-	effect["seafood_multiplier"] = float(effect.get("seafood_multiplier", 1.0)) * income_multiplier
-	effect["gold_multiplier"] = float(effect.get("gold_multiplier", 1.0)) * income_multiplier
+	_ensure_world_turn_economy_service().apply_supply_income_effect(effect, supply_state)
 
 
 func _get_supply_city_state(supply_states: Dictionary, city_id: String) -> Dictionary:
@@ -12605,11 +12545,11 @@ func _calculate_city_supply_state(city_id: String, hub_id: String) -> Dictionary
 	var security_delta := 0
 	if role == "frontline":
 		if supplied:
-			income_multiplier = SUPPLY_INCOME_BONUS
+			income_multiplier = WorldTurnEconomyServiceScript.SUPPLY_INCOME_BONUS
 			loyalty_delta = SUPPLY_LOYALTY_BONUS
 			security_delta = SUPPLY_SECURITY_BONUS
 		elif isolated:
-			income_multiplier = SUPPLY_INCOME_PENALTY
+			income_multiplier = WorldTurnEconomyServiceScript.SUPPLY_INCOME_PENALTY
 			loyalty_delta = SUPPLY_LOYALTY_PENALTY
 			security_delta = SUPPLY_SECURITY_PENALTY
 	return {
@@ -12993,23 +12933,11 @@ func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Di
 			continue
 		active_count += 1
 	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
-	var supplied_frontline_count := maxi(0, int(supply_states.get("supplied_frontline_count", 0)))
-	var supply_upkeep_multiplier := maxf(SUPPLY_UPKEEP_DISCOUNT_FLOOR, 1.0 - (SUPPLY_UPKEEP_DISCOUNT_PER_CITY * float(supplied_frontline_count)))
-	var upkeep_multiplier := float(policy_data.get("hero_upkeep_multiplier", 1.0)) * float(national_effects.get("hero_upkeep_multiplier", 1.0)) * supply_upkeep_multiplier
-	var delta := {}
-	for resource_id in HERO_UPKEEP_RULES.keys():
-		var base_cost := active_count * int(HERO_UPKEEP_RULES.get(resource_id, 0))
-		var adjusted_cost := _round_discounted_amount(base_cost, upkeep_multiplier)
-		if adjusted_cost > 0:
-			delta[str(resource_id)] = -adjusted_cost
-	return delta
+	return _ensure_world_turn_economy_service().calculate_hero_upkeep_delta(active_count, HERO_UPKEEP_RULES, policy_data, national_effects, supply_states)
 
 
 func _round_discounted_amount(amount: int, multiplier: float) -> int:
-	var adjusted_amount := float(amount) * multiplier
-	if multiplier < 1.0 and adjusted_amount < float(amount):
-		return maxi(0, int(floor(adjusted_amount)))
-	return maxi(0, int(round(adjusted_amount)))
+	return _ensure_world_turn_economy_service().round_discounted_amount(amount, multiplier)
 
 
 func _combine_resource_deltas(first: Dictionary, second: Dictionary) -> Dictionary:
@@ -14219,14 +14147,11 @@ func _get_owned_city_garrison_total() -> int:
 
 
 func _normalize_tax_level(value: Variant) -> int:
-	return clampi(int(round(float(value))), 0, 100)
+	return _ensure_world_turn_economy_service().normalize_tax_level(value)
 
 
 func _get_tax_gold_multiplier(tax_level: int) -> float:
-	var normalized_tax := _normalize_tax_level(tax_level)
-	if normalized_tax <= 30:
-		return 0.5 + (float(normalized_tax) / 30.0) * 0.5
-	return 1.0 + (float(normalized_tax - 30) / 70.0)
+	return _ensure_world_turn_economy_service().get_tax_gold_multiplier(tax_level)
 
 
 func _get_tax_loyalty_delta(tax_level: int) -> int:

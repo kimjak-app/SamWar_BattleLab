@@ -91,6 +91,7 @@ jobs:
             tests/scripts/test_worldmap_hud_controller_extraction.gd
             tests/scripts/test_worldmap_shared_ui_controller_extraction.gd
             tests/scripts/test_world_calendar_service_extraction.gd
+            tests/scripts/test_world_turn_economy_service_extraction.gd
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
