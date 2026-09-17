@@ -1,0 +1,52 @@
+name: Apply M-FINAL-B once
+
+on:
+  push:
+    branches:
+      - recovery/worldmap-iso-sfx-services-20260912
+    paths:
+      - .github/workflows/apply-m-final-b-once.yml
+      - tools/apply_m_final_b_cleanup.py
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: recovery/worldmap-iso-sfx-services-20260912
+      - name: Guard exact branch head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin recovery/worldmap-iso-sfx-services-20260912
+          git reset --hard origin/recovery/worldmap-iso-sfx-services-20260912
+      - name: Preflight audited cleanup
+        run: python3 tools/apply_m_final_b_cleanup.py
+      - name: Apply audited cleanup
+        run: python3 tools/apply_m_final_b_cleanup.py --apply
+      - name: Verify scope and whitespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only)"
+          test "$changed" = "scripts/worldmap/worldmap_main.gd" || {
+            echo "Unexpected changed files:"
+            echo "$changed"
+            exit 1
+          }
+          git diff --check
+          git diff --stat
+      - name: Commit and push cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "kimjak-app"
+          git config user.email "geunsunkim@gmail.com"
+          git add scripts/worldmap/worldmap_main.gd
+          git commit -m "refactor(worldmap): remove dead final hub residue"
+          git push origin HEAD:recovery/worldmap-iso-sfx-services-20260912
