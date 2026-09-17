@@ -1,3 +1,4 @@
+# trigger: guarded M-FINAL-B cleanup
 name: Apply M-FINAL-B once
 
 on:
