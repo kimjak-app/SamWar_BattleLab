@@ -126,11 +126,13 @@ def audit(text: str) -> None:
         if occurrences != 1:
             raise SystemExit(f"dead function is referenced in main: {name} occurrences={occurrences}")
     for name in DEAD_CONSTANTS:
-        if not re.search(rf"^const\s+{re.escape(name)}\b", text, re.M):
+        declaration = re.search(rf"^const\s+{re.escape(name)}\b[^\n]*(?:\n|$)", text, re.M)
+        if declaration is None:
             raise SystemExit(f"missing audited dead constant: {name}")
-        occurrences = text.count(name)
-        if occurrences != 1:
-            raise SystemExit(f"dead constant is referenced in main: {name} occurrences={occurrences}")
+        remainder = text[:declaration.start()] + text[declaration.end():]
+        occurrences = remainder.count(name)
+        if occurrences != 0:
+            raise SystemExit(f"dead constant is referenced outside its declaration: {name} occurrences={occurrences}")
     for name in PRESERVED_SYMBOLS:
         if name not in text:
             raise SystemExit(f"required hub symbol missing before cleanup: {name}")
