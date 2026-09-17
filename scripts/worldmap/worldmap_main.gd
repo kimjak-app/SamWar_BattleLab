@@ -68,7 +68,6 @@ const DOMESTIC_TECH_PROGRESS_CITY := DomesticTechCatalogScript.DOMESTIC_TECH_PRO
 const DOMESTIC_TECH_PROGRESS_NATIONAL := DomesticTechCatalogScript.DOMESTIC_TECH_PROGRESS_NATIONAL
 const DOMESTIC_TECH_ICON_FALLBACK_LABEL := DomesticTechCatalogScript.DOMESTIC_TECH_ICON_FALLBACK_LABEL
 const DOMESTIC_TECH_RESEARCH_KEY := "research"
-const DOMESTIC_TECH_RESEARCH_ACTIVE_KEY := "active"
 const DOMESTIC_TECH_CATEGORY_AGRI := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_AGRI
 const DOMESTIC_TECH_CATEGORY_FISH := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_FISH
 const DOMESTIC_TECH_CATEGORY_COMMERCE := DomesticTechCatalogScript.DOMESTIC_TECH_CATEGORY_COMMERCE
@@ -107,7 +106,6 @@ const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
 const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
-const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
 const FACTION_RELATION_STATUS := DiplomacyControllerScript.FACTION_RELATION_STATUS
 const DIPLOMACY_SCORE_MIN := DiplomacyControllerScript.DIPLOMACY_SCORE_MIN
 const DIPLOMACY_SCORE_MAX := DiplomacyControllerScript.DIPLOMACY_SCORE_MAX
@@ -127,23 +125,6 @@ const SPY_ACTION_PUBLIC_SUPPORT_DISRUPT := SpyControllerScript.SPY_ACTION_PUBLIC
 const SPY_ACTION_LOYALTY_DISRUPT := SpyControllerScript.SPY_ACTION_LOYALTY_DISRUPT
 const SPY_ACTION_REVOLT_INSTIGATE := SpyControllerScript.SPY_ACTION_REVOLT_INSTIGATE
 const SPY_ACTION_WEDGE := SpyControllerScript.SPY_ACTION_WEDGE
-const SPY_COOLDOWN_TURNS := SpyControllerScript.SPY_COOLDOWN_TURNS
-const SPY_PUBLIC_SUPPORT_DISRUPT_COST := SpyControllerScript.SPY_PUBLIC_SUPPORT_DISRUPT_COST
-const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := SpyControllerScript.SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS
-const SPY_DETECTED_RELATION_PENALTY_GATHER_INFO := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_GATHER_INFO
-const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT
-const SPY_LOYALTY_DISRUPT_COST := SpyControllerScript.SPY_LOYALTY_DISRUPT_COST
-const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := SpyControllerScript.SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS
-const SPY_DETECTED_RELATION_PENALTY_LOYALTY := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_LOYALTY
-const SPY_REVOLT_INSTIGATION_COST := SpyControllerScript.SPY_REVOLT_INSTIGATION_COST
-const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := SpyControllerScript.SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS
-const SPY_REVOLT_INSTIGATION_DURATION_TURNS := SpyControllerScript.SPY_REVOLT_INSTIGATION_DURATION_TURNS
-const SPY_DETECTED_RELATION_PENALTY_REVOLT := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_REVOLT
-const SPY_WEDGE_COST := SpyControllerScript.SPY_WEDGE_COST
-const SPY_WEDGE_COOLDOWN_TURNS := SpyControllerScript.SPY_WEDGE_COOLDOWN_TURNS
-const SPY_DETECTED_RELATION_PENALTY_WEDGE := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_WEDGE
-const TRADE_SUSPENSION_TURNS := 3
-const RELATION_TRADE_MULTIPLIER := TradeControllerScript.RELATION_TRADE_MULTIPLIER
 const TRADE_ROUTE_CAP := TradeControllerScript.TRADE_ROUTE_CAP
 const TRADE_GLOBAL_DAMPENER := TradeControllerScript.TRADE_GLOBAL_DAMPENER
 const TRADE_FOOD_FACTOR := TradeControllerScript.TRADE_FOOD_FACTOR
@@ -174,7 +155,6 @@ const INVASION_RESULT_DEFENDER_WIN := BattleResultServiceScript.RESULT_DEFENDER_
 const INVASION_RESULT_ATTACKER_WIN := BattleResultServiceScript.RESULT_ATTACKER_WIN
 const INVASION_RESULT_RETREAT := BattleResultServiceScript.RESULT_RETREAT
 const INVASION_RESULT_UNKNOWN := BattleResultServiceScript.RESULT_UNKNOWN
-const INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS := 100
 const INVASION_MIN_CITY_TROOPS := 30
 const INVASION_MIN_OCCUPATION_TROOPS := 80
 const INVASION_MAX_REASONABLE_CITY_TROOPS := 99999
@@ -193,7 +173,6 @@ const HERO_RUNTIME_STATUS_DEAD := "dead"
 const DEFAULT_WOUNDED_RECOVERY_TURNS := 3
 const PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS := 1
 const COMMAND_RANK_GOVERNOR := "governor"
-const COMMAND_RANK_GENERAL := "general"
 const COMMAND_RANK_LIEUTENANT := "lieutenant"
 const COMMAND_RANK_OFFICER := "officer"
 const COMMAND_RANK_LABELS := {
@@ -576,8 +555,6 @@ const MANUAL_TRADE_PREVIEW_PRICES := {
 	"silk": 10,
 	"salt": 6,
 }
-const TRADE_EFFICIENCY_MIN := 0.25
-const TRADE_EFFICIENCY_MAX := 2.0
 const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
 const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
 const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
@@ -1181,14 +1158,6 @@ func _lock_screen_panel_top_margin(panel: Control) -> void:
 
 func _lock_selected_city_info_panel_anchor() -> void:
 	_ensure_shared_ui_controller().lock_right_panel_anchor(city_info_panel_control, SELECTED_CITY_INFO_PANEL_SIZE, WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
-
-
-func _register_hud_panel_drag(panel: Control, handles: Array) -> void:
-	_ensure_shared_ui_controller().register_draggable_panel(panel, handles)
-
-
-func _on_hud_drag_handle_gui_input(event: InputEvent, panel: Control, handle: Control) -> void:
-	_ensure_shared_ui_controller().call("_on_drag_handle_gui_input", event, panel, handle)
 
 
 func _move_hud_panel_to_screen_position(panel: Control, next_global_position: Vector2) -> void:
@@ -3086,10 +3055,6 @@ func _apply_trade_control_button_state(button: Button, is_active: bool) -> void:
 		button.modulate = Color(0.82, 0.86, 0.92, 1.0)
 
 
-
-
-
-
 func _ensure_manual_trade_order_panel() -> void:
 	if _manual_trade_order_panel != null:
 		return
@@ -3372,8 +3337,6 @@ func _build_manual_trade_order_preview() -> Dictionary:
 	})
 
 
-
-
 func _get_manual_trade_action(resource_id: String) -> String:
 	var action_option := _manual_trade_action_options.get(resource_id) as OptionButton
 	if action_option == null:
@@ -3504,20 +3467,12 @@ func _normalize_manual_trade_orders(raw_orders: Variant) -> Dictionary:
 	return _ensure_trade_controller().normalize_manual_trade_orders(raw_orders)
 
 
-
-
-
-
 func _normalize_trade_result_payload(raw_result: Variant) -> Dictionary:
 	return _ensure_trade_controller().normalize_trade_result_payload(raw_result)
 
 
-
-
 func _normalize_chancellor_auto_trade_result_payload(raw_result: Variant) -> Dictionary:
 	return _ensure_trade_controller().normalize_chancellor_auto_trade_result_payload(raw_result)
-
-
 
 
 func _has_worldmap_city_for_trade_persistence(city_id: String) -> bool:
@@ -4398,18 +4353,6 @@ func _extract_resource_group(resource_summary: String, resource_names: Array[Str
 	return EconomyCityHelpers.extract_resource_group(resource_summary, resource_names)
 
 
-func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
-	if city_marker.neighbors.is_empty():
-		return "비활성"
-
-	var linked_names: Array[String] = []
-	for neighbor_id in _get_internal_trade_connected_player_city_ids(city_marker):
-		linked_names.append(_format_city_name_by_id(str(neighbor_id), str(neighbor_id)))
-	if linked_names.is_empty():
-		return "연결 아군 성 없음"
-	return " / ".join(linked_names)
-
-
 func _get_internal_trade_connected_player_city_ids(city_marker: WorldMapCityMarker) -> Array[String]:
 	var connected_city_ids: Array[String] = []
 	if city_marker == null:
@@ -4522,16 +4465,6 @@ func _get_owned_city_count_for_internal_trade_display() -> int:
 	return count
 
 
-func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
-	if city_marker == null:
-		return "인접 대외 교역 없음"
-	var candidate_city_ids := _get_external_trade_candidate_city_ids(city_marker.city_id)
-	if candidate_city_ids.is_empty():
-		return "인접 대외 교역 없음"
-	var first_candidate_id := candidate_city_ids[0]
-	return _format_external_trade_candidate_line(first_candidate_id)
-
-
 func _get_external_trade_candidate_city_ids(source_city_id: String) -> Array[String]:
 	var candidate_city_ids: Array[String] = []
 	if source_city_id.is_empty():
@@ -4634,8 +4567,6 @@ func _format_external_trade_policy_display(candidate_city_ids: Array[String]) ->
 	return EconomyCityHelpers.format_external_trade_policy_display(candidate_city_ids)
 
 
-
-
 func _format_chancellor_external_auto_trade_result_summary(source_city_id: String) -> String:
 	var result_variant: Variant = _player_state.get("last_chancellor_auto_trade_result", {})
 	if not result_variant is Dictionary:
@@ -4670,22 +4601,6 @@ func _format_chancellor_external_auto_trade_result_summary(source_city_id: Strin
 			_ensure_trade_presenter().format_manual_trade_nonzero_preview_summary(applied),
 		]
 	return "최근 재상 대외무역\n이번 턴 적용된 자동무역 없음"
-
-
-
-
-
-
-func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
-	if candidate_city_ids.is_empty():
-		return ""
-	var last_trade_result: Variant = _player_state.get("last_inter_faction_trade_result", {})
-	if not last_trade_result is Dictionary:
-		return "최근 교역 기록\n선택 성 관련 기록 없음"
-	var related_route_count := _count_recent_external_trade_routes_for_city(source_city_id, candidate_city_ids, last_trade_result as Dictionary)
-	if related_route_count <= 0:
-		return "최근 교역 기록\n선택 성 관련 기록 없음"
-	return "최근 교역 기록\n선택 성 관련 루트 %d개" % related_route_count
 
 
 func _count_recent_external_trade_routes_for_city(source_city_id: String, candidate_city_ids: Array[String], result: Dictionary) -> int:
@@ -4739,84 +4654,6 @@ func _format_supply_status_label(status_id: String) -> String:
 	return EconomyCityHelpers.format_supply_status_label(status_id)
 
 
-func _format_city_supply_adjustment_display(supply_state: Dictionary) -> String:
-	if supply_state.is_empty():
-		return "■ 보급 보정\n최근 보급 결과 없음"
-	return "■ 보급 보정\n충성도: %s\n치안: %s" % [
-		_format_signed_int(int(supply_state.get("loyalty_delta", 0))),
-		_format_signed_int(int(supply_state.get("security_delta", 0))),
-	]
-
-
-func _format_city_loyalty_drift_display(city_id: String) -> String:
-	var drift_result: Dictionary = _player_state.get("last_city_loyalty_drift_result", {})
-	var city_drift := _get_city_loyalty_drift_entry(city_id, drift_result)
-	if city_drift.is_empty():
-		return "■ 충성도 변화\n최근 충성도 변화 기록 없음"
-	var reasons: Array = city_drift.get("reasons", [])
-	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
-	if reason_text.is_empty():
-		reason_text = "요인 없음"
-	return "■ 충성도 변화\n최근 변화: %s\n세금: %s · 치안: %s · 경제: %s\n군사: %s · 보급: %s · 보급치안: %s · 통제: %s\n요인: %s" % [
-		_format_signed_int(int(city_drift.get("delta", 0))),
-		_format_signed_int(int(city_drift.get("tax_delta", 0))),
-		_format_signed_int(int(city_drift.get("security_delta", 0))),
-		_format_signed_int(int(city_drift.get("economy_delta", 0))),
-		_format_signed_int(int(city_drift.get("military_burden_delta", 0))),
-		_format_signed_int(int(city_drift.get("supply_delta", 0))),
-		_format_signed_int(int(city_drift.get("supply_security_delta", 0))),
-		_format_signed_int(int(city_drift.get("control_delta", 0))),
-		reason_text,
-	]
-
-
-func _format_city_public_support_display(city_id: String) -> String:
-	var value := _get_city_public_support(city_id)
-	var result: Dictionary = _player_state.get("last_public_support_result", {})
-	var city_results: Variant = result.get("city_results", {})
-	if not city_results is Dictionary or not (city_results as Dictionary).has(city_id):
-		return "■ 민심\n민심: %d\n최근 민심 변화 기록 없음" % value
-	var city_result: Variant = (city_results as Dictionary).get(city_id, {})
-	if not city_result is Dictionary:
-		return "■ 민심\n민심: %d\n최근 민심 변화 기록 없음" % value
-	var support_result := city_result as Dictionary
-	var reasons: Array = support_result.get("reasons", [])
-	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
-	if reason_text.is_empty():
-		reason_text = "요인 없음"
-	return "■ 민심\n민심: %d (%s)\n사유: 세율 %s, 식량 %s, 상업 %s, 보급 %s\n요인: %s" % [
-		int(support_result.get("after", value)),
-		_format_signed_int(int(support_result.get("delta", 0))),
-		_format_signed_int(int(support_result.get("tax_delta", 0))),
-		_format_signed_int(int(support_result.get("food_delta", 0))),
-		_format_signed_int(int(support_result.get("commerce_delta", 0))),
-		_format_signed_int(int(support_result.get("supply_delta", 0))),
-		reason_text,
-	]
-
-
-func _format_city_seasonal_loyalty_display(city_id: String) -> String:
-	var result: Dictionary = _player_state.get("last_seasonal_loyalty_result", {})
-	if result.is_empty():
-		return "■ 계절 충성도\n다음 계절 반영 대기"
-	if not bool(result.get("applied", false)):
-		var next_turn := _get_next_seasonal_loyalty_turn(maxi(1, int(result.get("turn", _player_state.get("turn_number", 1)))))
-		return "■ 계절 충성도\n비계절 턴 · 다음 반영: %d턴" % next_turn
-	var city_results: Variant = result.get("city_results", {})
-	if not city_results is Dictionary or not (city_results as Dictionary).has(city_id):
-		return "■ 계절 충성도\n이번 계절 반영 기록 없음"
-	var city_result: Variant = (city_results as Dictionary).get(city_id, {})
-	if not city_result is Dictionary:
-		return "■ 계절 충성도\n이번 계절 반영 기록 없음"
-	var seasonal_result := city_result as Dictionary
-	return "■ 계절 충성도\n민심 %d → 충성도 %s\n%d → %d" % [
-		int(seasonal_result.get("publicSupport", _get_city_public_support(city_id))),
-		_format_signed_int(int(seasonal_result.get("delta", 0))),
-		int(seasonal_result.get("before_loyalty", 0)),
-		int(seasonal_result.get("after_loyalty", 0)),
-	]
-
-
 func _format_city_recruitment_conscription_display(city_id: String) -> String:
 	var summary := _get_city_recruitment_summary(city_id)
 	if summary.is_empty():
@@ -4824,22 +4661,6 @@ func _format_city_recruitment_conscription_display(city_id: String) -> String:
 	return "■ 병사 충원\n%s\n%s" % [
 		str(summary.get("conscription_line", "징병: 정보 없음")),
 		str(summary.get("recruitment_line", "모병: 정보 없음")),
-	]
-
-
-func _format_city_revolt_risk_display(city_id: String) -> String:
-	var risk_result := _get_last_or_current_city_revolt_risk(city_id)
-	var risk := str(risk_result.get("risk", REVOLT_RISK_STABLE))
-	var risk_label := _format_revolt_risk_label(risk)
-	var reasons: Array = risk_result.get("reasons", [])
-	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
-	if reason_text.is_empty():
-		reason_text = "요인 없음"
-	return "■ 반란 위험\n반란 위험: %s — 민심 %d, 충성도 %d\n요인: %s" % [
-		risk_label,
-		int(risk_result.get("publicSupport", _get_city_public_support(city_id))),
-		int(risk_result.get("loyalty", _get_city_loyalty_value(_get_city_hud_entry(city_id)))),
-		reason_text,
 	]
 
 
@@ -4881,15 +4702,6 @@ func _string_array_from_variant_array(values: Array) -> Array[String]:
 
 func _get_trade_display_totals(result: Dictionary) -> Dictionary:
 	return EconomyCityHelpers.get_trade_display_totals(result)
-
-
-func _format_trade_result_summary(result: Dictionary) -> String:
-	if result.is_empty():
-		return "■ 무역\n최근 무역 결과 없음"
-	return "■ 무역\n최근 세력간 무역: 루트 %d개\n%s" % [
-		int(result.get("route_count", 0)),
-		_format_trade_resource_totals_display(_get_trade_display_totals(result)),
-	]
 
 
 func _format_trade_resource_totals_display(totals: Dictionary) -> String:
@@ -5501,10 +5313,6 @@ func _get_turn_phase_label(phase: String) -> String:
 	return _ensure_turn_controller().get_phase_label(phase)
 
 
-func _set_turn_phase(phase: String) -> void:
-	_ensure_turn_controller().set_phase(phase)
-
-
 func _update_world_turn_labels() -> void:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	_player_state["turn_label"] = "제 %d턴" % turn_number
@@ -5566,16 +5374,8 @@ func _run_enemy_turn_mvp() -> void:
 	_ensure_turn_controller().run_enemy_turn()
 
 
-func _get_enemy_turn_mvp_timer() -> Timer:
-	return _ensure_turn_controller().get_enemy_turn_timer()
-
-
 func _finish_enemy_turn_mvp() -> void:
 	_ensure_turn_controller().finish_enemy_turn()
-
-
-func _get_or_restore_turn_resolution_state_mvp(turn_number: int) -> Dictionary:
-	return _ensure_turn_controller().get_or_restore_resolution_state(turn_number)
 
 
 func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
@@ -5787,12 +5587,6 @@ func _is_city_adjacent_to_enemy_goal_target(faction_id: String, city_id: String)
 
 func _get_enemy_faction_goal_metadata(faction_id: String) -> Dictionary:
 	return _ensure_enemy_warfare_service().get_goal_metadata(faction_id)
-
-
-func _get_enemy_goal_label_display_part(goal_id: String, goal_label: String) -> String:
-	if goal_id.is_empty() or goal_id == "hold_position" or goal_label.is_empty():
-		return ""
-	return "목표: %s" % goal_label
 
 
 func _normalize_enemy_pressure_type_mvp(raw_pressure_type: String, faction_id: String = "") -> String:
@@ -6214,10 +6008,6 @@ func _build_enemy_spy_pressure_follow_up_result_mvp(candidate: Dictionary) -> Di
 		"effect": "display_only",
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 	}
-
-
-func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
-	return _format_enemy_strategic_action_hint_mvp(action)
 
 
 func _format_enemy_strategic_action_hint_mvp(action: Dictionary) -> String:
@@ -8058,10 +7848,6 @@ func _get_national_payment_city_ids_mvp() -> Array[String]:
 	return city_ids
 
 
-func _payment_resource_ids_mvp(resource_id: String) -> Array[String]:
-	return _ensure_city_resource_service().payment_resource_ids(resource_id)
-
-
 func _plan_city_stock_payment_mvp(city_id: String, cost: Dictionary) -> Dictionary:
 	if city_id.is_empty() or _get_city_hud_entry(city_id).is_empty():
 		return {"ok": false, "cost": cost.duplicate(true), "missing": {"city": 1}, "plan": {}}
@@ -8294,10 +8080,6 @@ func _has_completed_city_domestic_tech_mvp(city_id: String, tech_id: String) -> 
 	return _is_city_domestic_tech_completed_mvp(city_id, tech_id)
 
 
-func _get_empty_domestic_tech_city_economy_bonus_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("economy_bonus")
-
-
 func _get_empty_domestic_economy_modifier_mvp() -> Dictionary:
 	return _ensure_domestic_tech_effect_provider().get_empty_effect("economy_modifier")
 
@@ -8314,28 +8096,8 @@ func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
 	return _ensure_domestic_tech_effect_provider().get_empty_effect("military_bonus")
 
 
-func _get_empty_domestic_defense_modifier_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("defense_modifier")
-
-
 func _get_empty_domestic_battle_modifier_mvp() -> Dictionary:
 	return _ensure_domestic_tech_effect_provider().get_empty_effect("battle_modifier")
-
-
-func _get_empty_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("policy_bonus")
-
-
-func _get_empty_domestic_tech_city_naval_siege_bonus_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("naval_siege_bonus")
-
-
-func _get_empty_domestic_tech_diplomacy_spy_bonus_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("diplomacy_spy_bonus")
-
-
-func _get_empty_domestic_tech_city_spy_intel_bonus_mvp() -> Dictionary:
-	return _ensure_domestic_tech_effect_provider().get_empty_effect("city_spy_bonus")
 
 
 func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dictionary:
@@ -8475,10 +8237,6 @@ func _has_domestic_tech_city_spy_intel_bonus_data_mvp(bonus: Dictionary) -> bool
 	return _ensure_domestic_tech_effect_provider().has_bonus_data("city_spy", bonus)
 
 
-func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
-	return _ensure_domestic_tech_effect_provider().has_bonus_data("economy", _get_domestic_tech_city_economy_bonus_mvp(city_id))
-
-
 func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool:
 	return _ensure_domestic_tech_effect_provider().has_bonus_data("military", _get_domestic_tech_city_military_defense_bonus_mvp(city_id))
 
@@ -8497,18 +8255,6 @@ func _has_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> bool:
 
 func _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus: Dictionary) -> bool:
 	return _ensure_domestic_tech_effect_provider().has_bonus_data("naval_siege", bonus)
-
-
-func _has_domestic_tech_national_policy_bonus_mvp() -> bool:
-	return _has_domestic_tech_national_policy_bonus_data_mvp(_get_domestic_tech_national_policy_bonus_mvp())
-
-
-func _has_domestic_tech_diplomacy_spy_bonus_mvp() -> bool:
-	return _has_domestic_tech_diplomacy_spy_bonus_data_mvp(_get_domestic_tech_diplomacy_spy_bonus_mvp())
-
-
-func _has_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> bool:
-	return _has_domestic_tech_city_spy_intel_bonus_data_mvp(_get_domestic_tech_city_spy_intel_bonus_mvp(city_id))
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
@@ -8979,46 +8725,6 @@ func _are_domestic_tech_national_requirements_met_mvp(tech_id: String) -> bool:
 	)
 
 
-func _are_required_national_techs_completed_mvp(required_ids: Array) -> bool:
-	return _ensure_domestic_tech_research_rules().are_national_requirements_met(
-		{"required_national_techs": required_ids.duplicate(true)},
-		_get_completed_national_domestic_tech_snapshot_mvp()
-	)
-
-
-func _get_available_city_domestic_tech_ids_mvp(city_id: String) -> Array:
-	_normalize_domestic_tech_state_mvp()
-	var result: Array[String] = []
-	if city_id.is_empty() or _get_city_hud_entry(city_id).is_empty():
-		return result
-	for tech_id_variant in _get_domestic_city_tech_definitions_mvp().keys():
-		var tech_id := str(tech_id_variant)
-		if _is_city_domestic_tech_completed_mvp(city_id, tech_id):
-			continue
-		if not _are_domestic_tech_prerequisites_met_mvp(city_id, tech_id):
-			continue
-		if not _are_domestic_tech_national_requirements_met_mvp(tech_id):
-			continue
-		if not _are_domestic_tech_city_requirements_met_mvp(city_id, tech_id):
-			continue
-		result.append(tech_id)
-	result.sort()
-	return result
-
-
-func _get_available_national_domestic_tech_ids_mvp() -> Array:
-	_normalize_domestic_tech_state_mvp()
-	var result: Array[String] = []
-	for tech_id_variant in _get_domestic_national_tech_definitions_mvp().keys():
-		var tech_id := str(tech_id_variant)
-		if _is_national_domestic_tech_completed_mvp(tech_id):
-			continue
-		if _are_domestic_tech_prerequisites_met_mvp("", tech_id):
-			result.append(tech_id)
-	result.sort()
-	return result
-
-
 func _are_domestic_tech_city_requirements_met_mvp(city_id: String, tech_id: String) -> bool:
 	var definition := _get_domestic_tech_definition_mvp(tech_id)
 	return _ensure_domestic_tech_research_rules().are_city_requirements_met(
@@ -9157,10 +8863,6 @@ func _route_domestic_tech_detail_region_mvp() -> void:
 
 func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dictionary, city_id: String = "") -> String:
 	return _ensure_domestic_tech_tree_presentation_controller()._format_domestic_tech_detail_text_mvp(tech_def, view_state, city_id)
-
-
-func _get_domestic_tech_cost_summary_mvp(tech_def: Dictionary) -> String:
-	return _format_domestic_tech_cost_mvp(tech_def.get("cost", {}))
 
 
 func _get_domestic_tech_research_cost_balance_adjustment_mvp(tech_def: Dictionary, base_gold_cost: int, base_food_cost: int) -> Dictionary:
@@ -10115,10 +9817,6 @@ func _get_completed_national_tech_ids() -> Array:
 	return result
 
 
-func _get_completed_national_tech_effect_ids() -> Array:
-	return _get_completed_national_tech_ids()
-
-
 func _is_national_tech_completed(tech_id: String) -> bool:
 	_ensure_national_tech_state()
 	var completed: Dictionary = (_player_state["national_tech"] as Dictionary).get("completed", {})
@@ -10460,10 +10158,6 @@ func _get_completed_city_tech_ids(city_id: String) -> Array:
 		if bool(completed.get(tech_id_variant, false)):
 			result.append(tech_id)
 	return result
-
-
-func _get_completed_city_tech_effect_ids(city_id: String) -> Array:
-	return _get_completed_city_tech_ids(city_id)
 
 
 func _is_city_tech_completed(city_id: String, tech_id: String) -> bool:
@@ -11427,7 +11121,6 @@ func _queue_t03_automatic_battle_report(report: Dictionary) -> void:
 	_ensure_t03_battle_presentation().enqueue_report(report)
 
 
-
 func _setup_t03_battle_presentation() -> void:
 	_ensure_t03_battle_presentation().setup()
 	call_deferred("_try_present_next_t03_battle_report")
@@ -11766,10 +11459,6 @@ func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary
 	return _ensure_world_turn_economy_service().calculate_city_income(city_data, calendar, tax_level, city_effects)
 
 
-func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> int:
-	return _ensure_world_turn_economy_service().calculate_city_gold_tax_income(city_data, tax_level)
-
-
 func _apply_domestic_tech_economy_numeric_bonus_value_mvp(base_value: Variant, percent_bonus: float, flat_bonus: int = 0) -> int:
 	var scaled_value := int(round(float(base_value) * (1.0 + percent_bonus)))
 	return maxi(0, scaled_value + flat_bonus)
@@ -11838,10 +11527,6 @@ func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_i
 		WorldTurnEconomyServiceScript.CHANCELLOR_PRIMARY_RATE,
 		WorldTurnEconomyServiceScript.CHANCELLOR_SECONDARY_RATE
 	)
-
-
-func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
-	_ensure_world_turn_economy_service().apply_chancellor_type_effect(effect, type_id, aptitude, rate)
 
 
 func _apply_governor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
@@ -12093,8 +11778,6 @@ func _get_trade_market_price_snapshot_for_order(order: Dictionary) -> Dictionary
 		if int((item_variant as Dictionary).get("amount", 0)) > 0 and str((item_variant as Dictionary).get("action", MANUAL_TRADE_ACTION_NONE)) != MANUAL_TRADE_ACTION_NONE:
 			snapshot[resource_id] = _get_trade_market_price(resource_id)
 	return snapshot
-
-
 
 
 func _create_empty_inter_faction_trade_totals() -> Dictionary:
@@ -12681,10 +12364,6 @@ func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Di
 		active_count += 1
 	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
 	return _ensure_world_turn_economy_service().calculate_hero_upkeep_delta(active_count, HERO_UPKEEP_RULES, policy_data, national_effects, supply_states)
-
-
-func _round_discounted_amount(amount: int, multiplier: float) -> int:
-	return _ensure_world_turn_economy_service().round_discounted_amount(amount, multiplier)
 
 
 func _combine_resource_deltas(first: Dictionary, second: Dictionary) -> Dictionary:
@@ -13631,28 +13310,6 @@ func _format_hero_name_by_id(hero_id: String, empty_fallback: String) -> String:
 	return str(hero_data.get("display_name", hero_data.get("name", empty_fallback)))
 
 
-func _format_city_list(city_ids: Variant, empty_fallback: String) -> String:
-	if not city_ids is Array:
-		return empty_fallback
-	var names: Array[String] = []
-	for city_id in city_ids:
-		names.append(_format_city_name_by_id(str(city_id), "알 수 없는 도시"))
-	if names.is_empty():
-		return empty_fallback
-	return ", ".join(names)
-
-
-func _format_hero_list(hero_ids: Variant, empty_fallback: String) -> String:
-	if not hero_ids is Array:
-		return empty_fallback
-	var names: Array[String] = []
-	for hero_id in hero_ids:
-		names.append(_format_hero_name_by_id(str(hero_id), "알 수 없는 장수"))
-	if names.is_empty():
-		return empty_fallback
-	return ", ".join(names)
-
-
 func _format_player_resource_summary() -> String:
 	var resource_stock := _get_player_national_resource_stock_mvp()
 	if resource_stock.is_empty():
@@ -13696,10 +13353,6 @@ func _normalize_city_storage(raw_storage: Variant) -> Dictionary:
 	return _ensure_city_resource_service().normalize_city_storage(raw_storage)
 
 
-func _ensure_city_storage_keys(storage: Dictionary) -> Dictionary:
-	return _ensure_city_resource_service().ensure_city_storage_keys(storage)
-
-
 func _build_default_city_storage(city_id: String, _city_data: Dictionary) -> Dictionary:
 	var player_resource_stock: Dictionary = _player_state.get("resource_stock", {}) if _player_state.get("resource_stock", {}) is Dictionary else {}
 	return _ensure_city_resource_service().build_default_city_storage(city_id, player_resource_stock)
@@ -13714,24 +13367,12 @@ func _format_city_storage_summary(storage: Dictionary) -> String:
 	)
 
 
-func _get_city_storage_group_total(storage: Dictionary, resource_ids: Array) -> int:
-	return _ensure_city_resource_service().get_city_storage_group_total(storage, resource_ids)
-
-
-func _format_city_storage_group_details(storage: Dictionary, resource_ids: Array) -> String:
-	return _ensure_city_detail_presentation_controller().format_city_storage_group_details(storage, resource_ids, RESOURCE_LABELS)
-
-
 func _get_city_storage_amount(storage: Dictionary, resource_id: String) -> int:
 	return _ensure_city_resource_service().get_city_storage_amount(storage, resource_id)
 
 
 func _get_city_storage_status_label(total: int) -> String:
 	return _ensure_city_detail_presentation_controller().get_city_storage_status_label(total)
-
-
-func _refresh_warehouse_card() -> void:
-	_ensure_hud_controller().refresh_warehouse(_build_warehouse_hud_rows())
 
 
 func _build_warehouse_hud_rows() -> Array[Dictionary]:
@@ -13788,13 +13429,6 @@ func _get_resource_status_label(_resource_id: String, value: int, max_value: int
 	return EconomyCityHelpers.get_resource_status_label(value, max_value, WAREHOUSE_LOW_RATIO, WAREHOUSE_STABLE_RATIO)
 
 
-func _format_policy_preview_summary(policy_id: String) -> String:
-	return "정책 preview: %s\n%s" % [
-		_format_chancellor_policy_multiplier_summary(policy_id),
-		"현재 보유량은 변경하지 않음",
-	]
-
-
 func _format_chancellor_policy_multiplier_summary(policy_id: String) -> String:
 	var policy_data := _get_chancellor_policy_entry(policy_id)
 	var parts: Array[String] = []
@@ -13815,40 +13449,6 @@ func _format_chancellor_policy_multiplier_summary(policy_id: String) -> String:
 	if parts.is_empty():
 		return "보정 없음"
 	return " / ".join(parts)
-
-
-func _format_hero_upkeep_preview(policy_id: String) -> String:
-	var hero_count := _get_owned_hero_ids().size()
-	var costs := {
-		"rice": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["rice"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
-		"seafood": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["seafood"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
-		"silk": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["silk"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
-	}
-	return "영웅 유지비 preview: %s · 실제 차감 없음" % _format_resource_costs(costs, ["rice", "seafood", "silk"])
-
-
-func _format_soldier_upkeep_preview(policy_id: String) -> String:
-	var troop_total := _get_owned_hero_troop_total() + _get_owned_city_garrison_total()
-	var unit_count := int(ceil(float(troop_total) / float(SOLDIER_UPKEEP_RULES["troops_per_unit"])))
-	var costs := {
-		"rice": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["rice"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
-		"barley": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["barley"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
-		"seafood": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["seafood"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
-	}
-	return "병사 유지비 preview: %s · 병력 %d명 기준, 미차감" % [
-		_format_resource_costs(costs, ["rice", "barley", "seafood"]),
-		troop_total,
-	]
-
-
-func _format_salt_preservation_preview(policy_id: String) -> String:
-	var food_total := _get_player_resource_amount("rice") + _get_player_resource_amount("barley")
-	var seafood := _get_player_resource_amount("seafood")
-	var base_need := int(ceil((float(food_total) * float(SALT_PRESERVATION_RULES["food_ratio"])) + (float(seafood) * float(SALT_PRESERVATION_RULES["seafood_ratio"]))))
-	var needed := _apply_policy_cost_multiplier(base_need, policy_id, "salt_preservation_multiplier")
-	var current_salt := _get_player_resource_amount("salt")
-	var status := "안정" if current_salt >= needed else "부족"
-	return "보존 소금 preview: 필요 %d / 보유 %d · %s · 미차감" % [needed, current_salt, status]
 
 
 func _apply_policy_cost_multiplier(amount: int, policy_id: String, multiplier_key: String) -> int:
@@ -13908,15 +13508,6 @@ func _get_tax_loyalty_delta(tax_level: int) -> int:
 
 func _format_tax_effect_text(tax_level: int) -> String:
 	return "세금 효과: 인구·상업세 적용, 충성도 %s" % _format_signed_int(_get_tax_loyalty_delta(tax_level))
-
-
-func _format_tax_preview(tax_level: int, national_loyalty: int, public_order: int) -> String:
-	return "세금 preview: 금전 x%.2f · 충성도 %s · 현재 %s / 치안 %d" % [
-		_get_tax_gold_multiplier(tax_level),
-		_format_signed_int(_get_tax_loyalty_delta(tax_level)),
-		_get_loyalty_status(national_loyalty),
-		public_order,
-	]
 
 
 func _format_signed_int(value: int) -> String:
@@ -14296,38 +13887,12 @@ func _format_city_type(city_id: String) -> String:
 	return UIFormatterHelpers.format_city_type(city_id, CITY_TYPE_LABELS)
 
 
-func _get_city_detail_status(city_marker: WorldMapCityMarker) -> String:
-	if city_marker.owner_faction_id == _get_current_player_faction_id():
-		return "아군 도시"
-	if _has_player_neighbor(city_marker):
-		return "아군 인접 적 도시"
-	if not city_marker.owner_faction_id.is_empty():
-		return "적 도시"
-	return "월드맵 이식 중"
-
-
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
 	for neighbor_id in city_marker.neighbors:
 		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
 		if neighbor_marker != null and neighbor_marker.owner_faction_id == _get_current_player_faction_id():
 			return true
 	return false
-
-
-func _on_wild_army_edit_placeholder_pressed() -> void:
-	_on_ally_turn_end_pressed()
-
-
-func _on_save_placeholder_pressed() -> void:
-	_save_worldmap_state()
-
-
-func _on_load_placeholder_pressed() -> void:
-	_load_worldmap_state()
-
-
-func _on_reset_placeholder_pressed() -> void:
-	_reset_worldmap_state()
 
 
 func _on_diplomacy_mode_placeholder_pressed() -> void:
