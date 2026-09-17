@@ -29,12 +29,21 @@ def main() -> None:
     unhandled_body = function_body(source, "func _unhandled_input(event: InputEvent) -> void:", "func _hide_retired_top_worldmap_hud()")
     transition_body = function_body(source, "func _change_scene_to_battle_with_context(handoff_context: Dictionary) -> void:", "func _rollback_player_attack_handoff")
 
+    handoff_guard = "if _ensure_camera_controller().is_battle_entry_handoff_in_progress():"
+    skip_guard = "if _is_worldmap_battle_entry_handoff_skip_event(event):"
     for label, body in (("_input", input_body), ("_unhandled_input", unhandled_body)):
-        handoff = body.find("if _worldmap_battle_entry_handoff_in_progress:")
+        handoff = body.find(handoff_guard)
         handled = body.find("handoff_viewport.set_input_as_handled()", handoff)
+        skip_check = body.find(skip_guard, handoff)
         skip = body.find("_skip_worldmap_battle_entry_camera_handoff()", handoff)
-        require(handoff >= 0 and handled >= 0 and skip >= 0, f"{label} handoff branch incomplete")
-        require(handled < skip, f"{label} must consume input before skip can change scenes")
+        require(
+            handoff >= 0 and handled >= 0 and skip_check >= 0 and skip >= 0,
+            f"{label} handoff branch incomplete",
+        )
+        require(
+            handoff < handled < skip_check < skip,
+            f"{label} must consume input before evaluating and executing skip transition",
+        )
 
     disable = transition_body.find("set_process_input(false)")
     disable_unhandled = transition_body.find("set_process_unhandled_input(false)")
@@ -54,7 +63,7 @@ def main() -> None:
     ):
         require(token in test_source, f"execution regression test missing {token}")
 
-    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
+    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: camera-controller handoff guard; input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
 
 
 if __name__ == "__main__":
