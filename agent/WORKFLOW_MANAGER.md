@@ -71,12 +71,24 @@
 
 ## Conditional Reading
 - WorldMap work: `agent/WORLDMAP_RULES.md`
-- Battle integration: `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`
+- Battle runtime/refactor work: read `BATTLE_RUNTIME_REFACTOR_PLAN.md` first, then `agent/BATTLE_ENGINE_RULES.md`.
+- Battle integration / WorldMap handoff: after the two battle documents above, also read `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md` when the task crosses the WorldMap↔Battle boundary.
 - Technology work: `agent/contracts/TECH_TREE_GAMEPLAY_CONTRACT.md`
 - State-structure changes: `agent/contracts/SYSTEM_SOURCE_OF_TRUTH.md`
 - Scenario work: `agent/scenarios/KOREA_MVP_SCENARIO.md`
 - Godot scene/resource work: `agent/GODOT_RULES.md`
 - Role agent documents: read only when that role is actually needed.
+
+### Battle Refactor Document Priority
+For the active Battle Engine refactor track, use the following precedence so generic workflow guidance cannot accidentally override the approved architecture plan:
+
+1. `agent/WORKFLOW_MANAGER.md` — permission, safety, commit/push, and execution-boundary rules.
+2. `BATTLE_RUNTIME_REFACTOR_PLAN.md` — authoritative current refactor topology, promotion timing, and B-0/B-1+ execution sequence.
+3. `agent/BATTLE_ENGINE_RULES.md` — invariant battle-engine ownership and behavior/regression guards.
+4. `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md` — additional contract only when the task touches WorldMap↔Battle integration.
+5. Other battle/transaction/QA documents as required by the scoped task.
+
+If generic AI/Codex workflow guidance appears to conflict with the current Battle refactor sequence or production-vs-test ownership, follow `BATTLE_RUNTIME_REFACTOR_PLAN.md` for refactor sequencing and ownership. Do not use that rule to override the safety/permission boundaries in this file or the behavioral invariants in `agent/BATTLE_ENGINE_RULES.md`.
 
 `CODEX_WORKFLOW_RULES.md` remains a conditional execution-rules reference; `NEXT_TASKS.md` and `HANDOFF_TO_CODEX.md` are compatibility pointers, not default reads.
 
