@@ -1,0 +1,71 @@
+name: Apply M-FINAL-A audited patch once
+
+on:
+  push:
+    branches:
+      - recovery/worldmap-iso-sfx-services-20260912
+    paths:
+      - .github/workflows/apply-m-final-a-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-audited-patch:
+    if: github.event.head_commit.message == 'ci: apply M-FINAL-A audited patch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout audited branch
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/worldmap-iso-sfx-services-20260912
+          fetch-depth: 0
+
+      - name: Validate guarded patcher
+        run: |
+          python -m py_compile tools/apply_m_final_a_domain_ownership.py
+          python tools/apply_m_final_a_domain_ownership.py
+
+      - name: Apply audited replacements
+        run: |
+          python tools/apply_m_final_a_domain_ownership.py --apply
+          python tools/apply_m_final_a_domain_ownership.py
+
+      - name: Enforce exact change scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          actual="$(git diff --name-only | sort)"
+          expected="$(printf '%s\n' \
+            scripts/worldmap/actions/diplomacy_controller.gd \
+            scripts/worldmap/actions/spy_controller.gd \
+            scripts/worldmap/actions/trade_controller.gd \
+            scripts/worldmap/worldmap_main.gd | sort)"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "Unexpected M-FINAL-A change scope"
+            echo "Expected:"
+            printf '%s\n' "$expected"
+            echo "Actual:"
+            printf '%s\n' "$actual"
+            exit 1
+          fi
+          git diff --stat
+          git diff -- scripts/worldmap/actions/diplomacy_controller.gd \
+            scripts/worldmap/actions/spy_controller.gd \
+            scripts/worldmap/actions/trade_controller.gd \
+            scripts/worldmap/worldmap_main.gd
+
+      - name: Commit audited M-FINAL-A changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "kimjak-app"
+          git config user.email "geunsunkim@gmail.com"
+          git add \
+            scripts/worldmap/actions/diplomacy_controller.gd \
+            scripts/worldmap/actions/spy_controller.gd \
+            scripts/worldmap/actions/trade_controller.gd \
+            scripts/worldmap/worldmap_main.gd
+          git commit -m "refactor(worldmap): canonicalize domain ownership"
+          git push origin HEAD:recovery/worldmap-iso-sfx-services-20260912
