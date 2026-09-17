@@ -42,17 +42,8 @@ const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_form
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const StrategicBattleTransactionServiceScript := preload("res://scripts/worldmap/t03/strategic_battle_transaction_service.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
+const WorldMapCameraControllerScript := preload("res://scripts/worldmap/camera/worldmap_camera_controller.gd")
 
-const WORLD_MAP_CAMERA_SPEED := 900.0
-const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
-const WORLD_MAP_MIN_ZOOM := 0.35
-const WORLD_MAP_MAX_ZOOM := 1.6
-const WORLD_MAP_CLAMP_PADDING := 24.0
-const WORLD_MAP_ZOOM_STEP := 0.1
-const WORLD_BATTLE_ENTRY_PAN_SEC := 0.55
-const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
-const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
-const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
 const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
@@ -789,8 +780,10 @@ const HERO_BATTLE_TOAST_ICON_FALLBACK := "skill_unknown"
 @onready var city_detail_hint_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/HintLabel
 @onready var city_detail_domestic_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/DomesticButtonPlaceholder
 
-var _world_rect := Rect2()
-var _is_dragging := false
+var _camera_controller: WorldMapCameraController = null
+var _worldmap_battle_entry_handoff_in_progress: bool:
+	get:
+		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
 var _dragging_hud_panel: Control = null
 var _dragging_hud_pointer_offset := Vector2.ZERO
 var _chancellor_portrait_texture_rect: TextureRect = null
@@ -923,12 +916,6 @@ var _collapsed_unified_panel_drag_started := false
 var _collapsed_unified_panel_click_start_position := Vector2.ZERO
 var _city_runtime_states: Dictionary = {}
 var _hero_runtime_states: Dictionary = {}
-var _worldmap_battle_entry_handoff_in_progress := false
-var _worldmap_battle_entry_handoff_completed := false
-var _worldmap_battle_entry_handoff_continue_callable := Callable()
-var _worldmap_battle_entry_handoff_tween: Tween = null
-var _worldmap_battle_entry_handoff_target_position := Vector2.ZERO
-var _worldmap_battle_entry_handoff_target_zoom := Vector2.ZERO
 var _player_state := {
 	"player_faction_id": "player",
 	"ruler_current_city_id": "hanseong",
@@ -1034,7 +1021,7 @@ func _ready() -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	_restore_trade_persistence_from_player_state()
 	_hide_retired_top_worldmap_hud()
-	_refresh_world_rect_from_scene_tiles()
+	_ensure_camera_controller()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
 	_connect_city_info_panel_actions()
@@ -1064,8 +1051,6 @@ func _ready() -> void:
 	_setup_independent_hud_panel_drag()
 	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
-	_configure_camera()
-	_update_camera_debug_label()
 	if not new_game_faction_id.is_empty():
 		_select_korea_mvp_start_city()
 	call_deferred("_resume_t04_t05_presentation_after_ready")
@@ -1153,15 +1138,11 @@ func _select_korea_mvp_start_city() -> void:
 
 
 func _process(delta: float) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
-		_update_camera_debug_label()
-		return
-	_handle_keyboard_pan(delta)
-	_update_camera_debug_label()
+	_ensure_camera_controller().process_camera(delta)
 
 
 func _input(event: InputEvent) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		# A skip event can complete the handoff synchronously and replace this scene.
 		# Consume it while this WorldMap viewport is still alive, before that transition.
 		var handoff_viewport := get_viewport()
@@ -1228,7 +1209,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		# Keep the same ordering as _input(): skip may synchronously change scenes.
 		var handoff_viewport := get_viewport()
 		if handoff_viewport != null:
@@ -1243,21 +1224,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if event is InputEventMouseButton:
-		var mouse_button_event := event as InputEventMouseButton
-		if mouse_button_event.button_index == MOUSE_BUTTON_MIDDLE or mouse_button_event.button_index == MOUSE_BUTTON_RIGHT:
-			_is_dragging = mouse_button_event.pressed
-			get_viewport().set_input_as_handled()
-		elif mouse_button_event.pressed and mouse_button_event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_apply_zoom(WORLD_MAP_ZOOM_STEP)
-			get_viewport().set_input_as_handled()
-		elif mouse_button_event.pressed and mouse_button_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_apply_zoom(-WORLD_MAP_ZOOM_STEP)
-			get_viewport().set_input_as_handled()
-	elif event is InputEventMouseMotion and _is_dragging:
-		var mouse_motion_event := event as InputEventMouseMotion
-		world_map_camera.position -= mouse_motion_event.relative / world_map_camera.zoom * WORLD_MAP_CAMERA_DRAG_SPEED
-		_clamp_camera_to_world()
+	if _ensure_camera_controller().handle_unhandled_input(event):
 		get_viewport().set_input_as_handled()
 
 
@@ -1377,114 +1344,30 @@ func _request_hud_panel_position_mvp(panel: Control, requested_position: Vector2
 	return bool(hud_position_owner.call(method_name, panel, requested_position))
 
 
-func _refresh_world_rect_from_scene_tiles() -> void:
-	var tile_rects: Array[Rect2] = []
-	var tiles: Array[Sprite2D] = [tile_a1_top_left, tile_a2_top_right, tile_b1_bottom_left, tile_b2_bottom_right]
-	for tile in tiles:
-		var tile_rect := _get_tile_world_rect(tile)
-		if tile_rect.size != Vector2.ZERO:
-			tile_rects.append(tile_rect)
-
-	if tile_rects.is_empty():
-		push_warning("WorldMap tile rects are unavailable; using fallback camera clamp rect.")
-		_world_rect = Rect2(Vector2.ZERO, Vector2(1024.0, 1024.0))
-		return
-
-	_world_rect = tile_rects[0]
-	for tile_rect_index in range(1, tile_rects.size()):
-		_world_rect = _world_rect.merge(tile_rects[tile_rect_index])
-
-
-func _configure_camera() -> void:
-	world_map_camera.enabled = true
-	world_map_camera.make_current()
-	world_map_camera.zoom = Vector2(0.7, 0.7)
-	world_map_camera.position = _world_rect.get_center()
-	_clamp_camera_to_world()
-
-
-func _handle_keyboard_pan(delta: float) -> void:
-	var input_vector := Vector2.ZERO
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		input_vector.x -= 1.0
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		input_vector.x += 1.0
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		input_vector.y -= 1.0
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		input_vector.y += 1.0
-
-	if input_vector == Vector2.ZERO:
-		return
-
-	world_map_camera.position += input_vector.normalized() * WORLD_MAP_CAMERA_SPEED * delta / world_map_camera.zoom.x
-	_clamp_camera_to_world()
-
-
-func _apply_zoom(zoom_delta: float) -> void:
-	var next_zoom_value := clampf(world_map_camera.zoom.x + zoom_delta, WORLD_MAP_MIN_ZOOM, WORLD_MAP_MAX_ZOOM)
-	world_map_camera.zoom = Vector2(next_zoom_value, next_zoom_value)
-	_clamp_camera_to_world()
-
-
-func _clamp_camera_to_world() -> void:
-	if _world_rect.size == Vector2.ZERO:
-		return
-
-	var viewport_size := get_viewport_rect().size
-	var half_visible_size := viewport_size / (world_map_camera.zoom * 2.0)
-	var min_center := _world_rect.position + half_visible_size - Vector2.ONE * WORLD_MAP_CLAMP_PADDING
-	var max_center := _world_rect.end - half_visible_size + Vector2.ONE * WORLD_MAP_CLAMP_PADDING
-
-	var clamped_x := world_map_camera.position.x
-	var clamped_y := world_map_camera.position.y
-	if min_center.x > max_center.x:
-		clamped_x = _world_rect.get_center().x
-	else:
-		clamped_x = clampf(world_map_camera.position.x, min_center.x, max_center.x)
-
-	if min_center.y > max_center.y:
-		clamped_y = _world_rect.get_center().y
-	else:
-		clamped_y = clampf(world_map_camera.position.y, min_center.y, max_center.y)
-
-	world_map_camera.position = Vector2(clamped_x, clamped_y)
-
-
-func _get_tile_world_rect(tile: Sprite2D) -> Rect2:
-	if tile == null or tile.texture == null:
-		return Rect2()
-
-	var texture_size := tile.texture.get_size()
-	var local_top_left := Vector2.ZERO
-	if tile.centered:
-		local_top_left = -texture_size * 0.5
-
-	var local_corners: Array[Vector2] = [
-		local_top_left,
-		local_top_left + Vector2(texture_size.x, 0.0),
-		local_top_left + Vector2(0.0, texture_size.y),
-		local_top_left + texture_size,
-	]
-
-	var world_points: Array[Vector2] = []
-	for local_corner in local_corners:
-		world_points.append(tile.to_global(local_corner))
-
-	var min_point := world_points[0]
-	var max_point := world_points[0]
-	for point_index in range(1, world_points.size()):
-		min_point = min_point.min(world_points[point_index])
-		max_point = max_point.max(world_points[point_index])
-
-	return Rect2(min_point, max_point - min_point)
+func _ensure_camera_controller() -> WorldMapCameraController:
+	if _camera_controller == null:
+		_camera_controller = WorldMapCameraControllerScript.new()
+		_camera_controller.name = "WorldMapCameraController"
+		add_child(_camera_controller)
+		_camera_controller.configure(
+			world_map_camera,
+			camera_debug_label,
+			self,
+			[tile_a1_top_left, tile_a2_top_right, tile_b1_bottom_left, tile_b2_bottom_right]
+		)
+	return _camera_controller
 
 
 func _update_camera_debug_label() -> void:
-	camera_debug_label.text = "Camera: %s  Zoom: %.2f" % [
-		_format_vector2(world_map_camera.position),
-		world_map_camera.zoom.x,
-	]
+	_ensure_camera_controller().update_debug_label()
+
+
+func _apply_zoom(zoom_delta: float) -> void:
+	_ensure_camera_controller().apply_zoom(zoom_delta)
+
+
+func _clamp_camera_to_world() -> void:
+	_ensure_camera_controller().clamp_to_world()
 
 
 func _format_vector2(value: Vector2) -> String:
@@ -7097,7 +6980,7 @@ func _start_player_attack_battle(target_city_id: String, mode: String = "manual"
 		_set_save_management_status("게임 종료 후에는 새 침공을 시작할 수 없습니다.")
 		_present_t05_outcome_if_needed()
 		return
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7154,7 +7037,7 @@ func _get_deployable_player_heroes_for_city(city_id: String) -> Array[Dictionary
 
 
 func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7368,7 +7251,7 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 
 
 func _on_manual_defense_pressed() -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7376,7 +7259,7 @@ func _on_manual_defense_pressed() -> void:
 
 
 func _on_auto_defense_pressed() -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7389,7 +7272,7 @@ func _on_auto_defense_pressed() -> void:
 
 
 func _open_defense_deployment_panel_from_pending_invasion(mode: String = "manual") -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7448,7 +7331,7 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 
 
 func _confirm_defense_deployment(deployment: Dictionary) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7542,7 +7425,7 @@ func _validate_defense_deployment(deployment: Dictionary) -> Dictionary:
 
 
 func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
@@ -7632,12 +7515,12 @@ func _build_worldmap_battle_entry_focus(source_city_id: String, target_city_id: 
 
 
 func _start_worldmap_battle_entry_camera_handoff(source_city_id: String, target_city_id: String, continue_callable: Callable) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
+	if _ensure_camera_controller().is_battle_entry_handoff_in_progress():
 		return
 	if not continue_callable.is_valid():
 		return
 	var focus := _build_worldmap_battle_entry_focus(source_city_id, target_city_id)
-	if world_map_camera == null or focus.is_empty():
+	if focus.is_empty():
 		continue_callable.call()
 		return
 	var focus_position: Variant = focus.get("position", null)
@@ -7645,83 +7528,29 @@ func _start_worldmap_battle_entry_camera_handoff(source_city_id: String, target_
 		continue_callable.call()
 		return
 
-	_worldmap_battle_entry_handoff_in_progress = true
-	_worldmap_battle_entry_handoff_completed = false
-	_worldmap_battle_entry_handoff_continue_callable = continue_callable
-	var target_zoom_value := clampf(maxf(world_map_camera.zoom.x, WORLD_BATTLE_ENTRY_TARGET_ZOOM.x), WORLD_MAP_MIN_ZOOM, WORLD_MAP_MAX_ZOOM)
-	_worldmap_battle_entry_handoff_target_zoom = Vector2(target_zoom_value, target_zoom_value)
-	var target_position: Vector2 = focus_position
-	_worldmap_battle_entry_handoff_target_position = _get_clamped_worldmap_camera_position_for_zoom(target_position, _worldmap_battle_entry_handoff_target_zoom)
 	_set_save_management_status("전투 지역 접근 중 · %s → %s" % [
 		_format_city_name_by_id(source_city_id, "출발 도시"),
 		_format_city_name_by_id(target_city_id, "대상 도시"),
 	])
 	_refresh_left_world_status_panel()
 
-	_worldmap_battle_entry_handoff_tween = create_tween()
-	_worldmap_battle_entry_handoff_tween.set_parallel(true)
-	_worldmap_battle_entry_handoff_tween.tween_property(world_map_camera, "position", _worldmap_battle_entry_handoff_target_position, WORLD_BATTLE_ENTRY_PAN_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_worldmap_battle_entry_handoff_tween.tween_property(world_map_camera, "zoom", _worldmap_battle_entry_handoff_target_zoom, WORLD_BATTLE_ENTRY_ZOOM_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_worldmap_battle_entry_handoff_tween.set_parallel(false)
-	_worldmap_battle_entry_handoff_tween.tween_interval(WORLD_BATTLE_ENTRY_HOLD_SEC)
-	_worldmap_battle_entry_handoff_tween.tween_callback(_complete_worldmap_battle_entry_camera_handoff)
+	_ensure_camera_controller().start_battle_entry_handoff(focus_position, continue_callable)
 
 
 func _complete_worldmap_battle_entry_camera_handoff() -> void:
-	if _worldmap_battle_entry_handoff_completed:
-		return
-	_worldmap_battle_entry_handoff_completed = true
-	var continue_callable := _worldmap_battle_entry_handoff_continue_callable
-	_worldmap_battle_entry_handoff_in_progress = false
-	_worldmap_battle_entry_handoff_continue_callable = Callable()
-	_worldmap_battle_entry_handoff_tween = null
-	if continue_callable.is_valid():
-		continue_callable.call()
+	_ensure_camera_controller().skip_battle_entry_handoff()
 
 
 func _skip_worldmap_battle_entry_camera_handoff() -> void:
-	if not _worldmap_battle_entry_handoff_in_progress:
-		return
-	if _worldmap_battle_entry_handoff_tween != null:
-		_worldmap_battle_entry_handoff_tween.kill()
-		_worldmap_battle_entry_handoff_tween = null
-	if world_map_camera != null:
-		world_map_camera.position = _worldmap_battle_entry_handoff_target_position
-		if _worldmap_battle_entry_handoff_target_zoom != Vector2.ZERO:
-			world_map_camera.zoom = _worldmap_battle_entry_handoff_target_zoom
-		_clamp_camera_to_world()
-	_complete_worldmap_battle_entry_camera_handoff()
+	_ensure_camera_controller().skip_battle_entry_handoff()
 
 
 func _is_worldmap_battle_entry_handoff_skip_event(event: InputEvent) -> bool:
-	if event is InputEventKey:
-		var key_event := event as InputEventKey
-		return key_event.pressed and not key_event.echo and [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE].has(key_event.keycode)
-	if event is InputEventMouseButton:
-		var mouse_button_event := event as InputEventMouseButton
-		return mouse_button_event.pressed and mouse_button_event.button_index == MOUSE_BUTTON_LEFT
-	return false
+	return _ensure_camera_controller().is_battle_entry_handoff_skip_event(event)
 
 
 func _get_clamped_worldmap_camera_position_for_zoom(target_position: Vector2, zoom: Vector2) -> Vector2:
-	if _world_rect.size == Vector2.ZERO:
-		return target_position
-	var viewport_size := get_viewport_rect().size
-	var safe_zoom := Vector2(maxf(zoom.x, 0.001), maxf(zoom.y, 0.001))
-	var half_visible_size := viewport_size / (safe_zoom * 2.0)
-	var min_center := _world_rect.position + half_visible_size - Vector2.ONE * WORLD_MAP_CLAMP_PADDING
-	var max_center := _world_rect.end - half_visible_size + Vector2.ONE * WORLD_MAP_CLAMP_PADDING
-	var clamped_x := target_position.x
-	var clamped_y := target_position.y
-	if min_center.x > max_center.x:
-		clamped_x = _world_rect.get_center().x
-	else:
-		clamped_x = clampf(target_position.x, min_center.x, max_center.x)
-	if min_center.y > max_center.y:
-		clamped_y = _world_rect.get_center().y
-	else:
-		clamped_y = clampf(target_position.y, min_center.y, max_center.y)
-	return Vector2(clamped_x, clamped_y)
+	return _ensure_camera_controller().get_clamped_position_for_zoom(target_position, zoom)
 
 
 func _consume_worldmap_battle_result_if_any() -> void:
