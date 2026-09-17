@@ -28,7 +28,6 @@ jobs:
       - name: Apply audited replacements
         run: |
           python tools/apply_m_final_a_domain_ownership.py --apply
-          python tools/apply_m_final_a_domain_ownership.py
 
       - name: Enforce exact change scope
         shell: bash
