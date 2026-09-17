@@ -73,6 +73,7 @@ jobs:
             tools/validate_worldmap_t03_battle_presentation_extraction.py
             tools/validate_worldmap_player_attack_deployment_service_extraction.py
             tools/validate_worldmap_wounded_recovery_service_extraction.py
+            tools/validate_worldmap_to_battle_input_lifecycle.py
           )
           for validator in "${validators[@]}"; do
             echo "===== $validator ====="
