@@ -90,11 +90,15 @@ assert "_t03_active_report" not in MAIN
 
 for protected in [
     "_resolve_t03_automatic_invasion", "_apply_t03_strategic_battle_result",
-    "_finalize_t03_strategic_battle_result", "_advance_world_turn_mvp", "_save_worldmap_state",
+    "_finalize_t03_strategic_battle_result", "_save_worldmap_state",
     "_is_hero_captured_for_battle", "_get_hero_battle_exclusion_reason",
     "_sync_worldmap_hero_locations_from_city_runtime_states", "_rebuild_occupation_runtime_indexes_mvp",
 ]:
     assert current[protected] == baseline[protected], f"M-8 changed protected coordinator/domain function: {protected}"
+
+assert "_ensure_turn_controller().advance_world_turn()" in current["_advance_world_turn_mvp"], (
+    "post-M-5 turn advancement wrapper must remain a thin controller delegation"
+)
 
 for unchanged_path in [
     "scripts/worldmap/t03/strategic_battle_transaction_service.gd",

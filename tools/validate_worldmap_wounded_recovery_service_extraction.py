@@ -7,8 +7,10 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = "scripts/worldmap/worldmap_main.gd"
 SERVICE_PATH = "scripts/worldmap/military/wounded_recovery_service.gd"
+TURN_CONTROLLER_PATH = "scripts/worldmap/turn/worldmap_turn_controller.gd"
 MAIN = (ROOT / MAIN_PATH).read_text(encoding="utf-8")
 SERVICE = (ROOT / SERVICE_PATH).read_text(encoding="utf-8")
+TURN_CONTROLLER = (ROOT / TURN_CONTROLLER_PATH).read_text(encoding="utf-8")
 M6_MAIN = subprocess.check_output(
     ["git", "show", f"d2d9686:{MAIN_PATH}"], cwd=ROOT, text=True, encoding="utf-8"
 )
@@ -51,7 +53,6 @@ for wrapper, delegate in {
     "_add_wounded_to_city_mvp": "add_wounded_to_city",
     "_clear_city_wounded_queue_mvp": "clear_city_wounded_queue",
     "_apply_wounded_recovery_for_world_turn_mvp": "advance_recovery_month",
-    "_get_world_month_serial": "world_month_serial",
     "_advance_wounded_hero_recovery_turns": "advance_recovery_month",
 }.items():
     assert delegate in current[wrapper], f"non-delegating compatibility wrapper: {wrapper}"
@@ -63,8 +64,10 @@ for direct_state in ["_city_runtime_states", "_hero_runtime_states", "woundedQue
     assert direct_state not in fast, f"fast-treatment callback retains domain mutation: {direct_state}"
 controls = current["_refresh_wounded_treatment_controls"]
 assert "evaluate_fast_treatment" in controls and "_wounded_fast_treatment_button" in controls
-advance = current["_advance_world_turn_mvp"]
-assert "advance_recovery_month(next_month_serial)" in advance
+assert "_ensure_world_calendar_service().world_month_serial(turn_number)" in current["_get_world_month_serial"]
+advance = functions(TURN_CONTROLLER)["advance_world_turn"]
+assert '"advance_wounded_recovery_month", [next_month_serial]' in advance
+assert advance.index("previous_month_serial") < advance.index("next_turn") < advance.index("next_month_serial")
 assert "_advance_wounded_hero_recovery_turns()" not in advance
 serialization = current["_serialize_worldmap_hero_runtime_state"]
 normalization = current["_normalize_hero_runtime_state"]
