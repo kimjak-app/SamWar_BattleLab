@@ -82,8 +82,8 @@ const DOMESTIC_TECH_VIEW_AVAILABLE := "available"
 const DOMESTIC_TECH_VIEW_LOCKED := "locked"
 const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_VIEW_RESEARCHING := "researching"
-const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
-const TRADE_CONTROL_MODE_MANUAL := "manual"
+const TRADE_CONTROL_MODE_CHANCELLOR := TradeControllerScript.TRADE_CONTROL_MODE_CHANCELLOR
+const TRADE_CONTROL_MODE_MANUAL := TradeControllerScript.TRADE_CONTROL_MODE_MANUAL
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
 const DIPLOMACY_SPY_TAB_SPY := "spy"
 const REVOLT_RISK_STABLE := "stable"
@@ -94,8 +94,8 @@ const UNIFIED_PANEL_COLLAPSED_HEIGHT := 48.0
 const UNIFIED_PANEL_MIN_EXPANDED_HEIGHT := 188.0
 const UNIFIED_PANEL_SCREEN_PADDING := 18.0
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
-const TURN_PHASE_PLAYER := "player"
-const TURN_PHASE_ENEMY := "enemy"
+const TURN_PHASE_PLAYER := WorldMapTurnControllerScript.PHASE_PLAYER
+const TURN_PHASE_ENEMY := WorldMapTurnControllerScript.PHASE_ENEMY
 const MANUAL_QA_NO_INVASION_GRACE_TURNS := 0
 const ENEMY_INVASION_CHANCE := 0.20
 const T03_PEACE_GRACE_TURNS := 3
@@ -108,71 +108,45 @@ const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
 const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
-const FACTION_RELATION_STATUS := {
-	"ALLIED": "allied",
-	"NEUTRAL": "neutral",
-	"HOSTILE": "hostile",
-	"SUSPENDED": "suspended",
-}
-const DIPLOMACY_SCORE_MIN := 0
-const DIPLOMACY_SCORE_MAX := 100
-const DIPLOMACY_DEFAULT_SCORE := 50
+const FACTION_RELATION_STATUS := DiplomacyControllerScript.FACTION_RELATION_STATUS
+const DIPLOMACY_SCORE_MIN := DiplomacyControllerScript.DIPLOMACY_SCORE_MIN
+const DIPLOMACY_SCORE_MAX := DiplomacyControllerScript.DIPLOMACY_SCORE_MAX
+const DIPLOMACY_DEFAULT_SCORE := DiplomacyControllerScript.DIPLOMACY_DEFAULT_SCORE
 const ALLIANCE_ACCEPTANCE_THRESHOLD := DiplomacyControllerScript.ALLIANCE_ACCEPTANCE_THRESHOLD
 const MILITARY_SUPPORT_ACCEPTANCE_THRESHOLD := 80
 const MILITARY_SUPPORT_REJECT_PENALTY := -20
 const MILITARY_SUPPORT_REPEATED_REJECT_PENALTY := -40
 const MILITARY_SUPPORT_REPEATED_REJECT_THRESHOLD := 3
-const DIPLOMACY_ACTION_ENVOY := "envoy"
-const DIPLOMACY_ACTION_TRIBUTE := "tribute"
-const DIPLOMACY_ACTION_TRADE_AGREEMENT := "trade_agreement"
-const DIPLOMACY_ACTION_RESTORE_RELATIONS := "restore_relations"
-const DIPLOMACY_ACTION_ALLIANCE_PROPOSAL := "alliance_proposal"
-const SPY_ACTION_GATHER_INFO := "gather_info"
-const SPY_ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"
-const SPY_ACTION_LOYALTY_DISRUPT := "loyalty_disrupt"
-const SPY_ACTION_REVOLT_INSTIGATE := "revolt_instigate"
-const SPY_ACTION_WEDGE := "wedge"
-const SPY_COOLDOWN_TURNS := 1
-const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
-const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 2
-const SPY_DETECTED_RELATION_PENALTY_GATHER_INFO := -6
-const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := -10
-const SPY_LOYALTY_DISRUPT_COST := {
-	"gold": 500,
-	"silk": 50,
-}
-const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := 2
-const SPY_DETECTED_RELATION_PENALTY_LOYALTY := -10
-const SPY_REVOLT_INSTIGATION_COST := {
-	"gold": 800,
-	"silk": 100,
-}
-const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := 2
-const SPY_REVOLT_INSTIGATION_DURATION_TURNS := 3
-const SPY_DETECTED_RELATION_PENALTY_REVOLT := -10
-const SPY_WEDGE_COST := {
-	"gold": 600,
-	"silk": 150,
-}
-const SPY_WEDGE_COOLDOWN_TURNS := 12
-const SPY_DETECTED_RELATION_PENALTY_WEDGE := -20
+const DIPLOMACY_ACTION_ENVOY := DiplomacyControllerScript.DIPLOMACY_ACTION_ENVOY
+const DIPLOMACY_ACTION_TRIBUTE := DiplomacyControllerScript.DIPLOMACY_ACTION_TRIBUTE
+const DIPLOMACY_ACTION_TRADE_AGREEMENT := DiplomacyControllerScript.DIPLOMACY_ACTION_TRADE_AGREEMENT
+const DIPLOMACY_ACTION_RESTORE_RELATIONS := DiplomacyControllerScript.DIPLOMACY_ACTION_RESTORE_RELATIONS
+const DIPLOMACY_ACTION_ALLIANCE_PROPOSAL := DiplomacyControllerScript.DIPLOMACY_ACTION_ALLIANCE_PROPOSAL
+const SPY_ACTION_GATHER_INFO := SpyControllerScript.SPY_ACTION_GATHER_INFO
+const SPY_ACTION_PUBLIC_SUPPORT_DISRUPT := SpyControllerScript.SPY_ACTION_PUBLIC_SUPPORT_DISRUPT
+const SPY_ACTION_LOYALTY_DISRUPT := SpyControllerScript.SPY_ACTION_LOYALTY_DISRUPT
+const SPY_ACTION_REVOLT_INSTIGATE := SpyControllerScript.SPY_ACTION_REVOLT_INSTIGATE
+const SPY_ACTION_WEDGE := SpyControllerScript.SPY_ACTION_WEDGE
+const SPY_COOLDOWN_TURNS := SpyControllerScript.SPY_COOLDOWN_TURNS
+const SPY_PUBLIC_SUPPORT_DISRUPT_COST := SpyControllerScript.SPY_PUBLIC_SUPPORT_DISRUPT_COST
+const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := SpyControllerScript.SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS
+const SPY_DETECTED_RELATION_PENALTY_GATHER_INFO := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_GATHER_INFO
+const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT
+const SPY_LOYALTY_DISRUPT_COST := SpyControllerScript.SPY_LOYALTY_DISRUPT_COST
+const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := SpyControllerScript.SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS
+const SPY_DETECTED_RELATION_PENALTY_LOYALTY := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_LOYALTY
+const SPY_REVOLT_INSTIGATION_COST := SpyControllerScript.SPY_REVOLT_INSTIGATION_COST
+const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := SpyControllerScript.SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS
+const SPY_REVOLT_INSTIGATION_DURATION_TURNS := SpyControllerScript.SPY_REVOLT_INSTIGATION_DURATION_TURNS
+const SPY_DETECTED_RELATION_PENALTY_REVOLT := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_REVOLT
+const SPY_WEDGE_COST := SpyControllerScript.SPY_WEDGE_COST
+const SPY_WEDGE_COOLDOWN_TURNS := SpyControllerScript.SPY_WEDGE_COOLDOWN_TURNS
+const SPY_DETECTED_RELATION_PENALTY_WEDGE := SpyControllerScript.SPY_DETECTED_RELATION_PENALTY_WEDGE
 const TRADE_SUSPENSION_TURNS := 3
-const RELATION_TRADE_MULTIPLIER := {
-	"allied": 1.25,
-	"neutral": 1.0,
-	"hostile": 0.0,
-	"suspended": 0.0,
-}
-const TRADE_ROUTE_CAP := {
-	"gold": 90,
-	"rice": 20,
-	"barley": 20,
-	"seafood": 22,
-	"salt": 16,
-}
-# v0.68b-13-2B Trade balance tuning (web parity restore)
-const TRADE_GLOBAL_DAMPENER := 0.5
-const TRADE_FOOD_FACTOR := 1.5
+const RELATION_TRADE_MULTIPLIER := TradeControllerScript.RELATION_TRADE_MULTIPLIER
+const TRADE_ROUTE_CAP := TradeControllerScript.TRADE_ROUTE_CAP
+const TRADE_GLOBAL_DAMPENER := TradeControllerScript.TRADE_GLOBAL_DAMPENER
+const TRADE_FOOD_FACTOR := TradeControllerScript.TRADE_FOOD_FACTOR
 const SUPPLY_LOYALTY_BONUS := 1
 const SUPPLY_LOYALTY_PENALTY := -2
 const SUPPLY_SECURITY_BONUS := 1
@@ -196,10 +170,10 @@ const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"
 const PLAYER_ATTACK_CONTEXT_SOURCE := "player_attack"
-const INVASION_RESULT_DEFENDER_WIN := "defender_win"
-const INVASION_RESULT_ATTACKER_WIN := "attacker_win"
-const INVASION_RESULT_RETREAT := "retreat"
-const INVASION_RESULT_UNKNOWN := "unknown"
+const INVASION_RESULT_DEFENDER_WIN := BattleResultServiceScript.RESULT_DEFENDER_WIN
+const INVASION_RESULT_ATTACKER_WIN := BattleResultServiceScript.RESULT_ATTACKER_WIN
+const INVASION_RESULT_RETREAT := BattleResultServiceScript.RESULT_RETREAT
+const INVASION_RESULT_UNKNOWN := BattleResultServiceScript.RESULT_UNKNOWN
 const INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS := 100
 const INVASION_MIN_CITY_TROOPS := 30
 const INVASION_MIN_OCCUPATION_TROOPS := 80
@@ -4647,9 +4621,9 @@ func _format_trade_availability_for_ui(source_faction_id: String, target_faction
 func _get_trade_relation_multiplier_for_ui(source_faction_id: String, target_faction_id: String) -> float:
 	if source_faction_id.is_empty() or target_faction_id.is_empty() or source_faction_id == target_faction_id:
 		return 0.0
-	var relation_status := _get_faction_relation_status(source_faction_id, target_faction_id)
-	var raw_multiplier: Variant = RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0)
-	return float(raw_multiplier) + _get_trade_agreement_bonus_multiplier(source_faction_id, target_faction_id)
+	return _ensure_trade_controller().get_relation_multiplier_for_factions(
+		source_faction_id, target_faction_id
+	)
 
 
 func _format_external_trade_lead_display(_candidate_city_ids: Array[String]) -> String:
@@ -12373,7 +12347,9 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 	elif average_loyalty < 50.0:
 		loyalty_multiplier = 0.9
 	var trade_agreement_bonus := _get_trade_agreement_bonus_multiplier(faction_a, faction_b)
-	var relation_multiplier := float(RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0)) + trade_agreement_bonus
+	var relation_multiplier := _ensure_trade_controller().get_relation_multiplier_for_factions(
+		faction_a, faction_b
+	)
 	var multiplier := loyalty_multiplier * relation_multiplier * TRADE_GLOBAL_DAMPENER
 	return {
 		"city_a_id": city_a_id,

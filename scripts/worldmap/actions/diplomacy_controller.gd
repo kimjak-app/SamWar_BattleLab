@@ -5,19 +5,19 @@ const DiplomacyActionServiceScript := preload("res://scripts/worldmap/actions/di
 const ALLIANCE_ACCEPTANCE_THRESHOLD := DiplomacyActionServiceScript.ALLIANCE_ACCEPTANCE_THRESHOLD
 
 const FACTION_RELATION_STATUS := {
-	"ALLIED": "allied",
-	"NEUTRAL": "neutral",
-	"HOSTILE": "hostile",
-	"SUSPENDED": "suspended",
+	"ALLIED": DiplomacyActionServiceScript.RELATION_STATUS_ALLIED,
+	"NEUTRAL": DiplomacyActionServiceScript.RELATION_STATUS_NEUTRAL,
+	"HOSTILE": DiplomacyActionServiceScript.RELATION_STATUS_HOSTILE,
+	"SUSPENDED": DiplomacyActionServiceScript.RELATION_STATUS_SUSPENDED,
 }
-const DIPLOMACY_SCORE_MIN := 0
-const DIPLOMACY_SCORE_MAX := 100
-const DIPLOMACY_DEFAULT_SCORE := 50
-const DIPLOMACY_ACTION_ENVOY := "envoy"
-const DIPLOMACY_ACTION_TRIBUTE := "tribute"
-const DIPLOMACY_ACTION_TRADE_AGREEMENT := "trade_agreement"
-const DIPLOMACY_ACTION_RESTORE_RELATIONS := "restore_relations"
-const DIPLOMACY_ACTION_ALLIANCE_PROPOSAL := "alliance_proposal"
+const DIPLOMACY_SCORE_MIN := DiplomacyActionServiceScript.RELATION_SCORE_MIN
+const DIPLOMACY_SCORE_MAX := DiplomacyActionServiceScript.RELATION_SCORE_MAX
+const DIPLOMACY_DEFAULT_SCORE := DiplomacyActionServiceScript.DEFAULT_RELATION_SCORE
+const DIPLOMACY_ACTION_ENVOY := DiplomacyActionServiceScript.ACTION_ENVOY
+const DIPLOMACY_ACTION_TRIBUTE := DiplomacyActionServiceScript.ACTION_TRIBUTE
+const DIPLOMACY_ACTION_TRADE_AGREEMENT := DiplomacyActionServiceScript.ACTION_TRADE_AGREEMENT
+const DIPLOMACY_ACTION_RESTORE_RELATIONS := DiplomacyActionServiceScript.ACTION_RESTORE_RELATIONS
+const DIPLOMACY_ACTION_ALLIANCE_PROPOSAL := DiplomacyActionServiceScript.ACTION_ALLIANCE_PROPOSAL
 
 var _host: Node
 var _service = DiplomacyActionServiceScript.new()

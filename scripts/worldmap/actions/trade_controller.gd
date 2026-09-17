@@ -6,6 +6,22 @@ const TradeAutomationServiceScript := preload("res://scripts/worldmap/actions/tr
 const InternalTradeTransferServiceScript := preload("res://scripts/worldmap/actions/internal_trade_transfer_service.gd")
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
+const RELATION_TRADE_MULTIPLIER := {
+	"allied": 1.25,
+	"neutral": 1.0,
+	"hostile": 0.0,
+	"suspended": 0.0,
+}
+const TRADE_ROUTE_CAP := {
+	"gold": 90,
+	"rice": 20,
+	"barley": 20,
+	"seafood": 22,
+	"salt": 16,
+}
+# v0.68b-13-2B Trade balance tuning (web parity restore)
+const TRADE_GLOBAL_DAMPENER := 0.5
+const TRADE_FOOD_FACTOR := 1.5
 const INTERNAL_TRADE_TAB := "internal_trade"
 const EXTERNAL_TRADE_TAB := "external_trade"
 const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
@@ -328,8 +344,16 @@ func can_trade_between_factions(source_faction_id: String, target_faction_id: St
 	return _can_trade_between_factions(source_faction_id, target_faction_id)
 
 
+func get_relation_multiplier_for_factions(source_faction_id: String, target_faction_id: String) -> float:
+	var relation_status := str(_host.call("_get_faction_relation_status", source_faction_id, target_faction_id))
+	var raw_multiplier: Variant = RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0)
+	return float(raw_multiplier) + float(
+		_host.call("_get_trade_agreement_bonus_multiplier", source_faction_id, target_faction_id)
+	)
+
+
 func _get_trade_relation_multiplier(source_faction_id: String, target_faction_id: String) -> float:
-	return float(_host.call("_get_trade_relation_multiplier_for_ui", source_faction_id, target_faction_id))
+	return get_relation_multiplier_for_factions(source_faction_id, target_faction_id)
 
 
 func _get_city_hud_entry(city_id: String) -> Dictionary:
