@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
-"""Diplomacy 2D guard with exact C-1~C-3, M-5, and M-FINAL-A bridges.
+"""Diplomacy 2D guard with exact C-1~C-3, M-5, M-FINAL-A, and M-FINAL-B bridges.
 
 The C-track refactor intentionally rewired city-administration/resource/detail
-functions in worldmap_main.gd after the verified T-4 diplomacy guard.  M-5 then
-moved turn orchestration, and M-FINAL-A intentionally changed domain-constant
-ownership plus the duplicated trade relation-multiplier implementation.
+functions in worldmap_main.gd after the verified T-4 diplomacy guard. M-5 then
+moved turn orchestration, M-FINAL-A changed domain-constant ownership plus the
+duplicated trade relation-multiplier implementation, and M-FINAL-B removed only
+repo-audited dead hub residue from worldmap_main.gd.
 
 Do not weaken the historical diplomacy guard with broad function/file skips.
 Instead:
 
 1. require the current worldmap_main.gd to be byte-for-byte identical to the
-   immutable approved M-FINAL-A domain-ownership checkpoint;
-2. require the M-FINAL-A main to contain the reviewed canonical aliases and
-   TradeController delegation introduced by that checkpoint;
-3. require the complete T-4 -> C-3 changed-file set to match the audited city
+   immutable approved M-FINAL-B closeout checkpoint;
+2. require M-FINAL-A -> M-FINAL-B to change worldmap_main.gd only;
+3. require the M-FINAL-B main to retain reviewed canonical aliases/delegation
+   while audited dead residue stays absent;
+4. require the complete T-4 -> C-3 changed-file set to match the audited city
    refactor scope exactly;
-4. require diplomacy/spy/trade and other protected main functions to have the
+5. require diplomacy/spy/trade and other protected main functions to have the
    same bodies at T-4 and C-3; and
-5. execute the immutable T-4 diplomacy validator unchanged, projecting only
+6. execute the immutable T-4 diplomacy validator unchanged, projecting only
    worldmap_main.gd back to its approved T-4 snapshot while every other current
    production file is still validated normally.
 
 Any future main change therefore still fails until another explicit immutable
-checkpoint is reviewed.  This is an exact-delta bridge, not a moving baseline
-or a broad whitelist.
+checkpoint is reviewed. This is an exact-delta bridge, not a moving baseline or
+broad whitelist.
 """
 
 from __future__ import annotations
@@ -43,6 +45,7 @@ C2_CITY_RESOURCE_CHECKPOINT = "6a3e73e5133ab6a24209d41f99e309a53166cf97"
 C3_CITY_DETAIL_CHECKPOINT = "6cfea9a1651999a9b97b96eb3a56ece213f2b04f"
 M5_TURN_CONTROLLER_CHECKPOINT = "a9b00b5"
 M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT = "751b6a07d3e66449f8b2cd27f9685d3e9ed1b98e"
+M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT = "9a8617e2f4b1bd8dce7f04c2a4e0fd9f0ef05d30"
 
 EXPECTED_C_TRACK_CHANGED_FILES = {
     "docs/worldmap_city_administration_c1_audit.md",
@@ -72,17 +75,33 @@ PROTECTED_NAME_TOKENS = (
     "tribute",
 )
 
-M_FINAL_A_REQUIRED_MAIN_SNIPPETS = (
+M_FINAL_B_REQUIRED_MAIN_SNIPPETS = (
     "const TURN_PHASE_PLAYER := WorldMapTurnControllerScript.PHASE_PLAYER",
     "const TURN_PHASE_ENEMY := WorldMapTurnControllerScript.PHASE_ENEMY",
     "const FACTION_RELATION_STATUS := DiplomacyControllerScript.FACTION_RELATION_STATUS",
     "const DIPLOMACY_ACTION_ENVOY := DiplomacyControllerScript.DIPLOMACY_ACTION_ENVOY",
     "const SPY_ACTION_GATHER_INFO := SpyControllerScript.SPY_ACTION_GATHER_INFO",
     "const TRADE_CONTROL_MODE_CHANCELLOR := TradeControllerScript.TRADE_CONTROL_MODE_CHANCELLOR",
-    "const RELATION_TRADE_MULTIPLIER := TradeControllerScript.RELATION_TRADE_MULTIPLIER",
     "const INVASION_RESULT_DEFENDER_WIN := BattleResultServiceScript.RESULT_DEFENDER_WIN",
     "return _ensure_trade_controller().get_relation_multiplier_for_factions(",
     "var relation_multiplier := _ensure_trade_controller().get_relation_multiplier_for_factions(",
+)
+
+M_FINAL_B_REMOVED_MAIN_SYMBOLS = (
+    "SPY_COOLDOWN_TURNS",
+    "SPY_PUBLIC_SUPPORT_DISRUPT_COST",
+    "TRADE_SUSPENSION_TURNS",
+    "RELATION_TRADE_MULTIPLIER",
+    "DOMESTIC_TECH_RESEARCH_ACTIVE_KEY",
+    "INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS",
+    "_register_hud_panel_drag",
+    "_format_internal_route_summary",
+    "_set_turn_phase",
+    "_get_enemy_turn_mvp_timer",
+    "_get_empty_domestic_tech_city_economy_bonus_mvp",
+    "_calculate_city_gold_tax_income",
+    "_refresh_warehouse_card",
+    "_on_save_placeholder_pressed",
 )
 
 
@@ -104,23 +123,38 @@ def _current(path: str) -> str:
 
 
 def main() -> None:
-    # Historical checkpoints must resolve; this protects the intended C-track
-    # and M-5 ancestry from typoed or moving identifiers.
+    # Historical checkpoints must resolve; this protects the intended C-track,
+    # M-5, and final closeout ancestry from typoed or moving identifiers.
     _git_show(C1_CITY_ADMIN_CHECKPOINT, MAIN)
     _git_show(C2_CITY_RESOURCE_CHECKPOINT, MAIN)
     c3_main = _git_show(C3_CITY_DETAIL_CHECKPOINT, MAIN)
     _git_show(M5_TURN_CONTROLLER_CHECKPOINT, MAIN)
-    m_final_a_main = _git_show(M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT, MAIN)
+    _git_show(M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT, MAIN)
+    m_final_b_main = _git_show(M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
 
-    assert current_main == m_final_a_main, (
-        "worldmap_main.gd changed after the approved M-FINAL-A domain-ownership "
+    assert current_main == m_final_b_main, (
+        "worldmap_main.gd changed after the approved M-FINAL-B hub-closeout "
         "checkpoint; review a new exact delta instead of relaxing diplomacy routing"
     )
-    for snippet in M_FINAL_A_REQUIRED_MAIN_SNIPPETS:
+
+    final_delta_files = _git_changed_files(
+        M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT,
+        M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT,
+    )
+    assert final_delta_files == {MAIN}, (
+        "M-FINAL-A -> M-FINAL-B audited closeout scope changed: "
+        f"expected={[MAIN]} actual={sorted(final_delta_files)}"
+    )
+
+    for snippet in M_FINAL_B_REQUIRED_MAIN_SNIPPETS:
         assert snippet in current_main, (
-            "approved M-FINAL-A main no longer contains required canonical "
+            "approved M-FINAL-B main no longer contains required canonical "
             f"ownership/delegation: {snippet}"
+        )
+    for symbol in M_FINAL_B_REMOVED_MAIN_SYMBOLS:
+        assert symbol not in current_main, (
+            f"approved M-FINAL-B dead hub residue returned: {symbol}"
         )
 
     changed_files = _git_changed_files(T4_VALIDATOR_CHECKPOINT, C3_CITY_DETAIL_CHECKPOINT)
@@ -155,8 +189,8 @@ def main() -> None:
             f"C-track changed protected diplomacy/spy/trade main function: {name}"
         )
 
-    # Keep every historical T-4 assertion.  Only MAIN is projected to the
-    # exact T-4 snapshot while current controller/service/UI files remain live.
+    # Keep every historical T-4 assertion. Only MAIN is projected to the exact
+    # T-4 snapshot while current controller/service/UI files remain live.
     original_current = namespace["current"]
 
     def bridged_current(path: str) -> str:
@@ -168,8 +202,8 @@ def main() -> None:
     namespace["main"]()
 
     print(
-        "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-5/M-FINAL-A main "
-        "checkpoint bridge; historical T-4 guard preserved"
+        "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-5/M-FINAL-A/M-FINAL-B "
+        "main checkpoint bridge; historical T-4 guard preserved"
     )
 
 
