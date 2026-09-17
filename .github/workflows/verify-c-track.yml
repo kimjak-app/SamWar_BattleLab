@@ -93,6 +93,7 @@ jobs:
             tests/scripts/test_world_calendar_service_extraction.gd
             tests/scripts/test_world_turn_economy_service_extraction.gd
             tests/scripts/test_world_turn_state_service_extraction.gd
+            tests/scripts/test_worldmap_turn_controller_extraction.gd
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="

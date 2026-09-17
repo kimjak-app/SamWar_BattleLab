@@ -47,6 +47,7 @@ const WorldMapSharedUiControllerScript := preload("res://scripts/worldmap/ui/wor
 const WorldCalendarServiceScript := preload("res://scripts/worldmap/turn/world_calendar_service.gd")
 const WorldTurnEconomyServiceScript := preload("res://scripts/worldmap/turn/world_turn_economy_service.gd")
 const WorldTurnStateServiceScript := preload("res://scripts/worldmap/turn/world_turn_state_service.gd")
+const WorldMapTurnControllerScript := preload("res://scripts/worldmap/turn/worldmap_turn_controller.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -95,7 +96,6 @@ const UNIFIED_PANEL_SCREEN_PADDING := 18.0
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
-const ENEMY_TURN_MVP_DELAY := 0.75
 const MANUAL_QA_NO_INVASION_GRACE_TURNS := 0
 const ENEMY_INVASION_CHANCE := 0.20
 const T03_PEACE_GRACE_TURNS := 3
@@ -759,6 +759,7 @@ var _shared_ui_controller: WorldMapSharedUiControllerScript = null
 var _world_calendar_service: WorldCalendarServiceScript = null
 var _world_turn_economy_service: WorldTurnEconomyServiceScript = null
 var _world_turn_state_service: WorldTurnStateServiceScript = null
+var _turn_controller: WorldMapTurnControllerScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
@@ -871,9 +872,16 @@ var _player_attack_deployment_panel: Node = null
 var _left_national_loyalty_help_button: Button = null
 var _domestic_tech_tree_button_mvp: Button = null
 var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
-var _enemy_turn_mvp_timer: Timer
-var _enemy_turn_mvp_pending := false
-var _domestic_turn_apply_pending := false
+var _enemy_turn_mvp_pending: bool:
+	get:
+		return _ensure_turn_controller().is_enemy_turn_pending()
+	set(value):
+		_ensure_turn_controller().set_enemy_turn_pending(value)
+var _domestic_turn_apply_pending: bool:
+	get:
+		return _ensure_turn_controller().is_domestic_apply_pending()
+	set(value):
+		_ensure_turn_controller().set_domestic_apply_pending(value)
 var _default_player_state: Dictionary = {}
 var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
@@ -1306,6 +1314,75 @@ func _ensure_world_turn_state_service() -> WorldTurnStateServiceScript:
 		_world_turn_state_service = WorldTurnStateServiceScript.new()
 		_world_turn_state_service.configure(Callable(self, "_world_turn_state_query"), Callable(self, "_world_turn_state_mutation"))
 	return _world_turn_state_service
+
+
+func _ensure_turn_controller() -> WorldMapTurnControllerScript:
+	if _turn_controller == null:
+		_turn_controller = WorldMapTurnControllerScript.new()
+		_turn_controller.name = "WorldMapTurnController"
+		add_child(_turn_controller)
+		_turn_controller.configure(Callable(self, "_worldmap_turn_query"), Callable(self, "_worldmap_turn_command"))
+	return _turn_controller
+
+
+func _worldmap_turn_query(query_id: String, _args: Array) -> Variant:
+	match query_id:
+		"has_terminal_outcome": return _has_terminal_korea_outcome_mvp()
+		"pending_invasion_event": return _get_pending_invasion_event_mvp()
+		"pending_battle_context": return _get_pending_battle_context_mvp()
+		"turn_phase": return _player_state.get("turn_phase", TURN_PHASE_PLAYER)
+		"turn_number": return _player_state.get("turn_number", 1)
+		"player_faction_id": return _get_current_player_faction_id()
+		"completed_turn_resolution_ids": return _player_state.get("completed_turn_resolution_ids", [])
+		"turn_resolution_state": return _player_state.get("turn_resolution_state", {})
+		"last_enemy_faction_turn_processed_turn": return _player_state.get("last_enemy_faction_turn_processed_turn", 0)
+		"last_enemy_faction_turn_result": return _player_state.get("last_enemy_faction_turn_result", {})
+		"last_ai_domestic_apply_result": return _player_state.get("last_ai_domestic_apply_result", {})
+		"game_outcome": return _player_state.get("game_outcome", {})
+	return null
+
+
+func _worldmap_turn_command(command_id: String, args: Array) -> Variant:
+	match command_id:
+		"set_player_state":
+			_player_state[str(args[0])] = args[1]
+		"set_status":
+			_set_save_management_status(str(args[0]))
+		"present_outcome":
+			_present_t05_outcome_if_needed()
+		"play_turn_end_sfx":
+			_play_worldmap_sfx("turn_end")
+		"checkpoint":
+			return _checkpoint_worldmap_state_mvp()
+		"refresh_world_status":
+			_refresh_left_world_status_panel()
+		"apply_ai_city_production":
+			return _apply_ai_city_production_for_world_turn_mvp()
+		"process_enemy_faction_turn":
+			return _process_enemy_faction_turn_mvp()
+		"roll_enemy_invasion":
+			return _roll_enemy_invasion_event_mvp()
+		"attach_enemy_invasion":
+			_attach_enemy_invasion_event_to_enemy_turn_result(args[0] as Dictionary)
+		"format_invasion_status":
+			return _format_invasion_status_text(args[0] as Dictionary)
+		"apply_domestic_turn":
+			return _apply_domestic_turn_mvp()
+		"evaluate_outcome":
+			return _evaluate_korea_mvp_outcome_mvp()
+		"defer_present_outcome":
+			call_deferred("_present_t05_outcome_if_needed")
+		"defer_next_battle_report":
+			call_deferred("_try_present_next_t03_battle_report")
+		"world_month_serial":
+			return _get_world_month_serial(int(args[0]))
+		"advance_wounded_recovery_month":
+			return _ensure_wounded_recovery_service().advance_recovery_month(int(args[0]))
+		"update_turn_labels":
+			_update_world_turn_labels()
+		"refresh_city_hud":
+			_refresh_city_hud_data_bindings()
+	return null
 
 
 func _world_turn_state_query(query_id: String, args: Array) -> Variant:
@@ -5443,18 +5520,15 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 
 
 func _normalize_turn_phase(phase: String) -> String:
-	return TURN_PHASE_ENEMY if phase == TURN_PHASE_ENEMY else TURN_PHASE_PLAYER
+	return _ensure_turn_controller().normalize_phase(phase)
 
 
 func _get_turn_phase_label(phase: String) -> String:
-	return "적군 턴" if _normalize_turn_phase(phase) == TURN_PHASE_ENEMY else "아군 턴"
+	return _ensure_turn_controller().get_phase_label(phase)
 
 
 func _set_turn_phase(phase: String) -> void:
-	var normalized_phase := _normalize_turn_phase(phase)
-	_player_state["turn_phase"] = normalized_phase
-	_player_state["current_phase_label"] = _get_turn_phase_label(normalized_phase)
-	_refresh_left_world_status_panel()
+	_ensure_turn_controller().set_phase(phase)
 
 
 func _update_world_turn_labels() -> void:
@@ -5511,168 +5585,23 @@ func _limit_invasion_result_lines(lines: Array, limit: int) -> Array[String]:
 
 
 func _on_ally_turn_end_pressed() -> void:
-	if _has_terminal_korea_outcome_mvp():
-		_set_save_management_status("게임이 종료되었습니다. 결과 화면에서 새 게임을 선택하십시오.")
-		_present_t05_outcome_if_needed()
-		return
-	if _enemy_turn_mvp_pending:
-		_set_save_management_status("적군 턴 진행 중...")
-		return
-	if _has_pending_invasion_event_mvp():
-		_set_save_management_status("진행 중인 침공 이벤트를 먼저 처리하십시오.")
-		return
-	if not _get_pending_battle_context_mvp().is_empty():
-		_set_save_management_status("진행 중인 전투 데이터를 먼저 처리하십시오.")
-		return
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
-		_set_save_management_status("이미 적군 턴입니다.")
-		return
-	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
-	var transaction_id := TurnOutcomeRulesScript.make_turn_resolution_id(turn_number, _get_current_player_faction_id())
-	if TurnOutcomeRulesScript.normalize_string_array(_player_state.get("completed_turn_resolution_ids", [])).has(transaction_id):
-		_set_save_management_status("이미 완료된 턴입니다.")
-		return
-	_player_state["turn_resolution_state"] = {
-		"transaction_id": transaction_id,
-		"source_turn": turn_number,
-		"stage": "enemy_actions",
-		"started": true,
-	}
-	_play_worldmap_sfx("turn_end")
-	_domestic_turn_apply_pending = true
-	_player_state["domestic_apply_pending"] = true
-	_set_turn_phase(TURN_PHASE_ENEMY)
-	_checkpoint_worldmap_state_mvp()
-	_run_enemy_turn_mvp()
+	_ensure_turn_controller().request_end_turn()
 
 
 func _run_enemy_turn_mvp() -> void:
-	if _has_terminal_korea_outcome_mvp():
-		_enemy_turn_mvp_pending = false
-		_domestic_turn_apply_pending = false
-		_player_state["domestic_apply_pending"] = false
-		_present_t05_outcome_if_needed()
-		return
-	if _enemy_turn_mvp_pending:
-		_set_save_management_status("적군 턴 진행 중...")
-		return
-	print("[WorldMap] Enemy turn MVP hook reached. Enemy faction reinforcement and invasion event roll are running.")
-	_enemy_turn_mvp_pending = true
-	_set_save_management_status("적군 턴 진행 중...")
-	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
-	var turn_resolution_state := _get_or_restore_turn_resolution_state_mvp(turn_number)
-	turn_resolution_state["stage"] = "enemy_actions"
-	_player_state["turn_resolution_state"] = turn_resolution_state
-	var ai_domestic_result := _apply_ai_city_production_for_world_turn_mvp()
-	var enemy_turn_already_processed := int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)) == turn_number
-	var enemy_turn_result := _process_enemy_faction_turn_mvp()
-	var invasion_event := {}
-	if not enemy_turn_already_processed:
-		invasion_event = _roll_enemy_invasion_event_mvp()
-		_attach_enemy_invasion_event_to_enemy_turn_result(invasion_event)
-	if bool(invasion_event.get("resolved_automatically", false)):
-		_set_save_management_status("AI 세력전 정산 완료 · 다음 아군 턴에 결과 보고")
-	elif not invasion_event.is_empty():
-		_set_save_management_status(_format_invasion_status_text(invasion_event))
-	elif not enemy_turn_result.is_empty():
-		_set_save_management_status(str(enemy_turn_result.get("summary", "이번 턴 적 행동 처리 완료")))
-	turn_resolution_state = _get_or_restore_turn_resolution_state_mvp(turn_number)
-	turn_resolution_state["stage"] = "enemy_actions_complete"
-	turn_resolution_state["ai_domestic_result"] = ai_domestic_result.duplicate(true)
-	turn_resolution_state["enemy_turn_result"] = enemy_turn_result.duplicate(true)
-	_player_state["turn_resolution_state"] = turn_resolution_state
-	_checkpoint_worldmap_state_mvp()
-	_refresh_left_world_status_panel()
-	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
+	_ensure_turn_controller().run_enemy_turn()
 
 
 func _get_enemy_turn_mvp_timer() -> Timer:
-	if _enemy_turn_mvp_timer == null:
-		_enemy_turn_mvp_timer = Timer.new()
-		_enemy_turn_mvp_timer.name = "EnemyTurnMvpTimer"
-		_enemy_turn_mvp_timer.one_shot = true
-		add_child(_enemy_turn_mvp_timer)
-		_enemy_turn_mvp_timer.timeout.connect(_finish_enemy_turn_mvp)
-	return _enemy_turn_mvp_timer
+	return _ensure_turn_controller().get_enemy_turn_timer()
 
 
 func _finish_enemy_turn_mvp() -> void:
-	if not _enemy_turn_mvp_pending:
-		return
-	_enemy_turn_mvp_pending = false
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_ENEMY:
-		_domestic_turn_apply_pending = false
-		_player_state["domestic_apply_pending"] = false
-		_refresh_left_world_status_panel()
-		return
-	var source_turn := maxi(1, int(_player_state.get("turn_number", 1)))
-	var turn_resolution_state := _get_or_restore_turn_resolution_state_mvp(source_turn)
-	var transaction_id := str(turn_resolution_state.get("transaction_id", TurnOutcomeRulesScript.make_turn_resolution_id(source_turn, _get_current_player_faction_id())))
-	var completed_ids := TurnOutcomeRulesScript.normalize_string_array(_player_state.get("completed_turn_resolution_ids", []))
-	if completed_ids.has(transaction_id):
-		_domestic_turn_apply_pending = false
-		_player_state["domestic_apply_pending"] = false
-		_set_turn_phase(TURN_PHASE_PLAYER)
-		_checkpoint_worldmap_state_mvp()
-		return
-	turn_resolution_state["stage"] = "domestic_resolution"
-	_player_state["turn_resolution_state"] = turn_resolution_state
-	var domestic_summary := ""
-	if _domestic_turn_apply_pending:
-		domestic_summary = _apply_domestic_turn_mvp()
-		_domestic_turn_apply_pending = false
-		_player_state["domestic_apply_pending"] = false
-	_advance_world_turn_mvp()
-	_set_turn_phase(TURN_PHASE_PLAYER)
-	_evaluate_korea_mvp_outcome_mvp()
-	var next_turn := maxi(1, int(_player_state.get("turn_number", source_turn + 1)))
-	var enemy_result: Dictionary = _player_state.get("last_enemy_faction_turn_result", {}) if _player_state.get("last_enemy_faction_turn_result", {}) is Dictionary else {}
-	var ai_domestic_result: Dictionary = _player_state.get("last_ai_domestic_apply_result", {}) if _player_state.get("last_ai_domestic_apply_result", {}) is Dictionary else {}
-	var turn_result := {
-		"transaction_id": transaction_id,
-		"source_turn": source_turn,
-		"next_turn": next_turn,
-		"domestic_summary": domestic_summary,
-		"enemy_summary": str(enemy_result.get("summary", "")),
-		"ai_city_production_count": int(ai_domestic_result.get("city_count", 0)),
-		"outcome": str((_player_state.get("game_outcome", {}) as Dictionary).get("status", TurnOutcomeRulesScript.OUTCOME_ACTIVE)),
-	}
-	_player_state["last_turn_resolution_result"] = turn_result
-	completed_ids.append(transaction_id)
-	_player_state["completed_turn_resolution_ids"] = completed_ids
-	_player_state["turn_resolution_state"] = {
-		"transaction_id": transaction_id,
-		"source_turn": source_turn,
-		"stage": "complete",
-		"completed": true,
-		"next_turn": next_turn,
-	}
-	var pending_invasion_event := _get_pending_invasion_event_mvp()
-	if not pending_invasion_event.is_empty():
-		_set_save_management_status(_format_invasion_status_text(pending_invasion_event))
-	elif domestic_summary.is_empty():
-		_set_save_management_status("다음 아군 턴 시작")
-	else:
-		_set_save_management_status("내정 적용 완료 · %s" % domestic_summary)
-	_refresh_left_world_status_panel()
-	_checkpoint_worldmap_state_mvp()
-	if _has_terminal_korea_outcome_mvp():
-		call_deferred("_present_t05_outcome_if_needed")
-		return
-	call_deferred("_try_present_next_t03_battle_report")
+	_ensure_turn_controller().finish_enemy_turn()
 
 
 func _get_or_restore_turn_resolution_state_mvp(turn_number: int) -> Dictionary:
-	var state: Dictionary = _player_state.get("turn_resolution_state", {}) if _player_state.get("turn_resolution_state", {}) is Dictionary else {}
-	var expected_id := TurnOutcomeRulesScript.make_turn_resolution_id(turn_number, _get_current_player_faction_id())
-	if str(state.get("transaction_id", "")) != expected_id:
-		state = {
-			"transaction_id": expected_id,
-			"source_turn": maxi(1, turn_number),
-			"stage": "enemy_actions",
-			"started": true,
-		}
-	return state
+	return _ensure_turn_controller().get_or_restore_resolution_state(turn_number)
 
 
 func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
@@ -11668,15 +11597,7 @@ func _format_invasion_status_text(event: Dictionary) -> String:
 
 
 func _advance_world_turn_mvp() -> void:
-	var current_turn := maxi(1, int(_player_state.get("turn_number", 1)))
-	var previous_month_serial := _get_world_month_serial(current_turn)
-	var next_turn := current_turn + 1
-	_player_state["turn_number"] = next_turn
-	var next_month_serial := _get_world_month_serial(next_turn)
-	if next_month_serial != previous_month_serial:
-		_ensure_wounded_recovery_service().advance_recovery_month(next_month_serial)
-	_update_world_turn_labels()
-	_refresh_city_hud_data_bindings()
+	_ensure_turn_controller().advance_world_turn()
 
 
 func _get_city_wounded_queue_mvp(city_data: Dictionary) -> Array[Dictionary]:
@@ -13130,11 +13051,7 @@ func _format_seasonal_loyalty_summary(result: Dictionary) -> String:
 
 
 func _cancel_enemy_turn_timer_if_needed() -> void:
-	_enemy_turn_mvp_pending = false
-	_domestic_turn_apply_pending = false
-	_player_state["domestic_apply_pending"] = false
-	if _enemy_turn_mvp_timer != null and not _enemy_turn_mvp_timer.is_stopped():
-		_enemy_turn_mvp_timer.stop()
+	_ensure_turn_controller().cancel_pending_turn()
 
 
 func _get_default_player_state() -> Dictionary:

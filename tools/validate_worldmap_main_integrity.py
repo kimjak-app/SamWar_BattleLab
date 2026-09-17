@@ -21,6 +21,7 @@ SHARED_UI_CONTROLLER = ROOT / "scripts/worldmap/ui/worldmap_shared_ui_controller
 CALENDAR_SERVICE = ROOT / "scripts/worldmap/turn/world_calendar_service.gd"
 TURN_ECONOMY_SERVICE = ROOT / "scripts/worldmap/turn/world_turn_economy_service.gd"
 TURN_STATE_SERVICE = ROOT / "scripts/worldmap/turn/world_turn_state_service.gd"
+TURN_CONTROLLER = ROOT / "scripts/worldmap/turn/worldmap_turn_controller.gd"
 MIN_MAIN_LINE_COUNT = 14_000
 MIN_WORLD_MAP_ORCHESTRATION_LINE_COUNT = 15_000
 MIN_FUNCTION_COUNT = 900
@@ -80,6 +81,13 @@ REQUIRED_TURN_STATE_TOKENS = {
     "loyalty calculation": "func calculate_city_loyalty_drift",
 }
 
+REQUIRED_TURN_CONTROLLER_TOKENS = {
+    "end-turn request": "func request_end_turn",
+    "enemy phase": "func run_enemy_turn",
+    "turn completion": "func finish_enemy_turn",
+    "turn increment": "func advance_world_turn",
+}
+
 
 def main() -> None:
     source = MAIN.read_text(encoding="utf-8")
@@ -89,6 +97,7 @@ def main() -> None:
     calendar_source = CALENDAR_SERVICE.read_text(encoding="utf-8")
     turn_economy_source = TURN_ECONOMY_SERVICE.read_text(encoding="utf-8")
     turn_state_source = TURN_STATE_SERVICE.read_text(encoding="utf-8")
+    turn_controller_source = TURN_CONTROLLER.read_text(encoding="utf-8")
     line_count = len(source.splitlines())
     orchestration_line_count = (
         line_count
@@ -98,6 +107,7 @@ def main() -> None:
         + len(calendar_source.splitlines())
         + len(turn_economy_source.splitlines())
         + len(turn_state_source.splitlines())
+        + len(turn_controller_source.splitlines())
     )
     function_count = len(re.findall(r"^(?:static\s+)?func\s+", source, flags=re.MULTILINE))
 
@@ -139,6 +149,9 @@ def main() -> None:
     for label, token in REQUIRED_TURN_STATE_TOKENS.items():
         if token not in turn_state_source:
             failures.append(f"missing turn-state-service sentinel [{label}]: {token}")
+    for label, token in REQUIRED_TURN_CONTROLLER_TOKENS.items():
+        if token not in turn_controller_source:
+            failures.append(f"missing turn-controller sentinel [{label}]: {token}")
 
     if failures:
         raise SystemExit("FAIL: WorldMap main integrity guard\n- " + "\n- ".join(failures))
