@@ -515,7 +515,7 @@ func get_current_turn() -> int:
 	return maxi(1, int(_query_value("current_turn", [], 1)))
 
 
-func _normalize_research_container_result(raw_state: Variant, scope: String, city_id: String, city_completed: Dictionary, national_completed: Dictionary, current_turn: int) -> Dictionary:
+func _normalize_research_container_result(raw_state: Variant, scope: String, _city_id: String, city_completed: Dictionary, national_completed: Dictionary, current_turn: int) -> Dictionary:
 	var empty := {ACTIVE_KEY: {}}
 	if not raw_state is Dictionary:
 		return {"container": empty}
