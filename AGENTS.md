@@ -1,11 +1,11 @@
-# SamWar Codex Working Agreement
+# SamWar AI Working Agreement
 
-These instructions apply to the entire repository.
+These instructions apply to the entire repository and are shared by ChatGPT (채코치) and Codex.
 
-## Default behavior
-- Treat every SamWar development request as eligible for the repository skill at `.agents/skills/samwar-dev/SKILL.md`.
-- Read that skill before making code changes unless the task is purely conversational.
-- The user should not need to remember or name the skill. Infer the workflow from the task.
+## Canonical protocol
+- Read `docs/SAMWAR_AI_PROTOCOL.md` for the shared operating rules.
+- Treat every substantial SamWar development request as eligible for the repository skill at `.agents/skills/samwar-dev/SKILL.md`.
+- The user should not need to remember or name a skill. Infer the workflow from the task.
 - Start substantial work by giving it a short work ID/title when one is not already provided, e.g. `M-4 Diplomacy Service Split`.
 
 ## Safety and scope
