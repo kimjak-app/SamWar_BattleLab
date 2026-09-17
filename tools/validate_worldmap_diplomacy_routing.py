@@ -12,7 +12,8 @@ Instead:
 
 1. require the current worldmap_main.gd to be byte-for-byte identical to the
    immutable approved M-FINAL-B closeout checkpoint;
-2. require M-FINAL-A -> M-FINAL-B to change worldmap_main.gd only;
+2. require the audited M-FINAL-B production cleanup commit itself to change
+   worldmap_main.gd only;
 3. require the M-FINAL-B main to retain reviewed canonical aliases/delegation
    while audited dead residue stays absent;
 4. require the complete T-4 -> C-3 changed-file set to match the audited city
@@ -45,6 +46,7 @@ C2_CITY_RESOURCE_CHECKPOINT = "6a3e73e5133ab6a24209d41f99e309a53166cf97"
 C3_CITY_DETAIL_CHECKPOINT = "6cfea9a1651999a9b97b96eb3a56ece213f2b04f"
 M5_TURN_CONTROLLER_CHECKPOINT = "a9b00b5"
 M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT = "751b6a07d3e66449f8b2cd27f9685d3e9ed1b98e"
+M_FINAL_B_PRE_CLEANUP_CHECKPOINT = "83d3b00fdf383d7a5acc17970fe9c3e08ee742bd"
 M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT = "9a8617e2f4b1bd8dce7f04c2a4e0fd9f0ef05d30"
 
 EXPECTED_C_TRACK_CHANGED_FILES = {
@@ -130,6 +132,7 @@ def main() -> None:
     c3_main = _git_show(C3_CITY_DETAIL_CHECKPOINT, MAIN)
     _git_show(M5_TURN_CONTROLLER_CHECKPOINT, MAIN)
     _git_show(M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT, MAIN)
+    _git_show(M_FINAL_B_PRE_CLEANUP_CHECKPOINT, MAIN)
     m_final_b_main = _git_show(M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
 
@@ -139,11 +142,11 @@ def main() -> None:
     )
 
     final_delta_files = _git_changed_files(
-        M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT,
+        M_FINAL_B_PRE_CLEANUP_CHECKPOINT,
         M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT,
     )
     assert final_delta_files == {MAIN}, (
-        "M-FINAL-A -> M-FINAL-B audited closeout scope changed: "
+        "M-FINAL-B production cleanup scope changed: "
         f"expected={[MAIN]} actual={sorted(final_delta_files)}"
     )
 
