@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "scripts/worldmap/worldmap_main.gd"
 CAMERA_CONTROLLER = ROOT / "scripts/worldmap/camera/worldmap_camera_controller.gd"
 HUD_CONTROLLER = ROOT / "scripts/worldmap/hud/worldmap_hud_controller.gd"
+SHARED_UI_CONTROLLER = ROOT / "scripts/worldmap/ui/worldmap_shared_ui_controller.gd"
 MIN_MAIN_LINE_COUNT = 14_000
 MIN_WORLD_MAP_ORCHESTRATION_LINE_COUNT = 15_000
 MIN_FUNCTION_COUNT = 900
@@ -48,13 +49,26 @@ REQUIRED_HUD_TOKENS = {
     "warehouse presentation": "func refresh_warehouse",
 }
 
+REQUIRED_SHARED_UI_TOKENS = {
+    "generic modal": "func show_help_modal",
+    "shared drag input": "func handle_input",
+    "viewport clamp": "func move_panel_to_screen_position",
+    "shared position delegation": "func request_panel_position",
+}
+
 
 def main() -> None:
     source = MAIN.read_text(encoding="utf-8")
     camera_source = CAMERA_CONTROLLER.read_text(encoding="utf-8")
     hud_source = HUD_CONTROLLER.read_text(encoding="utf-8")
+    shared_ui_source = SHARED_UI_CONTROLLER.read_text(encoding="utf-8")
     line_count = len(source.splitlines())
-    orchestration_line_count = line_count + len(camera_source.splitlines()) + len(hud_source.splitlines())
+    orchestration_line_count = (
+        line_count
+        + len(camera_source.splitlines())
+        + len(hud_source.splitlines())
+        + len(shared_ui_source.splitlines())
+    )
     function_count = len(re.findall(r"^(?:static\s+)?func\s+", source, flags=re.MULTILINE))
 
     failures: list[str] = []
@@ -83,6 +97,9 @@ def main() -> None:
     for label, token in REQUIRED_HUD_TOKENS.items():
         if token not in hud_source:
             failures.append(f"missing HUD-controller sentinel [{label}]: {token}")
+    for label, token in REQUIRED_SHARED_UI_TOKENS.items():
+        if token not in shared_ui_source:
+            failures.append(f"missing shared-UI-controller sentinel [{label}]: {token}")
 
     if failures:
         raise SystemExit("FAIL: WorldMap main integrity guard\n- " + "\n- ".join(failures))

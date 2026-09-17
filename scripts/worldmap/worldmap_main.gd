@@ -43,6 +43,7 @@ const StrategicBattleTransactionServiceScript := preload("res://scripts/worldmap
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
 const WorldMapCameraControllerScript := preload("res://scripts/worldmap/camera/worldmap_camera_controller.gd")
 const WorldMapHudControllerScript := preload("res://scripts/worldmap/hud/worldmap_hud_controller.gd")
+const WorldMapSharedUiControllerScript := preload("res://scripts/worldmap/ui/worldmap_shared_ui_controller.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -88,7 +89,6 @@ const UNIFIED_PANEL_COLLAPSED_LABEL := "도시상세 / 외교·첩보 열기"
 const UNIFIED_PANEL_COLLAPSED_HEIGHT := 48.0
 const UNIFIED_PANEL_MIN_EXPANDED_HEIGHT := 188.0
 const UNIFIED_PANEL_SCREEN_PADDING := 18.0
-const UNIFIED_PANEL_COLLAPSED_DRAG_THRESHOLD := 6.0
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
@@ -782,11 +782,10 @@ const HERO_BATTLE_TOAST_ICON_FALLBACK := "skill_unknown"
 
 var _camera_controller: WorldMapCameraController = null
 var _hud_controller: WorldMapHudControllerScript = null
+var _shared_ui_controller: WorldMapSharedUiControllerScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
-var _dragging_hud_panel: Control = null
-var _dragging_hud_pointer_offset := Vector2.ZERO
 var _chancellor_portrait_texture_rect: TextureRect = null
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
@@ -893,10 +892,6 @@ var _save_management_title_label: Label
 var _save_management_status_label: Label
 var _save_management_status := ""
 var _player_attack_deployment_panel: Node = null
-var _worldmap_help_modal: PanelContainer = null
-var _worldmap_help_title_label: Label = null
-var _worldmap_help_body_label: Label = null
-var _worldmap_help_close_button: Button = null
 var _left_national_loyalty_help_button: Button = null
 var _domestic_tech_tree_button_mvp: Button = null
 var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
@@ -910,9 +905,6 @@ var _unified_city_detail_primary_button: Button = null
 var _unified_diplomacy_spy_primary_button: Button = null
 var _unified_trade_primary_button: Button = null
 var _has_warned_missing_unified_panel_chrome := false
-var _collapsed_unified_panel_click_candidate := false
-var _collapsed_unified_panel_drag_started := false
-var _collapsed_unified_panel_click_start_position := Vector2.ZERO
 var _city_runtime_states: Dictionary = {}
 var _hero_runtime_states: Dictionary = {}
 var _player_state := {
@@ -1151,7 +1143,7 @@ func _input(event: InputEvent) -> void:
 			_skip_worldmap_battle_entry_camera_handoff()
 		return
 
-	if _worldmap_help_modal != null and _worldmap_help_modal.visible and event.is_action_pressed("ui_cancel"):
+	if _ensure_shared_ui_controller().is_help_modal_visible() and event.is_action_pressed("ui_cancel"):
 		_hide_worldmap_help_modal()
 		get_viewport().set_input_as_handled()
 		return
@@ -1177,34 +1169,8 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if _dragging_hud_panel == null:
-		return
-
-	if event is InputEventMouseMotion:
-		var mouse_motion_event := event as InputEventMouseMotion
-		if _collapsed_unified_panel_click_candidate and not _collapsed_unified_panel_drag_started:
-			var drag_distance := mouse_motion_event.global_position.distance_to(_collapsed_unified_panel_click_start_position)
-			if drag_distance < UNIFIED_PANEL_COLLAPSED_DRAG_THRESHOLD:
-				get_viewport().set_input_as_handled()
-				return
-			_collapsed_unified_panel_drag_started = true
-		_move_hud_panel_to_screen_position(_dragging_hud_panel, mouse_motion_event.global_position - _dragging_hud_pointer_offset)
+	if _ensure_shared_ui_controller().handle_input(event):
 		get_viewport().set_input_as_handled()
-	elif event is InputEventMouseButton:
-		var mouse_button_event := event as InputEventMouseButton
-		if mouse_button_event.button_index == MOUSE_BUTTON_LEFT and not mouse_button_event.pressed:
-			var should_expand_unified_panel := (
-				_dragging_hud_panel == city_detail_panel
-				and _is_unified_city_panel_collapsed
-				and _collapsed_unified_panel_click_candidate
-				and not _collapsed_unified_panel_drag_started
-			)
-			_dragging_hud_panel = null
-			_collapsed_unified_panel_click_candidate = false
-			_collapsed_unified_panel_drag_started = false
-			if should_expand_unified_panel:
-				_set_unified_city_panel_collapsed(false)
-			get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1236,9 +1202,12 @@ func _hide_retired_top_worldmap_hud() -> void:
 
 
 func _setup_independent_hud_panel_drag() -> void:
-	_register_hud_panel_drag(city_detail_panel, [city_detail_header_row, city_detail_eyebrow_label, city_detail_heading_label])
-	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
-	_register_hud_panel_drag(left_world_status_panel, [left_world_status_eyebrow_label, calendar_label])
+	var shared_ui := _ensure_shared_ui_controller()
+	shared_ui.register_draggable_panel(city_detail_panel, [city_detail_header_row, city_detail_eyebrow_label, city_detail_heading_label])
+	shared_ui.register_draggable_panel(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
+	shared_ui.register_draggable_panel(left_world_status_panel, [left_world_status_eyebrow_label, calendar_label])
+	if not shared_ui.draggable_panel_clicked.is_connected(_on_shared_ui_draggable_panel_clicked):
+		shared_ui.draggable_panel_clicked.connect(_on_shared_ui_draggable_panel_clicked)
 
 
 func _lock_worldmap_fixed_panel_top_margin() -> void:
@@ -1249,98 +1218,32 @@ func _lock_worldmap_fixed_panel_top_margin() -> void:
 
 
 func _lock_screen_panel_top_margin(panel: Control) -> void:
-	if panel == null:
-		return
-
-	var current_size := panel.size
-	panel.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
-	panel.position = Vector2(panel.position.x, WORLD_UI_TOP_MARGIN)
-	if current_size != Vector2.ZERO:
-		panel.size = current_size
+	_ensure_shared_ui_controller().lock_screen_panel_top_margin(panel, WORLD_UI_TOP_MARGIN)
 
 
 func _lock_selected_city_info_panel_anchor() -> void:
-	if city_info_panel_control == null:
-		return
-
-	var viewport_size := get_viewport_rect().size
-	var panel_size := city_info_panel_control.size
-	if panel_size == Vector2.ZERO:
-		panel_size = SELECTED_CITY_INFO_PANEL_SIZE
-	city_info_panel_control.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
-	var requested_position := Vector2(
-		maxf(WORLD_UI_LEFT_MARGIN, viewport_size.x - WORLD_UI_LEFT_MARGIN - panel_size.x),
-		WORLD_UI_TOP_MARGIN
-	)
-	if not _request_hud_panel_position_mvp(city_info_panel_control, requested_position):
-		city_info_panel_control.position = requested_position
-	city_info_panel_control.size = panel_size
-	city_info_panel_control.custom_minimum_size = panel_size
+	_ensure_shared_ui_controller().lock_right_panel_anchor(city_info_panel_control, SELECTED_CITY_INFO_PANEL_SIZE, WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 
 
 func _register_hud_panel_drag(panel: Control, handles: Array) -> void:
-	if panel == null:
-		return
-
-	for handle in handles:
-		var handle_control := handle as Control
-		if handle_control == null:
-			continue
-		handle_control.mouse_filter = Control.MOUSE_FILTER_STOP
-		if not handle_control.gui_input.is_connected(_on_hud_drag_handle_gui_input):
-			handle_control.gui_input.connect(_on_hud_drag_handle_gui_input.bind(panel, handle_control))
+	_ensure_shared_ui_controller().register_draggable_panel(panel, handles)
 
 
 func _on_hud_drag_handle_gui_input(event: InputEvent, panel: Control, handle: Control) -> void:
-	if not event is InputEventMouseButton:
-		return
-
-	var mouse_button_event := event as InputEventMouseButton
-	if mouse_button_event.button_index != MOUSE_BUTTON_LEFT or not mouse_button_event.pressed:
-		return
-
-	_dragging_hud_panel = panel
-	_dragging_hud_pointer_offset = mouse_button_event.global_position - panel.global_position
-	if panel == city_detail_panel and _is_unified_city_panel_collapsed:
-		_collapsed_unified_panel_click_candidate = true
-		_collapsed_unified_panel_drag_started = false
-		_collapsed_unified_panel_click_start_position = mouse_button_event.global_position
-	else:
-		_collapsed_unified_panel_click_candidate = false
-		_collapsed_unified_panel_drag_started = false
-	panel.move_to_front()
-	handle.accept_event()
+	_ensure_shared_ui_controller().call("_on_drag_handle_gui_input", event, panel, handle)
 
 
 func _move_hud_panel_to_screen_position(panel: Control, next_global_position: Vector2) -> void:
-	if panel == null:
-		return
-
-	var viewport_size := get_viewport_rect().size
-	var min_visible_size := Vector2(72.0, 42.0)
-	var panel_size := panel.size
-	if panel_size.x <= 0.0 or panel_size.y <= 0.0:
-		panel_size = panel.get_rect().size
-
-	var clamped_global_position := Vector2(
-		clampf(next_global_position.x, -panel_size.x + min_visible_size.x, viewport_size.x - min_visible_size.x),
-		clampf(next_global_position.y, 0.0, viewport_size.y - min_visible_size.y)
-	)
-	if _request_hud_panel_position_mvp(panel, clamped_global_position, true):
-		return
-	panel.global_position = clamped_global_position
+	_ensure_shared_ui_controller().move_panel_to_screen_position(panel, next_global_position)
 
 
 func _request_hud_panel_position_mvp(panel: Control, requested_position: Vector2, is_global: bool = false) -> bool:
-	if panel == null:
-		return false
-	var hud_position_owner := get_node_or_null("HudPositionOwner")
-	if hud_position_owner == null:
-		return false
-	var method_name := "request_hud_panel_global_position" if is_global else "request_hud_panel_position"
-	if not hud_position_owner.has_method(method_name):
-		return false
-	return bool(hud_position_owner.call(method_name, panel, requested_position))
+	return _ensure_shared_ui_controller().request_panel_position(panel, requested_position, is_global)
+
+
+func _on_shared_ui_draggable_panel_clicked(panel: Control) -> void:
+	if panel == city_detail_panel and _is_unified_city_panel_collapsed:
+		_set_unified_city_panel_collapsed(false)
 
 
 func _ensure_camera_controller() -> WorldMapCameraController:
@@ -1399,6 +1302,15 @@ func _ensure_hud_controller() -> WorldMapHudControllerScript:
 		"resource_labels": RESOURCE_LABELS,
 	})
 	return _hud_controller
+
+
+func _ensure_shared_ui_controller() -> WorldMapSharedUiControllerScript:
+	if _shared_ui_controller == null:
+		_shared_ui_controller = WorldMapSharedUiControllerScript.new()
+		_shared_ui_controller.name = "WorldMapSharedUiController"
+		add_child(_shared_ui_controller)
+		_shared_ui_controller.configure(self, get_node_or_null("WorldMapUI") as CanvasLayer)
+	return _shared_ui_controller
 
 
 func _update_camera_debug_label() -> void:
@@ -5209,84 +5121,15 @@ func _ensure_player_attack_deployment_panel() -> void:
 
 
 func _ensure_worldmap_help_modal() -> void:
-	if _worldmap_help_modal != null:
-		return
-	var worldmap_ui := get_node_or_null("WorldMapUI") as CanvasLayer
-	if worldmap_ui == null:
-		return
-	_worldmap_help_modal = PanelContainer.new()
-	_worldmap_help_modal.name = "WorldMapHelpModal"
-	_worldmap_help_modal.visible = false
-	_worldmap_help_modal.z_index = 120
-	_worldmap_help_modal.anchor_left = 0.5
-	_worldmap_help_modal.anchor_right = 0.5
-	_worldmap_help_modal.anchor_top = 0.0
-	_worldmap_help_modal.anchor_bottom = 0.0
-	_worldmap_help_modal.offset_left = -190.0
-	_worldmap_help_modal.offset_right = 190.0
-	_worldmap_help_modal.offset_top = 72.0
-	_worldmap_help_modal.offset_bottom = 292.0
-	_worldmap_help_modal.custom_minimum_size = Vector2(380.0, 220.0)
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.055, 0.065, 0.075, 0.97)
-	panel_style.border_color = Color(0.82, 0.72, 0.48, 0.86)
-	panel_style.set_border_width_all(1)
-	panel_style.set_corner_radius_all(4)
-	panel_style.content_margin_left = 12.0
-	panel_style.content_margin_top = 10.0
-	panel_style.content_margin_right = 12.0
-	panel_style.content_margin_bottom = 10.0
-	_worldmap_help_modal.add_theme_stylebox_override("panel", panel_style)
-	worldmap_ui.add_child(_worldmap_help_modal)
-
-	var content := VBoxContainer.new()
-	content.name = "Content"
-	content.add_theme_constant_override("separation", 8)
-	_worldmap_help_modal.add_child(content)
-
-	_worldmap_help_title_label = Label.new()
-	_worldmap_help_title_label.name = "TitleLabel"
-	_worldmap_help_title_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
-	_worldmap_help_title_label.add_theme_font_size_override("font_size", 15)
-	content.add_child(_worldmap_help_title_label)
-
-	_worldmap_help_body_label = Label.new()
-	_worldmap_help_body_label.name = "BodyLabel"
-	_worldmap_help_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_worldmap_help_body_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_worldmap_help_body_label.add_theme_color_override("font_color", Color(0.93, 0.92, 0.84, 1.0))
-	_worldmap_help_body_label.add_theme_font_size_override("font_size", 12)
-	content.add_child(_worldmap_help_body_label)
-
-	var action_row := HBoxContainer.new()
-	action_row.name = "ActionRow"
-	action_row.alignment = BoxContainer.ALIGNMENT_END
-	content.add_child(action_row)
-
-	_worldmap_help_close_button = Button.new()
-	_worldmap_help_close_button.name = "CloseButton"
-	_worldmap_help_close_button.text = "닫기"
-	_worldmap_help_close_button.custom_minimum_size = Vector2(70.0, 24.0)
-	_worldmap_help_close_button.focus_mode = Control.FOCUS_NONE
-	_worldmap_help_close_button.add_theme_font_size_override("font_size", 11)
-	action_row.add_child(_worldmap_help_close_button)
-	_worldmap_help_close_button.pressed.connect(_hide_worldmap_help_modal)
+	_ensure_shared_ui_controller().ensure_help_modal()
 
 
 func _show_worldmap_help_modal(topic_id: String) -> void:
-	_ensure_worldmap_help_modal()
-	if _worldmap_help_modal == null:
-		return
-	var content := _get_worldmap_help_content(topic_id)
-	_worldmap_help_title_label.text = str(content.get("title", "도움말"))
-	_worldmap_help_body_label.text = str(content.get("body", "도움말 정보가 없습니다."))
-	_worldmap_help_modal.visible = true
-	_worldmap_help_modal.move_to_front()
+	_ensure_shared_ui_controller().show_help_modal(_get_worldmap_help_content(topic_id))
 
 
 func _hide_worldmap_help_modal() -> void:
-	if _worldmap_help_modal != null:
-		_worldmap_help_modal.visible = false
+	_ensure_shared_ui_controller().hide_help_modal()
 
 
 func _get_worldmap_help_content(topic_id: String) -> Dictionary:
@@ -9304,7 +9147,7 @@ func _hide_worldmap_panels_for_tech_tree_mvp() -> void:
 	_register_tech_tree_hidden_panel_mvp(diplomacy_spy_panel, "diplomacy_spy_panel")
 	_register_tech_tree_hidden_panel_mvp(_manual_trade_order_panel, "manual_trade_order_panel")
 	_register_tech_tree_hidden_panel_mvp(_internal_trade_transfer_panel, "internal_trade_transfer_panel")
-	_register_tech_tree_hidden_panel_mvp(_worldmap_help_modal, "worldmap_help_modal")
+	_register_tech_tree_hidden_panel_mvp(_ensure_shared_ui_controller().get_help_modal(), "worldmap_help_modal")
 	_register_tech_tree_hidden_panel_mvp(_player_attack_deployment_panel as CanvasItem, "player_attack_deployment_panel")
 
 
@@ -14989,6 +14832,7 @@ func _set_unified_city_panel_collapsed(is_collapsed: bool) -> void:
 		_unified_city_panel_expanded_size = city_detail_panel.size
 
 	_is_unified_city_panel_collapsed = is_collapsed
+	_ensure_shared_ui_controller().set_panel_click_enabled(city_detail_panel, is_collapsed)
 	for child in city_detail_content_container.get_children():
 		if child != city_detail_header_row:
 			var child_control := child as Control
