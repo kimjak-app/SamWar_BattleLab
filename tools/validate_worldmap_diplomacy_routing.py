@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Diplomacy 2D guard with an exact C-1~C-3 checkpoint bridge.
+"""Diplomacy 2D guard with exact C-1~C-3 and M-4 checkpoint bridges.
 
 The C-track refactor intentionally rewired city-administration/resource/detail
 functions in worldmap_main.gd after the verified T-4 diplomacy guard.  Do not
 weaken that historical guard with broad function/file skips.  Instead:
 
 1. require the current worldmap_main.gd to be byte-for-byte identical to the
-   immutable approved C-3 production checkpoint;
+   immutable approved M-4C shared-UI extraction checkpoint;
 2. require the complete T-4 -> C-3 changed-file set to match the audited city
    refactor scope exactly;
 3. require diplomacy/spy/trade and other protected main functions to have the
@@ -35,6 +35,7 @@ T4_MAIN_CHECKPOINT = "d3decdc9b89a3a3a3989b568a625c58bab245e0f"
 C1_CITY_ADMIN_CHECKPOINT = "dfa9f179dc026800e694e9442131edaf10cf0ef9"
 C2_CITY_RESOURCE_CHECKPOINT = "6a3e73e5133ab6a24209d41f99e309a53166cf97"
 C3_CITY_DETAIL_CHECKPOINT = "6cfea9a1651999a9b97b96eb3a56ece213f2b04f"
+M4_SHARED_UI_CHECKPOINT = "be25225"
 
 EXPECTED_C_TRACK_CHANGED_FILES = {
     "docs/worldmap_city_administration_c1_audit.md",
@@ -88,9 +89,10 @@ def main() -> None:
     _git_show(C1_CITY_ADMIN_CHECKPOINT, MAIN)
     _git_show(C2_CITY_RESOURCE_CHECKPOINT, MAIN)
     c3_main = _git_show(C3_CITY_DETAIL_CHECKPOINT, MAIN)
+    m4_main = _git_show(M4_SHARED_UI_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
-    assert current_main == c3_main, (
-        "worldmap_main.gd changed after the approved C-3 checkpoint; "
+    assert current_main == m4_main, (
+        "worldmap_main.gd changed after the approved M-4C checkpoint; "
         "review a new exact delta instead of relaxing diplomacy routing"
     )
 
@@ -139,7 +141,7 @@ def main() -> None:
     namespace["main"]()
 
     print(
-        "PASS: diplomacy routing guard + exact C-1/C-2/C-3 main checkpoint bridge; "
+        "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-4C main checkpoint bridge; "
         "historical T-4 guard preserved"
     )
 

@@ -87,6 +87,9 @@ jobs:
             tests/scripts/test_worldmap_city_administration_service_extraction.gd
             tests/scripts/test_worldmap_city_resource_service_extraction.gd
             tests/scripts/test_worldmap_city_detail_presentation_extraction.gd
+            tests/scripts/test_worldmap_camera_controller_extraction.gd
+            tests/scripts/test_worldmap_hud_controller_extraction.gd
+            tests/scripts/test_worldmap_shared_ui_controller_extraction.gd
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="

@@ -12,6 +12,7 @@ MAIN = (ROOT / MAIN_PATH).read_text(encoding="utf-8")
 DEPLOYMENT = (ROOT / DEPLOYMENT_PATH).read_text(encoding="utf-8")
 REBALANCE = (ROOT / REBALANCE_PATH).read_text(encoding="utf-8")
 M8_MAIN = subprocess.check_output(["git", "show", f"531123f:{MAIN_PATH}"], cwd=ROOT, text=True, encoding="utf-8")
+M4_MAIN = subprocess.check_output(["git", "show", f"be25225:{MAIN_PATH}"], cwd=ROOT, text=True, encoding="utf-8")
 BATTLE_SETTLEMENT_PATH = "scripts/worldmap/battle/battle_settlement_applier.gd"
 OLD_STANDARD_WOUNDED_SIGNATURE = b"func _apply_standard_wounded(plan: Dictionary, report: Dictionary) -> void:"
 NEW_STANDARD_WOUNDED_SIGNATURE = b"func _apply_standard_wounded(plan: Dictionary, _report: Dictionary) -> void:"
@@ -35,6 +36,7 @@ def assert_af1_standard_wounded_rename(current_bytes: bytes, baseline_bytes: byt
 
 current = functions(MAIN)
 baseline = functions(M8_MAIN)
+m4_baseline = functions(M4_MAIN)
 
 assert "class_name PlayerAttackDeploymentService" in DEPLOYMENT and "extends RefCounted" in DEPLOYMENT
 assert "class_name TroopRebalanceService" in REBALANCE and "extends RefCounted" in REBALANCE
@@ -83,9 +85,10 @@ for protected in [
     "_apply_battle_settlement_hero_faction", "_rebuild_occupation_runtime_indexes_mvp",
     "_sync_worldmap_hero_locations_from_city_runtime_states", "_is_hero_captured_for_battle",
     "_get_hero_battle_exclusion_reason", "_build_player_attack_battle_context",
-    "_handoff_battle_context_to_battle_scene", "_change_scene_to_battle_with_context",
 ]:
     assert current[protected] == baseline[protected], f"M-9 changed protected C-tail/coordinator: {protected}"
+for protected in ["_handoff_battle_context_to_battle_scene", "_change_scene_to_battle_with_context"]:
+    assert current[protected] == m4_baseline[protected], f"post-M-4 changed protected battle handoff: {protected}"
 
 for unchanged_path in [
     "scripts/worldmap/battle/battle_result_service.gd",
