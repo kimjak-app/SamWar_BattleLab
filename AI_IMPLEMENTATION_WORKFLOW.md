@@ -44,3 +44,25 @@
 - 검수 후 수정: 다시 채코치가 구현
 
 이 원칙을 삼국WAR 개발 대화의 기본값으로 사용한다.
+
+## 5. 월드맵 아키텍처 소유권 원칙
+
+월드맵 리팩토링 이후의 신규 기능은 `scripts/worldmap/worldmap_main.gd`에 기능 구현을 계속 쌓지 않는 것을 기본 원칙으로 한다.
+
+- 새 기능이 이미 분리된 도메인의 책임에 속하면 해당 Controller / Service / Helper에 구현한다.
+- 기존 어느 책임에도 자연스럽게 속하지 않는 독립 기능이면 처음부터 전용 `.gd`를 만든다.
+- `worldmap_main.gd`에는 Controller/Service 생성, dependency 연결, signal wiring, scene-level handoff, high-level orchestration만 남긴다.
+- 단순히 파일 수를 늘리기 위해 무조건 새 `.gd`를 만들지 않는다. 먼저 기존 책임 소유자가 있는지 확인한다.
+- 기능 구현 전에 채코치가 스스로 책임 소유 위치를 판단하며, 김작이 매번 “main에 넣지 말라”고 지시할 필요가 없도록 한다.
+- 기존 도메인 경계를 넘는 기능은 main에 임시 구현한 뒤 방치하지 않고, 적절한 Service/Controller 경계를 먼저 정한 후 구현한다.
+- 호환성 때문에 main wrapper가 필요한 경우에는 얇은 delegation/API adapter만 허용하고, 실제 도메인 계산·상태 mutation·UI 세부 구현을 wrapper 안에 남기지 않는다.
+
+### 기본 판단 순서
+
+1. 이 기능의 책임 소유자가 이미 존재하는가?
+2. 존재하면 해당 `.gd`에 넣는다.
+3. 없다면 독립 책임인지 판단해 전용 `.gd`를 만든다.
+4. main에는 필요한 wiring/orchestration만 추가한다.
+5. 구현 후 main에 도메인 로직이 새로 쌓이지 않았는지 스스로 검수한다.
+
+이 원칙을 앞으로의 삼국WAR 월드맵 기능 추가·수정 작업의 상시 기본값으로 사용한다.
