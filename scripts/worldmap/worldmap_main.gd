@@ -44,6 +44,7 @@ const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_out
 const WorldMapCameraControllerScript := preload("res://scripts/worldmap/camera/worldmap_camera_controller.gd")
 const WorldMapHudControllerScript := preload("res://scripts/worldmap/hud/worldmap_hud_controller.gd")
 const WorldMapSharedUiControllerScript := preload("res://scripts/worldmap/ui/worldmap_shared_ui_controller.gd")
+const WorldCalendarServiceScript := preload("res://scripts/worldmap/turn/world_calendar_service.gd")
 
 const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
@@ -105,16 +106,6 @@ const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
 const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
-const WORLD_CALENDAR_START_YEAR := 154
-const WORLD_CALENDAR_SEASON_TURNS := 10
-const WORLD_CALENDAR_YEAR_TURNS := 40
-const WORLD_CALENDAR_SEASON_ORDER := ["spring", "summer", "autumn", "winter"]
-const WORLD_CALENDAR_SEASON_LABELS := {
-	"spring": "봄",
-	"summer": "여름",
-	"autumn": "가을",
-	"winter": "겨울",
-}
 const DOMESTIC_INCOME_RULES := {
 	"seafood_per_rating_per_turn": 2,
 	"barley_per_rating_in_spring": 5,
@@ -783,6 +774,7 @@ const HERO_BATTLE_TOAST_ICON_FALLBACK := "skill_unknown"
 var _camera_controller: WorldMapCameraController = null
 var _hud_controller: WorldMapHudControllerScript = null
 var _shared_ui_controller: WorldMapSharedUiControllerScript = null
+var _world_calendar_service: WorldCalendarServiceScript = null
 var _worldmap_battle_entry_handoff_in_progress: bool:
 	get:
 		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
@@ -1311,6 +1303,12 @@ func _ensure_shared_ui_controller() -> WorldMapSharedUiControllerScript:
 		add_child(_shared_ui_controller)
 		_shared_ui_controller.configure(self, get_node_or_null("WorldMapUI") as CanvasLayer)
 	return _shared_ui_controller
+
+
+func _ensure_world_calendar_service() -> WorldCalendarServiceScript:
+	if _world_calendar_service == null:
+		_world_calendar_service = WorldCalendarServiceScript.new()
+	return _world_calendar_service
 
 
 func _update_camera_debug_label() -> void:
@@ -1900,7 +1898,7 @@ func _ensure_wounded_recovery_service() -> WoundedRecoveryServiceScript:
 				"allowed_statuses": [HERO_RUNTIME_STATUS_NORMAL, HERO_RUNTIME_STATUS_WOUNDED, HERO_RUNTIME_STATUS_CAPTURED, HERO_RUNTIME_STATUS_DEAD],
 				"normal_recovery_months": DEFAULT_WOUNDED_RECOVERY_TURNS,
 				"fast_recovery_months": ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS,
-				"world_calendar_year_turns": WORLD_CALENDAR_YEAR_TURNS,
+				"world_calendar_year_turns": WorldCalendarServiceScript.YEAR_TURNS,
 			}
 		)
 	return _wounded_recovery_service
@@ -5418,14 +5416,7 @@ func _update_world_turn_labels() -> void:
 
 
 func _format_world_calendar_label(turn_number: int) -> String:
-	var safe_turn := maxi(1, turn_number)
-	var zero_based_turn := safe_turn - 1
-	var year := WORLD_CALENDAR_START_YEAR + floori(float(zero_based_turn) / float(WORLD_CALENDAR_YEAR_TURNS))
-	var season_index := floori(float(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / float(WORLD_CALENDAR_SEASON_TURNS))
-	var season_turn := (zero_based_turn % WORLD_CALENDAR_SEASON_TURNS) + 1
-	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
-	var season_label := str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id))
-	return "%d년 %s %d턴" % [year, season_label, season_turn]
+	return _ensure_world_calendar_service().format_label(turn_number)
 
 
 func _set_save_management_status(message: String) -> void:
@@ -11658,7 +11649,7 @@ func _apply_wounded_recovery_for_world_turn_mvp() -> void:
 
 
 func _get_world_month_serial(turn_number: int) -> int:
-	return _ensure_wounded_recovery_service().world_month_serial(turn_number)
+	return _ensure_world_calendar_service().world_month_serial(turn_number)
 
 
 func _advance_wounded_hero_recovery_turns() -> void:
@@ -11791,25 +11782,15 @@ func _apply_ai_city_production_for_world_turn_mvp() -> Dictionary:
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
-	var safe_turn := maxi(1, turn_number)
-	var zero_based_turn := safe_turn - 1
-	var season_index := floori(float(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / float(WORLD_CALENDAR_SEASON_TURNS))
-	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
-	return {
-		"turn": safe_turn,
-		"season": season_id,
-		"season_label": str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id)),
-	}
+	return _ensure_world_calendar_service().get_calendar(turn_number)
 
 
 func _is_seasonal_loyalty_turn(turn_number: int) -> bool:
-	return maxi(1, turn_number) % WORLD_CALENDAR_SEASON_TURNS == 0
+	return _ensure_world_calendar_service().is_season_boundary(turn_number)
 
 
 func _get_next_seasonal_loyalty_turn(turn_number: int) -> int:
-	var safe_turn := maxi(1, turn_number)
-	var remainder := safe_turn % WORLD_CALENDAR_SEASON_TURNS
-	return safe_turn if remainder == 0 else safe_turn + (WORLD_CALENDAR_SEASON_TURNS - remainder)
+	return _ensure_world_calendar_service().get_next_season_boundary(turn_number)
 
 
 func _create_empty_domestic_income_totals() -> Dictionary:

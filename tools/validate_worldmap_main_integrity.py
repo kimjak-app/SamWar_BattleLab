@@ -18,6 +18,7 @@ MAIN = ROOT / "scripts/worldmap/worldmap_main.gd"
 CAMERA_CONTROLLER = ROOT / "scripts/worldmap/camera/worldmap_camera_controller.gd"
 HUD_CONTROLLER = ROOT / "scripts/worldmap/hud/worldmap_hud_controller.gd"
 SHARED_UI_CONTROLLER = ROOT / "scripts/worldmap/ui/worldmap_shared_ui_controller.gd"
+CALENDAR_SERVICE = ROOT / "scripts/worldmap/turn/world_calendar_service.gd"
 MIN_MAIN_LINE_COUNT = 14_000
 MIN_WORLD_MAP_ORCHESTRATION_LINE_COUNT = 15_000
 MIN_FUNCTION_COUNT = 900
@@ -56,18 +57,27 @@ REQUIRED_SHARED_UI_TOKENS = {
     "shared position delegation": "func request_panel_position",
 }
 
+REQUIRED_CALENDAR_TOKENS = {
+    "turn calendar snapshot": "func get_calendar",
+    "calendar display label": "func format_label",
+    "season boundary": "func is_season_boundary",
+    "world month serial": "func world_month_serial",
+}
+
 
 def main() -> None:
     source = MAIN.read_text(encoding="utf-8")
     camera_source = CAMERA_CONTROLLER.read_text(encoding="utf-8")
     hud_source = HUD_CONTROLLER.read_text(encoding="utf-8")
     shared_ui_source = SHARED_UI_CONTROLLER.read_text(encoding="utf-8")
+    calendar_source = CALENDAR_SERVICE.read_text(encoding="utf-8")
     line_count = len(source.splitlines())
     orchestration_line_count = (
         line_count
         + len(camera_source.splitlines())
         + len(hud_source.splitlines())
         + len(shared_ui_source.splitlines())
+        + len(calendar_source.splitlines())
     )
     function_count = len(re.findall(r"^(?:static\s+)?func\s+", source, flags=re.MULTILINE))
 
@@ -100,6 +110,9 @@ def main() -> None:
     for label, token in REQUIRED_SHARED_UI_TOKENS.items():
         if token not in shared_ui_source:
             failures.append(f"missing shared-UI-controller sentinel [{label}]: {token}")
+    for label, token in REQUIRED_CALENDAR_TOKENS.items():
+        if token not in calendar_source:
+            failures.append(f"missing calendar-service sentinel [{label}]: {token}")
 
     if failures:
         raise SystemExit("FAIL: WorldMap main integrity guard\n- " + "\n- ".join(failures))
