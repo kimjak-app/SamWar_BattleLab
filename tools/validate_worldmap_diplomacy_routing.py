@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
-"""Diplomacy 2D guard with exact C-1~C-3 and M-5 checkpoint bridges.
+"""Diplomacy 2D guard with exact C-1~C-3, M-5, and M-FINAL-A bridges.
 
 The C-track refactor intentionally rewired city-administration/resource/detail
-functions in worldmap_main.gd after the verified T-4 diplomacy guard.  Do not
-weaken that historical guard with broad function/file skips.  Instead:
+functions in worldmap_main.gd after the verified T-4 diplomacy guard.  M-5 then
+moved turn orchestration, and M-FINAL-A intentionally changed domain-constant
+ownership plus the duplicated trade relation-multiplier implementation.
+
+Do not weaken the historical diplomacy guard with broad function/file skips.
+Instead:
 
 1. require the current worldmap_main.gd to be byte-for-byte identical to the
-   immutable approved M-5D turn-controller extraction checkpoint;
-2. require the complete T-4 -> C-3 changed-file set to match the audited city
+   immutable approved M-FINAL-A domain-ownership checkpoint;
+2. require the M-FINAL-A main to contain the reviewed canonical aliases and
+   TradeController delegation introduced by that checkpoint;
+3. require the complete T-4 -> C-3 changed-file set to match the audited city
    refactor scope exactly;
-3. require diplomacy/spy/trade and other protected main functions to have the
+4. require diplomacy/spy/trade and other protected main functions to have the
    same bodies at T-4 and C-3; and
-4. execute the immutable T-4 diplomacy validator unchanged, projecting only
+5. execute the immutable T-4 diplomacy validator unchanged, projecting only
    worldmap_main.gd back to its approved T-4 snapshot while every other current
    production file is still validated normally.
 
-Any future main change therefore fails until another explicit immutable
+Any future main change therefore still fails until another explicit immutable
 checkpoint is reviewed.  This is an exact-delta bridge, not a moving baseline
 or a broad whitelist.
 """
@@ -36,6 +42,7 @@ C1_CITY_ADMIN_CHECKPOINT = "dfa9f179dc026800e694e9442131edaf10cf0ef9"
 C2_CITY_RESOURCE_CHECKPOINT = "6a3e73e5133ab6a24209d41f99e309a53166cf97"
 C3_CITY_DETAIL_CHECKPOINT = "6cfea9a1651999a9b97b96eb3a56ece213f2b04f"
 M5_TURN_CONTROLLER_CHECKPOINT = "a9b00b5"
+M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT = "751b6a07d3e66449f8b2cd27f9685d3e9ed1b98e"
 
 EXPECTED_C_TRACK_CHANGED_FILES = {
     "docs/worldmap_city_administration_c1_audit.md",
@@ -65,6 +72,19 @@ PROTECTED_NAME_TOKENS = (
     "tribute",
 )
 
+M_FINAL_A_REQUIRED_MAIN_SNIPPETS = (
+    "const TURN_PHASE_PLAYER := WorldMapTurnControllerScript.PHASE_PLAYER",
+    "const TURN_PHASE_ENEMY := WorldMapTurnControllerScript.PHASE_ENEMY",
+    "const FACTION_RELATION_STATUS := DiplomacyControllerScript.FACTION_RELATION_STATUS",
+    "const DIPLOMACY_ACTION_ENVOY := DiplomacyControllerScript.DIPLOMACY_ACTION_ENVOY",
+    "const SPY_ACTION_GATHER_INFO := SpyControllerScript.SPY_ACTION_GATHER_INFO",
+    "const TRADE_CONTROL_MODE_CHANCELLOR := TradeControllerScript.TRADE_CONTROL_MODE_CHANCELLOR",
+    "const RELATION_TRADE_MULTIPLIER := TradeControllerScript.RELATION_TRADE_MULTIPLIER",
+    "const INVASION_RESULT_DEFENDER_WIN := BattleResultServiceScript.RESULT_DEFENDER_WIN",
+    "return _ensure_trade_controller().get_relation_multiplier_for_factions(",
+    "var relation_multiplier := _ensure_trade_controller().get_relation_multiplier_for_factions(",
+)
+
 
 def _git_show(commit: str, path: str) -> str:
     return subprocess.check_output(
@@ -84,17 +104,24 @@ def _current(path: str) -> str:
 
 
 def main() -> None:
-    # All three checkpoints must resolve; this also protects the intended
-    # sequential C-1 -> C-2 -> C-3 history from typoed/moving identifiers.
+    # Historical checkpoints must resolve; this protects the intended C-track
+    # and M-5 ancestry from typoed or moving identifiers.
     _git_show(C1_CITY_ADMIN_CHECKPOINT, MAIN)
     _git_show(C2_CITY_RESOURCE_CHECKPOINT, MAIN)
     c3_main = _git_show(C3_CITY_DETAIL_CHECKPOINT, MAIN)
-    m5_main = _git_show(M5_TURN_CONTROLLER_CHECKPOINT, MAIN)
+    _git_show(M5_TURN_CONTROLLER_CHECKPOINT, MAIN)
+    m_final_a_main = _git_show(M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
-    assert current_main == m5_main, (
-        "worldmap_main.gd changed after the approved M-5D checkpoint; "
-        "review a new exact delta instead of relaxing diplomacy routing"
+
+    assert current_main == m_final_a_main, (
+        "worldmap_main.gd changed after the approved M-FINAL-A domain-ownership "
+        "checkpoint; review a new exact delta instead of relaxing diplomacy routing"
     )
+    for snippet in M_FINAL_A_REQUIRED_MAIN_SNIPPETS:
+        assert snippet in current_main, (
+            "approved M-FINAL-A main no longer contains required canonical "
+            f"ownership/delegation: {snippet}"
+        )
 
     changed_files = _git_changed_files(T4_VALIDATOR_CHECKPOINT, C3_CITY_DETAIL_CHECKPOINT)
     assert changed_files == EXPECTED_C_TRACK_CHANGED_FILES, (
@@ -141,8 +168,8 @@ def main() -> None:
     namespace["main"]()
 
     print(
-        "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-5D main checkpoint bridge; "
-        "historical T-4 guard preserved"
+        "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-5/M-FINAL-A main "
+        "checkpoint bridge; historical T-4 guard preserved"
     )
 
 
