@@ -10,6 +10,7 @@ const BattleMovementQueryServiceScript := preload("res://scripts/battle/services
 const BattleCombatQueryServiceScript := preload("res://scripts/battle/services/battle_combat_query_service.gd")
 const BattleDamageFormulaServiceScript := preload("res://scripts/battle/services/battle_damage_formula_service.gd")
 const BattleActionLockStateServiceScript := preload("res://scripts/battle/services/battle_action_lock_state_service.gd")
+const BattleEnemyAiReservationStateServiceScript := preload("res://scripts/battle/services/battle_enemy_ai_reservation_state_service.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -875,6 +876,7 @@ var movement_query_service := BattleMovementQueryServiceScript.new()
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
+var enemy_ai_reservation_state_service := BattleEnemyAiReservationStateServiceScript.new()
 var is_demo_animating := false
 var ally_has_moved := false
 var ally_has_manual_facing := false
@@ -1011,8 +1013,6 @@ var main_camera_scene_zoom := Vector2.ONE
 var main_camera_base_position := Vector2.ZERO
 var main_camera_base_zoom := Vector2.ONE
 var enemy_ai_last_destination_debug: Dictionary = {}
-var enemy_ai_reserved_destination_cells: Dictionary = {}
-var enemy_ai_reserved_engagement_cells: Dictionary = {}
 var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
@@ -12707,30 +12707,21 @@ func _get_enemy_ai_target_state_from_candidates(enemy_actor_state: BattleUnitSta
 
 
 func _clear_enemy_ai_turn_reservations() -> void:
-	enemy_ai_reserved_destination_cells.clear()
-	enemy_ai_reserved_engagement_cells.clear()
+	enemy_ai_reservation_state_service.clear_turn_reservations()
 
 
 func _is_enemy_ai_destination_cell_reserved_for_other_actor(cell: Vector2i, enemy_actor_state: BattleUnitState) -> bool:
 	if enemy_actor_state == null:
 		return false
-	if cell == enemy_actor_state.grid_cell:
-		return false
-	if not enemy_ai_reserved_destination_cells.has(cell):
-		return false
 	var actor_slot_id := _get_capacity_slot_id_for_unit_state(enemy_actor_state)
-	return str(enemy_ai_reserved_destination_cells.get(cell, "")) != actor_slot_id
+	return enemy_ai_reservation_state_service.is_destination_reserved_for_other_actor(cell, enemy_actor_state.grid_cell, actor_slot_id)
 
 
 func _is_enemy_ai_engagement_cell_reserved_for_other_actor(cell: Vector2i, enemy_actor_state: BattleUnitState) -> bool:
 	if enemy_actor_state == null:
 		return false
-	if cell == enemy_actor_state.grid_cell:
-		return false
-	if not enemy_ai_reserved_engagement_cells.has(cell):
-		return false
 	var actor_slot_id := _get_capacity_slot_id_for_unit_state(enemy_actor_state)
-	return str(enemy_ai_reserved_engagement_cells.get(cell, "")) != actor_slot_id
+	return enemy_ai_reservation_state_service.is_engagement_reserved_for_other_actor(cell, enemy_actor_state.grid_cell, actor_slot_id)
 
 
 func _can_enemy_ai_use_destination_cell(cell: Vector2i, enemy_actor_state: BattleUnitState) -> bool:
@@ -12745,12 +12736,7 @@ func _reserve_enemy_ai_decision_plan_for_actor(enemy_actor_state: BattleUnitStat
 	if enemy_actor_state == null or decision_plan.is_empty():
 		return
 	var actor_slot_id := _get_capacity_slot_id_for_unit_state(enemy_actor_state)
-	var destination: Vector2i = decision_plan.get("destination", enemy_actor_state.grid_cell)
-	var final_cell: Vector2i = decision_plan.get("final_cell", destination)
-	if destination != enemy_actor_state.grid_cell:
-		enemy_ai_reserved_destination_cells[destination] = actor_slot_id
-	if final_cell != enemy_actor_state.grid_cell:
-		enemy_ai_reserved_engagement_cells[final_cell] = actor_slot_id
+	enemy_ai_reservation_state_service.reserve_decision_plan(enemy_actor_state.grid_cell, actor_slot_id, decision_plan)
 
 
 func _get_enemy_ai_action_priority(action_reason: String) -> int:
