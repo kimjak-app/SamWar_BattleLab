@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - recovery/worldmap-iso-sfx-services-20260912
+      - refactor/engine-core-20260918
 
 permissions:
   contents: read
@@ -74,6 +75,7 @@ jobs:
             tools/validate_worldmap_player_attack_deployment_service_extraction.py
             tools/validate_worldmap_wounded_recovery_service_extraction.py
             tools/validate_worldmap_to_battle_input_lifecycle.py
+            tools/validate_b0b_battle_production_skeleton.py
           )
           for validator in "${validators[@]}"; do
             echo "===== $validator ====="
@@ -162,7 +164,7 @@ jobs:
             timeout 120s godot --headless --path . --script "res://$test_script"
           done
 
-      - name: Project parse and WorldMap load
+      - name: Project parse and WorldMap/Battle Main load
         shell: bash
         run: |
           set -euo pipefail
@@ -186,6 +188,25 @@ jobs:
           GDSCRIPT
           timeout 120s godot --headless --path . --script res://tests/_ci_worldmap_scene_load.gd
           rm tests/_ci_worldmap_scene_load.gd
+          cat > tests/_ci_battle_main_scene_load.gd <<'GDSCRIPT'
+          extends SceneTree
+          func _initialize() -> void:
+              var packed := load("res://scenes/battle/Battle_Main.tscn") as PackedScene
+              if packed == null:
+                  push_error("[CI_BATTLE_MAIN_LOAD] failed to load Battle_Main.tscn")
+                  quit(1)
+                  return
+              var instance := packed.instantiate()
+              if instance == null:
+                  push_error("[CI_BATTLE_MAIN_LOAD] failed to instantiate Battle_Main.tscn")
+                  quit(1)
+                  return
+              print("[CI_BATTLE_MAIN_LOAD] PASS")
+              instance.free()
+              quit(0)
+          GDSCRIPT
+          timeout 120s godot --headless --path . --script res://tests/_ci_battle_main_scene_load.gd
+          rm tests/_ci_battle_main_scene_load.gd
 
       - name: Diff check
         shell: bash
