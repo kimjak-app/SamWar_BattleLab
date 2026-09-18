@@ -272,22 +272,31 @@ B-1 status:
 - B-1A refreshed the god-script function baseline and locked the first extraction boundary.
 - B-1B extracted `BattleMovementQueryService` with compatibility wrappers at HEAD `4169c1fcd3cbf2be20cd582b6c908a6dc1db1372`.
 - B-1B-hotfix1 cleaned only the focused movement-test fixture teardown at HEAD `e601750b42bd05618cb5bfc7aaa6737d2dc22698`.
-- B-1C extracted `BattleCombatQueryService` at HEAD `da58cd0bb3e868fc9ed9c744a48cb5a86b738438`.
-- B-1C exact-head workflow run `35335987381` completed successfully.
+- B-1C extracted `BattleCombatQueryService`; the focused wrapper-parity fixture was corrected at final HEAD `e226ff02606182f3d97af25eddf35cf833b295e6`.
+- B-1C final exact-head workflow run `35338064619` completed successfully with the combat focused test executing 29 checks / 0 failures and no hidden compile/invalid-call errors.
 - Current `scripts/battle_web_import_test.gd`: 665,425 bytes / 15,859 lines / 859 functions.
 - Existing caller surfaces remain compatibility wrappers; function count is therefore intentionally unchanged.
-- Damage calculation, AI scoring, attack execution, turn/phase sequencing, animation, BattleContext/BattleResult, and WorldMap handoff remain outside the B-1C service.
+- AI scoring, attack execution, turn/phase sequencing, animation, BattleContext/BattleResult, and WorldMap handoff remain outside B-1C.
+
+B-1D audit decision:
+
+- Next coherent responsibility is the **pre-wounded damage formula core**.
+- Wounded hero lookup, wounded multipliers/logging, attack execution, AI scoring, and skill orchestration remain controller-side.
+- B-1D audit: `agent/BATTLE_ENGINE_B1D_DAMAGE_FORMULA_AUDIT_20260918.md`.
+- Codex execution brief: `agent/BATTLE_ENGINE_B1D_CODEX_DAMAGE_FORMULA_EXTRACTION_20260918.md`.
 
 Current next action:
 
-**B-1D | Audit the next coherent battle responsibility before implementation.**
+**B-1D | Extract BattleDamageFormulaService with compatibility wrappers.**
 
-Do not begin another extraction from historical line numbers. Re-read the current HEAD and choose the smallest responsibility that can move without changing combat behavior. In particular, do not merge damage-resolution work with AI, attack execution, or presentation merely to reduce line count.
+Do not combine the extraction with wounded strategic-state ownership, AI, attack execution, target selection, or presentation. Preserve the current modifier order and two-stage gunner rounding exactly.
 
 Relevant current records:
 
 - `agent/BATTLE_ENGINE_B1A_CURRENT_FUNCTION_AUDIT_20260918.md`
 - `agent/BATTLE_ENGINE_B1B_CODEX_MOVEMENT_QUERY_EXTRACTION_20260918.md`
 - `agent/BATTLE_ENGINE_B1C_COMBAT_QUERY_EXTRACTION_20260918.md`
+- `agent/BATTLE_ENGINE_B1D_DAMAGE_FORMULA_AUDIT_20260918.md`
+- `agent/BATTLE_ENGINE_B1D_CODEX_DAMAGE_FORMULA_EXTRACTION_20260918.md`
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
