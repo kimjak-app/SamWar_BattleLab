@@ -1,7 +1,6 @@
 extends SceneTree
 
 const CombatQueryServiceScript := preload("res://scripts/battle/services/battle_combat_query_service.gd")
-const BattleControllerScript := preload("res://scripts/battle/battle_controller.gd")
 
 var _checks := 0
 var _failures := 0
@@ -17,7 +16,7 @@ func _run() -> void:
 	_test_opposite_facing_queries()
 	_test_attack_angle_queries()
 	_test_attack_range_queries()
-	_test_controller_wrapper_parity()
+	await _test_controller_wrapper_parity()
 	print("[BATTLE_COMBAT_QUERY_SERVICE] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
 
@@ -74,7 +73,13 @@ func _test_attack_range_queries() -> void:
 
 
 func _test_controller_wrapper_parity() -> void:
-	var controller := BattleControllerScript.new()
+	var packed := load("res://scenes/battle/Battle_Main.tscn") as PackedScene
+	_expect(packed != null, "Battle_Main loads for combat wrapper parity")
+	if packed == null:
+		return
+	var controller := packed.instantiate()
+	root.add_child(controller)
+	await process_frame
 	var attacker := _unit("infantry", Vector2i(3, 2))
 	var defender := _unit("infantry", Vector2i(2, 2))
 	defender.facing = "right"
@@ -83,6 +88,21 @@ func _test_controller_wrapper_parity() -> void:
 	_expect(controller.call("_get_attack_angle_type", attacker, defender) == _service.get_attack_angle_type(attacker, defender), "attack-angle wrapper parity")
 	_expect(controller.call("is_unit_in_attack_range", attacker, defender) == _service.is_unit_in_attack_range(attacker, defender, 1), "attack-range wrapper parity")
 	controller.free()
+	await _finish_fixture_audio()
+	await process_frame
+
+
+func _finish_fixture_audio() -> void:
+	var game_audio := root.get_node_or_null("GameAudio")
+	if game_audio == null:
+		return
+	for child in game_audio.get_children():
+		var voice := child as AudioStreamPlayer
+		if voice != null:
+			if voice.playing:
+				await voice.finished
+			voice.stop()
+			voice.stream = null
 
 
 func _unit(unit_type: String, cell: Vector2i) -> BattleUnitState:
