@@ -27,6 +27,14 @@ for name in production:
     assert expected in text, f"legacy wrapper does not delegate: {name}"
     assert "class_name " not in text, f"legacy wrapper duplicates class_name: {name}"
 
+production_scene = (ROOT / "tests/scenes/Battle_UI_Production_Test.tscn").read_text(encoding="utf-8")
+assert 'path="res://scripts/battle/battle_controller.gd"' in production_scene
+assert 'path="res://scripts/battle_web_import_test.gd"' not in production_scene
+
+imjin_scenario = (ROOT / "tests/scripts/battle_ui_production_imjin_test.gd").read_text(encoding="utf-8")
+assert 'extends "res://scripts/battle/battle_controller.gd"' in imjin_scenario
+assert 'extends "res://scripts/battle_web_import_test.gd"' not in imjin_scenario
+
 iso_test = (ROOT / "tests/scripts/battle_ui_production_imjin_iso_movement_test.gd").read_text(encoding="utf-8")
 for name in production:
     assert f"res://scripts/battle/presentation/iso/{name}" in iso_test
