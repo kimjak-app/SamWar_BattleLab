@@ -7,6 +7,7 @@ const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_re
 const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
 const BattleHudStateAdapterScript := preload("res://scripts/battle/ui/battle_hud_state_adapter.gd")
 const BattleMovementQueryServiceScript := preload("res://scripts/battle/services/battle_movement_query_service.gd")
+const BattleCombatQueryServiceScript := preload("res://scripts/battle/services/battle_combat_query_service.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -875,6 +876,7 @@ const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 
 var movement_query_service := BattleMovementQueryServiceScript.new()
+var combat_query_service := BattleCombatQueryServiceScript.new()
 var is_demo_animating := false
 var ally_has_moved := false
 var ally_has_manual_facing := false
@@ -5418,43 +5420,15 @@ func _get_side_display_name(side: String) -> String:
 
 
 func _get_direction_from_positions(from_cell: Vector2i, to_cell: Vector2i) -> String:
-	var delta := to_cell - from_cell
-	if absi(delta.x) >= absi(delta.y):
-		if delta.x > 0:
-			return FACING_RIGHT
-		if delta.x < 0:
-			return FACING_LEFT
-	if delta.y > 0:
-		return FACING_DOWN
-	if delta.y < 0:
-		return FACING_UP
-	return FACING_RIGHT
+	return combat_query_service.get_direction_from_positions(from_cell, to_cell)
 
 
 func _get_opposite_facing(facing: String) -> String:
-	match _normalize_facing(facing):
-		FACING_LEFT:
-			return FACING_RIGHT
-		FACING_RIGHT:
-			return FACING_LEFT
-		FACING_UP:
-			return FACING_DOWN
-		FACING_DOWN:
-			return FACING_UP
-		_:
-			return FACING_LEFT
+	return combat_query_service.get_opposite_facing(facing)
 
 
 func _get_attack_angle_type(attacker_state: BattleUnitState, defender_state: BattleUnitState) -> String:
-	if attacker_state == null or defender_state == null:
-		return ATTACK_ANGLE_FRONT
-	var incoming_direction := _get_direction_from_positions(defender_state.grid_cell, attacker_state.grid_cell)
-	var defender_facing := _normalize_facing(defender_state.facing)
-	if incoming_direction == defender_facing:
-		return ATTACK_ANGLE_FRONT
-	if incoming_direction == _get_opposite_facing(defender_facing):
-		return ATTACK_ANGLE_BACK
-	return ATTACK_ANGLE_SIDE
+	return combat_query_service.get_attack_angle_type(attacker_state, defender_state)
 
 
 func _get_attack_angle_damage_multiplier(angle_type: String) -> float:
@@ -14952,7 +14926,7 @@ func is_unit_in_attack_range(attacker: BattleUnitState, target: BattleUnitState)
 		return false
 
 	var distance := get_unit_grid_distance(attacker, target)
-	return UnitTypeContractScript.can_unit_attack(attacker.unit_type, attacker.has_moved, attacker.has_acted, distance)
+	return combat_query_service.is_unit_in_attack_range(attacker, target, distance)
 
 
 func is_enemy_in_active_attack_range() -> bool:
