@@ -85,6 +85,9 @@ func _test_controller_wrapper_parity() -> void:
 	var controller := packed.instantiate()
 	root.add_child(controller)
 	await process_frame
+	_expect(not bool(controller.call("_is_enemy_ai_destination_cell_reserved_for_other_actor", Vector2i(1, 1), null)), "destination wrapper preserves null actor behavior")
+	_expect(not bool(controller.call("_is_enemy_ai_engagement_cell_reserved_for_other_actor", Vector2i(1, 1), null)), "engagement wrapper preserves null actor behavior")
+	controller.call("_reserve_enemy_ai_decision_plan_for_actor", null, {"destination": Vector2i(1, 1)})
 	var enemies: Array[BattleUnitState] = controller.call("_get_alive_enemy_units")
 	_expect(not enemies.is_empty(), "Battle_Main fixture provides an alive enemy")
 	if enemies.is_empty():
