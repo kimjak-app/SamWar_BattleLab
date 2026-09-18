@@ -2,9 +2,12 @@ extends "res://tests/scripts/battle_ui_production_imjin_test.gd"
 
 ## ISO_MOVEMENT_EXPERIMENT_V4
 ##
-## Imjin test-only presentation experiment. Generic ISO render/projection modules
-## now come from production ownership; scenario-only presentation policy remains here.
-## Combat rules remain on the inherited orthogonal logical grid.
+## Imjin test-only presentation experiment.
+## Combat rules remain on the inherited orthogonal logical grid (18x10,
+## Manhattan range/path/facing). Parent initialization MUST run on that original
+## controller first so authored deployment markers become the same logical cells
+## as the production Imjin test. Only after state initialization do we swap the
+## screen projection to a 3/4 isometric board.
 
 const IsoGridProjectionScript := preload("res://scripts/battle/presentation/iso/battle_iso_grid_projection.gd")
 const IsoRangeOverlayTileScript := preload("res://scripts/battle/presentation/iso/battle_iso_range_overlay_tile.gd")
@@ -20,7 +23,10 @@ var _iso_grid_controller: BattleGridController = null
 
 
 func _ready() -> void:
+	# IMPORTANT: let the production Imjin test derive its logical grid cells from
+	# the authored scene markers using the original orthogonal controller first.
 	super._ready()
+
 	_install_iso_grid_projection()
 	_collect_move_range_cells()
 	_apply_facing_arrow_panel_visual_style()
@@ -35,12 +41,18 @@ func _ready() -> void:
 
 
 func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
+	# Enemy AI does not require player-facing tactical range overlays. Clear any
+	# leftover ally overlay before each enemy actor so every enemy is presented
+	# consistently instead of the legacy primary enemy occasionally exposing one.
 	_hide_enemy_tactical_range_overlays()
 	super._play_enemy_ai_for_actor(enemy_actor_state)
 
 
 func _begin_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	if caster_state != null and caster_state.side == "enemy":
+		# Preserve the original preview timing/skill sequence, but do not expose the
+		# purple target/range grid for AI-controlled enemies. This keeps all enemy
+		# actors visually consistent while leaving combat authority untouched.
 		is_demo_animating = true
 		_hide_facing_selection_panel()
 		_hide_enemy_tactical_range_overlays()
@@ -61,14 +73,21 @@ func _hide_enemy_tactical_range_overlays() -> void:
 
 
 func _configure_ally_ready_frames() -> void:
+	# Legacy yellow READY frames were an early active-turn visibility experiment.
+	# The current battle UI no longer uses that cue, so do not style or start it.
 	_disable_legacy_ally_ready_frames()
 
 
 func _update_ally_ready_frames() -> void:
+	# The production controller calls this every frame and at many turn-transition
+	# points. Keep the retired cue permanently suppressed instead of briefly
+	# showing a yellow border and hiding it again on the next update.
 	_disable_legacy_ally_ready_frames()
 
 
 func _start_ready_frame_pulse(frame: Control) -> void:
+	# Defensive no-op: even if an inherited path explicitly asks to start the old
+	# READY pulse, kill any existing tween and keep the frame hidden.
 	if frame == null:
 		return
 	_stop_ready_frame_pulse(frame)
@@ -93,10 +112,18 @@ func _disable_legacy_ally_ready_frames() -> void:
 
 
 func _play_active_ally_turn_pulse(_unit_state: BattleUnitState) -> void:
+	# The inherited turn cue scales battlefield visuals. In this ISO test that
+	# reads as a transient overlay/pop on the unit token during F6 startup and at
+	# each new ally turn. Active-unit state is already communicated by the roster,
+	# move range and facing UI, so keep the battlefield sprite completely stable.
 	_stop_active_ally_turn_pulse()
 
 
 func _start_idle_breathing() -> void:
+	# Production continuously scales every troop token 1.00 -> 1.035 -> 1.00 on
+	# a 1.15 s loop. On these small transparent isometric PNGs, repeated subpixel
+	# resampling reads as a flicker / dark rectangular fringe. Keep troop sprites
+	# at their authored base scale in this ISO experiment.
 	_stop_idle_breathing()
 	for unit_state in _get_all_unit_states_in_slot_order():
 		if unit_state == null:
@@ -119,6 +146,8 @@ func _install_iso_grid_projection() -> void:
 
 
 func _snap_deployed_units_to_iso_grid() -> void:
+	# Logical cells were already established by the production test. Reposition
+	# only their visual markers onto the corresponding isometric cell centers.
 	for unit_state in _get_all_unit_states_in_slot_order():
 		if unit_state == null:
 			continue
@@ -129,6 +158,11 @@ func _snap_deployed_units_to_iso_grid() -> void:
 
 
 func _sync_primary_ally_runtime_cache_to_iso_grid() -> void:
+	# ally_main_01 (Yi Sun-sin in the Imjin test) is special in the inherited
+	# battle controller: its visual base anchor reads these cached positions.
+	# After snapping the marker to the iso cell, refresh the cache before
+	# _sync_demo_positions() rebuilds the visual group or the model and overlay
+	# separate again.
 	if ally_unit_marker != null:
 		current_ally_unit_position = ally_unit_marker.position
 	if ally_portrait_marker != null:
@@ -161,6 +195,9 @@ func _show_move_highlight_at_position(world_position: Vector2) -> void:
 		if cell_size.x > 0.0 and cell_size.y > 0.0:
 			highlight_size = cell_size
 
+	# Base feedback writes the desired valid/invalid tint into ColorRect.color
+	# immediately before this call. Preserve it, then clear the rectangular fill
+	# and render the same feedback as an isometric chamfered diamond instead.
 	var requested_fill := move_highlight.color
 	move_highlight.position = world_position - (highlight_size * 0.5)
 	move_highlight.size = highlight_size
@@ -183,6 +220,11 @@ func _apply_facing_arrow_button_style(button: Button) -> void:
 
 
 func _position_facing_arrow_panel_near_ally() -> void:
+	# The inherited placement still uses logical neighbor cells. Because the
+	# controller now projects those centers, the four buttons land on the four
+	# diagonal 3/4-view directions automatically. Draw the arrows ourselves so
+	# their slope matches the actual iso cell axes instead of Unicode 45-degree
+	# glyphs.
 	super._position_facing_arrow_panel_near_ally()
 	_configure_iso_facing_arrow(face_up_arrow_button, Vector2(1.0, -1.0))
 	_configure_iso_facing_arrow(face_down_arrow_button, Vector2(-1.0, 1.0))
@@ -202,6 +244,9 @@ func _configure_iso_facing_arrow(button: Button, direction_sign: Vector2) -> voi
 
 
 func _refresh_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
+	# Let production logic keep ownership of visibility, positioning and toast
+	# suppression. Once the iso controller exists, replace only the glyph drawing
+	# with a vector arrow using the exact same projected basis as movement.
 	super._refresh_facing_indicator_for_unit(unit_state)
 	if _iso_grid_controller == null or unit_state == null:
 		return
@@ -235,6 +280,8 @@ func _get_iso_pixel_direction_for_facing(facing: String) -> Vector2:
 
 
 func _get_facing_arrow_text(facing: String) -> String:
+	# Fallback used only before the iso projection is installed. Runtime unit
+	# indicators are vector-drawn by _refresh_facing_indicator_for_unit().
 	match _normalize_facing(facing):
 		FACING_UP:
 			return "↗"
