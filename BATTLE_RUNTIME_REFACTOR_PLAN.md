@@ -278,18 +278,25 @@ B-1 status:
 - Existing caller surfaces remain compatibility wrappers; function count is therefore intentionally unchanged.
 - AI scoring, attack execution, turn/phase sequencing, animation, BattleContext/BattleResult, and WorldMap handoff remain outside B-1C.
 
-B-1D audit decision:
+- B-1D extracted `BattleDamageFormulaService` at final HEAD `edfc67e25972b99031943c6575ccdf4b587c9d69`.
+- B-1D exact-head workflow run `35340079442` completed successfully.
+- Damage focused regression: 33 checks / 0 failures; hidden script/compile/load/invalid-call scan clean.
+- Current `scripts/battle_web_import_test.gd`: 661,683 bytes / 15,806 lines / 859 functions.
+- Wounded hero lookup/adjustment/logging remains controller-owned by design.
 
-- Next coherent responsibility is the **pre-wounded damage formula core**.
-- Wounded hero lookup, wounded multipliers/logging, attack execution, AI scoring, and skill orchestration remain controller-side.
-- B-1D audit: `agent/BATTLE_ENGINE_B1D_DAMAGE_FORMULA_AUDIT_20260918.md`.
-- Codex execution brief: `agent/BATTLE_ENGINE_B1D_CODEX_DAMAGE_FORMULA_EXTRACTION_20260918.md`.
+B-1E audit decision:
+
+- Next coherent responsibility is **acted-id action-lock bookkeeping and acted-state queries**.
+- The two acted-id registries also participate in battle-resume snapshot persistence and dead-unit cleanup.
+- Status consumption, `BattleUnitState` action-flag mutation, enemy logging, ally `ally_has_moved` mirror, AI reservations, phase/round sequencing, and GameSession snapshot I/O remain controller-owned.
+- B-1E audit: `agent/BATTLE_ENGINE_B1E_ACTION_LOCK_STATE_AUDIT_20260918.md`.
+- Codex execution brief: `agent/BATTLE_ENGINE_B1E_CODEX_ACTION_LOCK_STATE_EXTRACTION_20260918.md`.
 
 Current next action:
 
-**B-1D | Extract BattleDamageFormulaService with compatibility wrappers.**
+**B-1E | Extract BattleActionLockStateService with compatibility wrappers and exact resume-key compatibility.**
 
-Do not combine the extraction with wounded strategic-state ownership, AI, attack execution, target selection, or presentation. Preserve the current modifier order and two-stage gunner rounding exactly.
+Do not combine this extraction with turn orchestration, AI policy, status ticking, action-flag lifecycle, dead-unit cleanup beyond registry erase delegation, or resume schema changes.
 
 Relevant current records:
 
@@ -298,5 +305,7 @@ Relevant current records:
 - `agent/BATTLE_ENGINE_B1C_COMBAT_QUERY_EXTRACTION_20260918.md`
 - `agent/BATTLE_ENGINE_B1D_DAMAGE_FORMULA_AUDIT_20260918.md`
 - `agent/BATTLE_ENGINE_B1D_CODEX_DAMAGE_FORMULA_EXTRACTION_20260918.md`
+- `agent/BATTLE_ENGINE_B1E_ACTION_LOCK_STATE_AUDIT_20260918.md`
+- `agent/BATTLE_ENGINE_B1E_CODEX_ACTION_LOCK_STATE_EXTRACTION_20260918.md`
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
