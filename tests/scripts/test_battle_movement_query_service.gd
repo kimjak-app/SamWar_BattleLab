@@ -116,7 +116,21 @@ func _test_controller_wrapper_parity() -> void:
 			_expect(false, "enemy fixture has a reachable destination")
 		_expect(battle.call("get_unit_grid_distance", ally, enemy) == _service.get_unit_grid_distance(ally, enemy), "controller Manhattan wrapper parity")
 	battle.free()
+	await _finish_fixture_audio()
 	await process_frame
+
+
+func _finish_fixture_audio() -> void:
+	var game_audio := root.get_node_or_null("GameAudio")
+	if game_audio == null:
+		return
+	for child in game_audio.get_children():
+		var voice := child as AudioStreamPlayer
+		if voice != null:
+			if voice.playing:
+				await voice.finished
+			voice.stop()
+			voice.stream = null
 
 
 func _first_reachable_destination(mover: BattleUnitState, grid: BattleGridController, alive_units: Array[BattleUnitState]) -> Vector2i:
