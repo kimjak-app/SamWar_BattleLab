@@ -264,24 +264,30 @@ Verified on 2026-09-18:
 - B-0A ownership audit recorded in `agent/BATTLE_RUNTIME_OWNERSHIP_AUDIT_20260918.md`.
 - B-0B canonical production boundary created as `scenes/battle/Battle_Main.tscn` + `scripts/battle/battle_controller.gd`.
 - B-0C generic ISO presentation modules promoted into `scripts/battle/presentation/iso/`.
-- Production HUD and Imjin scenario consumers now route through `scripts/battle/battle_controller.gd`.
-- B-0C final HEAD `1a9b8fb05323f825ca9ef5f8adbe3d61f64872c3` passed workflow run `35290623012`.
-- WorldMap still intentionally enters `res://Battle_Land.tscn`.
+- Production HUD and Imjin scenario consumers route through `scripts/battle/battle_controller.gd`.
+- WorldMap still intentionally enters `res://Battle_Land.tscn`; do not switch it before the parity gate.
 
-B-1A refreshed the current god-script baseline:
+B-1 status:
 
-- `scripts/battle_web_import_test.gd`: 669,000 bytes / 16,046 lines / 859 functions.
-- Historical function-map line numbers are no longer authoritative.
-- Current audit: `agent/BATTLE_ENGINE_B1A_CURRENT_FUNCTION_AUDIT_20260918.md`.
+- B-1A refreshed the god-script function baseline and locked the first extraction boundary.
+- B-1B extracted `BattleMovementQueryService` with compatibility wrappers at HEAD `4169c1fcd3cbf2be20cd582b6c908a6dc1db1372`.
+- B-1B-hotfix1 cleaned only the focused movement-test fixture teardown at HEAD `e601750b42bd05618cb5bfc7aaa6737d2dc22698`.
+- B-1C extracted `BattleCombatQueryService` at HEAD `da58cd0bb3e868fc9ed9c744a48cb5a86b738438`.
+- B-1C exact-head workflow run `35335987381` completed successfully.
+- Current `scripts/battle_web_import_test.gd`: 665,425 bytes / 15,859 lines / 859 functions.
+- Existing caller surfaces remain compatibility wrappers; function count is therefore intentionally unchanged.
+- Damage calculation, AI scoring, attack execution, turn/phase sequencing, animation, BattleContext/BattleResult, and WorldMap handoff remain outside the B-1C service.
 
-Current next task:
+Current next action:
 
-**B-1B | Extract BattleMovementQueryService with compatibility wrappers**
+**B-1D | Audit the next coherent battle responsibility before implementation.**
 
-Implementation brief for Codex:
+Do not begin another extraction from historical line numbers. Re-read the current HEAD and choose the smallest responsibility that can move without changing combat behavior. In particular, do not merge damage-resolution work with AI, attack execution, or presentation merely to reduce line count.
 
-`agent/BATTLE_ENGINE_B1B_CODEX_MOVEMENT_QUERY_EXTRACTION_20260918.md`
+Relevant current records:
 
-The first extraction is limited to synchronous Grid/Path query logic. Do not combine it with AI decisions, move animation, selection flow, attack range, turn orchestration, or WorldMap handoff.
+- `agent/BATTLE_ENGINE_B1A_CURRENT_FUNCTION_AUDIT_20260918.md`
+- `agent/BATTLE_ENGINE_B1B_CODEX_MOVEMENT_QUERY_EXTRACTION_20260918.md`
+- `agent/BATTLE_ENGINE_B1C_COMBAT_QUERY_EXTRACTION_20260918.md`
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
