@@ -48,6 +48,7 @@ M5_TURN_CONTROLLER_CHECKPOINT = "a9b00b5"
 M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT = "751b6a07d3e66449f8b2cd27f9685d3e9ed1b98e"
 M_FINAL_B_PRE_CLEANUP_CHECKPOINT = "83d3b00fdf383d7a5acc17970fe9c3e08ee742bd"
 M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT = "9a8617e2f4b1bd8dce7f04c2a4e0fd9f0ef05d30"
+WORLDMAP_WARNING_CLEANUP_CHECKPOINT = "c098fb7e92006103c630aefb20b99067e2822caf"
 
 EXPECTED_C_TRACK_CHANGED_FILES = {
     "docs/worldmap_city_administration_c1_audit.md",
@@ -134,11 +135,24 @@ def main() -> None:
     _git_show(M_FINAL_A_DOMAIN_OWNERSHIP_CHECKPOINT, MAIN)
     _git_show(M_FINAL_B_PRE_CLEANUP_CHECKPOINT, MAIN)
     m_final_b_main = _git_show(M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT, MAIN)
+    warning_cleanup_main = _git_show(WORLDMAP_WARNING_CLEANUP_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
 
-    assert current_main == m_final_b_main, (
-        "worldmap_main.gd changed after the approved M-FINAL-B hub-closeout "
+    assert current_main == warning_cleanup_main, (
+        "worldmap_main.gd changed after the approved WorldMap warning-cleanup "
         "checkpoint; review a new exact delta instead of relaxing diplomacy routing"
+    )
+
+    warning_cleanup_delta_files = _git_changed_files(
+        M_FINAL_B_HUB_CLOSEOUT_CHECKPOINT,
+        WORLDMAP_WARNING_CLEANUP_CHECKPOINT,
+    )
+    assert warning_cleanup_delta_files == {
+        MAIN,
+        "scripts/worldmap/ui/worldmap_shared_ui_controller.gd",
+    }, (
+        "WorldMap warning-cleanup scope changed: "
+        f"actual={sorted(warning_cleanup_delta_files)}"
     )
 
     final_delta_files = _git_changed_files(
@@ -206,7 +220,7 @@ def main() -> None:
 
     print(
         "PASS: diplomacy routing guard + exact C-1/C-2/C-3/M-5/M-FINAL-A/M-FINAL-B "
-        "main checkpoint bridge; historical T-4 guard preserved"
+        "+ WorldMap warning-cleanup checkpoint bridge; historical T-4 guard preserved"
     )
 
 
