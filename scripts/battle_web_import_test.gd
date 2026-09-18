@@ -6,6 +6,7 @@ const BattleMomentumStateScript := preload("res://scripts/battle/battle_momentum
 const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_resolver.gd")
 const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
 const BattleHudStateAdapterScript := preload("res://scripts/battle/ui/battle_hud_state_adapter.gd")
+const BattleMovementQueryServiceScript := preload("res://scripts/battle/services/battle_movement_query_service.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -873,6 +874,7 @@ const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 
+var movement_query_service := BattleMovementQueryServiceScript.new()
 var is_demo_animating := false
 var ally_has_moved := false
 var ally_has_manual_facing := false
@@ -14622,14 +14624,7 @@ func get_active_move_range() -> int:
 
 
 func _get_effective_move_range(unit_state: BattleUnitState) -> int:
-	if unit_state == null:
-		return 0
-	var result := unit_state.move_range
-	if unit_state.has_status_effect("mobility_up"):
-		result += 1
-	if unit_state.has_status_effect("movement_down"):
-		result -= 1
-	return maxi(result, 0)
+	return movement_query_service.get_effective_move_range(unit_state)
 
 
 func _get_all_alive_unit_states() -> Array[BattleUnitState]:
@@ -14661,21 +14656,11 @@ func _get_fallback_all_alive_unit_states() -> Array[BattleUnitState]:
 
 
 func _get_occupied_cells_except(unit_state: BattleUnitState) -> Array[Vector2i]:
-	var cells: Array[Vector2i] = []
-	if ALLOW_BREAKTHROUGH_MOVE:
-		return cells
-	for alive_unit_state in _get_all_alive_unit_states():
-		if alive_unit_state == unit_state:
-			continue
-		cells.append(alive_unit_state.grid_cell)
-	return cells
+	return movement_query_service.get_occupied_cells_except(_get_all_alive_unit_states(), unit_state, ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _is_cell_occupied_except(cell: Vector2i, unit_state: BattleUnitState) -> bool:
-	for occupied_cell in _get_occupied_cells_except(unit_state):
-		if occupied_cell == cell:
-			return true
-	return false
+	return movement_query_service.is_cell_occupied_except(cell, _get_all_alive_unit_states(), unit_state, ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _get_occupied_cells_for_move() -> Array[Vector2i]:
@@ -14693,14 +14678,16 @@ func _is_valid_destination_for_unit(target_cell: Vector2i, mover_state: BattleUn
 		return false
 	if not battle_grid_controller.is_in_bounds(target_cell):
 		return false
-	if _is_cell_occupied_except(target_cell, mover_state):
+	var alive_unit_states := _get_all_alive_unit_states()
+	var is_valid := movement_query_service.is_valid_destination_for_unit(target_cell, mover_state, battle_grid_controller, alive_unit_states, ALLOW_BREAKTHROUGH_MOVE)
+	if not is_valid and movement_query_service.is_cell_occupied_except(target_cell, alive_unit_states, mover_state, ALLOW_BREAKTHROUGH_MOVE):
 		if should_log:
 			print("[OCCUPIED BLOCK] mover=%s target=%s occupied_by_other=true" % [
 				mover_state.display_name,
 				target_cell,
 			])
 		return false
-	return true
+	return is_valid
 
 
 func _is_path_clear_for_unit(path: Array[Vector2i], mover_state: BattleUnitState, should_log: bool = false) -> bool:
@@ -14708,31 +14695,28 @@ func _is_path_clear_for_unit(path: Array[Vector2i], mover_state: BattleUnitState
 		return false
 	if path.is_empty():
 		return false
-
+	var alive_unit_states := _get_all_alive_unit_states()
+	var is_clear := movement_query_service.is_path_clear_for_unit(path, mover_state, alive_unit_states, ALLOW_BREAKTHROUGH_MOVE)
+	if is_clear:
+		return true
 	for index in range(path.size()):
 		if index == 0:
 			continue
 		var cell := path[index]
-		if _is_cell_occupied_except(cell, mover_state):
+		if movement_query_service.is_cell_occupied_except(cell, alive_unit_states, mover_state, ALLOW_BREAKTHROUGH_MOVE):
 			if should_log:
 				print("[PATH BLOCK] mover=%s blocked_cell=%s" % [
 					mover_state.display_name,
 					cell,
 				])
 			return false
-	return true
+	return is_clear
 
 
 func _is_cell_walkable_for_ally(cell: Vector2i, start_cell: Vector2i) -> bool:
 	if battle_grid_controller == null:
 		return false
-	if not battle_grid_controller.is_in_bounds(cell):
-		return false
-	if cell == start_cell:
-		return true
-	if _is_cell_occupied_except(cell, active_unit_state):
-		return false
-	return true
+	return movement_query_service.is_cell_walkable(cell, start_cell, active_unit_state, battle_grid_controller, _get_all_alive_unit_states(), ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _find_ally_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
@@ -14741,56 +14725,8 @@ func _find_ally_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[
 		return empty_path
 	if start_cell == target_cell:
 		return [start_cell]
-	if not _is_valid_destination_for_unit(target_cell, active_unit_state):
-		return empty_path
-	if not _is_cell_walkable_for_ally(target_cell, start_cell):
-		return empty_path
-
 	var max_steps := get_active_move_range()
-	var frontier: Array[Vector2i] = [start_cell]
-	var came_from: Dictionary = {start_cell: start_cell}
-	var steps_from_start: Dictionary = {start_cell: 0}
-	var directions: Array[Vector2i] = [
-		Vector2i(1, 0),
-		Vector2i(-1, 0),
-		Vector2i(0, 1),
-		Vector2i(0, -1),
-	]
-
-	while not frontier.is_empty():
-		var current: Vector2i = frontier.pop_front()
-		if current == target_cell:
-			break
-
-		var current_steps: int = steps_from_start.get(current, 0)
-		if current_steps >= max_steps:
-			continue
-
-		for direction in directions:
-			var next: Vector2i = current + direction
-			if came_from.has(next):
-				continue
-			if not _is_cell_walkable_for_ally(next, start_cell):
-				continue
-			came_from[next] = current
-			steps_from_start[next] = current_steps + 1
-			frontier.append(next)
-
-	if not came_from.has(target_cell):
-		return empty_path
-
-	var path: Array[Vector2i] = []
-	var cursor: Vector2i = target_cell
-	while cursor != start_cell:
-		path.push_front(cursor)
-		cursor = came_from[cursor]
-	path.push_front(start_cell)
-
-	if path.size() - 1 > max_steps:
-		return empty_path
-	if not _is_path_clear_for_unit(path, active_unit_state):
-		return empty_path
-	return path
+	return movement_query_service.find_move_path(start_cell, target_cell, active_unit_state, max_steps, battle_grid_controller, _get_all_alive_unit_states(), ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _get_occupied_cells_for_enemy_move() -> Array[Vector2i]:
@@ -14807,13 +14743,7 @@ func _is_cell_walkable_for_enemy(cell: Vector2i, start_cell: Vector2i) -> bool:
 func _is_cell_walkable_for_enemy_actor(enemy_actor_state: BattleUnitState, cell: Vector2i, start_cell: Vector2i) -> bool:
 	if battle_grid_controller == null:
 		return false
-	if not battle_grid_controller.is_in_bounds(cell):
-		return false
-	if cell == start_cell:
-		return true
-	if _is_cell_occupied_except(cell, enemy_actor_state):
-		return false
-	return true
+	return movement_query_service.is_cell_walkable(cell, start_cell, enemy_actor_state, battle_grid_controller, _get_all_alive_unit_states(), ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
@@ -14835,58 +14765,10 @@ func _find_enemy_path_to_destination_for_actor(enemy_actor_state: BattleUnitStat
 		return empty_path
 	if start_cell == target_cell:
 		return [start_cell]
-	if not _is_valid_destination_for_unit(target_cell, enemy_actor_state):
-		return empty_path
-	if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, target_cell, start_cell):
-		return empty_path
-
 	var max_steps := _get_effective_move_range(enemy_actor_state)
 	if max_steps_override >= 0:
 		max_steps = max_steps_override
-	var frontier: Array[Vector2i] = [start_cell]
-	var came_from: Dictionary = {start_cell: start_cell}
-	var steps_from_start: Dictionary = {start_cell: 0}
-	var directions: Array[Vector2i] = [
-		Vector2i(1, 0),
-		Vector2i(-1, 0),
-		Vector2i(0, 1),
-		Vector2i(0, -1),
-	]
-
-	while not frontier.is_empty():
-		var current: Vector2i = frontier.pop_front()
-		if current == target_cell:
-			break
-
-		var current_steps: int = steps_from_start.get(current, 0)
-		if current_steps >= max_steps:
-			continue
-
-		for direction in directions:
-			var next: Vector2i = current + direction
-			if came_from.has(next):
-				continue
-			if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, next, start_cell):
-				continue
-			came_from[next] = current
-			steps_from_start[next] = current_steps + 1
-			frontier.append(next)
-
-	if not came_from.has(target_cell):
-		return empty_path
-
-	var path: Array[Vector2i] = []
-	var cursor: Vector2i = target_cell
-	while cursor != start_cell:
-		path.push_front(cursor)
-		cursor = came_from[cursor]
-	path.push_front(start_cell)
-
-	if path.size() - 1 > max_steps:
-		return empty_path
-	if not _is_path_clear_for_unit(path, enemy_actor_state):
-		return empty_path
-	return path
+	return movement_query_service.find_move_path(start_cell, target_cell, enemy_actor_state, max_steps, battle_grid_controller, _get_all_alive_unit_states(), ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
@@ -14897,49 +14779,8 @@ func _get_enemy_reachable_paths_for_actor(enemy_actor_state: BattleUnitState, st
 	var reachable_paths: Dictionary = {}
 	if battle_grid_controller == null or enemy_actor_state == null:
 		return reachable_paths
-
-	var frontier: Array[Vector2i] = [start_cell]
-	var came_from: Dictionary = {start_cell: start_cell}
-	var steps_from_start: Dictionary = {start_cell: 0}
 	var max_steps := _get_effective_move_range(enemy_actor_state)
-	var directions: Array[Vector2i] = [
-		Vector2i(1, 0),
-		Vector2i(-1, 0),
-		Vector2i(0, 1),
-		Vector2i(0, -1),
-	]
-
-	while not frontier.is_empty():
-		var current: Vector2i = frontier.pop_front()
-		var current_steps: int = steps_from_start.get(current, 0)
-		if current_steps >= max_steps:
-			continue
-
-		for direction in directions:
-			var next: Vector2i = current + direction
-			if came_from.has(next):
-				continue
-			if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, next, start_cell):
-				continue
-			came_from[next] = current
-			steps_from_start[next] = current_steps + 1
-			frontier.append(next)
-
-	for cell_variant in came_from.keys():
-		var cell: Vector2i = cell_variant
-		if not _is_valid_destination_for_unit(cell, enemy_actor_state):
-			continue
-		var path: Array[Vector2i] = []
-		var cursor: Vector2i = cell
-		while cursor != start_cell:
-			path.push_front(cursor)
-			cursor = came_from[cursor]
-		path.push_front(start_cell)
-		if not _is_path_clear_for_unit(path, enemy_actor_state):
-			continue
-		reachable_paths[cell] = path
-
-	return reachable_paths
+	return movement_query_service.get_reachable_paths(start_cell, enemy_actor_state, max_steps, battle_grid_controller, _get_all_alive_unit_states(), ALLOW_BREAKTHROUGH_MOVE)
 
 
 func _choose_enemy_basic_ai_destination() -> Vector2i:
@@ -15085,9 +14926,7 @@ func _get_enemy_engagement_step_plan_for_actor(enemy_actor_state: BattleUnitStat
 
 
 func get_unit_grid_distance(attacker: BattleUnitState, target: BattleUnitState) -> int:
-	if attacker == null or target == null:
-		return 9999
-	return absi(attacker.grid_cell.x - target.grid_cell.x) + absi(attacker.grid_cell.y - target.grid_cell.y)
+	return movement_query_service.get_unit_grid_distance(attacker, target)
 
 
 func _debug_print_combat_distance(context: String) -> void:

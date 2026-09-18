@@ -77,6 +77,7 @@ jobs:
             tools/validate_worldmap_to_battle_input_lifecycle.py
             tools/validate_b0b_battle_production_skeleton.py
             tools/validate_b0c_battle_iso_promotion.py
+            tools/validate_b1b_battle_movement_query_service.py
           )
           for validator in "${validators[@]}"; do
             echo "===== $validator ====="
@@ -98,6 +99,7 @@ jobs:
             tests/scripts/test_world_turn_economy_service_extraction.gd
             tests/scripts/test_world_turn_state_service_extraction.gd
             tests/scripts/test_worldmap_turn_controller_extraction.gd
+            tests/scripts/test_battle_movement_query_service.gd
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="
