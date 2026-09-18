@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dchoagnqt2ei8"]
 
-[ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://d9b0ctlprod26" path="res://scripts/battle/battle_controller.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://cmyirxr2v7mhv" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
 [ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
 [ext_resource type="Texture2D" uid="uid://c0fpk2ahuyuaf" path="res://assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png" id="4_large_battlefield"]
