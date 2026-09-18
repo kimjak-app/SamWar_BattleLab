@@ -263,12 +263,25 @@ Verified on 2026-09-18:
 
 - B-0A ownership audit recorded in `agent/BATTLE_RUNTIME_OWNERSHIP_AUDIT_20260918.md`.
 - B-0B canonical production boundary created as `scenes/battle/Battle_Main.tscn` + `scripts/battle/battle_controller.gd`.
-- B-0B parity skeleton passed the Godot 4.6 import/load/regression workflow at HEAD `9516fa89ce8f0cd46eba7aecfb81bb719d694479`.
+- B-0C generic ISO presentation modules promoted into `scripts/battle/presentation/iso/`.
+- Production HUD and Imjin scenario consumers now route through `scripts/battle/battle_controller.gd`.
+- B-0C final HEAD `1a9b8fb05323f825ca9ef5f8adbe3d61f64872c3` passed workflow run `35290623012`.
+- WorldMap still intentionally enters `res://Battle_Land.tscn`.
 
-Current task:
+B-1A refreshed the current god-script baseline:
 
-**B-0C | Production Promotion / Parity Bridge**
+- `scripts/battle_web_import_test.gd`: 669,000 bytes / 16,046 lines / 859 functions.
+- Historical function-map line numbers are no longer authoritative.
+- Current audit: `agent/BATTLE_ENGINE_B1A_CURRENT_FUNCTION_AUDIT_20260918.md`.
 
-Batch 1 promotes the four generic ISO presentation modules into `scripts/battle/presentation/iso/`, keeps compatibility wrappers under `tests/scripts/`, and leaves Imjin/test-only presentation policy in tests. WorldMap remains on `res://Battle_Land.tscn` until parity gates are green.
+Current next task:
+
+**B-1B | Extract BattleMovementQueryService with compatibility wrappers**
+
+Implementation brief for Codex:
+
+`agent/BATTLE_ENGINE_B1B_CODEX_MOVEMENT_QUERY_EXTRACTION_20260918.md`
+
+The first extraction is limited to synchronous Grid/Path query logic. Do not combine it with AI decisions, move animation, selection flow, attack range, turn orchestration, or WorldMap handoff.
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
