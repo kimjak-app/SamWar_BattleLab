@@ -19,8 +19,8 @@ var _help_title_label: Label = null
 var _help_body_label: Label = null
 
 
-func configure(owner: Node, ui_root: CanvasLayer) -> void:
-	_owner = owner
+func configure(owner_node: Node, ui_root: CanvasLayer) -> void:
+	_owner = owner_node
 	_ui_root = ui_root
 
 

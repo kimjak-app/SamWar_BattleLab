@@ -711,9 +711,6 @@ var _world_calendar_service: WorldCalendarServiceScript = null
 var _world_turn_economy_service: WorldTurnEconomyServiceScript = null
 var _world_turn_state_service: WorldTurnStateServiceScript = null
 var _turn_controller: WorldMapTurnControllerScript = null
-var _worldmap_battle_entry_handoff_in_progress: bool:
-	get:
-		return _ensure_camera_controller().is_battle_entry_handoff_in_progress()
 var _chancellor_portrait_texture_rect: TextureRect = null
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
