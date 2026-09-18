@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://c9b0btmain026"]
+
+[ext_resource type="PackedScene" path="res://Battle_Land.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://d9b0ctlprod26" path="res://scripts/battle/battle_controller.gd" id="2_controller"]
+
+[node name="Battle_Fullscreen_Test" instance=ExtResource("1_base")]
+script = ExtResource("2_controller")
