@@ -1,4 +1,4 @@
-extends "res://scripts/battle_web_import_test.gd"
+extends "res://scripts/battle/battle_controller.gd"
 
 ## Demo/Test2 scenario only.
 ##
