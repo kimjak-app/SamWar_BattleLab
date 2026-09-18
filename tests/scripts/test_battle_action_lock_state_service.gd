@@ -188,14 +188,23 @@ func _test_controller_wrapper_parity() -> void:
 	_expect(enemy.get_status_turns("shake") == 1, "enemy wrapper consumes status on first completion")
 	controller.call("_mark_enemy_unit_acted", enemy)
 	_expect(enemy.get_status_turns("shake") == 1, "repeated enemy completion does not consume status twice")
-	var destination_reservations: Dictionary = controller.get("enemy_ai_reserved_destination_cells")
-	var engagement_reservations: Dictionary = controller.get("enemy_ai_reserved_engagement_cells")
-	destination_reservations[Vector2i(1, 1)] = "test"
-	engagement_reservations[Vector2i(2, 2)] = "test"
+	var reservation_service = controller.get("enemy_ai_reservation_state_service")
+	var reserved_destination := enemy.grid_cell + Vector2i(1, 0)
+	var reserved_engagement := enemy.grid_cell + Vector2i(2, 0)
+	controller.call("_reserve_enemy_ai_decision_plan_for_actor", enemy, {
+		"destination": reserved_destination,
+		"final_cell": reserved_engagement,
+	})
+	_expect(reservation_service != null, "enemy reset fixture exposes AI reservation service")
+	if reservation_service != null:
+		_expect(bool(reservation_service.is_destination_reserved_for_other_actor(reserved_destination, enemy.grid_cell + Vector2i(5, 5), "other-slot")), "enemy reset fixture creates destination reservation")
+		_expect(bool(reservation_service.is_engagement_reserved_for_other_actor(reserved_engagement, enemy.grid_cell + Vector2i(5, 5), "other-slot")), "enemy reset fixture creates engagement reservation")
 	enemy.is_defending = true
 	controller.call("_reset_enemy_action_locks_for_new_round")
 	_expect(not enemy.has_acted and not enemy.has_moved and not enemy.is_defending, "enemy reset preserves reset_action_flags")
-	_expect(destination_reservations.is_empty() and engagement_reservations.is_empty(), "enemy reset still clears AI reservations")
+	if reservation_service != null:
+		_expect(not bool(reservation_service.is_destination_reserved_for_other_actor(reserved_destination, enemy.grid_cell + Vector2i(5, 5), "other-slot")), "enemy reset still clears AI destination reservations")
+		_expect(not bool(reservation_service.is_engagement_reserved_for_other_actor(reserved_engagement, enemy.grid_cell + Vector2i(5, 5), "other-slot")), "enemy reset still clears AI engagement reservations")
 	_expect(not bool(controller.call("_has_enemy_unit_acted", enemy)), "enemy reset clears service registry")
 	_expect(controller.call("_get_first_available_ally_unit") == allies[0], "ally first-available wrapper preserves order")
 	_expect(controller.call("_get_next_available_enemy_ai_actor") == enemies[0], "enemy next-actor wrapper preserves slot order")
