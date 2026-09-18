@@ -52,10 +52,10 @@ assert "combat_query_service.get_opposite_facing" in controller
 assert "combat_query_service.get_attack_angle_type" in controller
 assert "combat_query_service.is_unit_in_attack_range" in controller
 
-# Damage resolution stays in the controller in B-1C.
+# B-1D keeps the query wrappers while delegating pre-wounded damage separately.
 assert re.search(r"^func _get_attack_angle_damage_multiplier\b", controller, re.M)
 assert re.search(r"^func _get_directional_attack_damage\b", controller, re.M)
-assert "UnitTypeContractScript.get_damage_context" in controller
+assert "damage_formula_service.calculate_pre_wounded_damage" in controller
 for forbidden in (
     "get_damage_context",
     "apply_damage",

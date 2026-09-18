@@ -14,7 +14,10 @@ for unit_type, values in expected.items():
 if rules["gunner"].get("counterattack_max_range") != 0 or rules["mounted_archer"].get("counterattack_max_range") != 0:
     errors.append("ranged no-counterattack contract mismatch")
 source = (ROOT / "scripts/battle_web_import_test.gd").read_text(encoding="utf-8")
-for token in ("UnitTypeContractScript.can_unit_attack", "UnitTypeContractScript.can_attack_after_move", "moved_distance"):
+combat_query = (ROOT / "scripts/battle/services/battle_combat_query_service.gd").read_text(encoding="utf-8")
+if "UnitTypeContractScript.can_unit_attack" not in combat_query:
+    errors.append("combat query service missing shared action-eligibility contract")
+for token in ("UnitTypeContractScript.can_attack_after_move", "moved_distance"):
     if token not in source:
         errors.append(f"battle source missing shared contract token: {token}")
 if errors:
