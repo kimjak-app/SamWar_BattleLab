@@ -80,6 +80,7 @@ jobs:
             tools/validate_b1b_battle_movement_query_service.py
             tools/validate_b1c_battle_combat_query_service.py
             tools/validate_b1d_battle_damage_formula_service.py
+            tools/validate_b1e_battle_action_lock_state_service.py
           )
           for validator in "${validators[@]}"; do
             echo "===== $validator ====="
@@ -104,6 +105,7 @@ jobs:
             tests/scripts/test_battle_movement_query_service.gd
             tests/scripts/test_battle_combat_query_service.gd
             tests/scripts/test_battle_damage_formula_service.gd
+            tests/scripts/test_battle_action_lock_state_service.gd
           )
           for test_script in "${tests[@]}"; do
             echo "===== $test_script ====="

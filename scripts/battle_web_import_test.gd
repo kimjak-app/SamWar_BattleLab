@@ -9,6 +9,7 @@ const BattleHudStateAdapterScript := preload("res://scripts/battle/ui/battle_hud
 const BattleMovementQueryServiceScript := preload("res://scripts/battle/services/battle_movement_query_service.gd")
 const BattleCombatQueryServiceScript := preload("res://scripts/battle/services/battle_combat_query_service.gd")
 const BattleDamageFormulaServiceScript := preload("res://scripts/battle/services/battle_damage_formula_service.gd")
+const BattleActionLockStateServiceScript := preload("res://scripts/battle/services/battle_action_lock_state_service.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -873,6 +874,7 @@ const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runt
 var movement_query_service := BattleMovementQueryServiceScript.new()
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
+var action_lock_state_service := BattleActionLockStateServiceScript.new()
 var is_demo_animating := false
 var ally_has_moved := false
 var ally_has_manual_facing := false
@@ -948,8 +950,6 @@ var current_enemy_ai_actor_state: BattleUnitState = null
 var move_range_cells: Array[ColorRect] = []
 var range_overlay_tweens: Array[Tween] = []
 var facing_arrow_button_tweens: Array[Tween] = []
-var acted_ally_unit_ids: Dictionary = {}
-var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
 var unique_skill_cooldowns_by_hero_id: Dictionary = {}
 var unique_skill_attack_buff_turns_by_unit_id: Dictionary = {}
@@ -2999,7 +2999,7 @@ func reset_demo_state() -> void:
 	_sync_deployment_markers_from_scene_visual_anchors()
 	_hide_all_move_dust_sprites()
 	_set_visual_template_token_sprite_visibility(false)
-	acted_enemy_unit_ids.clear()
+	action_lock_state_service.clear_side("enemy")
 	_clear_enemy_ai_turn_reservations()
 	ally_has_manual_facing = false
 	enemy_has_manual_facing = false
@@ -6492,8 +6492,8 @@ func _persist_battle_resume_snapshot() -> void:
 		battle_momentum,
 		{
 			"active_unit_id": active_unit_id,
-			"acted_ally_unit_ids": acted_ally_unit_ids.duplicate(true),
-			"acted_enemy_unit_ids": acted_enemy_unit_ids.duplicate(true),
+			"acted_ally_unit_ids": action_lock_state_service.export_acted_ids("ally"),
+			"acted_enemy_unit_ids": action_lock_state_service.export_acted_ids("enemy"),
 			"dead_unit_ids": dead_unit_ids.duplicate(true),
 			"cooldowns": unique_skill_cooldowns_by_hero_id.duplicate(true),
 			"battle_log_lines": battle_log_lines.duplicate(),
@@ -6526,8 +6526,8 @@ func _try_restore_battle_resume_snapshot() -> void:
 		return
 	battle_round = int(restored.get("battle_round", battle_round))
 	var extra: Dictionary = restored.get("extra_state", {})
-	acted_ally_unit_ids = _dictionary_from_variant(extra.get("acted_ally_unit_ids", {}))
-	acted_enemy_unit_ids = _dictionary_from_variant(extra.get("acted_enemy_unit_ids", {}))
+	action_lock_state_service.restore_acted_ids("ally", extra.get("acted_ally_unit_ids", {}))
+	action_lock_state_service.restore_acted_ids("enemy", extra.get("acted_enemy_unit_ids", {}))
 	dead_unit_ids = _dictionary_from_variant(extra.get("dead_unit_ids", {}))
 	unique_skill_cooldowns_by_hero_id = _dictionary_from_variant(extra.get("cooldowns", {}))
 	has_deployed_reinforce_01 = bool(extra.get("has_deployed_reinforce_01", has_deployed_reinforce_01))
@@ -8021,11 +8021,7 @@ func _finish_enemy_actor_basic_attack(enemy_actor_state: BattleUnitState) -> voi
 
 
 func _get_remaining_unacted_enemy_count() -> int:
-	var remaining_count := 0
-	for enemy_state in _get_alive_enemy_units():
-		if not _has_enemy_unit_acted(enemy_state):
-			remaining_count += 1
-	return remaining_count
+	return action_lock_state_service.count_unacted(_get_alive_enemy_units(), "enemy")
 
 
 func _advance_enemy_turn_or_return_to_ally() -> void:
@@ -13143,8 +13139,8 @@ func _mark_ally_unit_acted(unit_state: BattleUnitState) -> void:
 		return
 	if unit_state.unit_id == "":
 		return
-	var was_already_acted := _has_ally_unit_acted(unit_state)
-	acted_ally_unit_ids[unit_state.unit_id] = true
+	var registration := action_lock_state_service.register_unit_acted(unit_state, "ally")
+	var was_already_acted := bool(registration.get("was_already_acted", false))
 	unit_state.has_acted = true
 	unit_state.has_moved = true
 	if unit_state == active_unit_state:
@@ -13154,17 +13150,11 @@ func _mark_ally_unit_acted(unit_state: BattleUnitState) -> void:
 
 
 func _has_ally_unit_acted(unit_state: BattleUnitState) -> bool:
-	if unit_state == null:
-		return true
-	if unit_state.side != "ally":
-		return false
-	if unit_state.unit_id == "":
-		return unit_state.has_acted
-	return bool(acted_ally_unit_ids.get(unit_state.unit_id, unit_state.has_acted))
+	return action_lock_state_service.has_unit_acted(unit_state, "ally")
 
 
 func _reset_ally_action_locks_for_new_round() -> void:
-	acted_ally_unit_ids.clear()
+	action_lock_state_service.clear_side("ally")
 	for unit_state in _get_alive_ally_units():
 		unit_state.reset_action_flags()
 	ally_has_moved = false
@@ -13177,8 +13167,8 @@ func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
 		return
 	if unit_state.unit_id == "":
 		return
-	var was_already_acted := _has_enemy_unit_acted(unit_state)
-	acted_enemy_unit_ids[unit_state.unit_id] = true
+	var registration := action_lock_state_service.register_unit_acted(unit_state, "enemy")
+	var was_already_acted := bool(registration.get("was_already_acted", false))
 	unit_state.has_acted = true
 	unit_state.has_moved = true
 	if not was_already_acted:
@@ -13187,17 +13177,11 @@ func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
 
 
 func _has_enemy_unit_acted(unit_state: BattleUnitState) -> bool:
-	if unit_state == null:
-		return true
-	if unit_state.side != "enemy":
-		return false
-	if unit_state.unit_id == "":
-		return unit_state.has_acted
-	return bool(acted_enemy_unit_ids.get(unit_state.unit_id, unit_state.has_acted))
+	return action_lock_state_service.has_unit_acted(unit_state, "enemy")
 
 
 func _reset_enemy_action_locks_for_new_round() -> void:
-	acted_enemy_unit_ids.clear()
+	action_lock_state_service.clear_side("enemy")
 	_clear_enemy_ai_turn_reservations()
 	for unit_state in _get_alive_enemy_units():
 		unit_state.reset_action_flags()
@@ -13207,37 +13191,29 @@ func _are_all_alive_enemies_acted() -> bool:
 	var alive_enemies := _get_alive_enemy_units()
 	if alive_enemies.is_empty():
 		return true
-	for unit_state in alive_enemies:
-		if not _has_enemy_unit_acted(unit_state):
-			return false
-	return true
+	return action_lock_state_service.are_all_acted(alive_enemies, "enemy")
 
 
 func _get_next_available_enemy_ai_actor() -> BattleUnitState:
 	var candidates: Array = [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state, enemy_reinforce_01_unit_state]
 	candidates.append(enemy_reinforce_02_unit_state)
+	var available_candidates: Array[BattleUnitState] = []
 	for candidate in candidates:
 		var unit_state := candidate as BattleUnitState
-		if _is_unit_state_available_for_battle_slot(unit_state) and not _has_enemy_unit_acted(unit_state):
-			return unit_state
-	return null
+		if _is_unit_state_available_for_battle_slot(unit_state):
+			available_candidates.append(unit_state)
+	return action_lock_state_service.first_unacted(available_candidates, "enemy")
 
 
 func _are_all_alive_allies_acted() -> bool:
 	var alive_allies := _get_alive_ally_units()
 	if alive_allies.is_empty():
 		return false
-	for unit_state in alive_allies:
-		if not _has_ally_unit_acted(unit_state):
-			return false
-	return true
+	return action_lock_state_service.are_all_acted(alive_allies, "ally")
 
 
 func _get_first_available_ally_unit() -> BattleUnitState:
-	for unit_state in _get_alive_ally_units():
-		if not _has_ally_unit_acted(unit_state):
-			return unit_state
-	return null
+	return action_lock_state_service.first_unacted(_get_alive_ally_units(), "ally")
 
 
 func _get_available_auto_units_for_side(side: String) -> Array[BattleUnitState]:
@@ -13740,8 +13716,7 @@ func _cleanup_dead_units() -> void:
 		_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):
 			dead_unit_ids[unit_state.unit_id] = true
-			acted_ally_unit_ids.erase(unit_state.unit_id)
-			acted_enemy_unit_ids.erase(unit_state.unit_id)
+			action_lock_state_service.erase_unit_id(unit_state.unit_id)
 			_append_battle_log("%s 전멸" % unit_state.display_name)
 			if selected_attack_target_state == unit_state:
 				_clear_attack_target_selection()
