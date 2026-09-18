@@ -76,6 +76,7 @@ jobs:
             tools/validate_worldmap_wounded_recovery_service_extraction.py
             tools/validate_worldmap_to_battle_input_lifecycle.py
             tools/validate_b0b_battle_production_skeleton.py
+            tools/validate_b0c_battle_iso_promotion.py
           )
           for validator in "${validators[@]}"; do
             echo "===== $validator ====="
@@ -207,6 +208,25 @@ jobs:
           GDSCRIPT
           timeout 120s godot --headless --path . --script res://tests/_ci_battle_main_scene_load.gd
           rm tests/_ci_battle_main_scene_load.gd
+          cat > tests/_ci_imjin_iso_scene_load.gd <<'GDSCRIPT'
+          extends SceneTree
+          func _initialize() -> void:
+              var packed := load("res://tests/scenes/Battle_UI_Production_Imjin_IsoMovement_Test.tscn") as PackedScene
+              if packed == null:
+                  push_error("[CI_IMJIN_ISO_LOAD] failed to load ISO scenario")
+                  quit(1)
+                  return
+              var instance := packed.instantiate()
+              if instance == null:
+                  push_error("[CI_IMJIN_ISO_LOAD] failed to instantiate ISO scenario")
+                  quit(1)
+                  return
+              print("[CI_IMJIN_ISO_LOAD] PASS")
+              instance.free()
+              quit(0)
+          GDSCRIPT
+          timeout 120s godot --headless --path . --script res://tests/_ci_imjin_iso_scene_load.gd
+          rm tests/_ci_imjin_iso_scene_load.gd
 
       - name: Diff check
         shell: bash

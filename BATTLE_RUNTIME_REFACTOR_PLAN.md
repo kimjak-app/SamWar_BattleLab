@@ -257,12 +257,18 @@ For future battle features:
 5. Do not put new real game logic back into `*_test.gd` simply because the current test scene is convenient.
 6. Scenario-only behavior stays in scenario tests/fixtures.
 
-## 13. Current next action
+## 13. Current status / next action
 
-The next approved task is:
+Verified on 2026-09-18:
 
-**B-0A/B | Battle Test Inventory + Canonical Production Battle Skeleton Design**
+- B-0A ownership audit recorded in `agent/BATTLE_RUNTIME_OWNERSHIP_AUDIT_20260918.md`.
+- B-0B canonical production boundary created as `scenes/battle/Battle_Main.tscn` + `scripts/battle/battle_controller.gd`.
+- B-0B parity skeleton passed the Godot 4.6 import/load/regression workflow at HEAD `9516fa89ce8f0cd46eba7aecfb81bb719d694479`.
 
-Before writing the production skeleton, perform the inventory and decide exactly which current files are Core / Scenario / Presentation / QA / Legacy. Then create the production boundary based on that map.
+Current task:
+
+**B-0C | Production Promotion / Parity Bridge**
+
+Batch 1 promotes the four generic ISO presentation modules into `scripts/battle/presentation/iso/`, keeps compatibility wrappers under `tests/scripts/`, and leaves Imjin/test-only presentation policy in tests. WorldMap remains on `res://Battle_Land.tscn` until parity gates are green.
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
