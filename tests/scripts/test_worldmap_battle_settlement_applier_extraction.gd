@@ -97,6 +97,7 @@ func _run() -> void:
 	_expect(int((_cities["source"].stock as Dictionary).get("rice", 0)) == 5 and int((_cities["source"].stock as Dictionary).get("gold", 0)) == 7, "retreat returns remaining expedition cargo to source")
 	_expect(str((_heroes["hero_a"] as Dictionary).get("city_id", "")) == "source", "retreat returns attacker hero to source")
 	_expect(int(_wounded.get("source", 0)) == 3, "retreat registers attacker wounded at source")
+	_expect(int(_wounded.get("target", 0)) == 2, "retreat preserves defender wounded at target")
 	_expect(_applied_ids == ["result-retreat"], "retreat result marked exactly once")
 
 	var malformed := applier.apply({"battle_kind": "player_attack", "result_kind": "attacker_win"})
