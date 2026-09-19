@@ -1,5 +1,8 @@
 # B-1C | BattleCombatQueryService Extraction
 
+> **Legacy execution note (2026-09-19):** This is a historical B-1x task record. Generic `Read first`, preflight, validation/full-regression, CI, and closeout boilerplate in this file is superseded by `.agents/skills/samwar-dev/SKILL.md`. Preserve this file's task-specific architecture/behavior locks when reviewing history; do not use its old generic checklist to drive a new run.
+
+
 Date: 2026-09-18  
 Branch: `refactor/engine-core-20260918`  
 Baseline HEAD: `e601750b42bd05618cb5bfc7aaa6737d2dc22698`

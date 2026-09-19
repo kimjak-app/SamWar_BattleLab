@@ -12,6 +12,25 @@ The user states the goal; you choose and apply the workflow. Do not require the 
 
 Validation must be proportional to risk. Use the lowest validation level that is sufficient to prove the requested change, and escalate only when the changed surface or task boundary requires it. Do not turn every small edit into a full-repository closeout.
 
+## Instruction ownership
+
+Keep each rule in one canonical place:
+
+- `agent/WORKFLOW_MANAGER.md`: permission, safety, commit/push, and local-environment boundaries only.
+- This skill: execution routing, preflight, validation level, duplicate-work prevention, and closeout mechanics.
+- Domain architecture documents such as `BATTLE_RUNTIME_REFACTOR_PLAN.md` and `agent/BATTLE_ENGINE_RULES.md`: product/runtime ownership, sequencing, and behavior invariants.
+- Per-task execution briefs: task-specific delta only — goal, exact ownership boundary, behavior locks, forbidden scope, and task-specific focused checks.
+
+If an older task brief repeats generic preflight, validation, CI, closeout, or reading instructions, this skill supersedes those generic instructions. The brief still controls its task-specific behavior and scope locks.
+
+## Reading policy
+
+- Read a long architecture plan in full on the first session for that track, when its declared plan revision changes, or when the task crosses into a new architecture boundary.
+- For consecutive tasks in the same track with the same plan revision, do **not** reread the whole plan. Read the current-status/next-action section plus the task-specific audit/brief and any explicitly relevant invariant section.
+- Do not reread unchanged skill/playbook files after every small edit inside one coherent work unit.
+- Do not open `references/closeout.md` unless the work unit is actually being closed.
+- Future B-1x briefs should not contain generic `Read first`, full preflight, full regression, CI, or generic closeout checklists. Reference this skill instead.
+
 ## 1. Classify the task
 Choose one or more playbooks:
 
@@ -112,7 +131,21 @@ Do not say "complete", "full green", "done", or equivalent beyond the evidence a
 
 For Level 1 or Level 2, report the scoped verification plainly. Reserve "Full Green" for Level 3 when all required checkpoint checks passed.
 
-## 8. Final report format
+## 8. Task brief contract
+
+A new SamWar execution brief should contain only:
+- work ID/title and target branch
+- architecture-plan revision/reference
+- task goal
+- exact responsibility to move/change
+- compatibility/behavior locks
+- explicit out-of-scope boundaries
+- task-specific focused tests/validators
+- recommended validation level when the risk is known
+
+It must not duplicate repository-wide permission rules, generic preflight, generic validation suites, CI requirements, or generic closeout fields.
+
+## 9. Final report format
 Keep it compact and factual:
 - **Work**: ID/title
 - **Result**: what changed

@@ -1,5 +1,8 @@
 # B-1D | Codex Execution Brief — BattleDamageFormulaService
 
+> **Legacy execution note (2026-09-19):** This is a historical B-1x task record. Generic `Read first`, preflight, validation/full-regression, CI, and closeout boilerplate in this file is superseded by `.agents/skills/samwar-dev/SKILL.md`. Preserve this file's task-specific architecture/behavior locks when reviewing history; do not use its old generic checklist to drive a new run.
+
+
 Repository: `kimjak-app/SamWar_BattleLab`  
 Branch: `refactor/engine-core-20260918`
 

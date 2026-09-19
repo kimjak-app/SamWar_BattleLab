@@ -3,6 +3,16 @@
 Status: Approved design baseline for the next battle refactor track.
 Repository: `kimjak-app/SamWar_BattleLab`
 Working branch at the time of approval: `recovery/worldmap-iso-sfx-services-20260912`
+Plan revision: `BRP-20260919-1`
+
+## Fast-resume rule
+
+This file is the architecture/status source of truth, not a per-task execution checklist.
+
+- Read it in full once when entering the Battle Runtime Refactor track or when the `Plan revision` changes.
+- For consecutive B-1x tasks on the same revision, read only Sections 11–13 plus the active task audit/brief and any specifically relevant invariant section.
+- A per-task brief should declare this plan revision and must not require a full reread of this document when the revision is unchanged.
+- Execution/preflight/validation/closeout mechanics belong to `.agents/skills/samwar-dev/SKILL.md`, not to this plan.
 
 ## 1. Core decision
 
@@ -284,28 +294,24 @@ B-1 status:
 - Current `scripts/battle_web_import_test.gd`: 661,683 bytes / 15,806 lines / 859 functions.
 - Wounded hero lookup/adjustment/logging remains controller-owned by design.
 
-B-1E audit decision:
+B-1E / B-1F status:
 
-- Next coherent responsibility is **acted-id action-lock bookkeeping and acted-state queries**.
-- The two acted-id registries also participate in battle-resume snapshot persistence and dead-unit cleanup.
-- Status consumption, `BattleUnitState` action-flag mutation, enemy logging, ally `ally_has_moved` mirror, AI reservations, phase/round sequencing, and GameSession snapshot I/O remain controller-owned.
-- B-1E audit: `agent/BATTLE_ENGINE_B1E_ACTION_LOCK_STATE_AUDIT_20260918.md`.
-- Codex execution brief: `agent/BATTLE_ENGINE_B1E_CODEX_ACTION_LOCK_STATE_EXTRACTION_20260918.md`.
+- B-1E extracted acted-id action-lock bookkeeping/query state into `BattleActionLockStateService` while preserving controller-owned action flags, status consumption, sequencing, and resume compatibility.
+- B-1F audit selected enemy-AI per-turn destination/engagement reservation bookkeeping as the next coherent state extraction.
+- B-1F implementation files and focused validation registration are present on the current branch through commit `84d04814b54c3e418b0edbf3944ab022a830d62c`.
+- B-1F audit: `agent/BATTLE_ENGINE_B1F_ENEMY_AI_RESERVATION_STATE_AUDIT_20260919.md`.
+- B-1F execution brief: `agent/BATTLE_ENGINE_B1F_CODEX_ENEMY_AI_RESERVATION_STATE_20260919.md`.
 
 Current next action:
 
-**B-1E | Extract BattleActionLockStateService with compatibility wrappers and exact resume-key compatibility.**
+**Finish only the risk-proportional B-1F scoped validation required by the repository skill if it has not already been run against the current executable state. Do not rerun unrelated full-suite/CI checks solely because this plan was updated.**
 
-Do not combine this extraction with turn orchestration, AI policy, status ticking, action-flag lifecycle, dead-unit cleanup beyond registry erase delegation, or resume schema changes.
+After B-1F scoped evidence is satisfactory, audit the next extraction boundary before beginning B-1G. Do not infer B-1G ownership from sequence alone.
 
 Relevant current records:
 
-- `agent/BATTLE_ENGINE_B1A_CURRENT_FUNCTION_AUDIT_20260918.md`
-- `agent/BATTLE_ENGINE_B1B_CODEX_MOVEMENT_QUERY_EXTRACTION_20260918.md`
-- `agent/BATTLE_ENGINE_B1C_COMBAT_QUERY_EXTRACTION_20260918.md`
-- `agent/BATTLE_ENGINE_B1D_DAMAGE_FORMULA_AUDIT_20260918.md`
-- `agent/BATTLE_ENGINE_B1D_CODEX_DAMAGE_FORMULA_EXTRACTION_20260918.md`
 - `agent/BATTLE_ENGINE_B1E_ACTION_LOCK_STATE_AUDIT_20260918.md`
-- `agent/BATTLE_ENGINE_B1E_CODEX_ACTION_LOCK_STATE_EXTRACTION_20260918.md`
+- `agent/BATTLE_ENGINE_B1F_ENEMY_AI_RESERVATION_STATE_AUDIT_20260919.md`
+- `agent/BATTLE_ENGINE_B1F_CODEX_ENEMY_AI_RESERVATION_STATE_20260919.md`
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
