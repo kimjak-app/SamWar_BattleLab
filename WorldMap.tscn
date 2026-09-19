@@ -17,6 +17,10 @@
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_readability_controller.gd" id="17_readability"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_panel_refinement_controller.gd" id="18_panel_refinement"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_tech_badge_summary_controller.gd" id="19_tech_badges"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_city_action_controller.gd" id="20_city_action"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_turn_compass_installer.gd" id="21_turn_compass_installer"]
+[ext_resource type="PackedScene" path="res://WorldMapTopNav.tscn" id="22_top_nav"]
+[ext_resource type="PackedScene" path="res://scenes/worldmap/ui/WorldMapActionPresentation.tscn" id="23_action_presentation"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -236,6 +240,22 @@ script = ExtResource("18_panel_refinement")
 
 [node name="WorldMapTechBadgeSummaryController" type="Node" parent="."]
 script = ExtResource("19_tech_badges")
+
+[node name="WorldMapCityActionController" type="Node" parent="."]
+script = ExtResource("20_city_action")
+
+[node name="WorldMapTurnCompassInstaller" type="Node" parent="."]
+script = ExtResource("21_turn_compass_installer")
+
+[node name="TopNavCanvas" type="CanvasLayer" parent="."]
+layer = 40
+
+[node name="TopNav" parent="TopNavCanvas" instance=ExtResource("22_top_nav")]
+production_world_map_path = NodePath("../..")
+
+[node name="WorldMapActionPresentation" parent="." instance=ExtResource("23_action_presentation")]
+production_world_map_path = NodePath("..")
+city_action_controller_path = NodePath("../WorldMapCityActionController")
 
 [node name="WorldMapRoot" type="Node2D" parent="." unique_id=386097288]
 
