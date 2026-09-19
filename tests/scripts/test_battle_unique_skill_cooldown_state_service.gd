@@ -33,10 +33,12 @@ func _test_direct_state_semantics() -> void:
 	service.tick_keys(keys)
 	_expect(service.get_remaining("hero-a") == 2, "duplicate hero key ticks once")
 	_expect(service.get_remaining("hero-b") == 1, "second hero key ticks once")
-	service.tick_keys(["hero-a", "hero-b"])
+	var second_tick_keys: Array[String] = ["hero-a", "hero-b"]
+	service.tick_keys(second_tick_keys)
 	_expect(service.get_remaining("hero-a") == 1, "cooldown continues decrementing")
 	_expect(service.get_remaining("hero-b") == 0, "cooldown reaches zero")
-	service.tick_keys(["hero-b"])
+	var zero_tick_keys: Array[String] = ["hero-b"]
+	service.tick_keys(zero_tick_keys)
 	_expect(service.get_remaining("hero-b") == 0, "zero cooldown remains zero")
 	service.clear()
 	_expect(service.export_state().is_empty(), "clear removes all cooldown state")
