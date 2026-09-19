@@ -104,4 +104,8 @@ Replace the current WorldMap route to `Battle_Land.tscn`.
 
 - B-1G manual runtime verification passed on 2026-09-19.
 - B-1H is paused.
-- P-1A audit is active.
+- P-1A audit completed at `ff8207439fd95dec3ee9eef80d30fad41432b8cd`.
+- P-1B-1 visual baseline promotion is implemented on the active branch.
+- Repository-state verification confirms the accepted Design-2 background, 2048×1152 geometry, 13 approved city positions, label offsets, route refresh contract, and production camera bounds.
+- P-1B-1 is waiting only for Godot editor/runtime visual parity confirmation by running `WorldMap.tscn` directly.
+- Do not begin P-1B-2 until that direct Production WorldMap visual check is satisfactory.
