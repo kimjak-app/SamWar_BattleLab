@@ -42,6 +42,8 @@ func _run() -> void:
 	_expect(battle.get("battle_supply_runtime") != null, "BattleSupplyRuntime configured")
 	var supply_panel := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Control
 	_expect(supply_panel != null and supply_panel.visible, "runtime supply panel visible")
+	var retreat_button := battle.get_node_or_null("BattleUI/CommandBar/RetreatButton") as BaseButton
+	_expect(retreat_button != null and not retreat_button.disabled, "player-attack retreat button enabled")
 	var ally_roster_names := _visible_production_roster_names(battle, "Ally")
 	var enemy_roster_names := _visible_production_roster_names(battle, "Enemy")
 	_expect(ally_roster_names == ["이순신"], "production ally roster hides inactive test fixtures")
