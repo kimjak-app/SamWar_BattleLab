@@ -889,6 +889,7 @@ var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
 var battle_supply_runtime: BattleSupplyRuntime = null
 var battle_supply_panel: Panel = null
+var production_battle_supply_hud: Control = null
 var forced_battle_result_state := ""
 var battle_result_reason := "elimination"
 var battle_result_id := ""
@@ -1561,8 +1562,15 @@ func _should_show_runtime_battle_supply() -> bool:
 func _refresh_battle_supply_visibility() -> void:
 	if battle_supply_panel == null:
 		battle_supply_panel = get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Panel
-	if battle_supply_panel != null:
-		battle_supply_panel.visible = _should_show_runtime_battle_supply()
+	if production_battle_supply_hud == null:
+		production_battle_supply_hud = get_node_or_null("BattleUI/ProductionHudRoot/BattleSupplyHud") as Control
+	var should_show := _should_show_runtime_battle_supply()
+	if production_battle_supply_hud != null:
+		production_battle_supply_hud.visible = should_show
+		if battle_supply_panel != null:
+			battle_supply_panel.visible = false
+	elif battle_supply_panel != null:
+		battle_supply_panel.visible = should_show
 
 
 func _ensure_battle_supply_hud() -> void:
@@ -1604,7 +1612,7 @@ func _apply_supply_desertion_to_side(side: String, deserters: int) -> void:
 
 func _refresh_battle_supply_hud() -> void:
 	_refresh_battle_supply_visibility()
-	if not _should_show_runtime_battle_supply() or battle_supply_panel == null:
+	if not _should_show_runtime_battle_supply():
 		return
 	var state := battle_supply_runtime.snapshot()
 	var attacker: Dictionary = state.get("attacker", {})
@@ -1614,15 +1622,67 @@ func _refresh_battle_supply_hud() -> void:
 	var enemy_state := defender if player_is_attacker else attacker
 	var ally_living := _sum_alive_deployed_troops_for_side("ally")
 	var enemy_living := _sum_alive_deployed_troops_for_side("enemy")
-	var turn_label := _battle_supply_label("Margin/Content/Header/TurnLabel")
-	if turn_label != null:
-		turn_label.text = "%d / %d · 잔여 %d" % [
-			battle_round,
-			ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
-			maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
-		]
-	_refresh_battle_supply_side("Ally", ally_state, ally_living)
-	_refresh_battle_supply_side("Enemy", enemy_state, enemy_living)
+	if battle_supply_panel != null:
+		var turn_label := _battle_supply_label("Margin/Content/Header/TurnLabel")
+		if turn_label != null:
+			turn_label.text = "%d / %d · 잔여 %d" % [
+				battle_round,
+				ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
+				maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
+			]
+		_refresh_battle_supply_side("Ally", ally_state, ally_living)
+		_refresh_battle_supply_side("Enemy", enemy_state, enemy_living)
+	_refresh_production_battle_supply_hud(ally_state, enemy_state, ally_living, enemy_living)
+
+
+func _refresh_production_battle_supply_hud(
+	ally_state: Dictionary,
+	enemy_state: Dictionary,
+	ally_living: int,
+	enemy_living: int
+) -> void:
+	if production_battle_supply_hud == null:
+		return
+	_refresh_production_battle_supply_side("Ally", ally_state, ally_living)
+	_refresh_production_battle_supply_side("Enemy", enemy_state, enemy_living)
+
+
+func _refresh_production_battle_supply_side(prefix: String, side_state: Dictionary, living_troops: int) -> void:
+	if production_battle_supply_hud == null:
+		return
+	var food_type := str(side_state.get("food_type", "")).strip_edges()
+	var food_name := _battle_supply_food_name(food_type)
+	var has_food_data := side_state.has("food") and not food_name.is_empty()
+	var food_amount := maxi(0, int(side_state.get("food", 0)))
+	var salt_amount := maxi(0, int(side_state.get("salt", 0)))
+	var salt_consumption := ExpeditionSupplyCalculator.salt_per_turn(living_troops)
+	var has_salt_for_turn := salt_amount >= salt_consumption
+	var food_consumption := ExpeditionSupplyCalculator.food_per_turn(living_troops, has_salt_for_turn)
+	var prediction := ExpeditionSupplyCalculator.predict_supply(living_troops, food_amount, salt_amount) if has_food_data else {}
+	var sustained_turns := maxi(0, int(prediction.get("sustained_turns", 0))) if has_food_data else 0
+
+	var food_row := production_battle_supply_hud.get_node_or_null("%sFoodRow" % prefix)
+	if food_row != null:
+		var food_label := food_row.get_node_or_null("Label") as Label
+		var food_value := food_row.get_node_or_null("Value") as Label
+		if food_label != null:
+			food_label.text = food_name if has_food_data else "식량"
+		if food_value != null:
+			food_value.text = str(food_amount) if has_food_data else "-"
+	_set_production_supply_row("%sSaltRow" % prefix, str(salt_amount))
+	_set_production_supply_row("%sConsumeRow" % prefix, "%d/%d" % [food_consumption, salt_consumption] if has_food_data else "-")
+	var sustain_text := "-"
+	if has_food_data:
+		sustain_text = "%d턴+" % ExpeditionSupplyCalculator.BATTLE_MAX_TURNS if sustained_turns >= ExpeditionSupplyCalculator.BATTLE_MAX_TURNS else "%d턴" % sustained_turns
+	_set_production_supply_row("%sSustainRow" % prefix, sustain_text)
+
+
+func _set_production_supply_row(row_name: String, value: String) -> void:
+	if production_battle_supply_hud == null:
+		return
+	var value_label := production_battle_supply_hud.get_node_or_null("%s/Value" % row_name) as Label
+	if value_label != null:
+		value_label.text = value
 
 
 func _refresh_battle_supply_side(prefix: String, side_state: Dictionary, living_troops: int) -> void:
