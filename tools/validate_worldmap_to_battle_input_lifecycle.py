@@ -71,6 +71,7 @@ def main() -> None:
         "BattleSupplyRuntime configured",
         "runtime supply panel visible",
         "context consumed exactly once",
+        "player-attack retreat button enabled",
     ):
         require(token in test_source, f"execution regression test missing {token}")
 
