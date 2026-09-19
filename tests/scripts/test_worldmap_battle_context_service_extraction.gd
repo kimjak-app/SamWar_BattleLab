@@ -54,6 +54,16 @@ func _run() -> void:
 		_expect(str(attack_context.get("source", "")) == "player_attack", "Player attack context source preserved")
 		_expect(attack_context.get("attacker_hero_ids", []) == [hero_id], "Player attack context roster preserved")
 		_expect(int((attack_context.get("attacker_troop_allocation", {}) as Dictionary).get(hero_id, 0)) == int(allocation[hero_id]), "Player attack context allocation preserved")
+		_expect(str(attack_context.get("defender_source_city_id", "")) == target_city_id, "Player attack defender source is target city")
+		_expect(int(attack_context.get("defender_troops", -1)) == int(host.call("_get_city_troops_for_enemy_invasion_mvp", target_city_id)), "Player attack uses target city's current troop total")
+		var target_stationed_heroes: Array = host.call("_battle_context_get_city_stationed_hero_ids", target_city_id)
+		var defender_hero_ids: Array = attack_context.get("defender_hero_ids", [])
+		if not target_stationed_heroes.is_empty():
+			_expect(defender_hero_ids.has(str(target_stationed_heroes[0])), "Player attack defender roster includes target city's stationed hero")
+		var expected_defender_supply: Dictionary = host.call("_select_city_battle_supply", target_city_id)
+		_expect(str(attack_context.get("defender_food_type", "")) == str(expected_defender_supply.get("food_type", "")), "Player attack uses target city's persisted defender food type")
+		_expect(int(attack_context.get("defender_food_amount", -1)) == int(expected_defender_supply.get("food_amount", -2)), "Player attack uses target city's persisted defender food amount")
+		_expect(int(attack_context.get("defender_salt_amount", -1)) == int(expected_defender_supply.get("salt_amount", -2)), "Player attack uses target city's persisted defender salt")
 
 	var invasion_event := {"type": "defense", "attacker_city_id": target_city_id, "defender_city_id": source_city_id, "turn_number": 1}
 	var validation: Dictionary = host.call("_validate_pending_invasion_event_for_battle_context", invasion_event)
