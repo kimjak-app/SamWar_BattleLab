@@ -107,5 +107,5 @@ Replace the current WorldMap route to `Battle_Land.tscn`.
 - P-1A audit completed at `ff8207439fd95dec3ee9eef80d30fad41432b8cd`.
 - P-1B-1 visual baseline promotion is implemented on the active branch.
 - Repository-state verification confirms the accepted Design-2 background, 2048×1152 geometry, 13 approved city positions, label offsets, route refresh contract, and production camera bounds.
-- P-1B-1 is waiting only for Godot editor/runtime visual parity confirmation by running `WorldMap.tscn` directly.
+- P-1B-1 persisted-scene hotfix now makes `WorldMap.tscn` itself reference Design-2 AtlasTextures and updated route baselines. It is waiting for a fresh Godot editor/runtime parity check after reloading the scene/project.
 - Do not begin P-1B-2 until that direct Production WorldMap visual check is satisfactory.
