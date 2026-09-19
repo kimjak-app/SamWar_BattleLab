@@ -76,6 +76,30 @@ func _run() -> void:
 	_expect(not bool(duplicate_report.get("ok", true)) and bool(duplicate_report.get("duplicate", false)), "duplicate result rejected")
 	_expect(_cities == state_after_once and _applied_ids == ["result-1"], "duplicate result performs no mutations")
 
+	_reset_state()
+	_cities["source"]["troops"] = 80
+	_pending_transaction_id = "tx-retreat"
+	var retreat_plan := _standard_plan("player_attack", "retreat", 80, 150, 0, "enemy", "enemy")
+	retreat_plan["settlement_profile"] = "t02_return"
+	retreat_plan["transaction_id"] = "tx-retreat"
+	retreat_plan["result_id"] = "result-retreat"
+	retreat_plan["troop_settlement"] = {"attacker_healthy": 12, "attacker_wounded": 3, "defender_healthy": 150, "defender_wounded": 2}
+	retreat_plan["apply_supply_settlement"] = true
+	retreat_plan["supply_settlement"] = {
+		"defender": {"city_id": "target", "food_type": "barley", "remaining_food": 11, "remaining_salt": 4},
+		"attacker_cargo": {"destination_city_id": "source", "food_type": "rice", "food": 5, "salt": 2, "gold": 7},
+	}
+	retreat_plan["hero_movements"] = [{"hero_id": "hero_a", "city_id": "source"}]
+	report = applier.apply(retreat_plan)
+	_expect(bool(report.get("ok", false)), "T02 retreat settlement applied")
+	_expect(_troops("source") == 92, "retreat returns surviving attacker troops to source garrison")
+	_expect(_troops("target") == 150 and _owner("target") == "enemy", "retreat preserves target ownership and defender survivors")
+	_expect(int((_cities["source"].stock as Dictionary).get("rice", 0)) == 5 and int((_cities["source"].stock as Dictionary).get("gold", 0)) == 7, "retreat returns remaining expedition cargo to source")
+	_expect(str((_heroes["hero_a"] as Dictionary).get("city_id", "")) == "source", "retreat returns attacker hero to source")
+	_expect(int(_wounded.get("source", 0)) == 3, "retreat registers attacker wounded at source")
+	_expect(int(_wounded.get("target", 0)) == 2, "retreat preserves defender wounded at target")
+	_expect(_applied_ids == ["result-retreat"], "retreat result marked exactly once")
+
 	var malformed := applier.apply({"battle_kind": "player_attack", "result_kind": "attacker_win"})
 	_expect(not bool(malformed.get("ok", true)) and (malformed.get("warnings", []) as Array).has("missing_target_city"), "partial plan rejected safely")
 	var unknown := applier.apply({"battle_kind": "unknown", "result_kind": "unknown"})
