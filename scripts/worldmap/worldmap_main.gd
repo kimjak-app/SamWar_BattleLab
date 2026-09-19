@@ -7674,6 +7674,13 @@ func _set_city_runtime_owner(city_id: String, owner_id: String) -> void:
 		city_marker._refresh_marker_visuals()
 	_update_owned_city_ids_after_runtime_owner_change(city_id, owner_id)
 	_refresh_city_hud_data_bindings()
+	_refresh_territory_overlay_if_present()
+
+
+func _refresh_territory_overlay_if_present() -> void:
+	var territory := get_node_or_null("WorldMapTerritoryController")
+	if territory != null and territory.has_method("refresh_territory_data"):
+		territory.call_deferred("refresh_territory_data")
 
 
 func _set_city_runtime_troops(city_id: String, troops: int) -> void:
@@ -13137,6 +13144,7 @@ func _refresh_city_marker_owner_states_from_runtime() -> void:
 		if not owner_id.is_empty():
 			city_marker.owner_faction_id = owner_id
 			city_marker._refresh_marker_visuals()
+	_refresh_territory_overlay_if_present()
 
 
 func _get_hero_seed_entry(hero_id: String) -> Dictionary:
