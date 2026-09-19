@@ -2,10 +2,10 @@
 class_name WorldMapBackgroundRefreshTool
 extends RefCounted
 
-const MASTER_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_master_4096x2912.png")
+const MASTER_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_bg_v2_test.png")
 const TURN_COMPASS_SCRIPT := preload("res://scripts/worldmap/worldmap_turn_compass.gd")
 const TILE_SCALE := Vector2(0.5, 0.5)
-const WORLD_SIZE := Vector2(2048.0, 1456.0)
+const WORLD_SIZE := Vector2(2048.0, 1152.0)
 const CAMERA_MIN_ZOOM := 0.35
 const CAMERA_MAX_ZOOM := 1.6
 const CAMERA_DEFERRED_META := "worldmap_refresh_camera_deferred"
@@ -26,10 +26,10 @@ static func ensure_background(context: Node) -> void:
 	if tile_layer == null:
 		return
 
-	_apply_tile(tile_layer, "Tile_A1_TopLeft", Rect2(0, 0, 2048, 1456), Vector2(0, 0))
-	_apply_tile(tile_layer, "Tile_A2_TopRight", Rect2(2048, 0, 2048, 1456), Vector2(1024, 0))
-	_apply_tile(tile_layer, "Tile_B1_BottomLeft", Rect2(0, 1456, 2048, 1456), Vector2(0, 728))
-	_apply_tile(tile_layer, "Tile_B2_BottomRight", Rect2(2048, 1456, 2048, 1456), Vector2(1024, 728))
+	_apply_tile(tile_layer, "Tile_A1_TopLeft", Rect2(0, 0, 2048, 1152), Vector2(0, 0))
+	_apply_tile(tile_layer, "Tile_A2_TopRight", Rect2(2048, 0, 2048, 1152), Vector2(1024, 0))
+	_apply_tile(tile_layer, "Tile_B1_BottomLeft", Rect2(0, 1152, 2048, 1152), Vector2(0, 576))
+	_apply_tile(tile_layer, "Tile_B2_BottomRight", Rect2(2048, 1152, 2048, 1152), Vector2(1024, 576))
 
 	_schedule_initial_camera_cover(context, world_root)
 	_ensure_turn_compass(world_root)
@@ -120,6 +120,10 @@ static func _apply_initial_camera_cover(context: Node, world_root: Node) -> void
 	var cover_zoom := clampf(maxf(width_zoom, height_zoom), CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM)
 	var visible_world_size := viewport_size / cover_zoom
 
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = int(WORLD_SIZE.x)
+	camera.limit_bottom = int(WORLD_SIZE.y)
 	camera.zoom = Vector2(cover_zoom, cover_zoom)
 	camera.position = Vector2(
 		WORLD_SIZE.x * 0.5,
