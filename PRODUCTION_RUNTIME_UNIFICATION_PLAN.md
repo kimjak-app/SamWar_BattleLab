@@ -109,5 +109,6 @@ Replace the current WorldMap route to `Battle_Land.tscn`.
 - Repository-state verification confirms the accepted Design-2 background, 2048×1152 geometry, 13 approved city positions, label offsets, route refresh contract, and production camera bounds.
 - P-1B-1 persisted-scene hotfix now makes `WorldMap.tscn` itself reference Design-2 AtlasTextures and updated route baselines. It is waiting for a fresh Godot editor/runtime parity check after reloading the scene/project.
 - P-1B-1 direct Production WorldMap visual check passed after the branch mismatch was corrected.
-- P-1B-2 production compact HUD promotion is implemented and awaiting Godot runtime visual QA.
-- Do not begin P-1B-3 until the compact left/right HUD is visually accepted in `WorldMap.tscn`.
+- P-1B-2 production compact HUD promotion passed user visual QA on 2026-09-19.
+- P-1B-3 production interaction/presentation promotion is implemented and awaiting Godot runtime visual/interaction QA.
+- Do not begin P-1B-4 until TopNav, turn compass, contextual city actions, and action presentation are verified from `WorldMap.tscn`.
