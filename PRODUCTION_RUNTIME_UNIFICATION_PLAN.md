@@ -148,3 +148,27 @@ Static parity matrix:
 
 Static parity validator:
 `tools/validate_p1b_16x9_functional_parity.py`
+
+
+## 7. P-1C ISO Battle Production Promotion — 2026-09-19
+
+P-1C-1 audit completed:
+`agent/P1C1_ISO_BATTLE_PRODUCTION_PROMOTION_AUDIT_20260919.md`
+
+P-1C implementation completed:
+`agent/P1C_ISO_BATTLE_PRODUCTION_PROMOTION_20260919.md`
+
+Current state:
+- `Battle_Main.tscn` now instances `Battle_Production.tscn`.
+- latest Production HUD is outside `tests/`;
+- ISO projection/presentation is production-owned;
+- generic post-skill reposition behavior is production-owned;
+- Imjin-specific roster/nation/portrait fixtures remain under tests;
+- Production supply HUD is bound to real `BattleSupplyRuntime`, not mock data;
+- WorldMap battle entry intentionally remains `res://Battle_Land.tscn`.
+
+Next action:
+**Run direct Godot QA on `scenes/battle/Battle_Main.tscn`. Do not begin P-1D until Battle_Main passes.**
+
+After Battle_Main passes, P-1D may switch:
+`WorldMap.tscn -> scenes/battle/Battle_Main.tscn`.
