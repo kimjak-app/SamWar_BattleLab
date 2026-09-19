@@ -169,7 +169,9 @@ Current state:
 - Production supply HUD is bound to real `BattleSupplyRuntime`, not mock data;
 - Direct Godot QA on `scenes/battle/Battle_Main.tscn` passed on 2026-09-19.
 - P-1D canonical entry switch is implemented: `WorldMap.tscn -> scenes/battle/Battle_Main.tscn`.
+- User live QA confirmed real WorldMap attack enters `Battle_Main` with the selected attacker roster after the stale Production-HUD fixture filter hotfix.
+- Automated roundtrip settlement regression added at `tests/scripts/test_worldmap_battle_main_roundtrip_settlement.gd`.
 - Legacy `res://Battle_Land.tscn` remains for comparison/recovery only; WorldMap no longer routes to it.
 
 Next action:
-**Run real end-to-end Godot QA through `WorldMap -> Battle_Main`, confirm BattleContext-backed roster/troops/supply, then return to WorldMap and verify settlement.**
+**Run the new Godot roundtrip regression and one manual battle finish/retreat return to verify the visible post-battle settlement summary.**
