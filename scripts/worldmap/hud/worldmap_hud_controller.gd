@@ -7,10 +7,16 @@ const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper
 var _nodes := {}
 var _warehouse_card: PanelContainer = null
 var _warehouse_resource_row_labels := {}
+var _compact_presentation_enabled := false
 
 
 func set_ui_nodes(nodes: Dictionary) -> void:
 	_nodes = nodes.duplicate()
+
+
+func set_compact_presentation_enabled(enabled: bool) -> void:
+	_compact_presentation_enabled = enabled
+	_apply_compact_visibility()
 
 
 func setup_world_status_panel(request_position: Callable, top_left: Vector2, panel_size: Vector2) -> void:
@@ -57,13 +63,20 @@ func setup_world_status_panel(request_position: Callable, top_left: Vector2, pan
 		if compact_label != null:
 			compact_label.add_theme_font_size_override("font_size", 10)
 	_ensure_warehouse_card()
+	_apply_compact_visibility()
 
 
 func refresh_world_status(model: Dictionary) -> void:
-	_set_label("eyebrow", str(model.get("eyebrow", "")), true)
-	_set_label("turn", "", false)
-	_set_label("calendar", str(model.get("calendar", "")), true)
-	_set_label("nation", str(model.get("nation", "")), true)
+	if _compact_presentation_enabled:
+		_set_label("eyebrow", "", false)
+		_set_label("turn", "", false)
+		_set_label("calendar", "", false)
+		_set_label("nation", "", false)
+	else:
+		_set_label("eyebrow", str(model.get("eyebrow", "")), true)
+		_set_label("turn", "", false)
+		_set_label("calendar", str(model.get("calendar", "")), true)
+		_set_label("nation", str(model.get("nation", "")), true)
 	_set_label("power", str(model.get("power", "")), true)
 	_set_progress("power_bar", float(model.get("national_loyalty", 0)))
 	_set_label("tax", str(model.get("tax", "")), true)
@@ -84,13 +97,13 @@ func refresh_world_status(model: Dictionary) -> void:
 	_select_option_by_metadata(_nodes.get("chancellor_assignment") as OptionButton, str(model.get("chancellor_id", "")))
 	_select_option_by_metadata(_nodes.get("chancellor_policy") as OptionButton, str(model.get("policy_id", "balanced")))
 	var national_bonus_lines: Array = model.get("national_bonus_lines", [])
-	_set_label("resource", "\n".join(national_bonus_lines), not national_bonus_lines.is_empty())
+	_set_label("resource", "\n".join(national_bonus_lines), not _compact_presentation_enabled and not national_bonus_lines.is_empty())
 	_set_label("supply", "", false)
 	_set_label("military_logistics", "", false)
 	var external_trade_text := str(model.get("external_trade", ""))
-	_set_label("external_trade", external_trade_text, not external_trade_text.is_empty())
+	_set_label("external_trade", external_trade_text, not _compact_presentation_enabled and not external_trade_text.is_empty())
 	var hint := str(model.get("world_status_hint", ""))
-	_set_label("world_status_hint", hint, not hint.is_empty())
+	_set_label("world_status_hint", hint, not _compact_presentation_enabled and not hint.is_empty())
 	var turn_end_button := _button("turn_end")
 	if turn_end_button != null:
 		turn_end_button.text = "아군 턴 종료"
@@ -98,10 +111,28 @@ func refresh_world_status(model: Dictionary) -> void:
 	_set_button_text("save", "저장")
 	_set_button_text("load", "불러오기")
 	_set_button_text("reset", "초기화")
-	_set_label("save_management_title", "저장 관리", true)
+	_set_label("save_management_title", "저장 관리", not _compact_presentation_enabled)
 	var save_status := str(model.get("save_status", ""))
-	_set_label("save_management_status", save_status, not save_status.is_empty())
+	_set_label("save_management_status", save_status, not _compact_presentation_enabled and not save_status.is_empty())
 	refresh_warehouse(model.get("warehouse_rows", []))
+	_apply_compact_visibility()
+
+
+func _apply_compact_visibility() -> void:
+	if not _compact_presentation_enabled:
+		return
+	for key in ["eyebrow", "turn", "calendar", "nation", "resource", "supply", "military_logistics", "external_trade", "world_status_hint", "save_management_title", "save_management_status"]:
+		var label := _label(key)
+		if label != null:
+			label.visible = false
+	var panel := _control("left_world_status_panel")
+	if panel != null:
+		var content := panel.get_node_or_null("MarginContainer/Content")
+		if content != null:
+			for child_name in ["WorldTurnSeparator", "SaveButtonRow"]:
+				var child := content.get_node_or_null(child_name) as CanvasItem
+				if child != null:
+					child.visible = false
 
 
 func refresh_selected_city_binding(model: Dictionary) -> void:
