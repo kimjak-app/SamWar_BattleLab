@@ -1,10 +1,7 @@
 [gd_scene format=3 uid="uid://d05f0xjbn7wm1"]
 
 [ext_resource type="Script" uid="uid://bqb0xjpgxdwji" path="res://scripts/worldmap/worldmap_main.gd" id="1_worldmap_test"]
-[ext_resource type="Texture2D" uid="uid://q7dd0tesr1gt" path="res://assets/worldmap/tiles/worldmap_tile_A1_top_left.png" id="2_tile_a1"]
-[ext_resource type="Texture2D" uid="uid://djdn5p3jwek6p" path="res://assets/worldmap/tiles/worldmap_tile_A2_top_right.png" id="3_tile_a2"]
-[ext_resource type="Texture2D" uid="uid://u2kgph1c7cuw" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]
-[ext_resource type="Texture2D" uid="uid://crk55oqy0ufpg" path="res://assets/worldmap/tiles/worldmap_tile_B2_bottom_right.png" id="5_tile_b2"]
+[ext_resource type="Texture2D" path="res://assets/source/worldmap/worldmap_bg_v2_test.png" id="2_worldmap_v2_master"]
 [ext_resource type="Script" uid="uid://bek5h4grd01m2" path="res://scripts/worldmap_city_marker.gd" id="6_city_marker"]
 [ext_resource type="Script" uid="uid://dnhjqd6n7uxr3" path="res://scripts/worldmap_city_name_label.gd" id="7_city_name_label"]
 [ext_resource type="Texture2D" uid="uid://fqs5bonykf0b" path="res://assets/worldmap/city_icons/castle_china.png" id="7_yepeb"]
@@ -15,105 +12,121 @@
 [ext_resource type="Script" uid="uid://cf6xa4routefx" path="res://scripts/worldmap_route_flow_fx.gd" id="12_route_flow_fx"]
 [ext_resource type="Script" uid="uid://dhacrdkc66ar8" path="res://scripts/worldmap_city_info_panel.gd" id="13_city_info_panel"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
+atlas = ExtResource("2_worldmap_v2_master")
+region = Rect2(0, 0, 2048, 1152)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a2"]
+atlas = ExtResource("2_worldmap_v2_master")
+region = Rect2(2048, 0, 2048, 1152)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_b1"]
+atlas = ExtResource("2_worldmap_v2_master")
+region = Rect2(0, 1152, 2048, 1152)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_b2"]
+atlas = ExtResource("2_worldmap_v2_master")
+region = Rect2(2048, 1152, 2048, 1152)
+
 [sub_resource type="Curve2D" id="Curve2D_route_luoyang_yecheng"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 862, 693, 0, 0, 0, 0, 896, 581)
+"points": PackedVector2Array(0, 0, 0, 0, 765, 586.5, 0, 0, 0, 0, 825.25, 554.75, 0, 0, 0, 0, 842.5, 499)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_luoyang_chengdu"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 613, 854, 0, 0, 0, 0, 479, 984)
+"points": PackedVector2Array(0, 0, 0, 0, 765, 586.5, 0, 0, 0, 0, 567.75, 630, 0, 0, 0, 0, 408.5, 730.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_luoyang_jianye"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 909, 843, 0, 0, 0, 0, 1046, 846)
+"points": PackedVector2Array(0, 0, 0, 0, 765, 586.5, 0, 0, 0, 0, 853.5, 657.75, 0, 0, 0, 0, 955, 670)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_yecheng_jianye"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 896, 581, 0, 0, 0, 0, 945, 729, 0, 0, 0, 0, 1046, 846)
+"points": PackedVector2Array(0, 0, 0, 0, 842.5, 499, 0, 0, 0, 0, 872.75, 600, 0, 0, 0, 0, 955, 670)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_yecheng_karakorum"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 896, 581, 0, 0, 0, 0, 1057, 446, 0, 0, 0, 0, 1155, 261)
+"points": PackedVector2Array(0, 0, 0, 0, 842.5, 499, 0, 0, 0, 0, 967.5, 410.75, 0, 0, 0, 0, 1029.5, 272.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_hanseong_pyeongyang"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1358, 477, 0, 0, 0, 0, 1353, 404)
+"points": PackedVector2Array(0, 0, 0, 0, 1235, 424.5, 0, 0, 0, 0, 1183.5, 393.75, 0, 0, 0, 0, 1178, 342)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_pyeongyang_karakorum"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1353, 404, 0, 0, 0, 0, 1275, 304, 0, 0, 0, 0, 1155, 261)
+"points": PackedVector2Array(0, 0, 0, 0, 1178, 342, 0, 0, 0, 0, 1124.75, 278.75, 0, 0, 0, 0, 1029.5, 272.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_hanseong_gyeongju"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1448, 607, 0, 0, 0, 0, 1518, 658)
+"points": PackedVector2Array(0, 0, 0, 0, 1235, 424.5, 0, 0, 0, 0, 1253.5, 470, 0, 0, 0, 0, 1303, 488.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_hanseong_sabi"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1400, 614, 0, 0, 0, 0, 1426, 695)
+"points": PackedVector2Array(0, 0, 0, 0, 1235, 424.5, 0, 0, 0, 0, 1218, 476, 0, 0, 0, 0, 1236, 523.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_gyeongju_sabi"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1465, 660, 0, 0, 0, 0, 1426, 695)
+"points": PackedVector2Array(0, 0, 0, 0, 1303, 488.5, 0, 0, 0, 0, 1262.5, 489.5, 0, 0, 0, 0, 1236, 523.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_kyoto_osaka"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1798, 775, 0, 0, 0, 0, 1757, 809, 0, 0, 0, 0, 1746, 861)
+"points": PackedVector2Array(0, 0, 0, 0, 1543.5, 492.5, 0, 0, 0, 0, 1513.5, 520.75, 0, 0, 0, 0, 1513.5, 567)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_kyoto_edo"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1798, 775, 0, 0, 0, 0, 1864, 754, 0, 0, 0, 0, 1903, 696)
+"points": PackedVector2Array(0, 0, 0, 0, 1543.5, 492.5, 0, 0, 0, 0, 1586.5, 472, 0, 0, 0, 0, 1602.5, 414.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_gyeongju_kyoto"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1631, 781, 0, 0, 0, 0, 1798, 775)
+"points": PackedVector2Array(0, 0, 0, 0, 1303, 488.5, 0, 0, 0, 0, 1396.25, 555, 0, 0, 0, 0, 1543.5, 492.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_gyeongju_osaka"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1589, 808, 0, 0, 0, 0, 1746, 861)
+"points": PackedVector2Array(0, 0, 0, 0, 1303, 488.5, 0, 0, 0, 0, 1365.25, 576.25, 0, 0, 0, 0, 1513.5, 567)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_sabi_kyushu"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1426, 695, 0, 0, 0, 0, 1418, 851, 0, 0, 0, 0, 1539, 951)
+"points": PackedVector2Array(0, 0, 0, 0, 1236, 523.5, 0, 0, 0, 0, 1252.25, 604, 0, 0, 0, 0, 1397.5, 628.5)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_sabi_jianye"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1426, 695, 0, 0, 0, 0, 1205, 692, 0, 0, 0, 0, 1046, 846)
+"points": PackedVector2Array(0, 0, 0, 0, 1236, 523.5, 0, 0, 0, 0, 1064.5, 518.25, 0, 0, 0, 0, 955, 670)
 }
 point_count = 3
 
 [sub_resource type="Curve2D" id="Curve2D_route_kyushu_osaka"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1539, 951, 0, 0, 0, 0, 1664, 956, 0, 0, 0, 0, 1746, 861)
+"points": PackedVector2Array(0, 0, 0, 0, 1397.5, 628.5, 0, 0, 0, 0, 1477, 647.75, 0, 0, 0, 0, 1513.5, 567)
 }
 point_count = 3
 
@@ -209,17 +222,17 @@ centered = false
 
 [node name="Tile_A2_TopRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1917839138]
 position = Vector2(1024, 0)
-texture = ExtResource("3_tile_a2")
+texture = SubResource("AtlasTexture_worldmap_v2_a2")
 centered = false
 
 [node name="Tile_B1_BottomLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=190604974]
 position = Vector2(0, 576)
-texture = ExtResource("4_tile_b1")
+texture = SubResource("AtlasTexture_worldmap_v2_b1")
 centered = false
 
 [node name="Tile_B2_BottomRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1496253675]
 position = Vector2(1024, 576)
-texture = ExtResource("5_tile_b2")
+texture = SubResource("AtlasTexture_worldmap_v2_b2")
 centered = false
 
 [node name="RouteLayer" type="Node2D" parent="WorldMapRoot" unique_id=474468413]
