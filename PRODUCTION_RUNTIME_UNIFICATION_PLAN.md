@@ -113,3 +113,38 @@ Replace the current WorldMap route to `Battle_Land.tscn`.
 - P-1B-3 production interaction/presentation promotion passed user visual QA on 2026-09-19.
 - P-1B-4 territory overlay + final compact HUD authority is implemented and awaiting Godot runtime visual QA.
 - Do not begin P-1B-5 cleanup until territory colors and compact left/right information surfaces remain correct through city selection and at least one turn transition.
+
+
+## 6. 16:9 parity lock — 2026-09-19
+
+P-1B now uses a strict functional-parity rule:
+
+**Every player-facing runtime behavior proven in `WorldMap_16x9_Test.tscn` must be reproduced in canonical `WorldMap.tscn` before P-1B closes.**
+
+QA scaffolding may be replaced by cleaner production ownership, but the resulting behavior must remain equivalent.
+
+Intentional exception:
+
+- `worldmap_tech_badge_test_controller.gd` sample badges are NOT promoted.
+- Production `WorldMapTechBadgeSummaryController` displays only real completed national/city technologies using real catalog definitions and resolved icon paths.
+- Tech badge summaries refresh immediately after completed-tech progression/normalization and on city selection.
+
+Current runtime QA gate before P-1B-5:
+
+1. territory colors render;
+2. one full turn shows the turn-summary popup;
+3. no legacy left-panel turn log flashes around the tech section;
+4. chancellor appointment speech appears;
+5. chancellor policy speech appears;
+6. governor appointment speech appears;
+7. governor policy speech appears;
+8. real completed national tech icon appears;
+9. real completed selected-city tech icon appears;
+10. contextual spy/diplomacy/trade video/result flow remains functional;
+11. compact HUD remains stable through the above transitions.
+
+Static parity matrix:
+`agent/P1B_16X9_FUNCTIONAL_PARITY_MATRIX_20260919.md`
+
+Static parity validator:
+`tools/validate_p1b_16x9_functional_parity.py`
