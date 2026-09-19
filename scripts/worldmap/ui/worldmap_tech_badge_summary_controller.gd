@@ -164,6 +164,6 @@ func _on_city_selected(_marker: Node) -> void:
 
 
 func _request_layout() -> void:
-	var hud := world_map.get_node_or_null("WorldMapHudPresentationController")
+	var hud := world_map.get_node_or_null("HudPositionOwner")
 	if hud != null and hud.has_method("request_layout_refresh"):
 		hud.call_deferred("request_layout_refresh")
