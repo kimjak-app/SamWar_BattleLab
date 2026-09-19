@@ -95,6 +95,11 @@ func _build_section(section_name: String, title_text: String) -> PanelContainer:
 	return section
 
 
+func refresh_from_runtime() -> void:
+	_refresh()
+	_request_layout()
+
+
 func _refresh() -> void:
 	_refresh_grid(_left_grid, _get_completed_national())
 	var city_id := str(world_map.get("selected_city_id"))
