@@ -46,23 +46,23 @@ const LEGACY_CITY_POSITIONS := {
 	"edo": Vector2(1903, 696),
 }
 
-# 2048x1456 world coordinates sampled from the approved Photoshop city-dot layout.
+# 2048x1152 production coordinates sampled from the approved 16:9 marker layout.
 # These are seed positions only: once a marker is manually moved away from its legacy
 # position, this tool will never overwrite the user's fine adjustment.
 const REFRESH_CITY_POSITIONS := {
-	"luoyang": Vector2(640, 745),
-	"yecheng": Vector2(775, 579),
-	"chengdu": Vector2(433, 931),
-	"jianye": Vector2(931, 864),
-	"karakorum": Vector2(978, 405),
-	"pyeongyang": Vector2(1160, 572),
-	"hanseong": Vector2(1212, 642),
-	"gyeongju": Vector2(1285, 710),
-	"sabi": Vector2(1210, 733),
-	"kyoto": Vector2(1518, 855),
-	"osaka": Vector2(1450, 924),
-	"kyushu": Vector2(1273, 979),
-	"edo": Vector2(1605, 797),
+	"karakorum": Vector2(1029.5, 272.5),
+	"yecheng": Vector2(842.5, 499.0),
+	"pyeongyang": Vector2(1178.0, 342.0),
+	"hanseong": Vector2(1235.0, 424.5),
+	"luoyang": Vector2(765.0, 586.5),
+	"gyeongju": Vector2(1303.0, 488.5),
+	"sabi": Vector2(1236.0, 523.5),
+	"edo": Vector2(1602.5, 414.5),
+	"jianye": Vector2(955.0, 670.0),
+	"kyoto": Vector2(1543.5, 492.5),
+	"osaka": Vector2(1513.5, 567.0),
+	"chengdu": Vector2(408.5, 730.5),
+	"kyushu": Vector2(1397.5, 628.5),
 }
 
 const OWNER_COLORS := {
