@@ -5,10 +5,11 @@
 - Attack with one allied hero against multiple deployed enemies. After A1 then E1, no acted ally may be selected and the remaining valid enemies must act one by one before the round completes.
 - Verify the inverse 5v1 case returns A2–A5 after E1, then increments Battle Turn and settles supply once. UI work remains paused pending this F5 result.
 
-## WorldMap-to-Battle F5 QA
+## P-1D WorldMap -> Battle_Main roundtrip QA
 
-- Enter a WorldMap battle normally, then once with Enter/click skip and with rapid repeated input. Expected: no `_input: set_input_as_handled on null` error, exactly one Battle_Land transition, and the valid-context T02 supply panel visible.
-- Confirm a failed transition still leaves the WorldMap responsive. Do not resume UI work until this F5 result is recorded.
+- From the real WorldMap, launch a player attack such as 한성 -> 평양. Expected: exactly one `Battle_Main` transition with the target city's current defender roster, current city troop total/command-limit allocation, and real defender supply snapshot.
+- Confirm T02 supply HUD is visible only with valid WorldMap BattleContext; verify movement, facing, skill/cutin, enemy auto-turn, turn-end/retreat/auto-battle, and battle log remain functional.
+- Finish or retreat, return to `WorldMap.tscn`, and verify ownership/troops/wounded/supply settlement matches the battle result. Repeat once with Enter/click skip and rapid repeated input to confirm no duplicate transition or null viewport error.
 
 ## Supply/log F5-F6 QA
 
