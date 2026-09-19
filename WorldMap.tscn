@@ -22,6 +22,8 @@
 [ext_resource type="PackedScene" path="res://WorldMapTopNav.tscn" id="22_top_nav"]
 [ext_resource type="PackedScene" path="res://scenes/worldmap/ui/WorldMapActionPresentation.tscn" id="23_action_presentation"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_territory_controller.gd" id="24_territory"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_turn_summary_controller.gd" id="25_turn_summary"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_character_speech_controller.gd" id="26_character_speech"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -260,6 +262,12 @@ city_action_controller_path = NodePath("../WorldMapCityActionController")
 
 [node name="WorldMapTerritoryController" type="Node" parent="."]
 script = ExtResource("24_territory")
+
+[node name="WorldMapTurnSummaryController" type="Node" parent="."]
+script = ExtResource("25_turn_summary")
+
+[node name="WorldMapCharacterSpeechController" type="Node" parent="."]
+script = ExtResource("26_character_speech")
 
 [node name="WorldMapRoot" type="Node2D" parent="." unique_id=386097288]
 
