@@ -67,16 +67,13 @@ func setup_world_status_panel(request_position: Callable, top_left: Vector2, pan
 
 
 func refresh_world_status(model: Dictionary) -> void:
-	if _compact_presentation_enabled:
-		_set_label("eyebrow", "", false)
-		_set_label("turn", "", false)
-		_set_label("calendar", "", false)
-		_set_label("nation", "", false)
-	else:
-		_set_label("eyebrow", str(model.get("eyebrow", "")), true)
-		_set_label("turn", "", false)
-		_set_label("calendar", str(model.get("calendar", "")), true)
-		_set_label("nation", str(model.get("nation", "")), true)
+	# Compact presentation hides legacy header labels visually, but their text
+	# remains authoritative runtime state. Turn compass/summary logic still reads
+	# CalendarLabel as a turn-completion token, so never blank these hidden sources.
+	_set_label("eyebrow", str(model.get("eyebrow", "")), not _compact_presentation_enabled)
+	_set_label("turn", "", false)
+	_set_label("calendar", str(model.get("calendar", "")), not _compact_presentation_enabled)
+	_set_label("nation", str(model.get("nation", "")), not _compact_presentation_enabled)
 	_set_label("power", str(model.get("power", "")), true)
 	_set_progress("power_bar", float(model.get("national_loyalty", 0)))
 	_set_label("tax", str(model.get("tax", "")), true)
