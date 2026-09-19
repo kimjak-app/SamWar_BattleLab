@@ -82,6 +82,7 @@ const CITY_TYPE_LABELS := {
 @onready var recruit_button_placeholder: Button = $MarginContainer/Content/RecruitButtonPlaceholder
 
 var _city_markers_by_id: Dictionary = {}
+var _compact_presentation_enabled := false
 var _hero_data: Dictionary = {}
 var _city_hud_data: Dictionary = {}
 var _recruitment_summaries: Dictionary = {}
@@ -154,6 +155,47 @@ func set_enemy_city_intel(enemy_city_intel: Dictionary) -> void:
 		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
 
 
+func set_compact_presentation_enabled(enabled: bool) -> void:
+	_compact_presentation_enabled = enabled
+	_apply_compact_presentation_visibility()
+
+
+func _apply_compact_presentation_visibility() -> void:
+	if not _compact_presentation_enabled:
+		return
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	for child_name in [
+		"EyebrowLabel",
+		"CityIdLabel",
+		"RegionOwnerLabel",
+		"NeighborLabel",
+		"RouteTypeLabel",
+		"StatusTextLabel",
+		"MilitaryInfoLabel",
+		"MilitaryStateLabel",
+		"HintLabel",
+		"ButtonRow",
+		"RecruitButtonPlaceholder",
+	]:
+		var item := content.get_node_or_null(child_name) as CanvasItem
+		if item != null:
+			item.visible = false
+	if _recruitment_section != null and is_instance_valid(_recruitment_section):
+		_recruitment_section.visible = false
+	if _hero_transfer_panel != null and is_instance_valid(_hero_transfer_panel):
+		_hero_transfer_panel.visible = false
+	if _military_card != null and is_instance_valid(_military_card):
+		_military_card.visible = false
+	if hero_move_button_placeholder != null:
+		hero_move_button_placeholder.visible = false
+	if recruit_button_placeholder != null:
+		recruit_button_placeholder.visible = false
+	if attack_button_placeholder != null and attack_button_placeholder.get_parent() is CanvasItem:
+		(attack_button_placeholder.get_parent() as CanvasItem).visible = false
+
+
 func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_policy_data: Dictionary, city_policy_state: Dictionary) -> void:
 	_hero_data = hero_data
 	_city_hud_data = city_hud_data
@@ -162,12 +204,14 @@ func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_pol
 	_setup_governor_policy_option()
 	if not _current_city_id.is_empty() and _city_markers_by_id.has(_current_city_id):
 		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
+	_apply_compact_presentation_visibility()
 
 
 func set_recruitment_summaries(recruitment_summaries: Dictionary) -> void:
 	_recruitment_summaries = recruitment_summaries.duplicate(true)
 	if not _current_city_id.is_empty():
 		_refresh_recruitment_section()
+	_apply_compact_presentation_visibility()
 
 
 func set_revolt_risk_summaries(revolt_risk_summaries: Dictionary) -> void:
@@ -241,6 +285,7 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	_refresh_recruitment_section()
 	_refresh_attack_action_state()
 	_apply_selected_city_layout_order()
+	_apply_compact_presentation_visibility()
 	show()
 
 
@@ -283,6 +328,7 @@ func _show_empty() -> void:
 	_attack_action_enabled = false
 	_refresh_attack_action_state()
 	_apply_selected_city_layout_order()
+	_apply_compact_presentation_visibility()
 	show()
 
 
@@ -572,6 +618,7 @@ func _show_enemy_city_with_intel_filter(city_marker: WorldMapCityMarker, city_da
 	_apply_selected_city_layout_order()
 	hint_label.text = _format_enemy_intel_hint(city_intel, fields, payload)
 	hint_label.visible = true
+	_apply_compact_presentation_visibility()
 	show()
 
 
