@@ -24,7 +24,7 @@ The target relationship is:
 
 ```text
 Production battle runtime = the authoritative battle implementation
-        ↓
+		↓
 Scenario / smoke / movement / skill / AI / visual QA tests = consumers or subclasses of production
 ```
 
@@ -32,7 +32,7 @@ The current direction must move away from:
 
 ```text
 Test scene/script = de facto production runtime
-        ↓
+		↓
 more Test scenes/scripts inherit from it
 ```
 
@@ -42,9 +42,9 @@ Current scene chain:
 
 ```text
 tests/scenes/Battle_UI_Production_Test.tscn
-    ↓
+	↓
 tests/scenes/Battle_UI_Production_Imjin_Test.tscn
-    ↓
+	↓
 tests/scenes/Battle_UI_Production_Imjin_IsoMovement_Test.tscn
 ```
 
@@ -52,9 +52,9 @@ Current script chain:
 
 ```text
 scripts/battle_web_import_test.gd
-    ↓
+	↓
 tests/scripts/battle_ui_production_imjin_test.gd
-    ↓
+	↓
 tests/scripts/battle_ui_production_imjin_iso_movement_test.gd
 ```
 
@@ -72,15 +72,15 @@ Approved sequence:
 
 ```text
 B-0A Test Inventory & Ownership
-    ↓
+	↓
 B-0B Create canonical Production Battle runtime/skeleton
-    ↓
+	↓
 B-0C Promote generic battle + ISO runtime responsibilities from tests to production
-    ↓
+	↓
 B-1+ Refactor the production battle runtime by responsibility
-    ↓
+	↓
 Parity verification against the existing battle tests
-    ↓
+	↓
 Switch WorldMap battle entry to the canonical production battle scene
 ```
 
