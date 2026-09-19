@@ -309,9 +309,11 @@ B-1E / B-1F / B-1G status:
 
 Current next action:
 
-**Run only the risk-proportional B-1G scoped runtime check: the focused cooldown-state test plus a normal Battle_Main/WorldMap→Battle smoke check. If green, record B-1G scoped validation and audit B-1H before any new extraction.**
+- B-1G manual runtime verification was reported successful by the user on 2026-09-19, including unique-skill use and turn progression.
+- Pause the B-1x extraction sequence before B-1H.
+- The active priority is P-1 Production Runtime Unification, beginning with P-1A WorldMap 16:9 Production Promotion Audit.
 
-Do not begin B-1H until B-1G executable behavior has been checked.
+Do not begin B-1H until the P-1 production-entry duplication problem is resolved or explicitly deferred.
 
 Relevant current records:
 
