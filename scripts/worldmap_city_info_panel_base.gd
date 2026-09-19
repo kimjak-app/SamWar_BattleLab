@@ -153,6 +153,7 @@ func set_enemy_city_intel(enemy_city_intel: Dictionary) -> void:
 	_enemy_city_intel = enemy_city_intel.duplicate(true)
 	if not _current_city_id.is_empty() and _city_markers_by_id.has(_current_city_id):
 		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
+	_apply_compact_presentation_visibility()
 
 
 func set_compact_presentation_enabled(enabled: bool) -> void:
