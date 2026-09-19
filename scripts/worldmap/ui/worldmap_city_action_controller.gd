@@ -25,7 +25,7 @@ func _ready() -> void:
 
 func _install() -> void:
 	if world_map == null:
-		push_warning("WorldMap City Action: ProductionWorldMap is missing.")
+		push_warning("WorldMap City Action: production WorldMap root is missing.")
 		return
 
 	var city_layer := world_map.get_node_or_null(CITY_LAYER_PATH)
