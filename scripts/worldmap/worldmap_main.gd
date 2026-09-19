@@ -149,7 +149,7 @@ const ROLE_TARGET_GARRISON_RATIO := {
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
-const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"
+const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"
 const PLAYER_ATTACK_CONTEXT_SOURCE := "player_attack"
 const INVASION_RESULT_DEFENDER_WIN := BattleResultServiceScript.RESULT_DEFENDER_WIN
 const INVASION_RESULT_ATTACKER_WIN := BattleResultServiceScript.RESULT_ATTACKER_WIN
