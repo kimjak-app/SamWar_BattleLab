@@ -1415,6 +1415,8 @@ func _ready() -> void:
 		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
 	if auto_battle_button != null:
 		auto_battle_button.pressed.connect(_toggle_full_auto_battle)
+	if retreat_button != null:
+		retreat_button.pressed.connect(_on_retreat_button_pressed)
 	_configure_command_bar()
 	if floating_basic_attack_button != null:
 		floating_basic_attack_button.pressed.connect(try_basic_attack)
@@ -1520,6 +1522,7 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 	_refresh_battle_title(context)
 	_setup_worldmap_context_battle_roster(context)
 	_setup_battle_supply_runtime(context)
+	_refresh_retreat_button_state()
 	_refresh_worldmap_result_return_button()
 
 
@@ -2797,8 +2800,11 @@ func _refresh_worldmap_result_return_button() -> void:
 	worldmap_return_button.disabled = not can_return
 	if can_return:
 		var result_label := "패배"
-		if _get_battle_result_state() == "victory":
+		var battle_state := _get_battle_result_state()
+		if battle_state == "victory":
 			result_label = "승리"
+		elif battle_state == "retreat":
+			result_label = "후퇴"
 		worldmap_return_button.text = "월드맵으로 돌아가기 · %s" % result_label
 
 
@@ -2842,12 +2848,16 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	var result := "defeat"
 	if battle_result_state == "victory":
 		result = "victory"
+	elif battle_result_state == "retreat":
+		result = "retreat"
 	var is_player_attack := _is_worldmap_player_attack_context(worldmap_battle_context)
-	var winner := "defender"
-	if is_player_attack and result == "victory":
-		winner = "attacker"
-	elif not is_player_attack and result != "victory":
-		winner = "attacker"
+	var winner := ""
+	if result != "retreat":
+		winner = "defender"
+		if is_player_attack and result == "victory":
+			winner = "attacker"
+		elif not is_player_attack and result != "victory":
+			winner = "attacker"
 	var result_type := "defense_result"
 	var attacker_battle_side := "enemy"
 	var defender_battle_side := "ally"
@@ -5843,6 +5853,35 @@ func _configure_command_bar() -> void:
 		end_turn_button.tooltip_text = "턴 종료"
 	if auto_battle_button != null:
 		auto_battle_button.tooltip_text = "자동전투"
+
+
+func _refresh_retreat_button_state() -> void:
+	if retreat_button == null:
+		return
+	var can_retreat := (
+		_has_worldmap_battle_context()
+		and _is_worldmap_player_attack_context(worldmap_battle_context)
+		and not _is_battle_result_finalized()
+	)
+	retreat_button.disabled = not can_retreat
+	retreat_button.tooltip_text = "후퇴 · 생존 병력과 남은 보급을 출발 도시로 복귀" if can_retreat else "공격전에서만 후퇴할 수 있습니다."
+
+
+func _on_retreat_button_pressed() -> void:
+	if not _has_worldmap_battle_context() or not _is_worldmap_player_attack_context(worldmap_battle_context):
+		_append_battle_log("현재 전투에서는 후퇴할 수 없습니다.")
+		_refresh_retreat_button_state()
+		return
+	if _is_battle_result_finalized():
+		_refresh_retreat_button_state()
+		return
+	if is_full_auto_battle_enabled:
+		_stop_full_auto_battle("player retreat")
+	battle_result_reason = "retreat"
+	forced_battle_result_state = "retreat"
+	_append_battle_log("후퇴 명령 · 생존 병력과 남은 보급이 출발 도시로 복귀합니다.")
+	_refresh_retreat_button_state()
+	_return_to_worldmap_with_result()
 
 
 func _apply_floating_command_button_style(button: Button) -> void:
