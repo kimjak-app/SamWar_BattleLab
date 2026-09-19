@@ -158,7 +158,7 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 		return
 	var unit: Variant = controller.get("active_unit_state")
 	if unit == null:
-		_clear_current_actor_info(hud)
+		_clear_current_actor_info(controller, hud)
 		return
 
 	var hero_id := _resolve_hero_id(controller, unit)
@@ -218,7 +218,7 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 	_sync_status_rows(controller, hud, unit)
 	_sync_terrain(controller, hud)
 
-func _clear_current_actor_info(hud: Control) -> void:
+func _clear_current_actor_info(controller: Node, hud: Control) -> void:
 	_set_local_text(hud, "InfoArea/NameLabel", "대기")
 	_set_local_text(hud, "InfoArea/TroopClassLabel", "-")
 	_set_local_text(hud, "InfoArea/TroopRow/TroopsLabel", "병력 - / -")
