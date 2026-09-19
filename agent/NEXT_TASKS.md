@@ -7,9 +7,9 @@
 
 ## P-1D WorldMap -> Battle_Main roundtrip QA
 
-- From the real WorldMap, launch a player attack such as 한성 -> 평양. Expected: exactly one `Battle_Main` transition with the target city's current defender roster, current city troop total/command-limit allocation, and real defender supply snapshot.
-- Confirm T02 supply HUD is visible only with valid WorldMap BattleContext; verify movement, facing, skill/cutin, enemy auto-turn, turn-end/retreat/auto-battle, and battle log remain functional.
-- Finish or retreat, return to `WorldMap.tscn`, and verify ownership/troops/wounded/supply settlement matches the battle result. Repeat once with Enter/click skip and rapid repeated input to confirm no duplicate transition or null viewport error.
+- Canonical entry + live roster QA: USER PASS on 2026-09-19. WorldMap now enters `Battle_Main`, selected attacker roster is preserved, and inactive test-fixture roster cards are filtered from the Production HUD.
+- Automated roundtrip regression added at `tests/scripts/test_worldmap_battle_main_roundtrip_settlement.gd`: it exercises real player-attack departure, canonical Battle_Main handoff, battle-produced victory payload, WorldMap return, ownership transfer, occupation garrison, hero movement, pending-context clear, and duplicate-result lock.
+- Remaining manual gate: finish or retreat from a real WorldMap battle, return to `WorldMap.tscn`, and visually verify ownership/troops/wounded/supply settlement and post-battle summary.
 
 ## Supply/log F5-F6 QA
 
