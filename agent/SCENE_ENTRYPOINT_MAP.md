@@ -1,5 +1,26 @@
 # Scene Entrypoint Map
 
+## 2026-09-19 P-1D Current Runtime Entrypoints
+
+| Scene | Current Path | Current Role | Reference Type |
+|---|---|---|---|
+| WorldMap | `res://WorldMap.tscn` | Project main scene and strategic runtime entrypoint. | Runtime production scene |
+| Canonical Land Battle | `res://scenes/battle/Battle_Main.tscn` | WorldMap battle handoff target and production ISO battle entrypoint. | Runtime production scene |
+| Legacy Land Battle | `res://Battle_Land.tscn` | Comparison/recovery scene only; no longer the WorldMap handoff target. | Legacy compatibility scene |
+
+Active runtime route:
+
+```text
+WorldMap.tscn
+    ↓
+scenes/battle/Battle_Main.tscn
+    ↓
+WorldMap.tscn
+```
+
+`WORLDMAP_BATTLE_SCENE_PATH` in `scripts/worldmap/worldmap_main.gd` is locked to `res://scenes/battle/Battle_Main.tscn`. Historical v0.72 sections below are preserved as rename history.
+
+
 ## v0.72-01 Current Runtime Entrypoints
 
 Production scene filename rename is complete. The active runtime entrypoints are now:
