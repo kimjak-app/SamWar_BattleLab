@@ -219,7 +219,7 @@ corner_radius_bottom_left = 8
 [node name="WorldMap_Test" type="Node2D" unique_id=2014555566]
 script = ExtResource("1_worldmap_test")
 
-[node name="WorldMapHudPresentationController" type="Node" parent="."]
+[node name="HudPositionOwner" type="Node" parent="."]
 script = ExtResource("14_hud_presentation")
 
 [node name="WorldMapWarehouseTabsController" type="Node" parent="."]
