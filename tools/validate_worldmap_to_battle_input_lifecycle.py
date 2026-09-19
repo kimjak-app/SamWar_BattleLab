@@ -5,6 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 WORLDMAP = ROOT / "scripts/worldmap/worldmap_main.gd"
 TEST = ROOT / "tests/scripts/test_worldmap_to_battle_input_lifecycle.gd"
+ROUNDTRIP_TEST = ROOT / "tests/scripts/test_worldmap_battle_main_roundtrip_settlement.gd"
 CANONICAL_BATTLE_SCENE = "res://scenes/battle/Battle_Main.tscn"
 
 
@@ -25,6 +26,7 @@ def function_body(source: str, signature: str, next_signature: str) -> str:
 def main() -> None:
     source = WORLDMAP.read_text(encoding="utf-8")
     test_source = TEST.read_text(encoding="utf-8")
+    roundtrip_source = ROUNDTRIP_TEST.read_text(encoding="utf-8")
     require(
         f'const WORLDMAP_BATTLE_SCENE_PATH := "{CANONICAL_BATTLE_SCENE}"' in source,
         "WorldMap canonical battle path must target Battle_Main",
@@ -72,7 +74,20 @@ def main() -> None:
     ):
         require(token in test_source, f"execution regression test missing {token}")
 
-    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: canonical Battle_Main route; camera-controller handoff guard; input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
+    for token in (
+        'const BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"',
+        'worldmap.call("_confirm_player_attack_deployment", deployment)',
+        'battle.call("_get_battle_result_state")',
+        'battle.call("_return_to_worldmap_with_result")',
+        'Victory transfers target ownership to player',
+        'Target garrison equals surviving attacker troops',
+        'Surviving attacker hero moves to occupied target',
+        'Pending battle context clears after settlement',
+        'Result id is recorded against duplicate settlement',
+    ):
+        require(token in roundtrip_source, f"roundtrip settlement regression missing {token}")
+
+    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: canonical Battle_Main route; camera-controller handoff guard; duplicate-input execution coverage; roundtrip settlement regression contract present")
 
 
 if __name__ == "__main__":
