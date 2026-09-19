@@ -11,6 +11,7 @@ const BattleCombatQueryServiceScript := preload("res://scripts/battle/services/b
 const BattleDamageFormulaServiceScript := preload("res://scripts/battle/services/battle_damage_formula_service.gd")
 const BattleActionLockStateServiceScript := preload("res://scripts/battle/services/battle_action_lock_state_service.gd")
 const BattleEnemyAiReservationStateServiceScript := preload("res://scripts/battle/services/battle_enemy_ai_reservation_state_service.gd")
+const BattleUniqueSkillCooldownStateServiceScript := preload("res://scripts/battle/services/battle_unique_skill_cooldown_state_service.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -877,6 +878,7 @@ var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
 var enemy_ai_reservation_state_service := BattleEnemyAiReservationStateServiceScript.new()
+var unique_skill_cooldown_state_service := BattleUniqueSkillCooldownStateServiceScript.new()
 var is_demo_animating := false
 var ally_has_moved := false
 var ally_has_manual_facing := false
@@ -953,7 +955,6 @@ var move_range_cells: Array[ColorRect] = []
 var range_overlay_tweens: Array[Tween] = []
 var facing_arrow_button_tweens: Array[Tween] = []
 var dead_unit_ids: Dictionary = {}
-var unique_skill_cooldowns_by_hero_id: Dictionary = {}
 var unique_skill_attack_buff_turns_by_unit_id: Dictionary = {}
 var unique_skill_attack_buff_bonus_by_unit_id: Dictionary = {}
 var unique_skill_defense_buff_bonus_by_unit_id: Dictionary = {}
@@ -2989,7 +2990,7 @@ func reset_demo_state() -> void:
 	turn_transition_initial_pulse_side = ""
 	turn_transition_initial_pulse_pending = false
 	dead_unit_ids.clear()
-	unique_skill_cooldowns_by_hero_id.clear()
+	unique_skill_cooldown_state_service.clear()
 	unique_skill_attack_buff_turns_by_unit_id.clear()
 	unique_skill_attack_buff_bonus_by_unit_id.clear()
 	unique_skill_defense_buff_bonus_by_unit_id.clear()
@@ -5482,19 +5483,14 @@ func _set_unique_skill_cooldown(unit_state: BattleUnitState, cooldown_turns: int
 	var cooldown_key := _get_unique_skill_cooldown_key(unit_state)
 	if cooldown_key == "":
 		return
-	unique_skill_cooldowns_by_hero_id[cooldown_key] = maxi(cooldown_turns, 0)
+	unique_skill_cooldown_state_service.set_remaining(cooldown_key, cooldown_turns)
 
 
 func _tick_unique_skill_cooldowns_for_side(side: String) -> void:
-	var seen_keys: Dictionary = {}
+	var cooldown_keys: Array[String] = []
 	for unit_state in _get_alive_deployed_unit_states_for_side(side):
-		var cooldown_key := _get_unique_skill_cooldown_key(unit_state)
-		if cooldown_key == "" or seen_keys.has(cooldown_key):
-			continue
-		seen_keys[cooldown_key] = true
-		var remaining := int(unique_skill_cooldowns_by_hero_id.get(cooldown_key, 0))
-		if remaining > 0:
-			unique_skill_cooldowns_by_hero_id[cooldown_key] = remaining - 1
+		cooldown_keys.append(_get_unique_skill_cooldown_key(unit_state))
+	unique_skill_cooldown_state_service.tick_keys(cooldown_keys)
 	_tick_unique_skill_attack_buffs_for_side(side)
 
 
@@ -6495,7 +6491,7 @@ func _persist_battle_resume_snapshot() -> void:
 			"acted_ally_unit_ids": action_lock_state_service.export_acted_ids("ally"),
 			"acted_enemy_unit_ids": action_lock_state_service.export_acted_ids("enemy"),
 			"dead_unit_ids": dead_unit_ids.duplicate(true),
-			"cooldowns": unique_skill_cooldowns_by_hero_id.duplicate(true),
+			"cooldowns": unique_skill_cooldown_state_service.export_state(),
 			"battle_log_lines": battle_log_lines.duplicate(),
 			"has_deployed_reinforce_01": has_deployed_reinforce_01,
 			"has_deployed_reinforce_02": has_deployed_reinforce_02,
@@ -6529,7 +6525,7 @@ func _try_restore_battle_resume_snapshot() -> void:
 	action_lock_state_service.restore_acted_ids("ally", extra.get("acted_ally_unit_ids", {}))
 	action_lock_state_service.restore_acted_ids("enemy", extra.get("acted_enemy_unit_ids", {}))
 	dead_unit_ids = _dictionary_from_variant(extra.get("dead_unit_ids", {}))
-	unique_skill_cooldowns_by_hero_id = _dictionary_from_variant(extra.get("cooldowns", {}))
+	unique_skill_cooldown_state_service.restore_state(extra.get("cooldowns", {}))
 	has_deployed_reinforce_01 = bool(extra.get("has_deployed_reinforce_01", has_deployed_reinforce_01))
 	has_deployed_reinforce_02 = bool(extra.get("has_deployed_reinforce_02", has_deployed_reinforce_02))
 	var capacity_variant: Variant = extra.get("capacity_slot_metadata", {})
@@ -7100,7 +7096,7 @@ func _get_unique_skill_remaining_cooldown_turns(unit_state: BattleUnitState) -> 
 	var cooldown_key := _get_unique_skill_cooldown_key(unit_state)
 	if cooldown_key == "":
 		return 0
-	return maxi(int(unique_skill_cooldowns_by_hero_id.get(cooldown_key, 0)), 0)
+	return unique_skill_cooldown_state_service.get_remaining(cooldown_key)
 
 
 func _is_unique_skill_ready_for_formation_guide(unit_state: BattleUnitState) -> bool:
