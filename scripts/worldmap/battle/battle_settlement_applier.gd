@@ -41,7 +41,7 @@ func apply(settlement_plan: Dictionary) -> Dictionary:
 			return _reject(report, "duplicate_result")
 		if str(_q("pending_transaction_id", [], "")) != transaction_id:
 			return _reject(report, "transaction_mismatch")
-	if result_kind == RESULT_RETREAT:
+	if result_kind == RESULT_RETREAT and str(plan.get("settlement_profile", "standard")) != "t02_return":
 		report["ok"] = true
 		_mark_applied(result_id)
 		return report
@@ -199,7 +199,7 @@ func _apply_supply(plan: Dictionary, report: Dictionary) -> void:
 	var defender_change := apply_defender_supply(str(defender.get("city_id", "")), defender)
 	if bool(defender_change.get("ok", false)):
 		report["supply_changes"].append(defender_change)
-	if str(plan.get("result_kind", "")) == RESULT_ATTACKER_WIN:
+	if str(plan.get("result_kind", "")) == RESULT_ATTACKER_WIN or str(plan.get("settlement_profile", "standard")) == "t02_return":
 		var cargo := _dictionary(supply.get("attacker_cargo", {}))
 		var cargo_change := apply_attacker_cargo(str(cargo.get("destination_city_id", "")), cargo)
 		if bool(cargo_change.get("ok", false)):
