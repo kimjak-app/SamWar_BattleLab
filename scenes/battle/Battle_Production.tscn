@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://p1cbattleprod260919"]
+[gd_scene format=3 uid="uid://nptyjyp54mew"]
 
 [ext_resource type="Script" uid="uid://p1cisoctl260919" path="res://scripts/battle/presentation/iso/battle_iso_production_controller.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://cmyirxr2v7mhv" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
