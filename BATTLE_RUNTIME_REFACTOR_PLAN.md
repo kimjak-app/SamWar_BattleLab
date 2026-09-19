@@ -294,24 +294,33 @@ B-1 status:
 - Current `scripts/battle_web_import_test.gd`: 661,683 bytes / 15,806 lines / 859 functions.
 - Wounded hero lookup/adjustment/logging remains controller-owned by design.
 
-B-1E / B-1F status:
+B-1E / B-1F / B-1G status:
 
 - B-1E extracted acted-id action-lock bookkeeping/query state into `BattleActionLockStateService` while preserving controller-owned action flags, status consumption, sequencing, and resume compatibility.
-- B-1F audit selected enemy-AI per-turn destination/engagement reservation bookkeeping as the next coherent state extraction.
-- B-1F implementation files and focused validation registration are present on the current branch through commit `84d04814b54c3e418b0edbf3944ab022a830d62c`.
+- B-1F extracted enemy-AI per-turn destination/engagement reservation bookkeeping into `BattleEnemyAiReservationStateService`.
+- B-1F focused runtime behavior was manually checked by the user on 2026-09-19 with no observed issue.
 - B-1F audit: `agent/BATTLE_ENGINE_B1F_ENEMY_AI_RESERVATION_STATE_AUDIT_20260919.md`.
 - B-1F execution brief: `agent/BATTLE_ENGINE_B1F_CODEX_ENEMY_AI_RESERVATION_STATE_20260919.md`.
+- B-1G audit selected unique-skill cooldown registry bookkeeping as the next coherent state extraction.
+- B-1G implementation is now present: `BattleUniqueSkillCooldownStateService` owns cooldown set/get/tick/clear/export/restore while controller wrappers retain hero-id resolution, round sequencing, buff ticking, skill policy, and resume I/O.
+- B-1G preserves the exact resume key `cooldowns` and does not change snapshot schema or WorldMap routing.
+- B-1G audit: `agent/BATTLE_ENGINE_B1G_UNIQUE_SKILL_COOLDOWN_STATE_AUDIT_20260919.md`.
+- B-1G execution brief: `agent/BATTLE_ENGINE_B1G_CODEX_UNIQUE_SKILL_COOLDOWN_STATE_20260919.md`.
 
 Current next action:
 
-**Finish only the risk-proportional B-1F scoped validation required by the repository skill if it has not already been run against the current executable state. Do not rerun unrelated full-suite/CI checks solely because this plan was updated.**
+- B-1G manual runtime verification was reported successful by the user on 2026-09-19, including unique-skill use and turn progression.
+- Pause the B-1x extraction sequence before B-1H.
+- The active priority is P-1 Production Runtime Unification, beginning with P-1A WorldMap 16:9 Production Promotion Audit.
 
-After B-1F scoped evidence is satisfactory, audit the next extraction boundary before beginning B-1G. Do not infer B-1G ownership from sequence alone.
+Do not begin B-1H until the P-1 production-entry duplication problem is resolved or explicitly deferred.
 
 Relevant current records:
 
 - `agent/BATTLE_ENGINE_B1E_ACTION_LOCK_STATE_AUDIT_20260918.md`
 - `agent/BATTLE_ENGINE_B1F_ENEMY_AI_RESERVATION_STATE_AUDIT_20260919.md`
 - `agent/BATTLE_ENGINE_B1F_CODEX_ENEMY_AI_RESERVATION_STATE_20260919.md`
+- `agent/BATTLE_ENGINE_B1G_UNIQUE_SKILL_COOLDOWN_STATE_AUDIT_20260919.md`
+- `agent/BATTLE_ENGINE_B1G_CODEX_UNIQUE_SKILL_COOLDOWN_STATE_20260919.md`
 
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
