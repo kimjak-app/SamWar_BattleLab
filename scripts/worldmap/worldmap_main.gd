@@ -7141,8 +7141,9 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	_refresh_city_hud_data_bindings()
 	_select_city_after_invasion_result(target_city_id)
 	_refresh_city_info_attack_action_state(target_city_id)
-	var attacker_won := str(plan.get("result_kind", "")) == INVASION_RESULT_ATTACKER_WIN
-	var outcome_label := "점령 성공" if attacker_won else ("30턴 제한 패배" if str(result.get("result_reason", "")) == "turn_limit" else "공격 패배")
+	var result_kind := str(plan.get("result_kind", ""))
+	var attacker_won := result_kind == INVASION_RESULT_ATTACKER_WIN
+	var outcome_label := "점령 성공" if attacker_won else ("후퇴" if result_kind == INVASION_RESULT_RETREAT or str(result.get("result_reason", "")) == "retreat" else ("30턴 제한 패배" if str(result.get("result_reason", "")) == "turn_limit" else "공격 패배"))
 	_set_save_management_status("%s · 정상병 %d / 부상병 %d / 전사 %d / 이탈 %d" % [outcome_label, healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))])
 	var result_lines: Array[String] = [
 		"정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))],
