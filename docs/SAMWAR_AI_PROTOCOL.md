@@ -1,34 +1,36 @@
 # SamWar Shared AI Development Protocol
 
-This is the canonical development protocol for **both ChatGPT (채코치)** and **Codex** when working on SamWar.
+This is the canonical shared protocol for ChatGPT (채코치) and Codex.
 
-## Operating model
-- The user describes the engineering goal in natural language.
-- The assistant/agent infers the correct workflow; the user should not need to remember skill names.
-- Use the repository router at `.agents/skills/samwar-dev/SKILL.md` and the referenced playbooks as the execution standard.
-- ChatGPT should consult this protocol and the router whenever it performs or directs substantial SamWar engineering work through the repository.
-- Codex should follow the same protocol through `AGENTS.md` and the repository skill.
-- Validation is risk-proportional: choose the lowest sufficient level and escalate only when the changed surface requires it.
+## Single-owner rule
 
-## Shared workflow
-1. Analyze the requested work and classify it.
-2. Assign or infer a short work ID/title.
-3. Run full preflight once for the coherent work unit: branch, HEAD, upstream, worktree, target paths, validation commands, and recoverability as applicable.
-4. Execute the relevant refactor/integration/scene-resource workflow.
-5. Verify the actual patch in the target files.
-6. Select validation level:
-   - Level 1: targeted verification for narrow changes.
-   - Level 2: targeted + nearest relevant regression for medium/local subsystem changes.
-   - Level 3: full regression + repository/CI checkpoint checks for integration, cross-system, milestone, release, or explicit full-green work.
-7. Do not rerun identical expensive checks unless relevant code/resource/repository state changed after the prior pass.
-8. Confirm the exact final version being reported at the level required by the task.
-9. Report only the branch/HEAD/worktree/CI details relevant to the selected validation level and the single best next step.
+Each kind of rule has one owner:
+- **Permission / safety / push / commit / local environment** → `agent/WORKFLOW_MANAGER.md`
+- **Execution routing / preflight / validation / duplicate-work prevention / closeout** → `.agents/skills/samwar-dev/SKILL.md`
+- **Battle architecture / stage / current next action** → `BATTLE_RUNTIME_REFACTOR_PLAN.md`
+- **Battle behavior invariants** → `agent/BATTLE_ENGINE_RULES.md`
+- **Per-task scope** → the current audit/execution brief
 
-## Shared completion rule
-Neither ChatGPT nor Codex may claim `done`, `complete`, or `Full Green` beyond the evidence actually gathered.
+Do not copy the same operating rule into several files. If a legacy brief repeats generic execution or validation rules, the repository skill supersedes those generic parts; task-specific behavior locks remain valid.
 
-- Level 1/2 may be reported as scoped verification complete.
-- `Full Green` is reserved for Level 3 when all required checkpoint validation corresponds to the exact final state being reported.
+## Reading policy
 
-## Source of truth
-If these instructions conflict with an older chat summary, prompt fragment, or ad-hoc checklist, this repository protocol wins for SamWar engineering work.
+- Long architecture plans are read in full only on the first session for that track, when the plan revision changes, or when crossing into a new architecture boundary.
+- Consecutive B-1x work on the same plan revision should read only the current-status/next-action section, the active audit/brief, and specifically relevant invariant sections.
+- Re-reading an unchanged 300+ line plan on every B-1x task is not required.
+- Skill/playbook documents loaded for a coherent work unit do not need to be reopened after every small edit.
+- Per-task briefs must be delta-only and must not contain generic full-regression/CI/closeout boilerplate.
+
+## Validation
+
+Validation is risk-proportional:
+- **Level 1**: targeted verification for narrow changes
+- **Level 2**: targeted + nearest relevant regression for medium/local subsystem changes
+- **Level 3**: full checkpoint for integration, cross-system boundaries, milestone/release readiness, or explicit Full Green requests
+
+Never rerun identical expensive checks when no relevant state changed.
+
+## Completion language
+
+Report only what the gathered evidence supports.
+`Full Green` is reserved for Level 3 when all required checkpoint evidence matches the exact reported state.
