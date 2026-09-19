@@ -15,6 +15,18 @@ for path in (SCENE, BACKGROUND, CITY_MARKER, ROUTE, MAIN, DESIGN2):
 
 scene = SCENE.read_text(encoding="utf-8")
 background = BACKGROUND.read_text(encoding="utf-8")
+
+# The canonical scene itself must persist Design-2. Runtime/editor tools may
+# reassert the same state, but they must not be the only source of truth.
+assert 'path="res://assets/source/worldmap/worldmap_bg_v2_test.png" id="2_worldmap_v2_master"' in scene
+assert scene.count('[sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_') == 4
+assert scene.count('texture = SubResource("AtlasTexture_worldmap_v2_') == 4
+assert "assets/worldmap/tiles/worldmap_tile_" not in scene
+assert "2_tile_a1" not in scene
+assert "3_tile_a2" not in scene
+assert "4_tile_b1" not in scene
+assert "5_tile_b2" not in scene
+assert "\\n" not in scene, "literal escaped newline leaked into WorldMap.tscn"
 city_marker = CITY_MARKER.read_text(encoding="utf-8")
 route = ROUTE.read_text(encoding="utf-8")
 main = MAIN.read_text(encoding="utf-8")
