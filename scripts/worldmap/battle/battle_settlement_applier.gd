@@ -141,6 +141,11 @@ func _apply_t02_troops(plan: Dictionary, report: Dictionary) -> void:
 		var defender_wounded := maxi(0, int(troop_plan.get("defender_wounded", 0)))
 		if defender_wounded > 0:
 			_m("add_wounded", [retreat_city_id, defender_wounded, int(_config.get("normal_wounded_turns", 3)), "normal", str(plan.get("transaction_id", ""))], null)
+	elif not attacker_won:
+		var defending_wounded := maxi(0, int(troop_plan.get("defender_wounded", 0)))
+		if defending_wounded > 0:
+			_m("add_wounded", [target_city_id, defending_wounded, int(_config.get("normal_wounded_turns", 3)), "normal", str(plan.get("transaction_id", ""))], null)
+			report["troop_changes"].append({"city_id": target_city_id, "wounded_added": defending_wounded})
 
 
 func _apply_standard_wounded(plan: Dictionary, _report: Dictionary) -> void:
