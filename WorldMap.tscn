@@ -11,6 +11,12 @@
 [ext_resource type="Texture2D" uid="uid://d2itv832yvsak" path="res://assets/worldmap/city_icons/castle_japan.png" id="11_nrcdb"]
 [ext_resource type="Script" uid="uid://cf6xa4routefx" path="res://scripts/worldmap_route_flow_fx.gd" id="12_route_flow_fx"]
 [ext_resource type="Script" uid="uid://dhacrdkc66ar8" path="res://scripts/worldmap_city_info_panel.gd" id="13_city_info_panel"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_hud_presentation_controller.gd" id="14_hud_presentation"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_warehouse_tabs_controller.gd" id="15_warehouse_tabs"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_garrison_compact_controller.gd" id="16_garrison_compact"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_readability_controller.gd" id="17_readability"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_panel_refinement_controller.gd" id="18_panel_refinement"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_tech_badge_summary_controller.gd" id="19_tech_badges"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -212,6 +218,24 @@ corner_radius_bottom_left = 8
 
 [node name="WorldMap_Test" type="Node2D" unique_id=2014555566]
 script = ExtResource("1_worldmap_test")
+
+[node name="WorldMapHudPresentationController" type="Node" parent="."]
+script = ExtResource("14_hud_presentation")
+
+[node name="WorldMapWarehouseTabsController" type="Node" parent="."]
+script = ExtResource("15_warehouse_tabs")
+
+[node name="WorldMapGarrisonCompactController" type="Node" parent="."]
+script = ExtResource("16_garrison_compact")
+
+[node name="WorldMapReadabilityController" type="Node" parent="."]
+script = ExtResource("17_readability")
+
+[node name="WorldMapPanelRefinementController" type="Node" parent="."]
+script = ExtResource("18_panel_refinement")
+
+[node name="WorldMapTechBadgeSummaryController" type="Node" parent="."]
+script = ExtResource("19_tech_badges")
 
 [node name="WorldMapRoot" type="Node2D" parent="." unique_id=386097288]
 
@@ -1446,18 +1470,21 @@ text = "국가 자원: 금전 0 / 식량 0 / 소금 0 / 말 0"
 autowrap_mode = 2
 
 [node name="SupplyLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1600828110]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "내부 보급망: 활성 교역로 0개 · 지원 필요 없음"
 
 [node name="MilitaryLogisticsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1719866852]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "내부 병참 계획서: 목표 주둔군 산정 준비 중"
 
 [node name="ExternalTradeLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=459528438]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
@@ -1465,6 +1492,7 @@ text = "대외 무역: 세력 관계 / 교역 수익 placeholder"
 autowrap_mode = 2
 
 [node name="WildArmyEditButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=262943670]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
@@ -1473,6 +1501,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
 text = "야군 편집 종료"
 
 [node name="SaveButtonRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=59652095]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 6
 
@@ -1507,6 +1536,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "초기화"
 
 [node name="WorldStatusHintLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=153500471]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 11
@@ -2046,6 +2076,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "모병 불가"
 
 [node name="InstructionLabel" type="Label" parent="WorldMapUI" unique_id=192681468]
+visible = false
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
