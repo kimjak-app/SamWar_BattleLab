@@ -5,6 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 WORLDMAP = ROOT / "scripts/worldmap/worldmap_main.gd"
 TEST = ROOT / "tests/scripts/test_worldmap_to_battle_input_lifecycle.gd"
+CANONICAL_BATTLE_SCENE = "res://scenes/battle/Battle_Main.tscn"
 
 
 def require(condition: bool, message: str) -> None:
@@ -24,6 +25,14 @@ def function_body(source: str, signature: str, next_signature: str) -> str:
 def main() -> None:
     source = WORLDMAP.read_text(encoding="utf-8")
     test_source = TEST.read_text(encoding="utf-8")
+    require(
+        f'const WORLDMAP_BATTLE_SCENE_PATH := "{CANONICAL_BATTLE_SCENE}"' in source,
+        "WorldMap canonical battle path must target Battle_Main",
+    )
+    require(
+        f'const BATTLE_SCENE_PATH := "{CANONICAL_BATTLE_SCENE}"' in test_source,
+        "execution regression must target Battle_Main",
+    )
 
     input_body = function_body(source, "func _input(event: InputEvent) -> void:", "func _unhandled_input(event: InputEvent) -> void:")
     unhandled_body = function_body(source, "func _unhandled_input(event: InputEvent) -> void:", "func _hide_retired_top_worldmap_hud()")
@@ -63,7 +72,7 @@ def main() -> None:
     ):
         require(token in test_source, f"execution regression test missing {token}")
 
-    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: camera-controller handoff guard; input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
+    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: canonical Battle_Main route; camera-controller handoff guard; input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
 
 
 if __name__ == "__main__":

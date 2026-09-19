@@ -2,7 +2,7 @@ extends SceneTree
 
 
 const WORLDMAP_SCENE := preload("res://WorldMap.tscn")
-const BATTLE_SCENE_PATH := "res://Battle_Land.tscn"
+const BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"
 
 
 func _initialize() -> void:
@@ -37,7 +37,7 @@ func _run() -> void:
 	await process_frame
 
 	var battle := current_scene
-	_expect(battle != null and battle.scene_file_path == BATTLE_SCENE_PATH, "single input handoff enters Battle_Land")
+	_expect(battle != null and battle.scene_file_path == BATTLE_SCENE_PATH, "single input handoff enters Battle_Main")
 	_expect(not Engine.has_meta("samwar_worldmap_battle_context"), "context consumed exactly once")
 	_expect(battle.get("battle_supply_runtime") != null, "BattleSupplyRuntime configured")
 	var supply_panel := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Control

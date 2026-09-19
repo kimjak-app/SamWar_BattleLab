@@ -8,18 +8,18 @@ After transaction/result validation, WorldMap atomically applies target ownershi
 - WorldMap script: `scripts/worldmap/worldmap_main.gd`
 - Battle script: `scripts/battle_web_import_test.gd`
 - Main scene: `res://WorldMap.tscn`
-- Battle scene: `res://Battle_Land.tscn`
+- Battle scene: `res://scenes/battle/Battle_Main.tscn`
 - Analysis baseline: `62db80afecaa22b47be6a7fb05b4360fe4376c51` (`v0.72-03 Scene Entrypoint Rename Complete Lock`)
 
 ## Contract Summary
-- WorldMap -> Battle entry: WorldMap builds a battle context dictionary, stores it in `Engine` meta under `samwar_worldmap_battle_context`, then changes scene to `res://Battle_Land.tscn`.
+- WorldMap -> Battle entry: WorldMap builds a battle context dictionary, stores it in `Engine` meta under `samwar_worldmap_battle_context`, then changes scene to `res://scenes/battle/Battle_Main.tscn`.
 - Battle receives: `scripts/battle_web_import_test.gd` reads and removes the context meta during startup, duplicates the dictionary, applies rosters/hero contracts, and configures the battle UI for a worldmap-origin battle.
 - Battle runtime mutates: local battle actor/unit state, hero contract registries, roster summary, visuals, and result return UI while preserving the input context shape for result construction.
 - Battle -> WorldMap return: Battle builds a result dictionary, stores it in `Engine` meta under `samwar_worldmap_battle_result`, and changes scene to `res://WorldMap.tscn`.
 - WorldMap applies result: WorldMap consumes and removes `samwar_worldmap_battle_result`; T02 player-attack results restore the transaction snapshot, validate transaction/result IDs, atomically settle city/general/troop/resource/wounded state, refresh UI, and checkpoint. Legacy enemy-invasion results retain the pre-T02 handler for T03.
 
 ## Scene Paths
-- `WORLDMAP_BATTLE_SCENE_PATH`: `res://Battle_Land.tscn`
+- `WORLDMAP_BATTLE_SCENE_PATH`: `res://scenes/battle/Battle_Main.tscn`
 - `WORLDMAP_SCENE_PATH`: `res://WorldMap.tscn`
 - WorldMap -> Battle meta key: `samwar_worldmap_battle_context`
 - Battle -> WorldMap meta key: `samwar_worldmap_battle_result`
@@ -122,7 +122,7 @@ BattleResult adds `transaction_id`, `result_id`, `winner_side`, `result_reason`,
 |---|---|
 | `_confirm_defense_deployment` | Prepares defense deployment and pending battle context. |
 | `_handoff_battle_context_to_battle_scene` | Validates and initiates battle scene handoff. |
-| `_change_scene_to_battle_with_context` | Owns `Engine` meta write and scene transition to `Battle_Land.tscn`. |
+| `_change_scene_to_battle_with_context` | Owns `Engine` meta write and scene transition to canonical `Battle_Main.tscn`. |
 | `_consume_worldmap_battle_result_if_any` | Owns result meta read/remove on WorldMap startup. |
 | `_apply_returned_battle_result_mvp` | Dispatches returned result into worldmap mutation handlers. |
 | `_is_player_attack_battle_result` | Classifies player attack result payload. |

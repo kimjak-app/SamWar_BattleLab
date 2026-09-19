@@ -29,9 +29,9 @@ WorldMap:
 
 Battle:
 
-- WorldMap currently routes to `res://Battle_Land.tscn`.
-- `scenes/battle/Battle_Main.tscn` exists as the canonical production boundary.
-- The latest accepted isometric presentation still lives in `tests/scenes/Battle_UI_Production_Imjin_IsoMovement_Test.tscn`.
+- Before P-1D, WorldMap routed to legacy `res://Battle_Land.tscn`.
+- `scenes/battle/Battle_Main.tscn` is the canonical production battle boundary.
+- The accepted isometric presentation has been promoted into production ownership; test scenes remain QA consumers.
 
 ## 3. P-1 sequence
 
@@ -81,6 +81,8 @@ Requirements:
 - logical battle behavior remains unchanged.
 
 ### P-1D | Canonical Entry Switch
+
+Status: **IMPLEMENTED — awaiting real WorldMap roundtrip QA.**
 
 After parity checks:
 
@@ -165,10 +167,9 @@ Current state:
 - generic post-skill reposition behavior is production-owned;
 - Imjin-specific roster/nation/portrait fixtures remain under tests;
 - Production supply HUD is bound to real `BattleSupplyRuntime`, not mock data;
-- WorldMap battle entry intentionally remains `res://Battle_Land.tscn`.
+- Direct Godot QA on `scenes/battle/Battle_Main.tscn` passed on 2026-09-19.
+- P-1D canonical entry switch is implemented: `WorldMap.tscn -> scenes/battle/Battle_Main.tscn`.
+- Legacy `res://Battle_Land.tscn` remains for comparison/recovery only; WorldMap no longer routes to it.
 
 Next action:
-**Run direct Godot QA on `scenes/battle/Battle_Main.tscn`. Do not begin P-1D until Battle_Main passes.**
-
-After Battle_Main passes, P-1D may switch:
-`WorldMap.tscn -> scenes/battle/Battle_Main.tscn`.
+**Run real end-to-end Godot QA through `WorldMap -> Battle_Main`, confirm BattleContext-backed roster/troops/supply, then return to WorldMap and verify settlement.**
