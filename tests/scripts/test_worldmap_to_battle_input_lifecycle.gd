@@ -42,8 +42,25 @@ func _run() -> void:
 	_expect(battle.get("battle_supply_runtime") != null, "BattleSupplyRuntime configured")
 	var supply_panel := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Control
 	_expect(supply_panel != null and supply_panel.visible, "runtime supply panel visible")
+	var ally_roster_names := _visible_production_roster_names(battle, "Ally")
+	var enemy_roster_names := _visible_production_roster_names(battle, "Enemy")
+	_expect(ally_roster_names == ["이순신"], "production ally roster hides inactive test fixtures")
+	_expect(enemy_roster_names == ["광개토대왕"], "production enemy roster hides inactive test fixtures")
 	print("[WORLDMAP_INPUT_LIFECYCLE] PASS")
 	quit(0)
+
+
+func _visible_production_roster_names(battle: Node, side_name: String) -> Array[String]:
+	var names: Array[String] = []
+	var slot_names := ["Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02"]
+	for slot_name in slot_names:
+		var slot := battle.get_node_or_null("BattleUI/ProductionHudRoot/%sRosterHud/%s" % [side_name, slot_name]) as Control
+		if slot == null or not slot.visible:
+			continue
+		var name_label := slot.get_node_or_null("NameLabel") as Label
+		if name_label != null:
+			names.append(name_label.text)
+	return names
 
 
 func _build_context() -> Dictionary:
