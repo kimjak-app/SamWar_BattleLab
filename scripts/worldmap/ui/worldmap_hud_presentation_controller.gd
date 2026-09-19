@@ -60,6 +60,13 @@ func _install() -> void:
 		var item := world_ui.get_node_or_null(node_name) as CanvasItem
 		if item != null:
 			item.visible = false
+	var camera_debug := world_ui.get_node_or_null("CameraDebugLabel") as CanvasItem
+	if camera_debug != null:
+		camera_debug.visible = false
+	var legacy_tech_button := world_ui.get_node_or_null("DomesticTechTreeButtonMVP") as CanvasItem
+	if legacy_tech_button != null:
+		legacy_tech_button.visible = false
+	call_deferred("_hide_late_legacy_top_ui")
 
 	_compact_left_panel()
 	_compact_right_panel()
@@ -221,3 +228,17 @@ func _on_city_selected(_marker: Node) -> void:
 
 func _on_viewport_size_changed() -> void:
 	call_deferred("request_layout_refresh")
+
+
+func _hide_late_legacy_top_ui() -> void:
+	if world_map == null:
+		return
+	var world_ui := world_map.get_node_or_null("WorldMapUI") as CanvasLayer
+	if world_ui == null:
+		return
+	var camera_debug := world_ui.get_node_or_null("CameraDebugLabel") as CanvasItem
+	if camera_debug != null:
+		camera_debug.visible = false
+	var legacy_tech_button := world_ui.get_node_or_null("DomesticTechTreeButtonMVP") as CanvasItem
+	if legacy_tech_button != null:
+		legacy_tech_button.visible = false
