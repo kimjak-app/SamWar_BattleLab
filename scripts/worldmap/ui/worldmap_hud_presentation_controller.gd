@@ -135,16 +135,21 @@ func request_hud_panel_global_position(panel: Control, requested_global_position
 	return false
 
 
-func request_hud_panel_position(panel: Control, requested_position: Vector2) -> bool:
+func request_hud_panel_position(panel: Control, _requested_position: Vector2) -> bool:
 	if not _installed or panel == null:
 		return false
-	if panel == _left_panel and not _left_has_user_position:
-		panel.position = _clamp_position(panel, requested_position)
+	# Production default-layout requests from worldmap_main still carry the legacy
+	# 10px-top geometry. This owner intentionally resolves those requests to the
+	# accepted 16:9 HUD baseline. Only explicit global drag requests become user positions.
+	if panel == _left_panel:
+		if not _left_has_user_position:
+			panel.position = _clamp_position(panel, _get_default_position(panel, true))
 		return true
-	if panel == _right_panel and not _right_has_user_position:
-		panel.position = _clamp_position(panel, requested_position)
+	if panel == _right_panel:
+		if not _right_has_user_position:
+			panel.position = _clamp_position(panel, _get_default_position(panel, false))
 		return true
-	return panel == _left_panel or panel == _right_panel
+	return false
 
 
 func request_layout_refresh() -> void:
