@@ -8,6 +8,15 @@ Follow-up: top System menu now opens scene-authored sound settings with SFX enab
 
 # CURRENT STATE
 
+## P-1D canonical WorldMap -> Battle_Main switch
+
+- User direct F6 QA of `res://scenes/battle/Battle_Main.tscn` passed on 2026-09-19 after the ResourceUID and current-actor HUD parser hotfixes.
+- `WORLDMAP_BATTLE_SCENE_PATH` now targets `res://scenes/battle/Battle_Main.tscn`; the execution regression expects the same canonical scene.
+- Player-attack BattleContext continues to source the target city's current owner, stationed/reinforcement roster, current city troops, command-limit allocation, and persisted defender food/salt snapshot before the scene handoff.
+- `res://Battle_Land.tscn` is retained only for comparison/recovery and is no longer the WorldMap battle route.
+- Status: `P-1D IMPLEMENTED / DIRECT BATTLE_MAIN F6 PASS / REAL WORLDMAP ROUNDTRIP QA PENDING`.
+
+
 ## One-side exhaustion turn hotfix
 
 - A 1-vs-many battle could deadlock after the first enemy action: `_advance_enemy_turn_or_return_to_ally()` always entered `_return_to_ally_turn()`, which left `PHASE_ALLY_TURN` active even after every living ally had acted. No unacted ally existed, while remaining enemy actors were never scheduled.
