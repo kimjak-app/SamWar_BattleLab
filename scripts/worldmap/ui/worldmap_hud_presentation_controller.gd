@@ -12,7 +12,11 @@ const HUD_MIN_TOP_MARGIN := 96.0
 const EDGE_PADDING := 8.0
 
 const LEFT_HIDDEN_CHILDREN := [
+	"EyebrowLabel",
 	"TurnLabel",
+	"CalendarLabel",
+	"NationLabel",
+	"WorldTurnSeparator",
 	"SupplyLabel",
 	"MilitaryLogisticsLabel",
 	"ExternalTradeLabel",
@@ -54,6 +58,14 @@ func _install() -> void:
 	if _left_panel == null or _right_panel == null:
 		push_warning("WorldMap HUD Presentation: required HUD panels are missing.")
 		return
+
+	var hud_controller := world_map.get_node_or_null("WorldMapHudController")
+	if hud_controller == null and world_map.has_method("_ensure_hud_controller"):
+		hud_controller = world_map.call("_ensure_hud_controller")
+	if hud_controller != null and hud_controller.has_method("set_compact_presentation_enabled"):
+		hud_controller.call("set_compact_presentation_enabled", true)
+	if _right_panel.has_method("set_compact_presentation_enabled"):
+		_right_panel.call("set_compact_presentation_enabled", true)
 
 	world_ui.visible = true
 	for node_name in WORLD_UI_ALWAYS_HIDDEN:
