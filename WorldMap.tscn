@@ -217,7 +217,9 @@ script = ExtResource("1_worldmap_test")
 
 [node name="WorldMapTileLayer" type="Node2D" parent="WorldMapRoot" unique_id=1962135934]
 
-[node name="Tile_A1_TopLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1015611665]\nposition = Vector2(0, 0)\ntexture = ExtResource("2_tile_a1")
+[node name="Tile_A1_TopLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1015611665]
+position = Vector2(0, 0)
+texture = SubResource("AtlasTexture_worldmap_v2_a1")
 centered = false
 
 [node name="Tile_A2_TopRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1917839138]
