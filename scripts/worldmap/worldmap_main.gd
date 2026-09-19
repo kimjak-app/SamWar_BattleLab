@@ -9622,6 +9622,13 @@ func _parse_positive_domestic_tech_research_turn_value_mvp(raw_value: Variant) -
 
 func _mark_domestic_tech_completed_from_normalize_mvp(scope: String, city_id: String, tech_id: String) -> void:
 	_ensure_domestic_tech_research_service().mark_completed_from_normalize(scope, city_id, tech_id)
+	_refresh_worldmap_tech_badge_summary_if_present()
+
+
+func _refresh_worldmap_tech_badge_summary_if_present() -> void:
+	var badges := get_node_or_null("WorldMapTechBadgeSummaryController")
+	if badges != null and badges.has_method("refresh_from_runtime"):
+		badges.call_deferred("refresh_from_runtime")
 
 
 func _sync_city_domestic_tech_completed_mirror_mvp(city_id: String) -> void:
@@ -9725,6 +9732,7 @@ func _advance_domestic_tech_research_for_world_turn_mvp() -> Dictionary:
 	if not (result.get("completed", []) as Array).is_empty() and _is_domestic_tech_tree_overlay_open_mvp():
 		_refresh_domestic_tech_tree_overlay_mvp()
 	_refresh_domestic_tech_effect_display_surfaces_mvp(result)
+	_refresh_worldmap_tech_badge_summary_if_present()
 	return result
 
 
