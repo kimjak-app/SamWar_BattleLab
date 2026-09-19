@@ -44,3 +44,19 @@ Repository-state checks confirmed:
 - WorldMap battle path is unchanged.
 
 Runtime/editor visual parity must be checked in Godot by opening/running `WorldMap.tscn` directly, not `WorldMap_16x9_Test.tscn`.
+
+
+## Visual-QA hotfix note
+
+The first P-1B-1 pass promoted runtime ownership but left the old four tile PNGs serialized in `WorldMap.tscn`. That caused the Godot 2D editor and initial scene state to continue presenting the legacy map.
+
+Hotfixes now:
+
+- remove all four legacy tile texture references from `WorldMap.tscn`;
+- persist `worldmap_bg_v2_test.png` as the canonical scene texture;
+- persist four AtlasTexture regions directly in the scene;
+- persist the 17 route Curve2D guide-point baselines against the approved city coordinates;
+- fix the A1 tile block serialization;
+- extend the P-1B-1 validator to reject legacy tile references or escaped-newline corruption.
+
+After pulling the latest branch, close/reopen `WorldMap.tscn` (or reload the Godot project) so the editor discards its cached open-scene state.
