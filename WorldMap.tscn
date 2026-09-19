@@ -204,22 +204,21 @@ script = ExtResource("1_worldmap_test")
 
 [node name="WorldMapTileLayer" type="Node2D" parent="WorldMapRoot" unique_id=1962135934]
 
-[node name="Tile_A1_TopLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1015611665]
-texture = ExtResource("2_tile_a1")
+[node name="Tile_A1_TopLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1015611665]\nposition = Vector2(0, 0)\ntexture = ExtResource("2_tile_a1")
 centered = false
 
 [node name="Tile_A2_TopRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1917839138]
-position = Vector2(1024, 1)
+position = Vector2(1024, 0)
 texture = ExtResource("3_tile_a2")
 centered = false
 
 [node name="Tile_B1_BottomLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=190604974]
-position = Vector2(0, 728)
+position = Vector2(0, 576)
 texture = ExtResource("4_tile_b1")
 centered = false
 
 [node name="Tile_B2_BottomRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer" unique_id=1496253675]
-position = Vector2(1024, 728)
+position = Vector2(1024, 576)
 texture = ExtResource("5_tile_b2")
 centered = false
 
@@ -693,7 +692,7 @@ polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot" unique_id=1124618027]
 
 [node name="CityMarker_Luoyang" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=396096552]
-position = Vector2(785, 781)
+position = Vector2(765, 586.5)
 script = ExtResource("6_city_marker")
 city_id = "luoyang"
 display_name = "낙양"
@@ -718,7 +717,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1515034208]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "낙양"
 
@@ -729,7 +728,7 @@ position = Vector2(0, 1)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Yecheng" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=630356492]
-position = Vector2(896, 581)
+position = Vector2(842.5, 499)
 script = ExtResource("6_city_marker")
 city_id = "yecheng"
 display_name = "업성"
@@ -755,7 +754,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=2041772460]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "업성"
 
@@ -765,7 +764,7 @@ text = "업성"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Chengdu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=562035558]
-position = Vector2(479, 984)
+position = Vector2(408.5, 730.5)
 script = ExtResource("6_city_marker")
 city_id = "chengdu"
 display_name = "성도"
@@ -790,7 +789,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1708417080]
-position = Vector2(0, 23)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "성도"
 
@@ -801,7 +800,7 @@ position = Vector2(1, 2)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Jianye" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=507432029]
-position = Vector2(1046, 846)
+position = Vector2(955, 670)
 script = ExtResource("6_city_marker")
 city_id = "jianye"
 display_name = "건업"
@@ -829,7 +828,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=834072429]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "건업"
 
@@ -839,7 +838,7 @@ text = "건업"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Karakorum" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=81171640]
-position = Vector2(1155, 261)
+position = Vector2(1029.5, 272.5)
 script = ExtResource("6_city_marker")
 city_id = "karakorum"
 display_name = "카라코룸"
@@ -869,7 +868,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("9_7yvie")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1787550722]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "카라코룸"
 
@@ -879,7 +878,7 @@ text = "카라코룸"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Pyeongyang" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1950069167]
-position = Vector2(1353, 404)
+position = Vector2(1178, 342)
 script = ExtResource("6_city_marker")
 city_id = "pyeongyang"
 display_name = "평양"
@@ -904,7 +903,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=937412380]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "평양"
 
@@ -914,7 +913,7 @@ text = "평양"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Hanseong" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=342105785]
-position = Vector2(1409, 529)
+position = Vector2(1235, 424.5)
 script = ExtResource("6_city_marker")
 city_id = "hanseong"
 display_name = "한성"
@@ -939,7 +938,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=155801755]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "한성"
 
@@ -949,7 +948,7 @@ text = "한성"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Gyeongju" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=352857378]
-position = Vector2(1518, 658)
+position = Vector2(1303, 488.5)
 script = ExtResource("6_city_marker")
 city_id = "gyeongju"
 display_name = "경주"
@@ -979,7 +978,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1214544719]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "경주"
 
@@ -989,7 +988,7 @@ text = "경주"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Sabi" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1705550825]
-position = Vector2(1426, 695)
+position = Vector2(1236, 523.5)
 script = ExtResource("6_city_marker")
 city_id = "sabi"
 display_name = "사비"
@@ -1018,7 +1017,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=394125242]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "사비"
 
@@ -1028,7 +1027,7 @@ text = "사비"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyoto" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=345330817]
-position = Vector2(1798, 775)
+position = Vector2(1543.5, 492.5)
 script = ExtResource("6_city_marker")
 city_id = "kyoto"
 display_name = "교토"
@@ -1056,7 +1055,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2067049430]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "교토"
 
@@ -1066,7 +1065,7 @@ text = "교토"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Osaka" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=167775615]
-position = Vector2(1746, 861)
+position = Vector2(1513.5, 567)
 script = ExtResource("6_city_marker")
 city_id = "osaka"
 display_name = "오사카"
@@ -1095,7 +1094,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1160152793]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "오사카"
 
@@ -1105,7 +1104,7 @@ text = "오사카"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyushu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1734896910]
-position = Vector2(1539, 951)
+position = Vector2(1397.5, 628.5)
 script = ExtResource("6_city_marker")
 city_id = "kyushu"
 display_name = "큐슈"
@@ -1134,7 +1133,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=93638272]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "큐슈"
 
@@ -1144,7 +1143,7 @@ text = "큐슈"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Edo" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1646505751]
-position = Vector2(1903, 696)
+position = Vector2(1602.5, 414.5)
 script = ExtResource("6_city_marker")
 city_id = "edo"
 display_name = "에도"
@@ -1170,7 +1169,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1369684222]
-position = Vector2(0, 24)
+position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
 text = "에도"
 
@@ -1186,8 +1185,12 @@ shape = SubResource("CircleShape2D_city_click")
 [node name="DebugLayer" type="Node2D" parent="WorldMapRoot" unique_id=1739896669]
 
 [node name="WorldMapCamera" type="Camera2D" parent="." unique_id=316783756]
-position = Vector2(512, 512)
+position = Vector2(1024, 576)
 zoom = Vector2(0.7, 0.7)
+limit_left = 0
+limit_top = 0
+limit_right = 2048
+limit_bottom = 1152
 
 [node name="WorldMapUI" type="CanvasLayer" parent="." unique_id=1714646027]
 
