@@ -21,6 +21,9 @@ static func build(controller: Node) -> Dictionary:
 	var enemies: Array[Dictionary] = []
 	if controller.has_method("_get_all_unit_states_in_slot_order"):
 		for unit in controller.call("_get_all_unit_states_in_slot_order"):
+			if controller.has_method("_is_unit_state_active_by_capacity_slot") \
+					and not bool(controller.call("_is_unit_state_active_by_capacity_slot", unit)):
+				continue
 			var state := _unit_state(unit)
 			if str(state.get("side", "")) == "ally":
 				allies.append(state)
