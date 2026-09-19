@@ -108,4 +108,6 @@ Replace the current WorldMap route to `Battle_Land.tscn`.
 - P-1B-1 visual baseline promotion is implemented on the active branch.
 - Repository-state verification confirms the accepted Design-2 background, 2048×1152 geometry, 13 approved city positions, label offsets, route refresh contract, and production camera bounds.
 - P-1B-1 persisted-scene hotfix now makes `WorldMap.tscn` itself reference Design-2 AtlasTextures and updated route baselines. It is waiting for a fresh Godot editor/runtime parity check after reloading the scene/project.
-- Do not begin P-1B-2 until that direct Production WorldMap visual check is satisfactory.
+- P-1B-1 direct Production WorldMap visual check passed after the branch mismatch was corrected.
+- P-1B-2 production compact HUD promotion is implemented and awaiting Godot runtime visual QA.
+- Do not begin P-1B-3 until the compact left/right HUD is visually accepted in `WorldMap.tscn`.
