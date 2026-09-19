@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://p1cactorhudscene260919"]
 
 [ext_resource type="Theme" path="res://assets/ui/battle_ui_theme.tres" id="1_theme"]
 [ext_resource type="Texture2D" path="res://assets/ui/battle/current_actor_hud/current_actor_hud_bg.png" id="2_hud_background"]
