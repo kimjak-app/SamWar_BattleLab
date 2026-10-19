@@ -20,7 +20,9 @@ assert 'res://scenes/battle/Battle_Production.tscn' in battle_main
 assert 'Battle_Land.tscn' not in battle_main
 assert 'type="Script"' not in battle_main
 
-assert 'uid="uid://p1cbattleprod260919"' in battle_prod
+# c195990 assigned a non-resolvable placeholder UID; hotfix 5f06750 replaced it with the valid one.
+assert 'uid="uid://nptyjyp54mew"' in battle_prod
+assert 'uid://p1cbattleprod260919' not in battle_prod
 assert 'res://scripts/battle/presentation/iso/battle_iso_production_controller.gd' in battle_prod
 assert 'BattleUI/ProductionHudRoot' in battle_prod
 assert '[node name="BattleSupplyHud"' in battle_prod
@@ -59,8 +61,8 @@ assert 'func _refresh_production_battle_supply_hud' in battle_core
 assert 'func _refresh_production_battle_supply_side' in battle_core
 assert 'battle_supply_panel.visible = false' in battle_core
 
-# P-1C prepares Battle_Main only. P-1D performs the actual WorldMap switch.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in worldmap
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' not in worldmap
+# P-1C prepared Battle_Main; P-1D (10068a3) performed the actual WorldMap switch.
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in worldmap
 
 print("P-1C Battle production promotion static validation: PASS")
