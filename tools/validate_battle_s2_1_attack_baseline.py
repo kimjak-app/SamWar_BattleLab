@@ -6,7 +6,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "2ba04645f7736fbee3a0eecd8a9ef0a38ef13b02"
-TIP = os.environ.get("S2_1_SCOPE_TIP", "ab036c6392cbf682e999fe0117b22a5a3dc5d3c8")
+TIP = os.environ.get("S2_1_SCOPE_TIP", "538665f1c7b369ea87ffdfd0e828513ea3f1c4ef")
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 F2 = "tests/scripts/test_battle3d_engine_move_integration.gd"
 GOLDEN = "tests/golden/battle_attack_baseline_v0.json"
