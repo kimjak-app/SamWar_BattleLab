@@ -88,6 +88,6 @@ assert 'LEFT_SAMPLE_BADGES' not in tech
 assert 'RIGHT_SAMPLE_BADGES' not in tech
 
 # P-1B-2 must not prematurely switch the battle entry.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in main
 
 print("P-1B-2 Production WorldMap HUD static validation: PASS")

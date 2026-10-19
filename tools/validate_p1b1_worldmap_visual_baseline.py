@@ -111,7 +111,7 @@ assert 'func _refresh_route_geometry()' in route
 assert 'call_deferred("_refresh_route_geometry")' in route
 
 # P-1B-1 must not prematurely switch battle runtime.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in main
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' not in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in main
 
 print("P-1B-1 WorldMap visual baseline static validation: PASS")

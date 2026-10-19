@@ -41,7 +41,7 @@ for name in production:
 assert "res://tests/scripts/battle_iso_" not in iso_test
 
 worldmap = (ROOT / "scripts/worldmap/worldmap_main.gd").read_text(encoding="utf-8")
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in worldmap
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' not in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in worldmap
 
 print("B-0C production ISO promotion static validation: PASS")

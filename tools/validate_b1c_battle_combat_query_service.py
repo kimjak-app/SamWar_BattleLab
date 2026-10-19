@@ -72,7 +72,7 @@ for forbidden in (
 ):
     assert forbidden not in service, f"forbidden responsibility leaked into combat query service: {forbidden}"
 
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in worldmap
-assert 'res://scenes/battle/Battle_Main.tscn' not in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in worldmap
 
 print("B-1C BattleCombatQueryService static validation: PASS")

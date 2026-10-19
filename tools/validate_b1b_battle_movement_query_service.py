@@ -69,8 +69,8 @@ wrappers = (
 for wrapper in wrappers:
     assert re.search(rf"^func {re.escape(wrapper)}\b", controller, re.M), f"compatibility wrapper missing: {wrapper}"
 
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in worldmap
-assert 'res://scenes/battle/Battle_Main.tscn' not in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in worldmap
 for forbidden in ("WorldMap", "worldmap", "BattleResult", "battle_result", "BattleContext", "battle_context"):
     assert forbidden not in service, f"forbidden responsibility leaked into movement service: {forbidden}"
 

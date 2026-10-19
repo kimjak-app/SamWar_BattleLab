@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,14 +22,18 @@ uid = uid_path.read_text(encoding="utf-8").strip()
 assert uid == "uid://d9b0ctlprod26", f"unexpected controller UID: {uid}"
 
 scene = scene_path.read_text(encoding="utf-8")
-assert 'path="res://Battle_Land.tscn"' in scene
-assert 'path="res://scripts/battle/battle_controller.gd"' in scene
-assert 'uid="uid://d9b0ctlprod26"' in scene
-assert '[node name="Battle_Fullscreen_Test" instance=ExtResource("1_base")]' in scene
-assert 'script = ExtResource("2_controller")' in scene
+# P-1C/P-1D superseded the B-0B skeleton wiring: Battle_Main now instances the
+# production battle scene, and the BattleController bridge is inherited through
+# BattleProductionController (asserted below and in validate_p1c_*).
+assert 'path="res://scenes/battle/Battle_Production.tscn"' in scene
+assert 'path="res://Battle_Land.tscn"' not in scene
+assert 'type="Script"' not in scene
+assert re.search(r'\[node name="Battle_Main"(?: unique_id=\d+)? instance=ExtResource\("1_base"\)\]', scene)
+production_controller = (ROOT / "scripts/battle/battle_production_controller.gd").read_text(encoding="utf-8")
+assert 'extends "res://scripts/battle/battle_controller.gd"' in production_controller
 
 worldmap = worldmap_path.read_text(encoding="utf-8")
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in worldmap
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' not in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in worldmap
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in worldmap
 
 print("B-0B canonical battle production skeleton static validation: PASS")
