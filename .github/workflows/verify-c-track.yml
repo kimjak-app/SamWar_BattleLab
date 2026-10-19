@@ -83,6 +83,7 @@ jobs:
             tools/validate_b1e_battle_action_lock_state_service.py
             tools/validate_b1f_battle_enemy_ai_reservation_state_service.py
             tools/validate_b1g_battle_unique_skill_cooldown_state_service.py
+            tools/validate_battle_s1_1_observation_baseline.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
           )
@@ -112,6 +113,9 @@ jobs:
             tests/scripts/test_battle_action_lock_state_service.gd
             tests/scripts/test_battle_enemy_ai_reservation_state_service.gd
             tests/scripts/test_battle_unique_skill_cooldown_state_service.gd
+            tests/scripts/test_battle_event_log_service.gd
+            tests/scripts/test_battle_state_fingerprint_service.gd
+            tests/scripts/test_battle_move_oracle_baseline.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
