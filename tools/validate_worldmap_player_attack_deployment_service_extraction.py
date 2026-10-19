@@ -3,6 +3,7 @@
 from pathlib import Path
 import re
 import subprocess
+from p1_exact_delta import assert_settlement_is_approved_p1d_state
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = "scripts/worldmap/worldmap_main.gd"
@@ -31,7 +32,9 @@ def assert_af1_standard_wounded_rename(current_bytes: bytes, baseline_bytes: byt
     assert current_bytes.count(NEW_STANDARD_WOUNDED_SIGNATURE) == 1, "current AF-1 signature missing or duplicated"
     assert current_bytes.count(OLD_STANDARD_WOUNDED_SIGNATURE) == 0, "current file retains pre-AF-1 signature"
     expected_bytes = baseline_bytes.replace(OLD_STANDARD_WOUNDED_SIGNATURE, NEW_STANDARD_WOUNDED_SIGNATURE, 1)
-    assert current_bytes == expected_bytes, "battle settlement changed beyond the exact AF-1 parameter rename"
+    # P-1D intentionally changed retreat/defender-wounded settlement after AF-1. The approved
+    # state is pinned to a commit and its exact line delta from the AF-1 state (tools/p1_exact_delta.py).
+    assert_settlement_is_approved_p1d_state(ROOT, current_bytes, expected_bytes, BATTLE_SETTLEMENT_PATH)
 
 
 current = functions(MAIN)

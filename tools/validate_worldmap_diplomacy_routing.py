@@ -32,6 +32,7 @@ broad whitelist.
 from __future__ import annotations
 
 import subprocess
+from p1_exact_delta import assert_main_is_approved_p1_state
 from pathlib import Path
 
 
@@ -139,10 +140,10 @@ def main() -> None:
     warning_cleanup_main = _git_show(WORLDMAP_WARNING_CLEANUP_CHECKPOINT, MAIN)
     current_main = _current(MAIN)
 
-    assert current_main == warning_cleanup_main, (
-        "worldmap_main.gd changed after the approved WorldMap warning-cleanup "
-        "checkpoint; review a new exact delta instead of relaxing diplomacy routing"
-    )
+    # P-1C/P-1D intentionally changed worldmap_main.gd after the warning-cleanup checkpoint
+    # (Battle_Main entry, retreat label, territory/badge refresh). The approved state is pinned
+    # to a commit plus its exact line delta (tools/p1_exact_delta.py); further drift still fails.
+    assert_main_is_approved_p1_state(ROOT, current_main, warning_cleanup_main, MAIN)
 
     warning_cleanup_delta_files = _git_changed_files(
         WORLDMAP_WARNING_CLEANUP_BASE_CHECKPOINT,
