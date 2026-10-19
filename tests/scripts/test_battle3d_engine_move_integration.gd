@@ -154,6 +154,12 @@ func _run() -> void:
 		return
 	var detour: Array = lab.played_paths[-1]
 	expect(detour.size()-1 > 2,"executed path detours around occupancy")
+	var executed_detour: Array = []
+	for event in lab.engine.get("ally_move_event_log").export():
+		if event.kind == "unit_moved" and event.unit_id == "yi_sunsin":
+			executed_detour.clear()
+			for cell in event.path: executed_detour.append(Vector2i(cell[0],cell[1]))
+	expect(executed_detour.size() > 2 and lab.playback.has("yi_sunsin") and lab.playback["yi_sunsin"].path == executed_detour,"detour playback equals engine executed path")
 	expect(lab.queries.find_unit("yi_sunsin").last_action.moved_distance==2,"detour retains grid distance")
 	# Free during active presentation: callbacks must not escape the old instance.
 	lab.free()
