@@ -3,6 +3,8 @@ const Adapter=preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const GridProjection=preload("res://scripts/battle3d/battle3d_grid_projection.gd")
 const Queries=preload("res://scripts/battle3d/battle3d_movement_adapter.gd")
 const Service=preload("res://scripts/battle/services/battle_movement_query_service.gd")
+# Independent contract from B3D-F1 brief, not derived from Adapter.VIEW_FIELDS.
+const EXPECTED_VIEW_FIELDS := ["unit_id","side","unit_type","grid_cell","facing","current_troops","max_troops","allocated_troops","footprint","has_moved","has_acted","status_effects","move_range","attack_range"]
 var _checks := 0
 var _failures := 0
 var scenarios := 0
@@ -40,8 +42,14 @@ func run_scenario(label: String,units: Array[BattleUnitState],breakthrough: bool
 	var before := fingerprint(units)
 	var mover := units[0]
 	var view := Adapter.to_view(mover)
-	for key in Adapter.VIEW_FIELDS: expect(view[key]==mover.get(key),label+" field "+key)
-	view.status_effects["unexpected_visual_effect"]=3
+	var keys := view.keys()
+	var expected_keys := EXPECTED_VIEW_FIELDS.duplicate()
+	keys.sort()
+	expected_keys.sort()
+	expect(keys==expected_keys,label+" exact view key set")
+	for key in EXPECTED_VIEW_FIELDS: expect(view.has(key) and view.get(key)==mover.get(key),label+" field "+key)
+	if view.has("status_effects"):
+		view.status_effects["unexpected_visual_effect"]=3
 	expect(not mover.status_effects.has("unexpected_visual_effect"),label+" isolated dictionary")
 	var budget: int=service.get_effective_move_range(mover)
 	var expected: Dictionary=service.get_reachable_paths(mover.grid_cell,mover,budget,flat,units,breakthrough)
@@ -59,6 +67,7 @@ func run_scenario(label: String,units: Array[BattleUnitState],breakthrough: bool
 	print("SCENARIO PASS ",label," budget=",budget)
 
 func _run() -> void:
+	expect(Adapter.VIEW_FIELDS==EXPECTED_VIEW_FIELDS,"VIEW_FIELDS exact size/order/elements")
 	flat.grid_width=18
 	flat.grid_height=10
 	query.grid=projection
