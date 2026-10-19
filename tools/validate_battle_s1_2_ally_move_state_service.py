@@ -6,8 +6,8 @@ import re
 import subprocess
 
 BASE = "bc2c433b698ed261410b2754c6d500256ea83f2e"
-# Replaced by the implementation checkpoint in the closeout commit.
-TIP = os.environ.get("S1_2_SCOPE_TIP", "HEAD")
+# Pinned implementation checkpoint; later stages do not expand this scope.
+TIP = os.environ.get("S1_2_SCOPE_TIP", "b4c4ec99c30e38244f2526cb6b4473f7641ce16b")
 CONTROLLER = "scripts/battle_web_import_test.gd"
 SERVICE = "scripts/battle/services/battle_ally_move_state_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

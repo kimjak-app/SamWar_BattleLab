@@ -7296,3 +7296,46 @@ WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
 ERROR: 2 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:810)
 ```
+
+## 최종 구현 체크포인트 및 검증기 고정
+
+구현 커밋: `b4c4ec99c30e38244f2526cb6b4473f7641ce16b`. 후속 커밋은 validator 기본 TIP 고정과 이 보고서만 변경한다. 게임 코드/테스트는 전체 회귀 실행본과 같다.
+
+```text
+FINAL pinned exit=0
+S1_2_ALLY_MOVE_STATE PASS: scope=b4c4ec99c30e38244f2526cb6b4473f7641ce16b; 12 paths; only five existing functions changed; enemy/shared functions unchanged; split write ordering; workflow +3/-0
+
+FINAL live exit=0
+S1_2_ALLY_MOVE_STATE PASS: scope=HEAD; 12 paths; only five existing functions changed; enemy/shared functions unchanged; split write ordering; workflow +3/-0
+
+FUTURE CHANGE pinned still passes exit=0
+S1_2_ALLY_MOVE_STATE PASS: scope=b4c4ec99c30e38244f2526cb6b4473f7641ce16b; 12 paths; only five existing functions changed; enemy/shared functions unchanged; split write ordering; workflow +3/-0
+
+FUTURE CHANGE live detects exit=1
+Traceback (most recent call last):
+  File "C:\Users\seong\.codex\.chatgpt-projects\g-p-6a0731363ec48191860bdb1bbc62ede5\EASTWAR_S1_0_Audit\tools\validate_battle_s1_2_ally_move_state_service.py", line 98, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\seong\.codex\.chatgpt-projects\g-p-6a0731363ec48191860bdb1bbc62ede5\EASTWAR_S1_0_Audit\tools\validate_battle_s1_2_ally_move_state_service.py", line 58, in main
+    assert old_header==new_header,"only service/log members may be added"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: only service/log members may be added
+
+```
+
+## 기준 대비 경로 변경 원문
+
+```text
+M	.github/workflows/verify-c-track.yml
+A	agent/BATTLE_ENGINE_S1_2_RESULT_20261019.md
+A	scripts/battle/services/battle_ally_move_state_service.gd
+A	scripts/battle/services/battle_ally_move_state_service.gd.uid
+M	scripts/battle_web_import_test.gd
+A	tests/scripts/support/battle_ally_move_event_harness.gd
+A	tests/scripts/support/battle_ally_move_event_harness.gd.uid
+A	tests/scripts/test_battle_ally_move_event_parity.gd
+A	tests/scripts/test_battle_ally_move_event_parity.gd.uid
+A	tests/scripts/test_battle_ally_move_state_service.gd
+A	tests/scripts/test_battle_ally_move_state_service.gd.uid
+A	tools/validate_battle_s1_2_ally_move_state_service.py
+```
