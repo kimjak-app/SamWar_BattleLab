@@ -2,11 +2,15 @@
 from pathlib import Path
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
 
 BASE = "62f5b726260aa3e6134225e7e903b1098792f23a"
+# Scope is pinned to the S1-1 commit so later stages (S1-2+) can change controllers
+# without breaking this guard. S1_1_SCOPE_TIP=HEAD restores the old live-worktree check.
+TIP = os.environ.get("S1_1_SCOPE_TIP", "af8e365d85ccd524ee010fe8eabc972ce1cd82dd")
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 ALLOWED = {
     "scripts/battle/services/battle_event_log_service.gd",
@@ -37,19 +41,24 @@ def main():
         return subprocess.check_output(["git", "-C", str(root), *args])
 
     require(git("cat-file", "-t", BASE).strip() == b"commit", "base missing")
+    live = TIP == "HEAD"
+    revs = [BASE] if live else [BASE, TIP]
+    if not live:
+        require(git("cat-file", "-t", TIP).strip() == b"commit", "pinned S1-1 tip missing")
     changes = {}
-    for line in git("diff", "--no-renames", "--name-status", BASE, "--").decode().splitlines():
+    for line in git("diff", "--no-renames", "--name-status", *revs, "--").decode().splitlines():
         status, path = line.split("\t", 1)
         changes[path] = status
-    for path in git("ls-files", "--others", "--exclude-standard").decode().splitlines():
-        changes.setdefault(path, "A")
+    if live:
+        for path in git("ls-files", "--others", "--exclude-standard").decode().splitlines():
+            changes.setdefault(path, "A")
     require(changes.get(WORKFLOW) == "M", "workflow must include S1-1 calls")
     for path, status in changes.items():
         if path == WORKFLOW:
             require(status == "M", "workflow must be modification only")
-            count = git("diff", "--numstat", BASE, "--", WORKFLOW).decode().split()
+            count = git("diff", "--numstat", *revs, "--", WORKFLOW).decode().split()
             require(len(count) >= 3 and count[1] == "0", "workflow deleted/rewritten lines")
-            patch = git("diff", "--unified=0", BASE, "--", WORKFLOW).decode()
+            patch = git("diff", "--unified=0", *revs, "--", WORKFLOW).decode()
             additions = [s[1:].strip() for s in patch.splitlines() if s.startswith("+") and not s.startswith("+++")]
             expected = {"tools/validate_battle_s1_1_observation_baseline.py", "tests/scripts/test_battle_event_log_service.gd", "tests/scripts/test_battle_state_fingerprint_service.gd", "tests/scripts/test_battle_move_oracle_baseline.gd"}
             require(set(additions) == expected and len(additions) == 4, "workflow must add exactly the four S1-1 calls")
@@ -57,7 +66,8 @@ def main():
             require(status == "A", f"non-addition forbidden: {status} {path}")
             require(path in ALLOWED or path.startswith("tests/scripts/support/"), f"outside scope: {path}")
     for path in CONTROLLERS:
-        require((root / path).read_bytes() == git("show", f"{BASE}:{path}"), f"controller bytes changed: {path}")
+        current = (root / path).read_bytes() if live else git("show", f"{TIP}:{path}")
+        require(current == git("show", f"{BASE}:{path}"), f"controller bytes changed: {path}")
     for name in ["battle_event_log_service", "battle_state_fingerprint_service"]:
         path = root / "scripts/battle/services" / (name + ".gd")
         source = path.read_text(encoding="utf-8")
@@ -76,7 +86,7 @@ def main():
     m4 = next(s for s in baseline["scenarios"] if s["case"] == "M4")
     start, finish, reverted = m4["checkpoints"]
     require(reverted["units"][0]["last_action"] == finish["units"][0]["last_action"] != start["units"][0]["last_action"], "M4 must preserve last_action non-restoration")
-    git("diff", "--check", BASE, "--")
+    git("diff", "--check", *revs, "--")
     print(f"S1_1_OBSERVATION_BASELINE PASS: {len(changes)} paths; controllers byte-identical; workflow +4/-0; golden 5 scenarios / 7 cases")
 
 
