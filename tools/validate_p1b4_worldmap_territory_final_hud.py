@@ -42,8 +42,12 @@ assert '_refresh_territory_overlay_if_present()' in load_body
 # Left HUD refresh source honors compact mode instead of requiring visibility guards.
 assert 'var _compact_presentation_enabled := false' in hud
 assert 'func set_compact_presentation_enabled' in hud
-assert '_set_label("calendar", "", false)' in hud
-assert '_set_label("nation", "", false)' in hud
+# 92a74b0: compact mode hides the legacy header labels visually, but their text stays
+# authoritative runtime state (turn compass reads CalendarLabel as a completion token).
+assert '_set_label("calendar", str(model.get("calendar", "")), not _compact_presentation_enabled)' in hud
+assert '_set_label("nation", str(model.get("nation", "")), not _compact_presentation_enabled)' in hud
+assert '_set_label("calendar", "", false)' not in hud
+assert '_set_label("nation", "", false)' not in hud
 assert '_set_label("save_management_title", "저장 관리", not _compact_presentation_enabled)' in hud
 assert 'func _apply_compact_visibility()' in hud
 
@@ -83,7 +87,8 @@ for forbidden in (
 ):
     assert forbidden not in scene, f"QA-only controller leaked into WorldMap.tscn: {forbidden}"
 
-# Battle routing remains intentionally unchanged until P-1D.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in main
+# Battle routing was intentionally unchanged until P-1D, which switched it to Battle_Main (10068a3).
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in main
 
 print("P-1B-4 territory/final HUD production validation: PASS")

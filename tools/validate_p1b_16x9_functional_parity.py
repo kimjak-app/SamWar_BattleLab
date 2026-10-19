@@ -157,7 +157,8 @@ for qa_only in (
 ):
     assert qa_only not in scene, f"QA-only dependency leaked into production: {qa_only}"
 
-# P-1B parity work still intentionally leaves battle routing untouched.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in main
+# P-1B parity work left battle routing untouched; P-1D (10068a3) later switched it to Battle_Main.
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in main
 
 print("P-1B 16:9 functional parity validation: PASS (real-tech exception enforced)")

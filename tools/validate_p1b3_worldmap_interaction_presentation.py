@@ -66,8 +66,8 @@ assert 'DomesticTechTreeButtonMVP' in hud
 assert 'CameraDebugLabel' in hud
 assert '_hide_late_legacy_top_ui' in hud
 
-# P-1B-3 still does not switch the battle scene.
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' in main
-assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' not in main
+# P-1B-3 did not switch the battle scene; P-1D (10068a3) did.
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"' in main
+assert 'const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"' not in main
 
 print("P-1B-3 Production WorldMap interaction/presentation static validation: PASS")
