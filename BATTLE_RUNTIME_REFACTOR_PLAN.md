@@ -313,6 +313,8 @@ Current next action:
 - Pause the B-1x extraction sequence before B-1H.
 - The active priority is P-1 Production Runtime Unification, beginning with P-1A WorldMap 16:9 Production Promotion Audit.
 
+- 2026-10-19: P-1 and engine-core were merged on `integration/p1-engine-core-20261019` (WorldMap.tscn = P-1 version); all 25 CI validators and CI Godot tests pass on the merged tree. Open: `validate_p1b_16x9_functional_parity.py` garrison-title assertion (design decision pending) and the two P-1D roundtrip tests are not wired into CI.
+
 Do not begin B-1H until the P-1 production-entry duplication problem is resolved or explicitly deferred.
 
 Relevant current records:
