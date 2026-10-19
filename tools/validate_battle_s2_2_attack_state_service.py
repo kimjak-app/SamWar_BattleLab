@@ -3,7 +3,7 @@ from pathlib import Path
 import os,re,subprocess,argparse
 BASE="3269385529f16bc8e77ce299ad05c53e022c4a11"
 # Implementation checkpoint; future stages do not widen this scope.
-TIP=os.environ.get("S2_2_SCOPE_TIP","65d8e7fc0a9291f08b2b3f1694631fd14ce575dc")
+TIP=os.environ.get("S2_2_SCOPE_TIP","f934f31cc50f1fc3d717ffe298cdd02c0315de3b")
 CONTROLLER="scripts/battle_web_import_test.gd"
 SERVICE="scripts/battle/services/battle_attack_state_service.gd"
 LOG="scripts/battle/services/battle_event_log_service.gd"
