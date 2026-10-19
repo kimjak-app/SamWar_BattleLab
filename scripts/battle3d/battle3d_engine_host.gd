@@ -5,9 +5,13 @@ var battle: Node
 func _ready() -> void:
 	size = Vector2i(1280,720)
 	render_target_update_mode = SubViewport.UPDATE_DISABLED
-	battle = load("res://scenes/battle/Battle_Main.tscn").instantiate()
+	battle = create_battle()
 	add_child(battle)
 	_skip_intro.call_deferred()
+
+func create_battle() -> Node:
+	# Test hosts may attach a transparent observer before the scene enters the tree.
+	return load("res://scenes/battle/Battle_Main.tscn").instantiate()
 
 func _skip_intro() -> void:
 	await get_tree().process_frame
