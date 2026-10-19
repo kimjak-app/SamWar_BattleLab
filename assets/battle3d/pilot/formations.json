@@ -1,0 +1,232 @@
+{
+ "_doc": "Soldier offsets in Blender axes (x,y; Z-up) relative to squad centroid, as authored in the pilot scene (rows along +x, NOT rotated). Template models are authored at rotation 0; each pilot soldier was rotated about Z by yaw (rad) so the squad faces the pilot camera. Godot position = (x, 0, -y); Godot rotation.y = yaw_rel (same sign), yaw_rel = yaw - mean yaw of the squad. scale applies to the whole soldier. Pilot only; not engine data.",
+ "units": {
+  "infantry": {
+   "count": 9,
+   "model": "unit_infantry.glb",
+   "mean_yaw_rad": 2.617,
+   "soldiers": [
+    {
+     "x": -0.654,
+     "y": -0.592,
+     "yaw_rel": 0.032,
+     "scale": 1
+    },
+    {
+     "x": 0.019,
+     "y": -0.592,
+     "yaw_rel": 0.045,
+     "scale": 1
+    },
+    {
+     "x": 0.642,
+     "y": -0.603,
+     "yaw_rel": 0.047,
+     "scale": 1
+    },
+    {
+     "x": -0.653,
+     "y": 0.014,
+     "yaw_rel": -0.04,
+     "scale": 1
+    },
+    {
+     "x": -0.0,
+     "y": -0.012,
+     "yaw_rel": 0.006,
+     "scale": 1
+    },
+    {
+     "x": 0.664,
+     "y": -0.021,
+     "yaw_rel": -0.029,
+     "scale": 1
+    },
+    {
+     "x": -0.668,
+     "y": 0.615,
+     "yaw_rel": 0.029,
+     "scale": 1
+    },
+    {
+     "x": -0.013,
+     "y": 0.61,
+     "yaw_rel": -0.037,
+     "scale": 1
+    },
+    {
+     "x": 0.666,
+     "y": 0.583,
+     "yaw_rel": -0.051,
+     "scale": 1
+    }
+   ]
+  },
+  "archer": {
+   "count": 6,
+   "model": "unit_archer.glb",
+   "mean_yaw_rad": 2.606,
+   "soldiers": [
+    {
+     "x": -0.794,
+     "y": -0.416,
+     "yaw_rel": -0.018,
+     "scale": 1
+    },
+    {
+     "x": 0.01,
+     "y": -0.389,
+     "yaw_rel": -0.01,
+     "scale": 1
+    },
+    {
+     "x": 0.809,
+     "y": -0.402,
+     "yaw_rel": 0.031,
+     "scale": 1
+    },
+    {
+     "x": -0.821,
+     "y": 0.414,
+     "yaw_rel": 0.032,
+     "scale": 1
+    },
+    {
+     "x": 0.01,
+     "y": 0.412,
+     "yaw_rel": -0.009,
+     "scale": 1
+    },
+    {
+     "x": 0.785,
+     "y": 0.383,
+     "yaw_rel": -0.025,
+     "scale": 1
+    }
+   ]
+  },
+  "gunner": {
+   "count": 6,
+   "model": "unit_gunner.glb",
+   "mean_yaw_rad": 2.603,
+   "soldiers": [
+    {
+     "x": -0.807,
+     "y": -0.415,
+     "yaw_rel": 0.026,
+     "scale": 1
+    },
+    {
+     "x": -0.01,
+     "y": -0.4,
+     "yaw_rel": -0.002,
+     "scale": 1
+    },
+    {
+     "x": 0.802,
+     "y": -0.394,
+     "yaw_rel": 0.013,
+     "scale": 1
+    },
+    {
+     "x": -0.797,
+     "y": 0.392,
+     "yaw_rel": 0.035,
+     "scale": 1
+    },
+    {
+     "x": -0.008,
+     "y": 0.412,
+     "yaw_rel": -0.035,
+     "scale": 1
+    },
+    {
+     "x": 0.82,
+     "y": 0.407,
+     "yaw_rel": -0.035,
+     "scale": 1
+    }
+   ]
+  },
+  "cavalry": {
+   "count": 6,
+   "model": "unit_cavalry.glb",
+   "mean_yaw_rad": 2.626,
+   "soldiers": [
+    {
+     "x": -0.869,
+     "y": -0.604,
+     "yaw_rel": 0.0,
+     "scale": 0.85
+    },
+    {
+     "x": -0.021,
+     "y": -0.617,
+     "yaw_rel": -0.041,
+     "scale": 0.85
+    },
+    {
+     "x": 0.897,
+     "y": -0.611,
+     "yaw_rel": 0.019,
+     "scale": 0.85
+    },
+    {
+     "x": -0.864,
+     "y": 0.619,
+     "yaw_rel": -0.024,
+     "scale": 0.85
+    },
+    {
+     "x": -0.007,
+     "y": 0.602,
+     "yaw_rel": 0.021,
+     "scale": 0.85
+    },
+    {
+     "x": 0.863,
+     "y": 0.611,
+     "yaw_rel": 0.023,
+     "scale": 0.85
+    }
+   ]
+  },
+  "mounted_archer": {
+   "count": 5,
+   "model": "unit_mounted_archer.glb",
+   "mean_yaw_rad": 2.627,
+   "soldiers": [
+    {
+     "x": -0.437,
+     "y": -0.698,
+     "yaw_rel": 0.038,
+     "scale": 0.85
+    },
+    {
+     "x": 0.433,
+     "y": -0.685,
+     "yaw_rel": 0.003,
+     "scale": 0.85
+    },
+    {
+     "x": -0.884,
+     "y": 0.465,
+     "yaw_rel": 0.035,
+     "scale": 0.85
+    },
+    {
+     "x": 0.001,
+     "y": 0.463,
+     "yaw_rel": -0.028,
+     "scale": 0.85
+    },
+    {
+     "x": 0.886,
+     "y": 0.454,
+     "yaw_rel": -0.046,
+     "scale": 0.85
+    }
+   ]
+  }
+ }
+}
