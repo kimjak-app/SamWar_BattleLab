@@ -352,3 +352,10 @@ Relevant current records:
 This document is the persistent source of truth for continuing the battle refactor in a new chat/session.
 
 S2-2 CI adjustment: the original 16-case attack oracle still supports a full manual run; CI now uses two disjoint 8-case wrappers, each retaining two executions per case and unchanged golden comparison. Separate service/event tests avoid lengthening the old oracle. No remote CI run or push is claimed for this local stage.
+
+M2-3D independent review (merged, not pushed until the owner names the branch):
+- Status: Codex implementation 1ee5282 (validator TIP pinned here) + report finalize commit on top of afe0367; engine, adapter, lab_presentation, goldens untouched
+- My checks: full local regression 32 validators / 64 tests all pass; 4 mutation probes (enemy-only filter, input lock, visibility filter, range check removed) each caught by the new tests; 24 random scenarios (all five unit types, defending/low-HP/moved) driven through the 3D lab input vs engine-direct calls gave 0 differences in 40-field unit fingerprints + controller state at every stage
+- Notes: info panel mouse_filter=IGNORE lets clicks pass through (M6 UI item); default 18x10 layout cannot reach an attack without M3, so a near-layout manual entry exists (not in CI); six tests were reported by Codex as reused evidence; F-key attack evidence is the owner's manual run
+- CI now lists 32 validators and 64 Godot tests
+- Next: M3 (enemy AI / turn events, enemy move/attack path animation), then M4-M6, M7 worldmap round trip needs separate approval
