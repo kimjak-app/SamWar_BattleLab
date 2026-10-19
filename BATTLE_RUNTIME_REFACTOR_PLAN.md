@@ -327,7 +327,8 @@ S1 status (2026-10-19): the 3D battle track needs engine actions to emit events,
 - C-0~C-3 (3D Field Lab connected to engine movement queries, read-only) merged; 3D tests pinned by B3D-F1 (VIEW_FIELDS contract, oblique camera click round trip).
 - S1-0 (design-only audit, verified): `agent/BATTLE_ENGINE_S1_0_ACTION_EVENT_AUDIT_20261019.md`. Decisions F3 = option A on all five (move/cancel/facing first; keep prepare/hit/finish timing; B-1H not a prerequisite; keep RNG calls + roll-tape parity; keep asymmetries as-is).
 - S1-1 (observation baseline, verified, merged): `BattleEventLogService`, `BattleStateFingerprintService`, real Battle_Main move oracle (7 cases x2 deterministic) with golden `tests/golden/battle_move_baseline_v0.json`; schema `agent/BATTLE_ENGINE_EVENT_SCHEMA_MIN_v0_20261019.md`. Controllers unchanged. The golden must stay unchanged through S1-2.
-- Next: S1-2 (ally move state operations into a RefCounted service; Level 2), then S1-3 (enemy move). Each later S1 validator must pin BASE..TIP like `validate_battle_s1_1_observation_baseline.py` so later stages do not break earlier guards.
+- S1-2 (ally move state into `BattleAllyMoveStateService`, verified, merged; M1-a of `EASTWAR_3D_BATTLE_MASTER_DESIGN_v1_0_20261019.md`): completion write split into `apply_destination` + `commit_move_metadata` at the original write positions, `move_path` passed as an extra default-valued argument of `_finish_basic_move_demo`; the S1-1 golden is unchanged and service-emitted events match it.
+- Next: M1-b (3D move command link), then S1-3 (enemy move). Each later S1 validator must pin BASE..TIP like `validate_battle_s1_1_observation_baseline.py` so later stages do not break earlier guards.
 - CI now lists 27 validators and 52 Godot tests (all pass locally on the merged tree; the move oracle takes about 30 s of the 120 s per-test limit).
 
 Relevant current records:
