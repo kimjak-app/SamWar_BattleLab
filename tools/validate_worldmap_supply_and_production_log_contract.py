@@ -19,15 +19,27 @@ for token in (
     "func _should_show_runtime_battle_supply() -> bool:",
     "return _has_worldmap_battle_context() and battle_supply_runtime != null",
     "func _refresh_battle_supply_visibility() -> void:",
-    "battle_supply_panel.visible = _should_show_runtime_battle_supply()",
+    # P-1C: visibility is computed once and routed to the production HUD; the legacy panel
+    # is hidden when the production HUD exists and only shown as a fallback otherwise.
+    "var should_show := _should_show_runtime_battle_supply()",
+    "production_battle_supply_hud.visible = should_show",
+    "battle_supply_panel.visible = false",
+    "battle_supply_panel.visible = should_show",
     "_refresh_battle_supply_visibility()",
-    "if not _should_show_runtime_battle_supply() or battle_supply_panel == null:",
+    # P-1C: the HUD refresh no longer requires the legacy panel (production HUD updates alone).
+    "if not _should_show_runtime_battle_supply():",
+    "_refresh_production_battle_supply_hud(",
     "BattleSupplyRuntimeScript.new()",
     "battle_supply_runtime.configure(context)",
     "_refresh_battle_supply_side(\"Ally\"",
     "_refresh_battle_supply_side(\"Enemy\"",
 ):
     require(token in BATTLE, f"missing runtime supply contract: {token}")
+
+require(
+    "if not _should_show_runtime_battle_supply() or battle_supply_panel == null:" not in BATTLE,
+    "legacy-panel-only early return would starve the production supply HUD",
+)
 for token in ("TurnLabel", "FoodValue", "SaltValue", "ConsumptionValue", "SustainValue", "WarningLabel"):
     require(token in BATTLE, f"runtime supply label is not refreshed: {token}")
 require('[node name="T02BattleSupplyPanel"' in LAND and "visible = false" in LAND, "Battle_Land supply panel missing/default hidden contract")
