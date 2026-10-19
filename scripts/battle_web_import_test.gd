@@ -875,6 +875,8 @@ const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runt
 
 var movement_query_service := BattleMovementQueryServiceScript.new()
 var ally_move_state_service := preload("res://scripts/battle/services/battle_ally_move_state_service.gd").new()
+var attack_state_service := preload("res://scripts/battle/services/battle_attack_state_service.gd").new()
+var battle_action_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var ally_move_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
@@ -3452,10 +3454,12 @@ func play_basic_attack_demo() -> void:
 
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
-	var applied_attack_damage := selected_attack_target_state.apply_damage(attack_damage)
+	var attack_result: Dictionary = attack_state_service.apply_attack_damage(active_unit_state, selected_attack_target_state, attack_damage, attack_angle_type)
+	var applied_attack_damage: int = attack_result.damage_applied
 	_commit_basic_attack_unit_contract(active_unit_state)
 	if applied_attack_damage > 0:
 		_gain_momentum_for_basic_attack(active_unit_state)
+	battle_action_event_log.emit("attack_resolved", attack_result.fields)
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
 	_spawn_hit_battle_dust_fx(enemy_start)
 	_spawn_hit_spark_fx(enemy_start)
@@ -3492,6 +3496,8 @@ func _finish_basic_attack_demo() -> void:
 	_clear_pending_move_snapshot()
 	_clear_auto_action_flags()
 	_mark_ally_unit_acted(active_unit_state)
+	if active_unit_state != null and active_unit_state.side == "ally" and not active_unit_state.unit_id.is_empty():
+		battle_action_event_log.emit("action_completed", {"unit_id":active_unit_state.unit_id})
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_cleanup_dead_units()
@@ -5523,22 +5529,14 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 func _commit_basic_attack_unit_contract(attacker_state: BattleUnitState) -> void:
 	if attacker_state == null:
 		return
-	attacker_state.attacked_this_turn = true
-	attacker_state.last_action = {
-		"type": "attack",
-		"origin_cell": [attacker_state.grid_cell.x, attacker_state.grid_cell.y],
-		"destination_cell": [attacker_state.grid_cell.x, attacker_state.grid_cell.y],
-		"moved_distance": int(attacker_state.last_action.get("moved_distance", 0)),
-	}
+	attack_state_service.commit_attack_metadata(attacker_state)
 	if attacker_state.unit_type == UNIT_TYPE_GUNNER:
 		if not attacker_state.has_moved:
 			_append_battle_log("준비 사격 +15%")
 			_append_battle_log("방어 관통 20%")
-		attacker_state.apply_status_effect("post_fire_penalty", 1, 40)
+		attack_state_service.apply_post_fire_penalty(attacker_state)
 		_append_battle_log("발사 후 화력 저하")
-	if UnitTypeContractScript.can_move_after_attack(attacker_state.unit_type):
-		attacker_state.post_attack_move_available = true
-		attacker_state.remaining_post_attack_move = UnitTypeContractScript.get_post_attack_move_limit(attacker_state.unit_type)
+	attack_state_service.commit_post_attack_movement(attacker_state)
 
 
 func _show_defend_hit_reaction_if_needed(defender_state: BattleUnitState) -> void:
@@ -13813,6 +13811,7 @@ func _cleanup_dead_units() -> void:
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):
 			dead_unit_ids[unit_state.unit_id] = true
 			action_lock_state_service.erase_unit_id(unit_state.unit_id)
+			battle_action_event_log.emit("unit_defeated", {"unit_id":unit_state.unit_id})
 			_append_battle_log("%s 전멸" % unit_state.display_name)
 			if selected_attack_target_state == unit_state:
 				_clear_attack_target_selection()

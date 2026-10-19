@@ -24,7 +24,7 @@ Every accepted event adds `schema_version: 0`, `sequence: int` (first event 0, t
 
 For `facing_changed`, `from/to` are facing strings and `reason` is `step` or `manual`. Confirmation uses `restored_fields: []`. Reversion uses exactly `["grid_cell", "facing", "has_moved", "ally_has_moved"]` in that order. **`last_action` is not restored by the current controller and must not be claimed as restored.**
 
-Accepted values recursively comprise null, bool, int, finite float, String, Array and string-keyed Dictionary. Objects, vectors and other Variant types are rejected. No attack/damage/turn kinds or action/event IDs are introduced.
+Accepted values recursively comprise null, bool, int, finite float, String, Array and string-keyed Dictionary. Objects, vectors and other Variant types are rejected. The original S1-1 scope introduced no attack/damage/turn kinds or action/event IDs; the additive S2-2 extension is specified below.
 
 ## Fingerprint semantics
 
@@ -55,3 +55,17 @@ godot --headless --path . --script tests/scripts/test_battle_move_oracle_baselin
 ```
 
 Only intentional regeneration uses `-- --update-golden` on the oracle command. Every run executes seven cases twice, stopping on controller failure or nondeterminism. Default execution never writes the golden. The validator is a stage-specific S1-1 scope guard relative to `62f5b72`, not a permanent allowlist for later refactor stages.
+
+## S2-2 additive attack/action extension
+
+Existing four movement kinds and schema_version 0 remain unchanged.
+
+| Kind | Exact required caller fields | Production source |
+|---|---|---|
+| `attack_resolved` | `attacker_id`, `target_id`, `angle_type`, `damage_requested`, `damage_applied`, `troops_before`, `troops_after`, `target_defending`, `killed` | Ally request: immediately after existing damage, attack contract, and conditional momentum writes, before target visual refresh |
+| `action_completed` | `unit_id` | Ally basic attack finish, after existing `_mark_ally_unit_acted` (including status consumption), before closeup/cleanup |
+| `unit_defeated` | `unit_id` | Shared cleanup: first dead-ID registration and action-lock erase, before defeat log; once per ID per registry lifetime |
+
+IDs are nonempty Strings; angle is `front`, `side`, or `back`. Damage/troop values are ints (bools/floats rejected); defending/killed are bools. `damage_requested` preserves the supplied value; the existing unit model clamps applied damage. `damage_applied` is the model's HP-capped return, which may differ from troop loss. `killed` describes post-damage `is_alive()` and does not mean cleanup/turn progression already happened. Payloads contain no unit references.
+
+`BattleAttackStateService` writes the original unit state and returns the attack value payload. `battle_action_event_log` stores copied values only; no synchronous signal or controller callback is emitted. It is separate from `ally_move_event_log`; sequence numbers are local to each log and reset on `clear()`/new instance. Current S2-2 attack/action events cover ally basic attacks only; shared death events can also describe deaths during other actions, including the automatic enemy slot. Enemy attacks/movement/turn events remain M3. Clear/consumption and restart ownership must be wired by subsequent stages; no resume schema is added.

@@ -2,6 +2,9 @@ extends SceneTree
 const GOLDEN := "res://tests/golden/battle_attack_baseline_v0.json"
 const CASES := ["A1","A2_side","A2_back","A3","A4","A5","A6","A6b","A7_range","A7_acted","A7a","A7b","A8","A9","A10","A11"]
 
+func case_labels() -> Array:
+	return CASES
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -9,7 +12,7 @@ func _run() -> void:
 	var harness = load("res://tests/scripts/support/battle_attack_oracle_harness.gd").new()
 	var scenarios := []
 	var args := OS.get_cmdline_user_args()
-	var labels: Array = CASES
+	var labels: Array = case_labels()
 	for arg in args:
 		if arg.begins_with("--case="): labels=[arg.trim_prefix("--case=")]
 	for label in labels:

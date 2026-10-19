@@ -2,6 +2,9 @@ class_name BattleEventLogService
 extends RefCounted
 
 const FIELDS := {
+	"attack_resolved": ["attacker_id", "target_id", "angle_type", "damage_requested", "damage_applied", "troops_before", "troops_after", "target_defending", "killed"],
+	"action_completed": ["unit_id"],
+	"unit_defeated": ["unit_id"],
 	"unit_moved": ["unit_id", "from", "to", "path", "movement_kind", "facing_before", "facing_after", "flags_before", "flags_after", "last_action_after"],
 	"facing_changed": ["unit_id", "from", "to", "reason"],
 	"move_confirmed": ["unit_id", "restored_fields"],
@@ -37,9 +40,13 @@ func _valid_fields(kind: String, fields: Dictionary) -> bool:
 	for key in FIELDS[kind]:
 		if not fields.has(key):
 			return false
+	if kind == "attack_resolved":
+		return _attack_fields(fields)
 	if not fields.unit_id is String or fields.unit_id.is_empty():
 		return false
 	match kind:
+		"action_completed", "unit_defeated":
+			return true
 		"unit_moved":
 			if not _cell(fields.from) or not _cell(fields.to) or not fields.path is Array:
 				return false
@@ -82,3 +89,11 @@ func _json_value(value: Variant) -> bool:
 					return false
 			return true
 	return false
+
+func _attack_fields(fields: Dictionary) -> bool:
+	for key in ["attacker_id", "target_id"]:
+		if not fields[key] is String or fields[key].is_empty(): return false
+	if not fields.angle_type in ["front", "side", "back"]: return false
+	for key in ["damage_requested", "damage_applied", "troops_before", "troops_after"]:
+		if not fields[key] is int: return false
+	return fields.target_defending is bool and fields.killed is bool
