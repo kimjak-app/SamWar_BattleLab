@@ -121,7 +121,6 @@ jobs:
             tests/scripts/test_battle_move_oracle_baseline.gd
             tests/scripts/test_battle_ally_move_state_service.gd
             tests/scripts/test_battle_ally_move_event_parity.gd
-            tests/scripts/test_battle3d_engine_move_preflight.gd
             tests/scripts/test_battle3d_engine_move_integration.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd

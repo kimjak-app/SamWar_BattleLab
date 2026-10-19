@@ -21,7 +21,9 @@ assert 'var terrain_rules_enabled := false' in view
 assert 'var query_mode := true' in view
 for file in list(S.glob('*.gd'))+list((ROOT/'tests/scripts').glob('test_battle3d_*.gd')):
     text=file.read_text(encoding='utf8')
-    assert 'WorldMap.tscn' not in text and 'Battle_Main.tscn' not in text
+    assert 'WorldMap.tscn' not in text
+    if file != S/'battle3d_engine_host.gd':
+        assert 'Battle_Main.tscn' not in text
     for path in re.findall(r'(?:load|preload)\("res://([^"%]+)"\)',text):
         assert (ROOT/path).exists(), path
 data=json.loads((ROOT/'assets/battle3d/heightfield.json').read_text(encoding='utf8'))

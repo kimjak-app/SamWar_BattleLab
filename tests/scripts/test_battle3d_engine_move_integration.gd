@@ -90,6 +90,19 @@ func _run() -> void:
 	for event in events:
 		if event.kind=="unit_moved": executed=event.path
 	expect(not executed.is_empty() and lab.played_paths[-1]==executed,"presentation uses executed path")
+	var expected_path: Array = []
+	for cell in executed: expected_path.append(Vector2i(cell[0],cell[1]))
+	expect(lab.playback.has(mover.unit_id) and lab.playback[mover.unit_id].path==expected_path,"animation consumes exact executed cells")
+	# Pending movement makes leaked root right-click cancellation observable.
+	lab.set_process_unhandled_input(false)
+	var pending_before := fingerprint()
+	var raw_cancel := InputEventMouseButton.new()
+	raw_cancel.button_index=MOUSE_BUTTON_RIGHT
+	raw_cancel.pressed=true
+	raw_cancel.position=Vector2(900,600)
+	root.push_input(raw_cancel)
+	expect(fingerprint()==pending_before and lab.engine.get("current_phase")=="facing_select","raw right click cannot revert pending move")
+	lab.set_process_unhandled_input(true)
 	synced("moving",false)
 	rejected_click(Vector2i(3,6),"facing duplicate")
 	var last: Dictionary = mover.last_action.duplicate(true)
@@ -143,6 +156,12 @@ func _run() -> void:
 	expect(detour.size()-1 > 2,"executed path detours around occupancy")
 	expect(lab.queries.find_unit("yi_sunsin").last_action.moved_distance==2,"detour retains grid distance")
 	# Free during active presentation: callbacks must not escape the old instance.
+	lab.free()
+	lab = load("res://scenes/battle3d/Battle3D_EnginePlayLab.tscn").instantiate()
+	root.add_child(lab)
+	await create_timer(.5).timeout
+	expect(lab.playback.is_empty() and lab.event_cursor==0,"restart during animation has no stale event")
+	expect(lab.queries.find_unit("yi_sunsin").grid_cell==Vector2i(3,8),"restart during animation fresh cell")
 	lab.free()
 	print("M1B integration checks=",checks," failures=",failures)
 	quit(0 if failures.is_empty() else 1)
