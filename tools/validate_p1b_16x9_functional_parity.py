@@ -65,7 +65,11 @@ assert '"특산물"' in warehouse
 # 5. Compact three-column garrison.
 assert 'const COMPACT_GARRISON_HEIGHT := 96.0' in garrison
 assert '_compact_grid.columns = 3' in garrison
-assert '"도시 소속 무장"' in garrison
+# Decision (Kim Jak, 2026-10-19): production keeps the city panel's "주둔 무장" terminology.
+# "도시 소속 무장" exists only in the 16:9 test host/preview, so the compact controller must not
+# override the chip title, and the production city panel must keep the canonical wording.
+assert '"도시 소속 무장"' not in garrison
+assert 'selected_hero_chip_label.text = "주둔 무장"' in (ROOT / "scripts/worldmap_city_info_panel_base.gd").read_text(encoding="utf-8")
 
 # 6. Readability / role summaries / portrait sizes.
 assert 'const FONT_DELTA := 3' in readability
