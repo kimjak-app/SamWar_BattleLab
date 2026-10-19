@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://hylo7y8gw1oq"]
 
 [ext_resource type="Script" path="res://scripts/battle3d/battle3d_engine_play.gd" id="1"]
 
-[node name="Battle3D_EnginePlayLab" type="Node3D"]
+[node name="Battle3D_EnginePlayLab" type="Node3D" unique_id=1197688362]
 script = ExtResource("1")
