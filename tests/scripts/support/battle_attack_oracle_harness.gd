@@ -9,6 +9,12 @@ var boundary_samples: Array = []
 # immediately, via super; no Tween is replaced or completed by the harness.
 class BoundaryBattle extends "res://scripts/battle/presentation/iso/battle_iso_production_controller.gd":
 	var observe: Callable
+	var trace_pending_clear := false
+	var pending_clear_trace: Array = []
+	func _clear_pending_move_snapshot() -> void:
+		if trace_pending_clear:
+			pending_clear_trace.append({"phase":current_phase,"pending_before":has_pending_move_snapshot})
+		super._clear_pending_move_snapshot()
 	func _play_enemy_turn_demo() -> void:
 		if observe.is_valid(): observe.call("finished_before_enemy")
 		super._play_enemy_turn_demo()
@@ -48,6 +54,8 @@ func snapshot(battle: Node, label: String) -> Dictionary:
 
 func boundary(label: String, battle: Node) -> void:
 	boundary_samples.append(snapshot(battle,label))
+	if battle.trace_pending_clear and label=="finished_before_enemy":
+		expect(battle.pending_clear_trace==[{"phase":"resolving","pending_before":false}],"A6b pending cleanup observed at attack finish before enemy")
 
 func run_case(tree: SceneTree, label: String) -> Dictionary:
 	boundary_samples.clear()
@@ -77,6 +85,7 @@ func run_case(tree: SceneTree, label: String) -> Dictionary:
 	var target = units[5]
 	actor.set_grid_cell(Vector2i(3,4))
 	target.set_grid_cell(Vector2i(4,4))
+	if label=="A6b": actor.set_grid_cell(Vector2i(1,4))
 	if label=="A2_side": target.facing="up"
 	if label=="A2_back": target.facing="right"
 	if label=="A3":
@@ -104,6 +113,26 @@ func run_case(tree: SceneTree, label: String) -> Dictionary:
 	await tree.process_frame
 	battle.observe = boundary.bind(battle)
 	var samples: Array = [snapshot(battle,"start")]
+	if label=="A6b":
+		expect(not actor.has_moved and not battle.get("has_pending_move_snapshot"),label+" clean pre-move state")
+		expect(battle.call("_try_direct_move_to_cell",Vector2i(3,4)),label+" actual direct move accepted")
+		samples.append(snapshot(battle,"move_requested"))
+		var move_finished := false
+		for frame in range(1800):
+			await tree.process_frame
+			if battle.get("current_phase")=="facing_select" and not battle.get("is_demo_animating"):
+				move_finished=true
+				break
+		expect(move_finished,label+" real move tween finished")
+		samples.append(snapshot(battle,"move_finished"))
+		expect(actor.grid_cell==Vector2i(3,4) and actor.has_moved and not actor.has_acted,label+" real move committed")
+		expect(battle.get("has_pending_move_snapshot"),label+" actual move created pending snapshot")
+		battle.call("_select_post_move_facing","right")
+		samples.append(snapshot(battle,"facing_confirmed"))
+		expect(battle.get("current_phase")=="ally_turn" and not battle.get("has_pending_move_snapshot"),label+" normal facing confirmation clears snapshot before attack")
+		# Observe call preservation separately from state: the normal input path
+		# already clears the snapshot while confirming facing.
+		battle.trace_pending_clear=true
 	var angle: String = battle.call("_get_attack_angle_type",actor,target)
 	battle.call("try_basic_attack")
 	samples.append(snapshot(battle,"attack_select"))
@@ -128,6 +157,7 @@ func run_case(tree: SceneTree, label: String) -> Dictionary:
 	else:
 		battle.call("_try_attack_enemy_target_from_attack_select",target)
 		samples.append(snapshot(battle,"requested"))
+		if label=="A6b": expect(battle.pending_clear_trace.is_empty(),label+" no cleanup during attack request")
 		if label in ["A5","A7_range","A7_acted"]:
 			expect(fingerprint.diff(samples[0].units,samples[-1].units).is_empty(),label+" rejection all fields unchanged")
 		else:
@@ -151,9 +181,16 @@ func run_case(tree: SceneTree, label: String) -> Dictionary:
 			samples.append_array(boundary_samples.duplicate(true))
 			samples.append(snapshot(battle,"after_enemy_slot"))
 			expect(actor.has_acted and actor.has_moved,label+" finished action consumed")
-			if label=="A6": expect(actor.last_action.get("moved_distance")==2,label+" move distance preserved")
+			if label in ["A6","A6b"]: expect(actor.last_action.get("moved_distance")==2,label+" move distance preserved")
 			if label=="A9": expect(battle.get("dead_unit_ids").has(target.unit_id),label+" death cleanup")
 	var result := {"case":label,"angle_type":angle,"checkpoints":samples}
+	if label=="A6b":
+		result["attack_pending_clear_trace"]=battle.pending_clear_trace.duplicate(true)
+		var resolving_clears := 0
+		for call_sample in battle.pending_clear_trace:
+			if call_sample.phase=="resolving": resolving_clears+=1
+		expect(resolving_clears==1,label+" attack finish preserves pending cleanup call")
+		result["observation_note"]="Normal facing confirmation clears the real move snapshot before attack; the finish cleanup is observed as a call-preservation contract, not an additional state change."
 	if label=="A7a": result["observation_note"]="엔진 함수는 대상 진영을 검사하지 않음(알려진 미보호 경계)"
 	if label=="A7b": result["input_evidence"]=input_evidence
 	# Same settling/audio policy as the existing movement harness.

@@ -1,6 +1,6 @@
 extends SceneTree
 const GOLDEN := "res://tests/golden/battle_attack_baseline_v0.json"
-const CASES := ["A1","A2_side","A2_back","A3","A4","A5","A6","A7_range","A7_acted","A7a","A7b","A8","A9","A10","A11"]
+const CASES := ["A1","A2_side","A2_back","A3","A4","A5","A6","A6b","A7_range","A7_acted","A7a","A7b","A8","A9","A10","A11"]
 
 func _initialize() -> void:
 	_run.call_deferred()
