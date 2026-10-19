@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
+from scene_node_contract import has_node_header
+
 ROOT = Path(__file__).resolve().parents[1]
 SCENE = ROOT / "WorldMap.tscn"
 TERRITORY = ROOT / "scripts/worldmap/ui/worldmap_territory_controller.gd"
@@ -27,7 +29,7 @@ assert 'world_root.move_child(_territory_layer, route_layer.get_index())' in ter
 assert 'ProductionWorldMap' not in territory
 assert 'Territory Test' not in territory
 assert 'path="res://scripts/worldmap/ui/worldmap_territory_controller.gd" id="24_territory"' in scene
-assert '[node name="WorldMapTerritoryController" type="Node" parent="."]' in scene
+assert has_node_header(scene, '[node name="WorldMapTerritoryController" type="Node" parent="."]')
 
 # Ownership/load paths refresh the production overlay.
 assert 'func _refresh_territory_overlay_if_present()' in main

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
+from scene_node_contract import has_node_header
+
 ROOT = Path(__file__).resolve().parents[1]
 SCENE = ROOT / "WorldMap.tscn"
 CITY = ROOT / "scripts/worldmap/ui/worldmap_city_action_controller.gd"
@@ -34,7 +36,8 @@ for required in (
     'production_world_map_path = NodePath("..")',
     'city_action_controller_path = NodePath("../WorldMapCityActionController")',
 ):
-    assert required in scene, f"missing production interaction scene contract: {required}"
+    present = has_node_header(scene, required) if required.startswith("[node ") else required in scene
+    assert present, f"missing production interaction scene contract: {required}"
 
 # Production city action controller must not depend on the QA wrapper.
 assert 'get_node_or_null("../ProductionWorldMap")' not in city

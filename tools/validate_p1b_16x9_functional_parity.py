@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
+from scene_node_contract import has_node_header
+
 ROOT = Path(__file__).resolve().parents[1]
 
 def read(path: str) -> str:
@@ -40,7 +42,7 @@ assert 'const LEFT_PANEL_WIDTH := 320.0' in hud_presentation
 assert 'const RIGHT_PANEL_WIDTH := 308.0' in hud_presentation
 assert 'const HUD_SIDE_MARGIN_RATIO := 0.025' in hud_presentation
 assert 'const HUD_TOP_MARGIN_RATIO := 0.144' in hud_presentation
-assert '[node name="HudPositionOwner" type="Node" parent="."]' in scene
+assert has_node_header(scene, '[node name="HudPositionOwner" type="Node" parent="."]')
 
 # 3. Legacy presentation cannot republish itself on later refreshes.
 assert 'func set_compact_presentation_enabled' in hud_source
@@ -118,7 +120,7 @@ assert 'complete_contextual_worldmap_action' in action_presentation
 assert 'class_name WorldMapTerritoryController' in territory
 assert 'worldmap_land_sea_mask_v1_0_4096x2304.png' in territory
 assert 'territory_shader.gdshader' in territory
-assert '[node name="WorldMapTerritoryController" type="Node" parent="."]' in scene
+assert has_node_header(scene, '[node name="WorldMapTerritoryController" type="Node" parent="."]')
 assert '_refresh_territory_overlay_if_present()' in main
 
 # 14. Turn summary popup: now bound to real compass rather than hidden QA button-down trigger.
