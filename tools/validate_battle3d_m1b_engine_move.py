@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 BASE = "22b7ee73f567132ad1b8060adae4a4bb8d2f5e8c"
-TIP = os.environ.get("M1B_SCOPE_TIP", "a91e1e0be0b56fda7ddd0b8832de891bea16cf22")
+TIP = os.environ.get("M1B_SCOPE_TIP", "4e9a9fd23cbf368def67af1d84d962306f19858c")
 ROOT = Path(__file__).resolve().parents[1]
 NEW = {
     "scripts/battle3d/battle3d_engine_host.gd",
