@@ -1,4 +1,49 @@
-# M1-b 착수 점검 — 오디오 종료 조건 조정 필요
+# M1-b 구현 중간 점검 — 기존 contract validator 예외 필요
+
+## 최신 상태 (아래 초기 점검보다 우선)
+
+사용자가 독립 Lab 종료 시 오디오 정리를 허용했다. 신규 `battle3d_engine_host.gd`의 `_exit_tree`에만 정리를 구현했다. 기존 엔진/오디오/3D 파일은 수정하지 않았다.
+
+신규 씬/표시 스크립트/호스트 구현 후 실제 Godot headless 통합 테스트 **139 checks, failures=[]**. 완료 함수를 직접 호출하지 않고 카메라 레이 → 셀 입력 → 엔진 Tween → 이벤트 → 표시를 검증했다. 선택/이동/방향 확정/취소/재이동, 10개 view 일치, 거절 시 40변수 지문 불변, 실제 실행 경로 재생, 우회 경로와 grid distance 구별, 엔진 phase가 연출보다 앞서 진행하는 경우, 오디오 정리, 새 인스턴스 초기화가 포함된다. 종료 때 ObjectDB 및 2 resources 경고가 남아 있다.
+
+첫 전체 회귀 실행에서 **기존 `tools/validate_battle3d_contract.py:24`가 신규 엔진 호스팅을 금지하는 범위 충돌**을 발견했다. 이 validator는 C0–C3 조회 전용 단계의 불변조건을 모든 `scripts/battle3d/*.gd` 및 `test_battle3d_*.gd`에 적용한다:
+
+```python
+assert 'WorldMap.tscn' not in text and 'Battle_Main.tscn' not in text
+```
+
+그러나 M1-b 지시서 §2는 신규 host에서 `Battle_Main.tscn` 인스턴스를 명시적으로 요구하고, §3은 기존 validator 수정을 금지한다. 새 파일의 경로 문자열을 쪼개거나 간접 로딩해 이 검사를 우회하지 않았다. §3에 따라 기존 파일 수정 없이 멈추고 보고한다.
+
+### 필요한 최소 조정 (미적용)
+
+`tools/validate_battle3d_contract.py`의 해당 assert만 다음처럼 바꾸도록 허용 요청:
+
+```diff
+-    assert 'WorldMap.tscn' not in text and 'Battle_Main.tscn' not in text
++    assert 'WorldMap.tscn' not in text
++    if file != S/'battle3d_engine_host.gd':
++        assert 'Battle_Main.tscn' not in text
+```
+
+예외는 **신규 host 파일 하나만**이다. 기존 조회 Lab과 기존 테스트의 금지는 유지한다. 새 M1-b validator가 host의 호출/쓰기 경계를 추가 검사한다. 승인 전 변경하지 않는다.
+
+### 검증 한계와 남은 작업
+
+- 신규 통합 검사 139 checks PASS / 신규 범위 validator PASS.
+- 전체 회귀는 완료하지 못했다. 기존 contract validator exit=1 확인 후 중단했다.
+- Python subprocess로 실행한 다수 Godot 테스트 및 GUI 실행에서 native signal 11/exit 3221225477이 발생했다. 같은 기존 calendar 테스트를 PowerShell에서 직접 실행하면 10 checks PASS. 실행 경로/환경 문제 가능성이 있으나 원인 미확정이며 코드 문제로 단정하지 않는다.
+- 실제 Godot GUI 창 확보 및 수동 캡처는 미완료. 초기 GUI 실행은 기본 renderer 및 compatibility 모두 native crash. 프로젝트 설정 변경 없음.
+- 4종 변조 프로브, 전체 회귀 재실행, 최종 TIP 고정, 최종 검수 패키지는 미완료.
+- 임시 모델은 infantry/cavalry를 재사용하며 archer/gunner 표시는 모델만 infantry로 대체, 실제 14필드와 병종 라벨은 보존한다.
+- 신규 UI는 terrain ray로 셀을 선택한다. 인접 셀을 앞쪽 병사의 큰 pick box가 가로채지 않도록 신규 입력 코드만 조정했다.
+- S1-2와 기존 3D/골든은 변경하지 않았다. 공격/AI/턴은 미연결이다.
+- 다음 단계: 위 validator의 단일 파일 예외 승인 후 실행환경 원인 분석, 모든 필수 검증, 구현/TIP 고정 분리 커밋. 현재는 로컬 중간 체크포인트이며 push 없음.
+
+원문 로그는 작업 폴더의 `M1B_integration.txt`, `M1B_Evidence/full_suite_results.json`, `M1B_Evidence/*.log`, `M1B_gui*_errors.txt`에 보존한다.
+
+---
+
+# 초기 착수 점검 (오디오 조정 승인 전 기록)
 
 ## §4 결과 (구현 완료 보고가 아님)
 

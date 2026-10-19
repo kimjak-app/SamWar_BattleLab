@@ -4,14 +4,10 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
-	var viewport := SubViewport.new()
-	viewport.size = Vector2i(1280, 720)
-	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	var viewport = load("res://scripts/battle3d/battle3d_engine_host.gd").new()
 	root.add_child(viewport)
-	var battle = load("res://scenes/battle/Battle_Main.tscn").instantiate()
-	viewport.add_child(battle)
-	await process_frame
-	battle.call("_skip_battle_intro_camera_zoom")
+	var battle = viewport.battle
+	await viewport.initialized
 	await create_timer(0.3).timeout
 	var units: Array = battle.get("all_battle_unit_states")
 	print("M1B PREFLIGHT roster=", units.size(), " phase=", battle.get("current_phase"))
