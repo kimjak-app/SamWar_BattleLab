@@ -210,2045 +210,2067 @@ M1-b 연결 범위는 이동/방향/취소까지다. 이동 확정 뒤 엔진의
 ## 초기 실패 진단 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B PREFLIGHT roster=10 phase=ally_turn
-ROSTER yi_sunsin ally archer (3, 8)
-ROSTER jeong_dojeon ally archer (5, 7)
-ROSTER gwon_yul ally infantry (4, 6)
-ROSTER ally_reinforce_01_demo ally archer (3, 9)
-ROSTER ally_reinforce_02_test_unit ally gunner (1, 7)
-ROSTER guan_yu enemy cavalry (14, 2)
-ROSTER zhang_fei enemy infantry (12, 3)
-ROSTER xiahou_dun enemy cavalry (13, 4)
-ROSTER enemy_reinforce_01_demo enemy archer (14, 1)
-ROSTER enemy_reinforce_02_test_unit enemy gunner (16, 3)
-M1B PREFLIGHT ui_hover=false overlay=true
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-M1B PREFLIGHT accepted=true
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B PREFLIGHT final phase=facing_select cell=(3, 7) events=[{ "unit_id": "yi_sunsin", "from": [3, 8], "to": [3, 7], "path": [[3, 8], [3, 7]], "movement_kind": "normal", "facing_before": "right", "facing_after": "right", "flags_before": { "has_moved": false }, "flags_after": { "has_moved": true }, "last_action_after": { "type": "move", "origin_cell": [3, 8], "destination_cell": [3, 7], "moved_distance": 1 }, "schema_version": 0, "sequence": 0, "kind": "unit_moved" }]
-M1B AUDIO AFTER FREE SFXVoice0 playing=true stream=(res://assets/audio/sfx/round_start.wav):<AudioStreamWAV#-9223372008098626115>
-M1B AUDIO AFTER FREE SFXVoice1 playing=false stream=(res://assets/audio/sfx/march.wav):<AudioStreamWAV#-9223372008752937542>
-M1B AUDIO AFTER FREE SFXVoice2 playing=false stream=<Object#null>
-M1B AUDIO AFTER FREE SFXVoice3 playing=false stream=<Object#null>
-M1B AUDIO AFTER FREE SFXVoice4 playing=false stream=<Object#null>
-M1B AUDIO AFTER FREE SFXVoice5 playing=false stream=<Object#null>
-M1B AUDIO AFTER FREE SFXVoice6 playing=false stream=<Object#null>
-M1B AUDIO AFTER FREE SFXVoice7 playing=false stream=<Object#null>
-M1B MOVE PREFLIGHT PASS
-M1B EXIT AUDIO FAIL: global voice still playing after scene free
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 3 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B PREFLIGHT roster=10 phase=ally_turn
+ROSTER yi_sunsin ally archer (3, 8)
+ROSTER jeong_dojeon ally archer (5, 7)
+ROSTER gwon_yul ally infantry (4, 6)
+ROSTER ally_reinforce_01_demo ally archer (3, 9)
+ROSTER ally_reinforce_02_test_unit ally gunner (1, 7)
+ROSTER guan_yu enemy cavalry (14, 2)
+ROSTER zhang_fei enemy infantry (12, 3)
+ROSTER xiahou_dun enemy cavalry (13, 4)
+ROSTER enemy_reinforce_01_demo enemy archer (14, 1)
+ROSTER enemy_reinforce_02_test_unit enemy gunner (16, 3)
+M1B PREFLIGHT ui_hover=false overlay=true
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+M1B PREFLIGHT accepted=true
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B PREFLIGHT final phase=facing_select cell=(3, 7) events=[{ "unit_id": "yi_sunsin", "from": [3, 8], "to": [3, 7], "path": [[3, 8], [3, 7]], "movement_kind": "normal", "facing_before": "right", "facing_after": "right", "flags_before": { "has_moved": false }, "flags_after": { "has_moved": true }, "last_action_after": { "type": "move", "origin_cell": [3, 8], "destination_cell": [3, 7], "moved_distance": 1 }, "schema_version": 0, "sequence": 0, "kind": "unit_moved" }]
+M1B AUDIO AFTER FREE SFXVoice0 playing=true stream=(res://assets/audio/sfx/round_start.wav):<AudioStreamWAV#-9223372008098626115>
+M1B AUDIO AFTER FREE SFXVoice1 playing=false stream=(res://assets/audio/sfx/march.wav):<AudioStreamWAV#-9223372008752937542>
+M1B AUDIO AFTER FREE SFXVoice2 playing=false stream=<Object#null>
+M1B AUDIO AFTER FREE SFXVoice3 playing=false stream=<Object#null>
+M1B AUDIO AFTER FREE SFXVoice4 playing=false stream=<Object#null>
+M1B AUDIO AFTER FREE SFXVoice5 playing=false stream=<Object#null>
+M1B AUDIO AFTER FREE SFXVoice6 playing=false stream=<Object#null>
+M1B AUDIO AFTER FREE SFXVoice7 playing=false stream=<Object#null>
+M1B MOVE PREFLIGHT PASS
+M1B EXIT AUDIO FAIL: global voice still playing after scene free
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 신규 통합 테스트 최종 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":531,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4327,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6028,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=[]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 2 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":531,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4327,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6028,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=[]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 신규 validator 원문
 
 ```text
-warning: in the working copy of 'tools/validate_battle3d_contract.py', CRLF will be replaced by LF the next time Git touches it
-M1B validator PASS: scope, immutable originals, four commands, read-only state, executed events
+warning: in the working copy of 'tools/validate_battle3d_contract.py', CRLF will be replaced by LF the next time Git touches it
+M1B validator PASS: scope, immutable originals, four commands, read-only state, executed events
 
 ```
 
 ## 기존 contract validator 원문
 
 ```text
-BATTLE3D_CONTRACT PASS: 14-field ordered view contract, projection inheritance, engine query ownership, resources, 18x10 metadata
+BATTLE3D_CONTRACT PASS: 14-field ordered view contract, projection inheritance, engine query ownership, resources, 18x10 metadata
 
 ```
 
 ## 변조/대조 control 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":686,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4969,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6681,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=[]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 2 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":686,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4969,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6681,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=[]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 변조/대조 direct_state_write 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":497,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-M1B FAIL no direct state write before completion
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL grid distance
-M1B FAIL presentation uses executed path
-M1B FAIL animation consumes exact executed cells
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL engine phase advances before presentation
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4327,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 2 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":497,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+M1B FAIL no direct state write before completion
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL grid distance
+M1B FAIL presentation uses executed path
+M1B FAIL animation consumes exact executed cells
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL engine phase advances before presentation
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4327,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 변조/대조 remove_isolation 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":495,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B FAIL subviewport isolated
-[RIGHT_CLICK_CANCEL] phase=ally_turn
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-M1B FAIL raw right click cannot revert pending move
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-M1B FAIL facing duplicate visible rejection
-[RIGHT_CLICK_CANCEL] phase=resolving
-[MOVE_FINISH] ally=(3, 6) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 6) target_cell: (3, 6)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL already moved visible rejection
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4457,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6200,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=["subviewport isolated", "raw right click cannot revert pending move", "facing duplicate visible rejection", "already moved visible rejection"]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 3 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":495,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B FAIL subviewport isolated
+[RIGHT_CLICK_CANCEL] phase=ally_turn
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+M1B FAIL raw right click cannot revert pending move
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+M1B FAIL facing duplicate visible rejection
+[RIGHT_CLICK_CANCEL] phase=resolving
+[MOVE_FINISH] ally=(3, 6) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 6) target_cell: (3, 6)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL already moved visible rejection
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4457,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6200,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=["subviewport isolated", "raw right click cannot revert pending move", "facing duplicate visible rejection", "already moved visible rejection"]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 변조/대조 animate_rejection 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":526,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B FAIL enemy no new presentation
-M1B FAIL range no new presentation
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-M1B FAIL during engine animation no new presentation
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL facing duplicate no new presentation
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL already moved no new presentation
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4385,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6098,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=["enemy no new presentation", "range no new presentation", "during engine animation no new presentation", "facing duplicate no new presentation", "already moved no new presentation"]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 2 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":526,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B FAIL enemy no new presentation
+M1B FAIL range no new presentation
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+M1B FAIL during engine animation no new presentation
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL facing duplicate no new presentation
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL already moved no new presentation
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4385,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6098,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=["enemy no new presentation", "range no new presentation", "during engine animation no new presentation", "facing duplicate no new presentation", "already moved no new presentation"]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 변조/대조 wrong_path 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":511,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-M1B FAIL animation consumes exact executed cells
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4367,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6060,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=["animation consumes exact executed cells"]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 3 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+{"event":"ready","grid":"18x10 square","milliseconds":511,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+M1B FAIL animation consumes exact executed cells
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4367,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6060,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=["animation consumes exact executed cells"]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
 
 ```
 
 ## 변조/대조 restored 원문
 
 ```text
-Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
-
-{"event":"ready","grid":"18x10 square","milliseconds":498,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[RIGHT_CLICK_CANCEL] phase=facing_select
-[ROLLBACK] phase=facing_select
-[ROLLBACK] unit=이순신 cell=(3, 8)
-[ROLLBACK] restored unit=이순신 grid=(3, 8)
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
-{"event":"ready","grid":"18x10 square","milliseconds":4419,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
-[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
-ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
-ENTER FACING SELECT
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
-{"event":"ready","grid":"18x10 square","milliseconds":6137,"renderer":"gl_compatibility","units":0}
-[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
-[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
-[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
-[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
-[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
-[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
-[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
-[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
-[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
-[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
-GRID CELL SIZE: (106.6667, 108.0)
-ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
-[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
-BATTLE UNIT STATE ADAPTER:
-ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-HP TROOP RUNTIME VISIBILITY:
-ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
-ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
-enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
-enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
-ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
-enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
-ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
-enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
-ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
-enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
-[Battle] No WorldMap battle context; using test battle setup
-UNIT VISUAL ROOT SLOTS:
-ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
-ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
-enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
-ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
-enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
-MVP SCENE SLOT SCAFFOLD:
-slot_container_found_count=6 capacity_scene_slot_path_count=10
-ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
-CAPACITY SLOT REGISTRY:
-capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-ally_main -> ally_main_01 visual=true active=true deployed=true
-ally_support -> ally_main_02 visual=true active=true deployed=true
-enemy_main -> enemy_main_01 visual=true active=true deployed=true
-enemy_support -> enemy_main_02 visual=true active=true deployed=true
-UNIT STATE VISUAL BINDINGS:
-ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
-ADAPTER ALIVE PARITY SNAPSHOT:
-adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
-active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
-ACTOR TARGET ADAPTER SNAPSHOT:
-actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
-auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
-DEPLOYED ACTIVE FILTER SNAPSHOT:
-capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
-actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
-[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
-[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
-[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
-[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
-[BATTLE_INTRO_CAMERA] complete source=skip_input
-M1B integration checks=143 failures=[]
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-   at: cleanup (core/object/object.cpp:2641)
-ERROR: 3 resources still in use at exit (run with --verbose for details).
-   at: clear (core/io/resource.cpp:810)
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
 
+{"event":"ready","grid":"18x10 square","milliseconds":498,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[RIGHT_CLICK_CANCEL] phase=facing_select
+[ROLLBACK] phase=facing_select
+[ROLLBACK] unit=이순신 cell=(3, 8)
+[ROLLBACK] restored unit=이순신 grid=(3, 8)
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(3, 7) enemy=(14, 2) dist=16 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (3, 7) target_cell: (3, 7)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+[D5_CAMERA_HANDOFF] focused active ally after automatic turn return
+{"event":"ready","grid":"18x10 square","milliseconds":4419,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+[ROLLBACK] snapshot stored unit=이순신 cell=(3, 8)
+[MOVE_FINISH] ally=(5, 8) enemy=(14, 2) dist=15 ally_range=3 enemy_range=1
+ALLY MOVED grid_cell: (5, 8) target_cell: (5, 8)
+ENTER FACING SELECT
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+SHOW FACING ARROW PANEL visible=true pos=(0.0, 0.0) size=(1280.0, 720.0)
+{"event":"ready","grid":"18x10 square","milliseconds":6137,"renderer":"gl_compatibility","units":0}
+[IDENTITY_OK] ally_main_01 hero=yi_sunsin name=이순신 portrait=yi_sunsin_battlefield.png click=AllyUnitClickArea
+[IDENTITY_OK] ally_main_02 hero=jeong_dojeon name=정도전 portrait=jeong_dojeon_battlefield.png click=AllySupportUnitClickArea
+[IDENTITY_OK] ally_main_03 hero=kwon_yul name=권율 portrait=kwon_yul_battlefield.png click=AllyMain03UnitClickArea
+[IDENTITY_OK] ally_reinforce_01 hero=gim_yusin name=김유신 portrait=gim_yusin_battlefield.png click=AllyReinforce01UnitClickArea
+[IDENTITY_OK] ally_reinforce_02 hero=eulji_mundeok name=을지문덕 portrait=eulji_mundeok_battlefield.png click=AllyReinforce02UnitClickArea
+[IDENTITY_OK] enemy_main_01 hero=guan_yu name=관우 portrait=guan_yu_battlefield.png click=EnemyUnitClickArea
+[IDENTITY_OK] enemy_main_02 hero=zhang_fei name=장비 portrait=zhang_fei_battlefield.png click=EnemySupportUnitClickArea
+[IDENTITY_OK] enemy_main_03 hero=xiahou_dun name=하후돈 portrait=xiahou_dun_battlefield.png click=EnemyMain03UnitClickArea
+[IDENTITY_OK] enemy_reinforce_01 hero=liu_bei name=유비 portrait=liu_bei_battlefield.png click=EnemyReinforce01UnitClickArea
+[IDENTITY_OK] enemy_reinforce_02 hero=zhuge_liang name=제갈량 portrait=zhuge_liang_battlefield.png click=EnemyReinforce02UnitClickArea
+GRID CELL SIZE: (106.6667, 108.0)
+ALLY GRID: (3, 8) ENEMY GRID: (14, 2)
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_01 hero_id=yi_sunsin display_name=이순신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_02 hero_id=jeong_dojeon display_name=정도전 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_main_03 hero_id=kwon_yul display_name=권율 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_01 hero_id=gim_yusin display_name=김유신 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=ally slot=ally_reinforce_02 hero_id=eulji_mundeok display_name=을지문덕 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_01 hero_id=guan_yu display_name=관우 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_02 hero_id=zhang_fei display_name=장비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_main_03 hero_id=xiahou_dun display_name=하후돈 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_01 hero_id=liu_bei display_name=유비 active=true reason=sample_fallback
+[ROSTER_PANEL_SLOT] source=sample_battle side=enemy slot=enemy_reinforce_02 hero_id=zhuge_liang display_name=제갈량 active=true reason=sample_fallback
+BATTLE UNIT STATE ADAPTER:
+ally_count=5 enemy_count=5 all_count=10 legacy_keys=["ally_main", "ally_support", "enemy_main", "enemy_support"] capacity_keys=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02", "enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+HP TROOP RUNTIME VISIBILITY:
+ally_main token_global=(372.0, 909.0001) hp_ref=true troop_ref=true hp_local=(326.0, 955.0) troop_local=(326.0, 964.0) hp_global=(326.0, 955.0) troop_global=(326.0, 964.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=94 / 94 hp_value=94.0 hp_max=94.0 root_visible=true token_visible=true
+ally_support token_global=(585.3334, 801.0001) hp_ref=true troop_ref=true hp_local=(539.3333, 847.0) troop_local=(539.3333, 856.0) hp_global=(539.3333, 847.0) troop_global=(539.3333, 856.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=60 / 60 hp_value=60.0 hp_max=60.0 root_visible=true token_visible=true
+enemy_main token_global=(1546.667, 262.0) hp_ref=true troop_ref=true hp_local=(1499.0, 305.0) troop_local=(1498.667, 312.0) hp_global=(1499.0, 305.0) troop_global=(1498.667, 312.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=100 / 100 hp_value=100.0 hp_max=100.0 root_visible=true token_visible=true
+enemy_support token_global=(1333.333, 370.0) hp_ref=true troop_ref=true hp_local=(1285.667, 413.0) troop_local=(1285.333, 420.0) hp_global=(1285.667, 413.0) troop_global=(1285.333, 420.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=80 / 80 hp_value=80.0 hp_max=80.0 root_visible=true token_visible=true
+ally_main_03 token_global=(480.6667, 691.0001) hp_ref=true troop_ref=true hp_local=(434.6667, 737.0) troop_local=(434.6667, 746.0) hp_global=(434.6667, 737.0) troop_global=(434.6667, 746.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=72 / 72 hp_value=72.0 hp_max=72.0 root_visible=true token_visible=true
+enemy_main_03 token_global=(1434.0, 476.0) hp_ref=true troop_ref=true hp_local=(1386.333, 519.0) troop_local=(1386.0, 526.0) hp_global=(1386.333, 519.0) troop_global=(1386.0, 526.0) hp_visible=true troop_visible=true hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=76 / 76 hp_value=76.0 hp_max=76.0 root_visible=true token_visible=true
+ally_reinforce_01 token_global=(370.6667, 983.0001) hp_ref=true troop_ref=true hp_local=(324.6667, 1065.0) troop_local=(324.6667, 1074.0) hp_global=(324.6667, 1029.0) troop_global=(324.6667, 1038.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=64 / 64 hp_value=64.0 hp_max=64.0 root_visible=false token_visible=false
+enemy_reinforce_01 token_global=(1547.0, 150.0) hp_ref=true troop_ref=true hp_local=(1499.333, 193.0) troop_local=(1499.0, 200.0) hp_global=(1499.333, 193.0) troop_global=(1499.0, 200.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=68 / 68 hp_value=68.0 hp_max=68.0 root_visible=false token_visible=false
+ally_reinforce_02 token_global=(195.6667, 827.0001) hp_ref=true troop_ref=true hp_local=(149.6667, 873.0) troop_local=(149.6667, 882.0) hp_global=(149.6667, 873.0) troop_global=(149.6667, 882.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=62 / 62 hp_value=62.0 hp_max=62.0 root_visible=false token_visible=false
+enemy_reinforce_02 token_global=(1712.0, 328.0) hp_ref=true troop_ref=true hp_local=(1664.333, 371.0) troop_local=(1664.0, 378.0) hp_global=(1664.333, 371.0) troop_global=(1664.0, 378.0) hp_visible=false troop_visible=false hp_alpha=0.80000001192093 troop_alpha=1.0 hp_z=8 troop_z=20 hp_size=(96.0, 9.0) troop_size=(96.0, 20.0) troop_text=66 / 66 hp_value=66.0 hp_max=66.0 root_visible=false token_visible=false
+[Battle] No WorldMap battle context; using test battle setup
+UNIT VISUAL ROOT SLOTS:
+ally_main cache=true root=true token=true click=true ready=true facing=true dict=true
+ally_support cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true
+enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_main_03 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_main_03 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_01 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_01 cache=true root=true token=true click=true ready=false facing=true dict=true
+ally_reinforce_02 cache=true root=true token=true click=true ready=true facing=true dict=true
+enemy_reinforce_02 cache=true root=true token=true click=true ready=false facing=true dict=true
+MVP SCENE SLOT SCAFFOLD:
+slot_container_found_count=6 capacity_scene_slot_path_count=10
+ally_main_03=true ally_reinforce_01=true ally_reinforce_02=true enemy_main_03=true enemy_reinforce_01=true enemy_reinforce_02=true
+CAPACITY SLOT REGISTRY:
+capacity_slot_count=20 ally_active=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy_active=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] ally_deployed=["ally_main_01", "ally_main_02", "ally_main_03"] enemy_deployed=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+ally_main -> ally_main_01 visual=true active=true deployed=true
+ally_support -> ally_main_02 visual=true active=true deployed=true
+enemy_main -> enemy_main_01 visual=true active=true deployed=true
+enemy_support -> enemy_main_02 visual=true active=true deployed=true
+UNIT STATE VISUAL BINDINGS:
+ally_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_support state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_main_03 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_01 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ally_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+enemy_reinforce_02 state=true alive=true hp_ref=true troop_ref=true visual_nodes=6
+ADAPTER ALIVE PARITY SNAPSHOT:
+adapter_alive_ally_count=3 adapter_alive_enemy_count=3 fallback_alive_ally_count=3 fallback_alive_enemy_count=3 all_alive_count=6
+active_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_capacity_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"] parity_ok=true
+ACTOR TARGET ADAPTER SNAPSHOT:
+actor_candidates_ally_count=3 actor_candidates_enemy_count=3 target_candidates_for_ally_actor_count=3 target_candidates_for_enemy_actor_count=3
+auto_target_parity_ok=true enemy_ai_target_parity_ok=true enemy_actor_order_parity_ok=true
+DEPLOYED ACTIVE FILTER SNAPSHOT:
+capacity_active_slots ally=["ally_main_01", "ally_main_02", "ally_main_03", "ally_reinforce_01", "ally_reinforce_02"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03", "enemy_reinforce_01", "enemy_reinforce_02"] deployed_slots ally=["ally_main_01", "ally_main_02", "ally_main_03"] enemy=["enemy_main_01", "enemy_main_02", "enemy_main_03"]
+actor_candidates ally=3 enemy=3 target_candidates ally=3 enemy=3 all_alive_deployed_count=6 phase=ally_turn parity_ok=true
+[ISO_PRODUCTION] primary ally cache synced unit=(342.8571, 462.8572) portrait=(372.5238, 432.8572)
+[ISO_PRODUCTION] ISO_PRODUCTION_V1 active · BattleIsoGridProjection 18x10 top_left=(0.0, 0.0) bottom_right=(1920.0, 1080.0) diamond_size=(137.1429, 77.14286) basis_x=(68.57143, 38.57143) basis_y=(-68.57143, 38.57143)
+[BATTLE_TOAST_PLAY] tag=round_start text=BATTLE 1 texture=round_toast_ink_war_01.png queue_remaining=0
+[BATTLE_INTRO_CAMERA] battle_intro_camera_zoom_begin
+[BATTLE_INTRO_CAMERA] complete source=skip_input
+M1B integration checks=143 failures=[]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+
+```
+
+## 로컬 구현 체크포인트
+
+구현 커밋: `a91e1e0be0b56fda7ddd0b8832de891bea16cf22`.
+다음 커밋은 validator TIP 고정 및 문서 정리만 한다. 최종 HEAD는 별도 FINAL_CLOSEOUT.txt에 기록한다.
+보고서 출력 블록은 줄바꿈/행말 공백을 정규화했고 원시 로그는 ZIP에 별도 보존한다.
+
+`git diff --name-status 22b7ee7..HEAD` (구현 체크포인트):
+
+```text
+M	.github/workflows/verify-c-track.yml
+A	agent/BATTLE3D_M1B_RESULT_20261019.md
+A	scenes/battle3d/Battle3D_EnginePlayLab.tscn
+A	scripts/battle3d/battle3d_engine_host.gd
+A	scripts/battle3d/battle3d_engine_host.gd.uid
+A	scripts/battle3d/battle3d_engine_play.gd
+A	scripts/battle3d/battle3d_engine_play.gd.uid
+A	tests/scripts/test_battle3d_engine_move_integration.gd
+A	tests/scripts/test_battle3d_engine_move_integration.gd.uid
+M	tools/validate_battle3d_contract.py
+A	tools/validate_battle3d_m1b_engine_move.py
 ```
