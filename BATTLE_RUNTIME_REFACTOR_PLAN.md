@@ -315,7 +315,12 @@ Current next action:
 
 - 2026-10-19: P-1 and engine-core were merged on `integration/p1-engine-core-20261019` (WorldMap.tscn = P-1 version); all 25 CI validators and CI Godot tests pass on the merged tree. Open: `validate_p1b_16x9_functional_parity.py` garrison-title assertion (design decision pending) and the two P-1D roundtrip tests are not wired into CI.
 
-Do not begin B-1H until the P-1 production-entry duplication problem is resolved or explicitly deferred.
+B-1H status (2026-10-19): the P-1 production-entry duplication problem is resolved (merged on `integration/p1-engine-core-20261019`), so B-1H may begin.
+
+- B-1H audit selected unique-skill buff state (attack turns/bonus, defense bonus) as the next state extraction.
+- B-1H audit: `agent/BATTLE_ENGINE_B1H_UNIQUE_SKILL_BUFF_STATE_AUDIT_20261019.md`.
+- B-1H execution brief: `agent/BATTLE_ENGINE_B1H_CODEX_UNIQUE_SKILL_BUFF_STATE_20261019.md`.
+- Separate finding, not part of B-1H: buff state is absent from the resume snapshot (gameplay decision pending).
 
 Relevant current records:
 
