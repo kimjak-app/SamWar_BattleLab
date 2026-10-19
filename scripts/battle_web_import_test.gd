@@ -874,6 +874,8 @@ const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 
 var movement_query_service := BattleMovementQueryServiceScript.new()
+var ally_move_state_service := preload("res://scripts/battle/services/battle_ally_move_state_service.gd").new()
+var ally_move_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -3263,35 +3265,43 @@ func play_basic_move_demo() -> void:
 	var previous_offset := Vector2.ZERO
 	var step_duration := 0.14
 	for path_index in range(1, move_path.size()):
-		tween.tween_callback(_apply_unit_movement_facing.bind(active_unit_state, move_path[path_index - 1], move_path[path_index], previous_offset))
+		tween.tween_callback(_apply_ally_move_step_facing.bind(active_unit_state, move_path[path_index - 1], move_path[path_index], previous_offset))
 		var waypoint_world := battle_grid_controller.grid_to_world(move_path[path_index])
 		var next_offset := waypoint_world - start_unit_position
 		tween.tween_method(_apply_selected_ally_group_offset, previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		previous_offset = next_offset
 	if move_path.size() - 1 > battle_grid_controller.get_distance(start_cell, target_cell):
 		_append_battle_log("우회 이동")
-	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position, target_cell))
+	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position, target_cell, move_path.duplicate(true)))
 
 
-func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
+func _record_ally_move_events(result: Dictionary) -> void:
+	for event in result.get("events", []):
+		ally_move_event_log.emit(event.kind, event.fields)
+
+
+func _apply_ally_move_step_facing(unit_state: BattleUnitState, from_cell: Vector2i, to_cell: Vector2i, current_offset: Vector2 = Vector2.ZERO) -> void:
+	var result: Dictionary = ally_move_state_service.apply_step_facing(unit_state, from_cell, to_cell)
+	if not result.applied:
+		return
+	_record_ally_move_events(result)
+	_apply_unit_facing_visuals()
+	_apply_group_offset_for_unit(unit_state, current_offset)
+
+
+func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i, move_path: Array = []) -> void:
 	if _handle_battle_end_guard("ally_move_finish"):
 		is_demo_animating = false
 		print("[TURN_ADVANCE_BLOCKED] source=ally_move_finish reason=result_finalized")
 		return
 	var origin_cell := active_unit_state.grid_cell
 	_sync_selected_ally_markers_to_position(target_unit_position, target_portrait_position)
-	active_unit_state.set_grid_cell(target_cell)
+	ally_move_state_service.apply_destination(active_unit_state, target_cell)
 	_apply_unit_facing_visuals()
 	_debug_print_combat_distance("MOVE_FINISH")
 	_update_cell_size_visual_guide(active_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
-	active_unit_state.has_moved = true
-	active_unit_state.last_action = {
-		"type": "move",
-		"origin_cell": [origin_cell.x, origin_cell.y],
-		"destination_cell": [target_cell.x, target_cell.y],
-		"moved_distance": battle_grid_controller.get_distance(origin_cell, target_cell),
-	}
+	_record_ally_move_events(ally_move_state_service.commit_move_metadata(active_unit_state, origin_cell, target_cell, battle_grid_controller.get_distance(origin_cell, target_cell), move_path, pending_move_snapshot_facing))
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	_hide_move_range_overlay()
@@ -6476,7 +6486,7 @@ func _select_post_move_facing(facing: String) -> void:
 	if active_unit_state == null:
 		return
 
-	_set_unit_facing(active_unit_state, facing)
+	_record_ally_move_events(ally_move_state_service.confirm_facing(active_unit_state, facing))
 	ally_has_manual_facing = true
 	_apply_unit_facing_visuals()
 	_reset_unit_group_positions()
@@ -7773,9 +7783,13 @@ func _rollback_pending_ally_move() -> void:
 	active_unit_state = unit_state
 	active_unit_side = "ally"
 	ally_has_moved = pending_move_snapshot_ally_has_moved
-	unit_state.set_grid_cell(pending_move_snapshot_grid_cell)
-	unit_state.has_moved = pending_move_snapshot_has_moved
-	_set_unit_facing(unit_state, pending_move_snapshot_facing)
+	_record_ally_move_events(ally_move_state_service.rollback(unit_state, {
+		"unit_id": unit_state.unit_id,
+		"grid_cell": [pending_move_snapshot_grid_cell.x, pending_move_snapshot_grid_cell.y],
+		"facing": pending_move_snapshot_facing,
+		"has_moved": pending_move_snapshot_has_moved,
+		"ally_has_moved": pending_move_snapshot_ally_has_moved,
+	}))
 
 	var unit_marker := _get_unit_marker_for_unit(unit_state)
 	if unit_marker != null:
@@ -7814,17 +7828,18 @@ func _store_pending_ally_move_snapshot() -> void:
 		return
 	var unit_marker := _get_selected_ally_unit_marker()
 	var portrait_marker := _get_selected_ally_portrait_marker()
+	var snapshot: Dictionary = ally_move_state_service.capture_snapshot(active_unit_state, ally_has_moved)
 	pending_move_snapshot_unit_state = active_unit_state
-	pending_move_snapshot_grid_cell = active_unit_state.grid_cell
+	pending_move_snapshot_grid_cell = Vector2i(snapshot.grid_cell[0], snapshot.grid_cell[1])
 	pending_move_snapshot_unit_position = Vector2.ZERO
 	pending_move_snapshot_portrait_position = Vector2.ZERO
 	if unit_marker != null:
 		pending_move_snapshot_unit_position = unit_marker.position
 	if portrait_marker != null:
 		pending_move_snapshot_portrait_position = portrait_marker.position
-	pending_move_snapshot_facing = active_unit_state.facing
-	pending_move_snapshot_has_moved = active_unit_state.has_moved
-	pending_move_snapshot_ally_has_moved = ally_has_moved
+	pending_move_snapshot_facing = snapshot.facing
+	pending_move_snapshot_has_moved = snapshot.has_moved
+	pending_move_snapshot_ally_has_moved = snapshot.ally_has_moved
 	has_pending_move_snapshot = true
 	print("[ROLLBACK] snapshot stored unit=", active_unit_state.display_name, " cell=", pending_move_snapshot_grid_cell)
 
