@@ -11,7 +11,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "afe03675b5abe0918951676f770a1c1516f6cd1a"
-TIP = os.environ.get("M2_3D_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M2_3D_SCOPE_TIP", "50644e0d29169ce9bf8b52df3b7758487042c265")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 HOST = "scripts/battle3d/battle3d_engine_host.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

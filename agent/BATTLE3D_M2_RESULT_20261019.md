@@ -265,3 +265,5 @@ validator의 단순/복합/인덱스/set/set_deferred 상태 쓰기 금지도 �
 ## Git / 검수 자료
 
 구현과 validator TIP 고정/최종 보고를 별도 로컬 커밋으로 남긴다. 최종 커밋 해시, git diff --name-status afe0367..HEAD 원문은 검수 ZIP의 GIT_FINAL.txt에 기록한다. 검수 ZIP에는 전체 명령 목록, 원문 로그, 변조 스크립트/결과 및 패치를 포함한다.
+
+구현 커밋: `50644e0d29169ce9bf8b52df3b7758487042c265`. validator 기본 TIP을 이 구현 커밋에 고정했다. `M2_3D_SCOPE_TIP=HEAD`는 현재 작업 트리 검사다. 두 번째 커밋은 이 고정과 최종 보고만 포함하며 런타임/테스트 코드는 바뀌지 않는다.
