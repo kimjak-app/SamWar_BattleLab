@@ -8,7 +8,7 @@ from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
 BASE = "cbc1e43abfcc59aa40883883b5dcc4182ecf21e1"
-TIP = os.environ.get("M3_3D_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M3_3D_SCOPE_TIP", "168b887ca598233a57bd39bbf7a13016d0701ec0")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 S3_1_VALIDATOR = "tools/validate_battle_enemy_events_s3_1.py"
