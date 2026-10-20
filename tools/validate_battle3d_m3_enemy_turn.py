@@ -7,8 +7,8 @@ re-pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
-BASE = "cbc1e43abfcc59aa40883883b5dcc4182ecf21e1"
-TIP = os.environ.get("M3_3D_SCOPE_TIP", "HEAD")
+BASE = "102713f01b8a1ce41e35009255c01f1c74b9cb39"
+TIP = os.environ.get("M3_3D_SCOPE_TIP", "f357f0782c05d32f0fb377ac631936c8d779f191")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 S3_1_VALIDATOR = "tools/validate_battle_enemy_events_s3_1.py"
@@ -23,7 +23,7 @@ CI_TESTS = ["tests/scripts/test_battle3d_enemy_turn_equivalence_shard_1.gd", "te
 OTHER_TESTS = ["tests/scripts/test_battle3d_enemy_turn_equivalence.gd", "tests/scripts/test_battle3d_enemy_turn_manual.gd"]
 NEW = {VALIDATOR, REPORT, HARNESS, GOLDEN, *CI_TESTS, *OTHER_TESTS}
 NEW |= {p + ".uid" for p in list(NEW) if p.endswith(".gd")}
-MODIFIED = {PLAY, WORKFLOW, S3_1_VALIDATOR, M2_HARNESS}
+MODIFIED = {PLAY, WORKFLOW, M2_HARNESS}
 PROTECTED = ["scripts/battle_web_import_test.gd", "scripts/battle/services/battle_enemy_event_log_service.gd",
              "scripts/battle/services/battle_event_log_service.gd", "scripts/battle3d/lab_presentation.gd",
              "scripts/battle3d/battle3d_unit_adapter.gd", "scripts/battle3d/battle3d_engine_host.gd",
@@ -101,10 +101,7 @@ def main():
         assert hashlib.sha256(raw(p).replace(b"\r\n", b"\n")).hexdigest() == digest, "golden changed " + p
 
     # Allowed edits to earlier files are exact.
-    old_s31 = text(S3_1_VALIDATOR, True)
-    assert text(S3_1_VALIDATOR) == old_s31.replace('TIP = os.environ.get("S3_1_SCOPE_TIP", "HEAD")',
-                                                   'TIP = os.environ.get("S3_1_SCOPE_TIP", "cbc1e43abfcc59aa40883883b5dcc4182ecf21e1")', 1) \
-        and text(S3_1_VALIDATOR) != old_s31, "S3-1 validator: only the default TIP pin"
+    assert text(S3_1_VALIDATOR) == text(S3_1_VALIDATOR, True), "S3-1 validator unchanged (pin already re-pinned at merge)"
     old_m2 = text(M2_HARNESS, True)
     m2_old_line = '\t\tif positions: expect(view.position.distance_to(lab.board.world(unit.grid_cell))<.001,label+" cell "+unit.unit_id)\n'
     m2_new = ('\t\tif positions and lab.playback.has(unit.unit_id):\n'
