@@ -878,6 +878,7 @@ var ally_move_state_service := preload("res://scripts/battle/services/battle_all
 var attack_state_service := preload("res://scripts/battle/services/battle_attack_state_service.gd").new()
 var battle_action_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var ally_move_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
+var enemy_action_event_log := preload("res://scripts/battle/services/battle_enemy_event_log_service.gd").new()
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -4427,6 +4428,7 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 		selected_attack_target_state = target_state
 		selected_attack_target_side = caster_state.side
 	_append_battle_log("%s 고유특기 선택" % caster_state.display_name)
+	enemy_action_event_log.record_skill(caster_state, skill_data, target_state)
 	is_auto_action_in_progress = caster_state.side == "ally"
 	_begin_auto_unique_skill_preview(caster_state, skill_data)
 	return true
@@ -7862,6 +7864,7 @@ func _play_enemy_ai_turn() -> void:
 	if _handle_battle_end_guard("enemy_turn_start"):
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_turn_start reason=result_finalized")
 		return
+	enemy_action_event_log.emit("enemy_turn_started", {"round":battle_round})
 	is_demo_animating = true
 	_stop_idle_breathing()
 	basic_attack_button.disabled = true
@@ -7890,10 +7893,12 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		_advance_enemy_turn_or_return_to_ally()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
+	enemy_action_event_log.record_unit("enemy_actor_selected", enemy_actor_state)
 	_refresh_production_battle_hud("enemy-actor")
 	if _is_unit_confused(enemy_actor_state):
 		_append_battle_log("%s은 혼란 상태로 행동할 수 없습니다." % enemy_actor_state.display_name)
 		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(enemy_actor_state), "혼란", STRATEGY_EFFECT_COLOR)
+		enemy_action_event_log.record_waited(enemy_actor_state, "confused")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -7910,6 +7915,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	var target_state: BattleUnitState = decision_plan.get("final_target_state", null)
 	if target_state == null:
 		_append_battle_log("적 행동 대상 없음")
+		enemy_action_event_log.record_waited(enemy_actor_state, "no_target")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -7922,6 +7928,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	var destination: Vector2i = decision_plan.get("destination", enemy_actor_state.grid_cell)
 	if destination == enemy_actor_state.grid_cell:
 		_append_battle_log("%s 대기" % enemy_actor_state.display_name)
+		enemy_action_event_log.record_waited(enemy_actor_state, "wait")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -7930,6 +7937,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	var move_path := _find_enemy_move_path_for_actor(enemy_actor_state, enemy_actor_state.grid_cell, destination)
 	if move_path.is_empty() or move_path.size() < 2:
 		_append_battle_log("%s 이동 경로 없음" % enemy_actor_state.display_name)
+		enemy_action_event_log.record_waited(enemy_actor_state, "no_path")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -7949,6 +7957,7 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	if target_state == null:
 		target_state = _get_enemy_ai_target_state_for_actor(enemy_actor_state)
 	if target_state == null or not target_state.is_alive():
+		enemy_action_event_log.record_waited(enemy_actor_state, "no_target")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -8003,6 +8012,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 		return
 	if not _is_path_clear_for_unit(move_path, enemy_actor_state, true):
 		_append_battle_log("%s 이동 경로 막힘" % enemy_actor_state.display_name)
+		enemy_action_event_log.record_waited(enemy_actor_state, "path_blocked")
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_advance_enemy_turn_or_return_to_ally()
 		return
@@ -8025,6 +8035,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	_hide_facing_indicator_for_unit(enemy_actor_state)
 	_show_move_dust_for_unit(enemy_actor_state)
 	_focus_camera_on_unit(enemy_actor_state)
+	enemy_action_event_log.stage_move_path(enemy_actor_state.unit_id, move_path)
 
 	var tween := create_tween()
 	var previous_offset := Vector2.ZERO
@@ -8053,6 +8064,7 @@ func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_p
 
 	_sync_enemy_actor_markers_to_position(enemy_actor_state, target_position, target_portrait_position)
 	enemy_actor_state.set_grid_cell(target_cell)
+	enemy_action_event_log.emit_staged_move(enemy_actor_state.unit_id, target_cell)
 	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
 	_fade_out_move_dust_for_unit(enemy_actor_state)
@@ -8087,6 +8099,7 @@ func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: Battle
 		return
 
 	_append_battle_log("%s 대기" % enemy_actor_state.display_name)
+	enemy_action_event_log.record_waited(enemy_actor_state, "wait")
 	_mark_enemy_unit_acted(enemy_actor_state)
 	_advance_enemy_turn_or_return_to_ally()
 
@@ -8102,6 +8115,7 @@ func _enemy_reaction_hit_on() -> void:
 		var attack_damage := _get_directional_attack_damage(int(ENEMY_DEMO_DAMAGE), current_enemy_ai_actor_state, target_state, true, true)
 		var attack_angle_type := _get_attack_angle_type(current_enemy_ai_actor_state, target_state)
 		var applied_attack_damage := target_state.apply_damage(attack_damage)
+		enemy_action_event_log.record_attack(current_enemy_ai_actor_state, target_state, attack_damage, applied_attack_damage, attack_angle_type)
 		_commit_basic_attack_unit_contract(current_enemy_ai_actor_state)
 		if applied_attack_damage > 0:
 			_gain_momentum_for_basic_attack(current_enemy_ai_actor_state)
@@ -10331,6 +10345,7 @@ func _handle_battle_end_guard(source: String) -> bool:
 		])
 	if not has_logged_battle_end_guard:
 		has_logged_battle_end_guard = true
+		enemy_action_event_log.emit("battle_ended", {"result_state":battle_result_state})
 		print("[BATTLE_END] source=%s state=%s ally_alive=%d enemy_alive=%d" % [
 			source,
 			battle_result_state,
@@ -11120,6 +11135,7 @@ func _start_new_round(force_round_start := false) -> void:
 	_try_deploy_reinforce_01_pair()
 	_try_deploy_city_reinforce_02_pair()
 	_show_round_start_banner()
+	enemy_action_event_log.emit("round_started", {"round":battle_round})
 
 
 func _apply_group_offset(nodes: Array[CanvasItem], base_positions: Array[Vector2], offset: Vector2) -> void:
@@ -13268,6 +13284,7 @@ func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
 	if not was_already_acted:
 		_consume_strategy_status_after_unit_action(unit_state)
 		print("[ENEMY_TURN] round=%d actor=%s acted remaining=%d" % [battle_round, unit_state.unit_id, _get_remaining_unacted_enemy_count()])
+		enemy_action_event_log.record_unit("enemy_action_completed", unit_state)
 
 
 func _has_enemy_unit_acted(unit_state: BattleUnitState) -> bool:
