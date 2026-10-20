@@ -18,6 +18,7 @@ var animation_starts := 0
 var rejected := 0
 var presentation_speed := 8.0
 var attack_button: Button
+var wait_button: Button # M3-b: the engine's existing 2D wait command, no hotkey (M6).
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -101,7 +102,7 @@ func _build_ui() -> void:
 		if layer is CanvasLayer:
 			for child in layer.get_children():
 				if child is Label and child.text.begins_with("LMB"):
-					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
+					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격 또는 [대기] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
 	info.add_theme_font_size_override("font_size",15)
 	status.add_theme_font_size_override("font_size",14)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -128,6 +129,12 @@ func _build_attack_ui() -> void:
 	attack_button.custom_minimum_size = Vector2(160,38)
 	attack_button.pressed.connect(request_attack)
 	layer.add_child(attack_button)
+	wait_button = Button.new()
+	wait_button.text = "대기"
+	wait_button.position = Vector2(194,254)
+	wait_button.custom_minimum_size = Vector2(110,38)
+	wait_button.pressed.connect(request_wait)
+	layer.add_child(wait_button)
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	panel.position = Vector2(get_viewport().get_visible_rect().size.x-394,20)
@@ -250,6 +257,9 @@ func _sync_views() -> void:
 	if actor_ring.visible: actor_ring.position=views[enemy_actor_id].position+Vector3(0,.1,0)
 	var phase: String = engine.get("current_phase")
 	attack_button.disabled = phase != "ally_turn" or engine.get("is_demo_animating") or active == null or _enemy_presentation_busy() or ended
+	var wait_block := _wait_block_reason()
+	wait_button.disabled = not wait_block.is_empty()
+	wait_button.tooltip_text = "엔진 대기 (2D 대기 버튼과 같은 명령)" if wait_block.is_empty() else wait_block
 	if phase != "attack_select" and not attack_cells.is_empty(): _clear_attack_range()
 	if phase == "enemy_turn" and not ended and enemy_queue.is_empty(): status.text="적 자동 행동 중 · 입력 잠금 / 결과는 엔진 상태로 동기화"
 	last_phase=phase
@@ -385,6 +395,44 @@ func _input_locked() -> bool:
 
 func _enemy_presentation_busy() -> bool:
 	return not enemy_queue.is_empty() or enemy_hold > 0.0
+
+func _wait_block_reason() -> String:
+	# Guidance only (engine state reads); the engine re-validates the command.
+	if not battle_result.is_empty(): return "전투 종료 · %s / 모든 입력 잠금" % RESULT_TEXT.get(battle_result,battle_result)
+	var phase: String = engine.get("current_phase")
+	if phase == "enemy_turn": return "적 턴 중 · 적 행동이 끝날 때까지 기다리세요"
+	if engine.get("is_demo_animating"): return "연출 중 · 중복 명령을 받지 않습니다"
+	if _enemy_presentation_busy(): return "적 행동 재생 중 · 재생이 끝날 때까지 기다리세요"
+	if phase != "ally_turn": return "행동 불가 · 현재 선택 단계를 완료하거나 취소하세요"
+	var active = engine.get("active_unit_state")
+	if active == null: return "대기 불가 · 먼저 아군을 선택하세요"
+	if Adapter.to_view(active).has_acted: return "대기 불가 · 이미 행동한 부대입니다"
+	return ""
+
+func request_wait() -> void:
+	if not ready_for_input or _input_locked(): return
+	var reason := _wait_block_reason()
+	if not reason.is_empty():
+		_reject(reason)
+		return
+	var waiting_id: String = engine.get("active_unit_state").unit_id
+	var enemy_events_before: int = engine.get("enemy_action_event_log").export().size()
+	enemy_baseline=_state_for_enemy_summary() # before the call: an instant enemy slot is summarised inside it
+	engine.call("_end_ally_turn_by_wait")
+	# Acceptance is read back from the engine (no 3D-side ledger): the unit is
+	# marked acted, or the engine already ran the enemy slot it starts (an
+	# instant enemy slot can finish and even reset flags for a new round).
+	var waited = queries.find_unit(waiting_id)
+	var accepted: bool = waited != null and (Adapter.to_view(waited).has_acted or engine.get("enemy_action_event_log").export().size() > enemy_events_before)
+	if not accepted:
+		_reject("행동 불가 · 엔진이 대기를 수락하지 않았습니다")
+		return
+	_clear_range()
+	_clear_attack_range()
+	awaiting_enemy_result=true
+	_append_combat_line("대기 · " + waiting_id)
+	status.text="대기 · %s / 이후 적 자동 행동" % waiting_id
+	_sync_views()
 
 func request_attack() -> void:
 	if not ready_for_input or _input_locked(): return
