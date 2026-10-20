@@ -8,8 +8,8 @@ re-pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
-BASE = "168b887ca598233a57bd39bbf7a13016d0701ec0"
-TIP = os.environ.get("M3B_SCOPE_TIP", "HEAD")
+BASE = "c7e4fe8eac3c9d8339ec32e44574a498f6a8a960"
+TIP = os.environ.get("M3B_SCOPE_TIP", "47f4fbf1c65cd65a74c2923710a353852009a05c")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 M3_VALIDATOR = "tools/validate_battle3d_m3_enemy_turn.py"
@@ -20,7 +20,7 @@ CI_TESTS = ["tests/scripts/test_battle3d_wait_equivalence.gd", "tests/scripts/te
             "tests/scripts/test_battle3d_wait_rejections.gd"]
 NEW = {VALIDATOR, REPORT, HARNESS, *CI_TESTS}
 NEW |= {p + ".uid" for p in list(NEW) if p.endswith(".gd")}
-MODIFIED = {PLAY, WORKFLOW, M3_VALIDATOR}
+MODIFIED = {PLAY, WORKFLOW}
 PROTECTED = ["scripts/battle_web_import_test.gd", "scripts/battle3d/lab_presentation.gd", "scripts/battle3d/battle3d_unit_adapter.gd",
              "scripts/battle3d/battle3d_engine_host.gd", "scripts/battle3d/battle3d_movement_adapter.gd",
              "tests/scripts/support/battle3d_enemy_turn_harness.gd", "tests/scripts/support/battle3d_engine_attack_harness.gd",
@@ -92,10 +92,7 @@ def main():
         assert text(p) == text(p, True), "protected bytes: " + p
     for p, digest in GOLDENS.items():
         assert hashlib.sha256(raw(p).replace(b"\r\n", b"\n")).hexdigest() == digest, "golden changed " + p
-    old_m3 = text(M3_VALIDATOR, True)
-    assert text(M3_VALIDATOR) == old_m3.replace('TIP = os.environ.get("M3_3D_SCOPE_TIP", "HEAD")',
-                                                'TIP = os.environ.get("M3_3D_SCOPE_TIP", "168b887ca598233a57bd39bbf7a13016d0701ec0")', 1) \
-        and text(M3_VALIDATOR) != old_m3, "M3 validator: only the default TIP pin"
+    assert text(M3_VALIDATOR) == text(M3_VALIDATOR, True), "M3 validator unchanged"
     wf_diff = git("diff", "--unified=0", *rev, "--", WORKFLOW).decode()
     assert not any(x.startswith("-") and not x.startswith("---") for x in wf_diff.splitlines()), "workflow additions only"
     added = [x[1:].strip() for x in wf_diff.splitlines() if x.startswith("+") and not x.startswith("+++")]
