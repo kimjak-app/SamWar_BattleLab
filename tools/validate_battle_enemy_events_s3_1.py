@@ -8,7 +8,7 @@ from pathlib import Path
 import argparse, ast, hashlib, json, os, re, subprocess
 
 BASE = "a19a08d4a370b68e50ee5a8cf24513d6689b6024"
-TIP = os.environ.get("S3_1_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S3_1_SCOPE_TIP", "cbc1e43abfcc59aa40883883b5dcc4182ecf21e1")
 CONTROLLER = "scripts/battle_web_import_test.gd"
 SERVICE = "scripts/battle/services/battle_enemy_event_log_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
