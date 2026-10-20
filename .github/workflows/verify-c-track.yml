@@ -90,6 +90,7 @@ jobs:
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
+            tools/validate_battle3d_m3_enemy_turn.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -139,6 +140,11 @@ jobs:
             tests/scripts/test_battle3d_engine_attack_shard_3.gd
             tests/scripts/test_battle3d_engine_attack_rejections.gd
             tests/scripts/test_battle3d_engine_attack_sync.gd
+            tests/scripts/test_battle3d_enemy_turn_equivalence_shard_1.gd
+            tests/scripts/test_battle3d_enemy_turn_equivalence_shard_2.gd
+            tests/scripts/test_battle3d_enemy_turn_equivalence_shard_3.gd
+            tests/scripts/test_battle3d_enemy_turn_locks.gd
+            tests/scripts/test_battle3d_enemy_turn_default_layout.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd
             tests/scripts/test_battle3d_oblique_click.gd

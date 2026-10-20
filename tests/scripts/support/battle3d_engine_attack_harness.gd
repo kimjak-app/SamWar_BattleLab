@@ -75,7 +75,10 @@ func sync_check(label: String, positions := true) -> void:
 		if available: expected_visible.append(unit.unit_id)
 		if view.visible: visible.append(unit.unit_id)
 		expect(lab.display_values[unit.unit_id]==value,label+" adapter "+unit.unit_id)
-		if positions: expect(view.position.distance_to(lab.board.world(unit.grid_cell))<.001,label+" cell "+unit.unit_id)
+		if positions and lab.playback.has(unit.unit_id):
+			# M3: an enemy path playback may still run after the engine callback; it must end on the engine cell.
+			expect(lab.playback[unit.unit_id].path[-1]==unit.grid_cell,label+" playback ends on engine cell "+unit.unit_id)
+		elif positions: expect(view.position.distance_to(lab.board.world(unit.grid_cell))<.001,label+" cell "+unit.unit_id)
 		var count := 0
 		for soldier in lab.soldiers[unit.unit_id]:
 			if soldier.visible: count+=1
