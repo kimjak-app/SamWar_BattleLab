@@ -53,6 +53,28 @@ func _initialize() -> void:
 	expect(log.emit_staged_status_tick(burning).is_empty(), "staged tick consumed once")
 	log.stage_status_tick(burning)
 	expect(log.emit_staged_status_tick(unit("other")).is_empty(), "staged tick for another unit records nothing")
+	# Recording draws no random number: the global RNG sequence is unchanged.
+	seed(77)
+	var expected_draw := randf()
+	seed(77)
+	var rng_log := Service.new()
+	rng_log.record_strategy_cast(caster, target, 0.5, true, "shake", 1)
+	rng_log.record_strategy_cast(caster, target, 0.5, false, "", 0)
+	rng_log.stage_status_tick(burning)
+	rng_log.emit_staged_status_tick(burning)
+	for method in ["record_skill_cast", "record_skill_heal", "record_skill_status", "record_skill_momentum", "record_skill_finished", "record_reinforcement", "stage_skill_command", "record_skill_damage", "record_staged_cleanse", "record_staged_move"]:
+		if rng_log.has_method(method):
+			match method:
+				"record_skill_cast": rng_log.call(method, caster, {"skill_id":"s", "effect_type":"e", "momentum_cost":1}, {"target_mode":"self"}, caster)
+				"record_skill_heal": rng_log.call(method, caster, target, 3)
+				"record_skill_status": rng_log.call(method, caster, target, "shake", 1, 0)
+				"record_skill_momentum": rng_log.call(method, caster, "ally", 1)
+				"record_skill_finished": rng_log.call(method, caster, 0)
+				"record_reinforcement": rng_log.call(method, caster, 2, "reinforce_01")
+				"stage_skill_command": rng_log.call(method, caster, target)
+				"record_skill_damage": rng_log.call(method, caster, target, 1, "")
+				_: rng_log.call(method, caster, target)
+	expect(randf() == expected_draw, "recording consumed no random number")
 	log.clear()
 	expect(log.export().is_empty() and log.record_strategy_cast(caster, target, 0.5, false, "", 0).sequence == 0, "clear resets sequence")
 	print("[TACTIC_LOG_SERVICE] checks=", checks, " failures=", failures)

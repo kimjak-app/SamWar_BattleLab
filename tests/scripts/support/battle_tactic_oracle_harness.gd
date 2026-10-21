@@ -134,14 +134,18 @@ func run_case(tree: SceneTree, label: String) -> Dictionary:
 				skill = skill_by_id("cheok_jun_gyeong_unique")
 				units[5].current_hp = 5
 				units[5].current_troops = 5
-			"K_commit_failure": skill = skill_for_effect("charge_damage")
+			"K_commit_failure": skill = skill_for_effect("adjacent_aoe")
 			"K_enemy_auto_skill": pass
 			_: skill = skill_for_effect(label.trim_prefix("K_"))
 		if label == "K_retreat_counter":
 			_setup_unit(units[1], "infantry", Vector2i(7,5)) # free the retreat cell behind the caster
 		if label == "K_rally_restore":
+			# Wounded allies with negative statuses: heal and cleanse both apply.
 			units[0].apply_status_effect("burn", 2, 8)
 			units[1].apply_status_effect("defense_down", 2, 10)
+			for i in [0, 1]:
+				units[i].current_hp = 200
+				units[i].current_troops = 200
 		if label == "K_enemy_auto_skill":
 			# Production enemy keeps its own skill (guan_yu line_damage); the ally side has acted.
 			battle.get("action_lock_state_service").register_unit_acted(units[0], "ally")
@@ -195,10 +199,12 @@ func _act(tree: SceneTree, battle: Node, units: Array[BattleUnitState], label: S
 			battle.call("_set_phase", "enemy_turn")
 			battle.call("_play_enemy_turn_demo")
 		"K_commit_failure":
+			# Self-target skill: the button starts the preview; momentum drained
+			# during it (fixture) makes the commit inside the sequence fail.
 			battle.call("_on_unique_skill_button_pressed")
+			expect(battle.get("is_manual_unique_skill_preview_pending"), label + " preview pending")
 			var momentum = battle.get("battle_momentum")
-			momentum.spend("ally", momentum.get_value("ally"), "fixture_drain") # fixture: commit-time spend fails
-			battle.call("_try_use_unique_skill_on_target", units[5])
+			momentum.spend("ally", momentum.get_value("ally"), "fixture_drain")
 		_:
 			battle.call("_on_unique_skill_button_pressed")
 			expect(battle.get("current_phase") == "unique_skill_target_select", label + " skill target select")

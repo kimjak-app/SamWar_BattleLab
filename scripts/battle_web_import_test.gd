@@ -4493,6 +4493,7 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	if not battle_momentum.spend(caster_state.side, momentum_cost, String(plan.get("skill_id", ""))):
 		_handle_unique_skill_commit_failure(caster_state, "insufficient_momentum")
 		return
+	tactic_event_log.record_skill_cast(caster_state, plan, executable_skill, selected_target)
 	pending_unique_skill_plan = plan.duplicate(true)
 	_refresh_momentum_ui()
 	is_manual_unique_skill_preview_pending = false
@@ -5291,8 +5292,10 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 				var applied := target_state.apply_damage(adjusted_damage)
 				if applied <= 0:
 					continue
+				tactic_event_log.stage_skill_command(caster_state, target_state)
 				if damage_flag == "advance_on_kill" and was_alive and not target_state.is_alive():
 					_apply_resolver_advance_toward_target(caster_state, target_state)
+				tactic_event_log.record_skill_damage(caster_state, target_state, applied, damage_flag)
 				damage_hits += 1
 				var target_pos := _get_visual_anchor_position_for_unit(target_state)
 				_spawn_hit_battle_dust_fx(target_pos)
@@ -5303,6 +5306,7 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 					continue
 				var healed := target_state.heal(amount)
 				if healed > 0:
+					tactic_event_log.record_skill_heal(caster_state, target_state, healed)
 					heal_hits += 1
 					_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(target_state), "+%d" % healed)
 			"status":
@@ -5317,6 +5321,7 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 				if status_turns <= 0:
 					continue
 				target_state.apply_status_effect(status_id, status_turns, amount)
+				tactic_event_log.record_skill_status(caster_state, target_state, status_id, status_turns, amount)
 				status_hits += 1
 				_spawn_strategy_text_fx(
 					_get_visual_anchor_position_for_unit(target_state),
@@ -5326,22 +5331,28 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 			"cleanse":
 				if target_state == null:
 					continue
+				tactic_event_log.stage_skill_command(caster_state, target_state)
 				if _cleanse_one_resolver_negative_status(target_state):
 					status_hits += 1
+					tactic_event_log.record_staged_cleanse(caster_state, target_state)
 			"momentum":
 				var momentum_side := target_id
 				if amount >= 0:
 					var gained := battle_momentum.gain(momentum_side, amount, String(command.get("status_id", "skill_gain")))
 					if gained > 0:
+						tactic_event_log.record_skill_momentum(caster_state, momentum_side, gained)
 						_append_battle_log("%s 기세 +%d" % [_get_side_display_name(momentum_side), gained])
 				else:
 					var drained := mini(battle_momentum.get_value(momentum_side), absi(amount))
 					if drained > 0:
 						battle_momentum.spend(momentum_side, drained, String(command.get("status_id", "skill_drain")))
+						tactic_event_log.record_skill_momentum(caster_state, momentum_side, -drained)
 						_append_battle_log("%s 기세 -%d" % [_get_side_display_name(momentum_side), drained])
 			"move":
 				if target_state != null:
+					tactic_event_log.stage_skill_command(caster_state, target_state)
 					_apply_resolver_retreat_move(target_state, amount)
+					tactic_event_log.record_staged_move(caster_state, target_state)
 	_refresh_momentum_ui()
 	_append_battle_log("%s · %s · 피해 %d / 상태 %d / 회복 %d" % [
 		String(plan.get("skill_name", "고유기")),
@@ -5679,6 +5690,7 @@ func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Di
 	_clear_auto_action_flags()
 	pending_unique_skill_plan.clear()
 	_set_unique_skill_cooldown(caster_state, int(skill_data.get("cooldown_turns", 0)))
+	tactic_event_log.record_skill_finished(caster_state, _get_unique_skill_remaining_cooldown_turns(caster_state))
 	if bool(skill_data.get("consumes_action", true)):
 		if caster_state != null and caster_state.side == "enemy":
 			_mark_enemy_unit_acted(caster_state)
@@ -9182,8 +9194,10 @@ func _try_deploy_reinforce_01_pair() -> void:
 	var arriving_units: Array[String] = []
 	if _deploy_reinforce_unit(ally_reinforce_01_unit_state):
 		arriving_units.append(_get_hero_id_for_unit_state(ally_reinforce_01_unit_state))
+		tactic_event_log.record_reinforcement(ally_reinforce_01_unit_state, battle_round, "reinforce_01")
 	if _deploy_reinforce_unit(enemy_reinforce_01_unit_state):
 		arriving_units.append(_get_hero_id_for_unit_state(enemy_reinforce_01_unit_state))
+		tactic_event_log.record_reinforcement(enemy_reinforce_01_unit_state, battle_round, "reinforce_01")
 	has_deployed_reinforce_01 = true
 	if arriving_units.is_empty():
 		print("[REINFORCEMENT_TOAST_SKIP] source=reinforce_01 round=%d reason=no_arriving_units" % battle_round)
@@ -9215,8 +9229,10 @@ func _try_deploy_city_reinforce_02_pair() -> void:
 	var arriving_units: Array[String] = []
 	if _deploy_city_reinforcement_unit(ally_reinforce_02_unit_state):
 		arriving_units.append(_get_hero_id_for_unit_state(ally_reinforce_02_unit_state))
+		tactic_event_log.record_reinforcement(ally_reinforce_02_unit_state, battle_round, "city_reinforce_02")
 	if _deploy_city_reinforcement_unit(enemy_reinforce_02_unit_state):
 		arriving_units.append(_get_hero_id_for_unit_state(enemy_reinforce_02_unit_state))
+		tactic_event_log.record_reinforcement(enemy_reinforce_02_unit_state, battle_round, "city_reinforce_02")
 	has_deployed_reinforce_02 = true
 	if arriving_units.is_empty():
 		print("[REINFORCEMENT_TOAST_SKIP] source=city_reinforce_02 round=%d reason=no_arriving_units" % battle_round)

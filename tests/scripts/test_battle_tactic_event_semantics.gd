@@ -53,14 +53,37 @@ func check_ticks(label: String, result: Dictionary) -> int:
 		h.expect(e.expired == expired, label + " expired list " + str(e.expired) + " vs " + str(expired))
 	return count
 
+func check_reinforcements(label: String, result: Dictionary) -> void:
+	var arrivals: Array = result._tactic_events.filter(func(x): return x.kind == "reinforcement_arrived")
+	var sampled := 0
+	for sample in result._post.samples.filter(func(s): return s.kind == "reinforcement"):
+		for item in sample.arrived:
+			sampled += 1
+			var e: Dictionary = item.event
+			h.expect(e.kind == "reinforcement_arrived" and e.source == sample.source and e.round == sample.round, label + " arrival source/round " + str(e))
+			h.expect(e.cell == item.cell and item.deployed and not item.has_acted, label + " arrival cell == unit cell, deployed, not acted " + str(item))
+			h.expect(not sample.round_started_before.has(sample.round), label + " arrival recorded before round_started %d" % sample.round)
+	h.expect(sampled == arrivals.size(), label + " every arrival recorded inside a deploy call")
+	var expected := [["reinforce_01", 2, "ally"], ["reinforce_01", 2, "enemy"], ["city_reinforce_02", 3, "ally"], ["city_reinforce_02", 3, "enemy"]]
+	h.expect(arrivals.map(func(e): return [e.source, e.round, e.side]) == expected, label + " reinforce_01 at round 2, city reinforce_02 at round 3 " + str(arrivals))
+	var rounds: Array = result.logs_end.enemy_action_event_log.filter(func(e): return e.kind == "round_started").map(func(e): return e.round)
+	h.expect(rounds == [2, 3], label + " round_started 2 and 3 still in the enemy log " + str(rounds))
+
 func _run() -> void:
 	h = load("res://tests/scripts/support/battle_tactic_oracle_harness.gd").new()
 	h.tag = "[TACTIC_SEMANTICS]"
 	h.battle_script = load("res://tests/scripts/support/battle_tactic_observer_battle.gd")
 	h.post_hook = post
-	for label in h.STRATEGY_CASES + ["T1_burn_shake_tick"]:
+	for label in h.STRATEGY_CASES + ["T1_burn_shake_tick", "K_commit_failure", "R1_default_reinforcements_round3"]:
 		var result: Dictionary = await h.run_case(self, label)
-		if label.begins_with("S"): check_strategy(label, result)
+		if label.begins_with("S"):
+			check_strategy(label, result)
+			h.expect(not result._tactic_events.any(func(x): return x.kind.begins_with("skill_")), label + " strategy records no skill events")
+		if label == "K_commit_failure":
+			var begins: Array = result._post.samples.filter(func(s): return s.kind == "skill_begin")
+			h.expect(begins.size() == 1 and not begins[0].committed, label + " the sequence started and did not commit")
+			h.expect(not result._tactic_events.any(func(x): return x.kind.begins_with("skill_")), label + " no skill_cast/effect/finished on commit failure " + str(result._tactic_events))
+		if label == "R1_default_reinforcements_round3": check_reinforcements(label, result)
 		var ticks := check_ticks(label, result)
 		if label == "T1_burn_shake_tick":
 			var events: Array = result._tactic_events.filter(func(x): return x.kind == "status_tick")
