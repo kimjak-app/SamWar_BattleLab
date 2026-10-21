@@ -12,7 +12,7 @@ from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
 BASE = "b3386e9998570d862ddc0a7602f6a04b8badcd6c"  # docs(battle): pin S4-1 validator ...
-TIP = os.environ.get("M4B_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M4B_SCOPE_TIP", "3ea98f3e20309d53c6200ed4b92ad8d09650dffa")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4b_strategy.py"

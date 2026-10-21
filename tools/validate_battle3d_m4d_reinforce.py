@@ -11,8 +11,8 @@ re-pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
-BASE = "b3386e9998570d862ddc0a7602f6a04b8badcd6c"  # docs(battle): pin S4-1 validator ...
-TIP = os.environ.get("M4D_SCOPE_TIP", "HEAD")
+BASE = "3ea98f3e20309d53c6200ed4b92ad8d09650dffa"  # docs(battle): pin S4-1 validator ...
+TIP = os.environ.get("M4D_SCOPE_TIP", "22f4facc66c41fde1662ca74fcffea4d48d1cb81")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4d_reinforce.py"
@@ -30,7 +30,8 @@ PROTECTED = ["scripts/battle_web_import_test.gd", "scripts/battle_unit_state.gd"
              "tests/scripts/support/battle3d_enemy_turn_harness.gd", "tests/scripts/support/battle3d_engine_attack_harness.gd",
              "tests/scripts/support/battle_enemy_turn_oracle_harness.gd", "tests/scripts/support/battle_tactic_oracle_harness.gd",
              "tools/validate_battle3d_m1b_engine_move.py", "tools/validate_battle3d_m2_engine_attack.py", "tools/validate_battle3d_m3_enemy_turn.py",
-             "tools/validate_battle3d_m3b_wait.py", "tools/validate_battle3d_m4a_defend.py", "tools/validate_battle_enemy_events_s3_1.py",
+             "tools/validate_battle3d_m3b_wait.py", "tools/validate_battle3d_m4a_defend.py", "tools/validate_battle3d_m4b_strategy.py",
+             "tests/scripts/support/battle3d_strategy_harness.gd", "tools/validate_battle_enemy_events_s3_1.py",
              "tools/validate_battle_tactic_events_s4_1.py", "tools/validate_battle3d_contract.py"]
 GOLDENS = {"tests/golden/battle_attack_baseline_v0.json": "d018cbe618c06043ea6ac6fd22c8a56faa42f284d4e6613f01bfa98dad3dd91c",
            "tests/golden/battle_move_baseline_v0.json": "b35d3f7987bb2efca5efe1d379b6eddc00cdca1558c17e88733dd1389cf714bd",
@@ -38,8 +39,10 @@ GOLDENS = {"tests/golden/battle_attack_baseline_v0.json": "d018cbe618c06043ea6ac
            "tests/golden/battle3d_m3_start_v0.json": "c1a1291fa0a2f23307b67316db64a3c663c38d43e15fd904f5b4e4e67921926a",
            "tests/golden/battle_tactic_baseline_v0.json": "2693536d50b23799ee3e63e4419912bf08929ea40c516bb86f284f959811db2d"}
 COMMANDS = {"_select_ally_unit", "_try_direct_move_to_cell", "_select_post_move_facing", "_handle_right_click_cancel", "try_basic_attack",
-            "_try_attack_enemy_target_from_attack_select", "_end_ally_turn_by_wait", "_on_defend_button_pressed"}
-READ_CALLS = {"_get_alive_enemy_units", "is_unit_in_attack_range", "_is_unit_state_available_for_battle_slot"}
+            "_try_attack_enemy_target_from_attack_select", "_end_ally_turn_by_wait", "_on_defend_button_pressed",
+            "_on_strategy_button_pressed", "_try_use_strategy_on_target"}
+READ_CALLS = {"_get_alive_enemy_units", "is_unit_in_attack_range", "_is_unit_state_available_for_battle_slot",
+              "_can_use_strategy", "_get_strategy_targets", "_get_strategy_success_rate"}
 READ_PROPERTIES = {"current_phase", "is_demo_animating", "active_unit_state", "all_battle_unit_states", "battle_action_event_log",
                    "ally_move_event_log", "battle_grid_controller", "enemy_action_event_log", "tactic_event_log"}
 VIEW_FIELDS = {"unit_id", "side", "unit_type", "grid_cell", "facing", "current_troops", "max_troops", "allocated_troops", "footprint",
@@ -49,11 +52,11 @@ FORBIDDEN = r"worldmap|world_map|WorldMap|payload|result_toast|result_video|_try
             r"_mark_enemy_unit_acted|_mark_ally_unit_acted|_return_to_ally_turn|_finish_enemy_actor|_finish_enemy_basic|_enemy_reaction_hit_on|" \
             r"_on_unique_skill_button_pressed|_try_use_unique_skill|_begin_unique_skill|_try_auto_unique_skill|" \
             r"_deploy_reinforce|_deploy_city_reinforcement|_try_deploy|_set_unit_deployed|capacity_slot|_show_reinforcement_arrival_toast|arrival_round|" \
-            r"_on_strategy_button_pressed|_try_use_strategy_on_target|_resolve_strategy|strategy_roll_override|has_deployed_reinforce"
+            r"_resolve_strategy|strategy_roll_override|has_deployed_reinforce"
 ROSTER_TOKENS = r"reinforce_0|_demo\b|test_unit|\bsize\(\)\s*[=<>!]=?\s*(?:6|8|10)\b|\b(?:6|8|10)\s*[=<>!]=?\s*\w+\.size\(\)|\brange\((?:6|8|10)\)|[<>]=?\s*(?:6|8|10)\b"
-CHANGED_FUNCTIONS = {"_process", "_sync_views", "_click_world", "_present_enemy_event"}
-NEW_FUNCTIONS = {"_consume_tactic_events", "_flush_arrivals", "_present_arrival", "_round_start_pending", "_unit_shown", "_waiting_unit_at"}
-NEW_MEMBERS = {"arrival_presentations", "arrival_texts", "pending_arrivals", "held_unit_ids", "tactic_cursor"}
+CHANGED_FUNCTIONS = {"_process", "_sync_views", "_click_world", "_present_enemy_event", "_consume_tactic_events"}
+NEW_FUNCTIONS = {"_flush_arrivals", "_present_arrival", "_round_start_pending", "_unit_shown", "_waiting_unit_at"}
+NEW_MEMBERS = {"arrival_presentations", "arrival_texts", "pending_arrivals", "held_unit_ids"}
 
 
 def check_state_writes(code):
@@ -113,7 +116,7 @@ def main():
     code = strip_comments(text(PLAY))
     old_code = strip_comments(text(PLAY, True))
     calls = re.findall(r'engine\.call\("([^"\n]+)"', code)
-    assert set(calls) == COMMANDS | READ_CALLS, "write/read calls unchanged (eight commands): " + str(set(calls) ^ (COMMANDS | READ_CALLS))
+    assert set(calls) == COMMANDS | READ_CALLS, "write/read calls unchanged (ten commands): " + str(set(calls) ^ (COMMANDS | READ_CALLS))
     assert len(re.findall(r"engine\.call\(", code)) == len(calls), "no dynamic method names"
     old_calls = re.findall(r'engine\.call\("([^"\n]+)"', old_code)
     for c in COMMANDS:
@@ -137,7 +140,7 @@ def main():
     # Fourth cursor: reads the whole log, handles one kind, skips the rest.
     consume = f["_consume_tactic_events"]
     assert 'engine.get("tactic_event_log").export()' in consume and "tactic_cursor += 1" in consume and "_consume_enemy_events()" in consume
-    assert re.findall(r'^\t\t\t"(\w+)":', consume, re.M) == ["reinforcement_arrived"] and re.search(r"^\t\t\t_:\n\t\t\t\tpass", consume, re.M), "one kind handled, others skipped"
+    assert re.findall(r'^\t\t\t"(\w+)":', consume, re.M) == ["strategy_cast", "status_tick", "reinforcement_arrived"] and re.search(r"^\t\t\t_:\n\t\t\t\tpass", consume, re.M), "one kind handled, others skipped"
     assert not re.search(r"push_error|assert|\bbreak\b|\breturn\b|quit\(", consume), "other kinds never stop the cursor"
     assert code.count("tactic_cursor") == 4 and "tactic_cursor = " not in code.replace("var tactic_cursor := 0", ""), "cursor only advances"
     for name in NEW_FUNCTIONS:
@@ -172,7 +175,7 @@ def main():
     for p in CI_TESTS + [HARNESS]:
         assert "WorldMap.tscn" not in text(p) and "Battle_Main.tscn" not in text(p), p
     git("diff", "--check", *rev)
-    print(f"M4D_REINFORCE validator PASS: base={BASE[:7]} scope={TIP}; {len(changes)} paths; engine/service/adapter diff 0; eight commands unchanged; "
+    print(f"M4D_REINFORCE validator PASS: base={BASE[:7]} scope={TIP}; {len(changes)} paths; engine/service/adapter diff 0; ten commands unchanged; "
           f"{len(READ_PROPERTIES)} read properties (+tactic_event_log); fourth cursor handles reinforcement_arrived only; "
           f"no deploy/world-map/result/strategy/skill calls")
 
