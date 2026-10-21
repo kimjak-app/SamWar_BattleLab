@@ -879,6 +879,8 @@ var attack_state_service := preload("res://scripts/battle/services/battle_attack
 var battle_action_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var ally_move_event_log := preload("res://scripts/battle/services/battle_event_log_service.gd").new()
 var enemy_action_event_log := preload("res://scripts/battle/services/battle_enemy_event_log_service.gd").new()
+var tactic_event_log := preload("res://scripts/battle/services/battle_tactic_event_log_service.gd").new()
+var strategy_roll_override: Callable = Callable() # Test-only dice hook (S4-1); game code never sets it.
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -3800,7 +3802,19 @@ func _roll_strategy_outcome(caster_state: BattleUnitState) -> Dictionary:
 	var pool := _get_strategy_outcome_pool(caster_state)
 	if pool.is_empty():
 		return {}
-	return pool[randi() % pool.size()].duplicate(true)
+	return pool[_strategy_roll_pool_index(pool.size())].duplicate(true)
+
+
+func _strategy_roll_success(success_rate: float) -> bool:
+	if strategy_roll_override.is_valid():
+		return bool(strategy_roll_override.call("success", success_rate))
+	return randf() <= success_rate
+
+
+func _strategy_roll_pool_index(pool_size: int) -> int:
+	if strategy_roll_override.is_valid():
+		return int(strategy_roll_override.call("pool_index", pool_size))
+	return randi() % pool_size
 
 
 func _is_valid_strategy_target(caster_state: BattleUnitState, target_state: BattleUnitState) -> bool:
@@ -3845,7 +3859,7 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(caster_state), "책략!", STRATEGY_CAST_COLOR)
 
 	var success_rate := _get_strategy_success_rate(caster_state, target_state)
-	if randf() <= success_rate:
+	if _strategy_roll_success(success_rate):
 		var outcome := _roll_strategy_outcome(caster_state)
 		var status_id := String(outcome.get("status", STATUS_SHAKE))
 		var turns := maxi(int(outcome.get("turns", 1)), 1)
@@ -3853,9 +3867,11 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 		var status_name := _get_strategy_status_display_name(status_id)
 		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(target_state), "%s %d턴" % [status_name, turns], STRATEGY_EFFECT_COLOR)
 		_append_battle_log("책략 성공! %s에게 %s %d턴!" % [target_state.display_name, status_name, turns])
+		tactic_event_log.record_strategy_cast(caster_state, target_state, success_rate, true, status_id, turns)
 	else:
 		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(target_state), "실패", STRATEGY_FAIL_COLOR)
 		_append_battle_log("책략 실패!")
+		tactic_event_log.record_strategy_cast(caster_state, target_state, success_rate, false, "", 0)
 
 	_mark_ally_unit_acted(caster_state)
 	_show_unit_closeup_for_ally(caster_state)
@@ -4051,12 +4067,14 @@ func _consume_strategy_status_after_unit_action(unit_state: BattleUnitState) -> 
 		return
 	if unit_state.status_effects.is_empty():
 		return
+	tactic_event_log.stage_status_tick(unit_state)
 	if unit_state.has_status_effect("burn") and unit_state.is_alive():
 		var burn_damage := maxi(floori(float(unit_state.get_status_magnitude("burn", 8)) / 2.0), 4)
 		var applied := unit_state.apply_damage(burn_damage)
 		if applied > 0:
 			_append_battle_log("%s 화상 피해 %d" % [unit_state.display_name, applied])
 	unit_state.tick_status_effects()
+	tactic_event_log.emit_staged_status_tick(unit_state)
 	_refresh_formation_slot_guides()
 	_refresh_strategy_status_icon_labels()
 
