@@ -11,7 +11,7 @@ from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
 BASE = "ff25fdb54ef52ad876c3ce60551e51348bc3693d"  # docs(battle3d): record independent M3-b review
-TIP = os.environ.get("M4A_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M4A_SCOPE_TIP", "15777025093969dcc65eea9c799e3551eaf5c58a")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4a_defend.py"
