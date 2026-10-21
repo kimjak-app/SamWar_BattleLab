@@ -94,6 +94,7 @@ jobs:
             tools/validate_battle3d_m3_enemy_turn.py
             tools/validate_battle3d_m3b_wait.py
             tools/validate_battle3d_m4a_defend.py
+            tools/validate_battle3d_m4b_strategy.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -163,6 +164,10 @@ jobs:
             tests/scripts/test_battle3d_defend_equivalence.gd
             tests/scripts/test_battle3d_defend_default_round.gd
             tests/scripts/test_battle3d_defend_rejections.gd
+            tests/scripts/test_battle3d_strategy_equivalence.gd
+            tests/scripts/test_battle3d_strategy_default_round.gd
+            tests/scripts/test_battle3d_strategy_rejections.gd
+            tests/scripts/test_battle3d_strategy_mixed_log.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd
             tests/scripts/test_battle3d_oblique_click.gd
