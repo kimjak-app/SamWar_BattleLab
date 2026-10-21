@@ -20,6 +20,18 @@ var presentation_speed := 8.0
 var attack_button: Button
 var wait_button: Button # M3-b: the engine's existing 2D wait command, no hotkey (M6).
 var defend_button: Button # M4-a: the engine's existing 2D defend command, no hotkey (M6).
+# M4-b: the engine's strategy command. Fourth independent cursor over tactic_event_log;
+# never merged with event_cursor / action_cursor / enemy_cursor. Only strategy_cast and
+# status_tick are handled here; every other kind is skipped (the cursor still advances).
+var strategy_button: Button
+var tactic_cursor := 0
+var strategy_marks := Node3D.new()
+var strategy_target_ids: Array[String] = []
+var tactic_texts: Array[String] = []
+var tactic_presentations: Array = []
+var pending_enemy_ticks := {} # enemy unit_id -> status_tick events shown with its replayed action_completed
+var status_display := {} # unit_id -> engine status_effects shown on badges, refreshed only when no enemy replay is pending
+const STATUS_TEXT := {"shake":"동요","confusion":"혼란","burn":"화상"} # display names; unknown ids are shown as-is
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -103,7 +115,7 @@ func _build_ui() -> void:
 		if layer is CanvasLayer:
 			for child in layer.get_children():
 				if child is Label and child.text.begins_with("LMB"):
-					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격·[대기]·[방어] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
+					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격·[대기]·[방어]·[책략] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
 	info.add_theme_font_size_override("font_size",15)
 	status.add_theme_font_size_override("font_size",14)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -142,6 +154,13 @@ func _build_attack_ui() -> void:
 	defend_button.custom_minimum_size = Vector2(110,38)
 	defend_button.pressed.connect(request_defend)
 	layer.add_child(defend_button)
+	strategy_button = Button.new()
+	strategy_button.text = "책략"
+	strategy_button.position = Vector2(434,254)
+	strategy_button.custom_minimum_size = Vector2(110,38)
+	strategy_button.pressed.connect(request_strategy)
+	layer.add_child(strategy_button)
+	add_child(strategy_marks)
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	panel.position = Vector2(get_viewport().get_visible_rect().size.x-394,20)
@@ -210,6 +229,7 @@ func _process(delta: float) -> void:
 	_consume_events()
 	_consume_action_events()
 	_consume_enemy_events()
+	_consume_tactic_events()
 	_advance_enemy_presentation(delta)
 	for id in playback.keys():
 		var motion: Dictionary = playback[id]
@@ -270,6 +290,10 @@ func _sync_views() -> void:
 	var defend_block := _defend_block_reason()
 	defend_button.disabled = not defend_block.is_empty()
 	defend_button.tooltip_text = "엔진 방어 (2D 방어 버튼과 같은 명령)" if defend_block.is_empty() else defend_block
+	var strategy_block := _strategy_block_reason()
+	strategy_button.disabled = not strategy_block.is_empty()
+	strategy_button.tooltip_text = "엔진 책략 (2D 책략 버튼과 같은 명령)" if strategy_block.is_empty() else strategy_block
+	if phase != "strategy" and not strategy_target_ids.is_empty(): _clear_strategy_marks()
 	if phase != "attack_select" and not attack_cells.is_empty(): _clear_attack_range()
 	if phase == "enemy_turn" and not ended and enemy_queue.is_empty(): status.text="적 자동 행동 중 · 입력 잠금 / 결과는 엔진 상태로 동기화"
 	last_phase=phase
@@ -294,7 +318,7 @@ func _refresh_turn_ui(phase: String) -> void:
 		var value: Dictionary = display_values.get(id,{})
 		badge.visible = views[id].visible and not value.is_empty()
 		if not badge.visible: continue
-		badge.text = action_state_text(value) + (" · 방어 중" if _unit_defending(queries.find_unit(id)) else "")
+		badge.text = action_state_text(value) + (" · 방어 중" if _unit_defending(queries.find_unit(id)) else "") + _status_suffix(id, value)
 		badge.modulate = Color("9fd3ff") if value.side == "ally" else Color("ffb0a0")
 		badge.position = views[id].position+Vector3(0,5.2,0)
 		lines.append("%s %s · %s · 병력 %s · %s" % ["아군" if value.side == "ally" else "적군",id,value.unit_type,value.current_troops,badge.text])
@@ -304,7 +328,7 @@ func _refresh_info() -> void:
 	if not ready_for_input or selected.is_empty(): return
 	var value: Dictionary = display_values.get(selected,{})
 	if value.is_empty(): return
-	info.text = "%s / %s / 병력 %s\n셀 %s / %s\n이동 %s · 행동 %s / 상태 %s%s" % [selected,value.unit_type,value.current_troops,value.grid_cell,engine.get("current_phase"),value.has_moved,value.has_acted,value.status_effects," / 방어 중" if _unit_defending(queries.find_unit(selected)) else ""]
+	info.text = "%s / %s / 병력 %s\n셀 %s / %s\n이동 %s · 행동 %s / 상태 %s%s" % [selected,value.unit_type,value.current_troops,value.grid_cell,engine.get("current_phase"),value.has_moved,value.has_acted,_status_text(status_display.get(selected,{}))," / 방어 중" if _unit_defending(queries.find_unit(selected)) else ""]
 
 func _unit_defending(unit: BattleUnitState) -> bool:
 	# M4-a approval: the engine's is_defending is read (never written) for badges and the unit panel.
@@ -326,6 +350,9 @@ func _click_world(pos: Vector2) -> void:
 	var cell: Vector2i = projection.world_to_grid_from_ray(camera.project_ray_origin(pos),camera.project_ray_normal(pos))
 	if engine.get("current_phase") == "attack_select":
 		_click_attack_cell(cell)
+		return
+	if engine.get("current_phase") == "strategy":
+		_click_strategy_cell(cell)
 		return
 	if engine.get("current_phase") != "ally_turn":
 		_reject("방향 확정 또는 취소가 필요합니다")
@@ -379,6 +406,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				target_id=candidate.unit_id
 				_refresh_target_info(candidate)
 				break
+	if event is InputEventMouseMotion and engine.get("current_phase") == "strategy":
+		_hover_strategy_cell(projection.world_to_grid_from_ray(camera.project_ray_origin(event.position),camera.project_ray_normal(event.position)))
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		if _input_locked(): return
 		engine.call("_handle_right_click_cancel")
@@ -709,6 +738,7 @@ func _present_enemy_event(event: Dictionary) -> void:
 			enemy_hold = enemy_hold_seconds
 		"enemy_action_completed":
 			enemy_actor_id = ""
+			_flush_enemy_ticks(event.unit_id)
 		"round_started":
 			current_round = event.round
 			_enemy_text("라운드 %d" % event.round)
@@ -743,3 +773,173 @@ func _show_enemy_hit(event: Dictionary) -> void:
 	tween.parallel().tween_property(label,"modulate:a",0.0,1.8)
 	tween.tween_callback(label.queue_free)
 	_enemy_text("적 공격 · %s → %s 피해 %s (%s)" % [event.attacker_id,event.target_id,event.damage_applied,event.angle_type])
+
+func _strategy_block_reason() -> String:
+	# Guidance only: the wait/defend preconditions plus the engine's own strategy rule.
+	var reason := _ally_command_block_reason("책략")
+	if not reason.is_empty(): return reason
+	if not engine.call("_can_use_strategy",engine.get("active_unit_state")): return "책략 불가 · 엔진 조건(지력·혼란·행동 여부)을 충족하지 않습니다"
+	if engine.call("_get_strategy_targets",engine.get("active_unit_state")).is_empty(): return "책략 불가 · 사거리 안에 적이 없습니다"
+	return ""
+
+func request_strategy() -> void:
+	if not ready_for_input or _input_locked(): return
+	var reason := _strategy_block_reason()
+	if not reason.is_empty():
+		_reject(reason)
+		return
+	engine.call("_on_strategy_button_pressed")
+	if engine.get("current_phase") != "strategy":
+		_reject("행동 불가 · 엔진이 책략을 수락하지 않았습니다")
+		return
+	_clear_range()
+	_clear_attack_range()
+	_show_strategy_targets()
+	status.text = "책략 대상 선택 / 표시된 적의 성공률은 엔진 값 / 우클릭 취소"
+	_sync_views()
+
+func _show_strategy_targets() -> void:
+	_clear_strategy_marks()
+	var caster = engine.get("active_unit_state")
+	for candidate in engine.call("_get_strategy_targets",caster):
+		strategy_target_ids.append(candidate.unit_id)
+		var mark := _disc(1.25,Color("3fb8c4"),.03)
+		strategy_marks.add_child(mark)
+		mark.position = board.world(Adapter.to_view(candidate).grid_cell)+Vector3(0,.1,0)
+		var preview := Label3D.new()
+		preview.text = _rate_text(engine.call("_get_strategy_success_rate",caster,candidate))
+		preview.font_size = 40
+		preview.pixel_size = .012
+		preview.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		preview.no_depth_test = true
+		preview.set_meta("strategy_preview",candidate.unit_id)
+		strategy_marks.add_child(preview)
+		preview.position = views[candidate.unit_id].position+Vector3(0,4.4,0)
+
+func _rate_text(rate: float) -> String:
+	# Formatting of the engine value only.
+	return "성공률 %d%%" % roundi(rate*100.0)
+
+func _clear_strategy_marks() -> void:
+	strategy_target_ids.clear()
+	for child in strategy_marks.get_children():
+		strategy_marks.remove_child(child)
+		child.queue_free()
+
+func _strategy_target_at(cell: Vector2i):
+	for candidate in engine.call("_get_strategy_targets",engine.get("active_unit_state")):
+		if Adapter.to_view(candidate).grid_cell == cell: return candidate
+	return null
+
+func _hover_strategy_cell(cell: Vector2i) -> void:
+	var target = _strategy_target_at(cell)
+	if target == null: return
+	target_id = target.unit_id
+	_refresh_target_info(target)
+	target_info.text += "\n책략 " + _rate_text(engine.call("_get_strategy_success_rate",engine.get("active_unit_state"),target))
+
+func _click_strategy_cell(cell: Vector2i) -> void:
+	# Only the engine's own strategy targets can be sent; anything else is refused with no engine call.
+	var target = _strategy_target_at(cell)
+	if target == null:
+		_reject("대상 아님 · 사거리 안의 적만 책략 대상입니다")
+		return
+	var caster_id: String = engine.get("active_unit_state").unit_id
+	var casts_before := _strategy_cast_count()
+	enemy_baseline=_state_for_enemy_summary() # before the call: an instant enemy slot is summarised inside it
+	engine.call("_try_use_strategy_on_target",target)
+	# Acceptance is read back from the engine: a new strategy_cast exists, or the caster
+	# is marked acted (an instant enemy slot can already have reset has_acted).
+	var caster = queries.find_unit(caster_id)
+	var accepted: bool = _strategy_cast_count() > casts_before or (caster != null and Adapter.to_view(caster).has_acted)
+	if not accepted:
+		_reject("행동 불가 · 엔진이 책략을 수락하지 않았습니다")
+		return
+	_clear_strategy_marks()
+	awaiting_enemy_result=true
+	_consume_tactic_events()
+	_sync_views()
+
+func _strategy_cast_count() -> int:
+	return engine.get("tactic_event_log").export().filter(func(e): return e.kind == "strategy_cast").size()
+
+func _consume_tactic_events() -> void:
+	_consume_enemy_events() # enemy events first, so a tick can wait for its replayed action
+	var events: Array = engine.get("tactic_event_log").export()
+	while tactic_cursor < events.size():
+		var event: Dictionary = events[tactic_cursor]
+		tactic_cursor += 1
+		match event.kind:
+			"strategy_cast":
+				_present_strategy_cast(event)
+			"status_tick":
+				if _enemy_completion_pending(event.unit_id):
+					pending_enemy_ticks[event.unit_id] = pending_enemy_ticks.get(event.unit_id,[]) + [event]
+				else:
+					_present_status_tick(event)
+			_:
+				pass # other kinds (skills, reinforcements) belong to other steps
+
+func _enemy_completion_pending(unit_id: String) -> bool:
+	for queued in enemy_queue:
+		if queued.kind == "enemy_action_completed" and queued.unit_id == unit_id: return true
+	return false
+
+func _flush_enemy_ticks(unit_id: String) -> void:
+	for event in pending_enemy_ticks.get(unit_id,[]): _present_status_tick(event)
+	pending_enemy_ticks.erase(unit_id)
+
+func _present_strategy_cast(event: Dictionary) -> void:
+	# Every number and outcome comes from the event.
+	var outcome: String = ("%s %d턴" % [STATUS_TEXT.get(event.status_id,event.status_id),event.turns_after]) if event.success else "실패"
+	tactic_presentations.append(event.duplicate(true))
+	_tactic_label(event.target_id,outcome,Color("7ff2c8") if event.success else Color("ff5f78"))
+	_append_combat_line("책략 · %s → %s · %s · %s (%s)" % [event.caster_id,event.target_id,"성공" if event.success else "실패",outcome,_rate_text(event.success_rate)])
+	_tactic_text("책략 %s · %s" % ["성공" if event.success else "실패",outcome])
+
+func _present_status_tick(event: Dictionary) -> void:
+	tactic_presentations.append(event.duplicate(true))
+	if event.burn_damage > 0:
+		_tactic_label(event.unit_id,"화상 −%d" % event.burn_damage,Color("ff9a4a"))
+		_append_combat_line("화상 · %s −%d" % [event.unit_id,event.burn_damage])
+		_tactic_text("화상 · %s −%d" % [event.unit_id,event.burn_damage])
+	for status_id in event.expired:
+		_tactic_label(event.unit_id,"%s 해제" % STATUS_TEXT.get(status_id,status_id),Color("c8d6e0"))
+		_tactic_text("%s 해제 · %s" % [STATUS_TEXT.get(status_id,status_id),event.unit_id])
+
+func _tactic_text(line: String) -> void:
+	tactic_texts.append(line)
+	status.text = line
+
+func _tactic_label(unit_id: String, text: String, color: Color) -> void:
+	if not views.has(unit_id): return
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 52
+	label.pixel_size = .014
+	label.modulate = color
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.set_meta("tactic_label",true)
+	add_child(label)
+	label.position = views[unit_id].position+Vector3(0,4.8,0)
+	var tween := create_tween()
+	tween.tween_property(label,"position:y",label.position.y+1.2,1.6)
+	tween.parallel().tween_property(label,"modulate:a",0.0,1.6)
+	tween.tween_callback(label.queue_free)
+
+func _status_suffix(unit_id: String, value: Dictionary) -> String:
+	# Engine status_effects (adapter field), refreshed only while no enemy replay is
+	# pending, so a replay never shows the end state early.
+	if not _enemy_presentation_busy(): status_display[unit_id] = value.status_effects.duplicate(true)
+	var text := _status_text(status_display.get(unit_id,{}))
+	return "" if text.is_empty() else " · " + text
+
+func _status_text(effects: Dictionary) -> String:
+	var parts: Array[String] = []
+	var ids: Array = effects.keys()
+	ids.sort()
+	for status_id in ids:
+		var raw = effects[status_id]
+		parts.append("%s %d턴" % [STATUS_TEXT.get(status_id,status_id),int(raw.get("turns",0)) if raw is Dictionary else int(raw)])
+	return " ".join(parts)
