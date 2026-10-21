@@ -22,7 +22,7 @@ var wait_button: Button # M3-b: the engine's existing 2D wait command, no hotkey
 var defend_button: Button # M4-a: the engine's existing 2D defend command, no hotkey (M6).
 # M4-b: the engine's strategy command. Fourth independent cursor over tactic_event_log;
 # never merged with event_cursor / action_cursor / enemy_cursor. Only strategy_cast and
-# status_tick are handled here; every other kind is skipped (the cursor still advances).
+# status_tick are handled here; M4-d adds reinforcement_arrived on the same cursor; every other kind is skipped (the cursor still advances).
 var strategy_button: Button
 var tactic_cursor := 0
 var strategy_marks := Node3D.new()
@@ -30,6 +30,10 @@ var strategy_target_ids: Array[String] = []
 var tactic_texts: Array[String] = []
 var tactic_presentations: Array = []
 var pending_enemy_ticks := {} # enemy unit_id -> status_tick events shown with its replayed action_completed
+var held_unit_ids := {} # M4-d: deployed units whose arrival event waits for that round's replayed round_started
+var pending_arrivals := {} # M4-d: round -> reinforcement_arrived events shown with that round's replayed round_started
+var arrival_presentations: Array = []
+var arrival_texts: Array[String] = []
 var status_display := {} # unit_id -> engine status_effects shown on badges, refreshed only when no enemy replay is pending
 const STATUS_TEXT := {"shake":"동요","confusion":"혼란","burn":"화상"} # display names; unknown ids are shown as-is
 var target_info: Label
@@ -259,11 +263,12 @@ func _consume_events() -> void:
 			playback.erase(event.unit_id)
 
 func _sync_views() -> void:
+	_consume_tactic_events() # holds a fresh arrival before visibility is decided
 	for unit in queries.alive_units:
 		var value: Dictionary = Adapter.to_view(unit)
 		display_values[value.unit_id] = value
 		var root: Node3D = views[value.unit_id]
-		root.visible = engine.call("_is_unit_state_available_for_battle_slot",unit)
+		root.visible = engine.call("_is_unit_state_available_for_battle_slot",unit) and _unit_shown(value.unit_id)
 		if not playback.has(value.unit_id):
 			root.position = board.world(value.grid_cell)
 			_ground_soldiers(value.unit_id)
@@ -360,7 +365,7 @@ func _click_world(pos: Vector2) -> void:
 	var unit = null
 	# Ground-cell selection avoids foreground pick boxes stealing adjacent cells.
 	for candidate in queries.alive_units:
-		if candidate.grid_cell == cell and engine.call("_is_unit_state_available_for_battle_slot",candidate): unit = candidate
+		if candidate.grid_cell == cell and engine.call("_is_unit_state_available_for_battle_slot",candidate) and _unit_shown(candidate.unit_id): unit = candidate
 	if unit != null:
 		if unit.side != "ally":
 			_reject("대상 아님 · 아군을 선택한 뒤 [공격]을 누르세요")
@@ -377,6 +382,9 @@ func _click_world(pos: Vector2) -> void:
 			dot.position = board.world(reachable)+Vector3(0,.12,0)
 		status.text = "선택됨 / 이동할 칸 또는 [공격] 선택"
 	else:
+		if _waiting_unit_at(cell):
+			_reject("행동 불가 · 도착 전 부대가 있는 칸입니다")
+			return
 		if not engine.call("_try_direct_move_to_cell",cell):
 			_reject()
 			return
@@ -741,6 +749,7 @@ func _present_enemy_event(event: Dictionary) -> void:
 			_flush_enemy_ticks(event.unit_id)
 		"round_started":
 			current_round = event.round
+			_flush_arrivals(event.round)
 			_enemy_text("라운드 %d" % event.round)
 			enemy_hold = enemy_hold_seconds
 		"battle_ended":
@@ -877,8 +886,14 @@ func _consume_tactic_events() -> void:
 					pending_enemy_ticks[event.unit_id] = pending_enemy_ticks.get(event.unit_id,[]) + [event]
 				else:
 					_present_status_tick(event)
+			"reinforcement_arrived":
+				if _round_start_pending(event.round):
+					pending_arrivals[event.round] = pending_arrivals.get(event.round,[]) + [event]
+					held_unit_ids[event.unit_id] = true
+				else:
+					_present_arrival(event)
 			_:
-				pass # other kinds (skills, reinforcements) belong to other steps
+				pass # other kinds (skills) belong to other steps
 
 func _enemy_completion_pending(unit_id: String) -> bool:
 	for queued in enemy_queue:
@@ -943,3 +958,56 @@ func _status_text(effects: Dictionary) -> String:
 		var raw = effects[status_id]
 		parts.append("%s %d턴" % [STATUS_TEXT.get(status_id,status_id),int(raw.get("turns",0)) if raw is Dictionary else int(raw)])
 	return " ".join(parts)
+
+func _unit_shown(unit_id: String) -> bool:
+	# The engine's deployed flag decides visibility; a unit whose arrival event is
+	# held for the enemy replay stays hidden until that round's round_started is shown.
+	return not held_unit_ids.has(unit_id)
+
+func _waiting_unit_at(cell: Vector2i) -> bool:
+	# A cell holding a live unit that is not deployed yet (or whose arrival is held)
+	# is never sent to the engine.
+	for candidate in queries.alive_units:
+		var value: Dictionary = Adapter.to_view(candidate)
+		if value.grid_cell == cell and value.current_troops > 0 and (not engine.call("_is_unit_state_available_for_battle_slot",candidate) or not _unit_shown(value.unit_id)): return true
+	return false
+
+func _round_start_pending(round_number: int) -> bool:
+	for queued in enemy_queue:
+		if queued.kind == "round_started" and queued.round == round_number: return true
+	return false
+
+func _flush_arrivals(round_number: int) -> void:
+	for event in pending_arrivals.get(round_number,[]): _present_arrival(event)
+	pending_arrivals.erase(round_number)
+
+func _present_arrival(event: Dictionary) -> void:
+	# Unit, side and cell come from the event; the engine cell wins if they ever differ.
+	var unit = queries.find_unit(event.unit_id)
+	if unit == null: return
+	var cell: Vector2i = Adapter.to_view(unit).grid_cell
+	var event_cell := Vector2i(event.cell[0],event.cell[1])
+	held_unit_ids.erase(event.unit_id)
+	arrival_presentations.append(event.duplicate(true))
+	var side_text: String = "아군" if event.side == "ally" else "적군"
+	var line := "지원군 도착 · %s · %s" % [side_text,event.unit_id]
+	if cell != event_cell: line += " (엔진 셀 %s 우선, 이벤트 셀 %s)" % [cell,event_cell]
+	arrival_texts.append(line)
+	_append_combat_line(line)
+	status.text = line
+	if not views.has(event.unit_id): return
+	views[event.unit_id].position = board.world(cell)
+	var label := Label3D.new()
+	label.text = "지원군 도착"
+	label.font_size = 52
+	label.pixel_size = .014
+	label.modulate = Color("9fd3ff") if event.side == "ally" else Color("ffb0a0")
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.set_meta("arrival_label",event.unit_id)
+	add_child(label)
+	label.position = board.world(cell)+Vector3(0,4.8,0)
+	var tween := create_tween()
+	tween.tween_property(label,"position:y",label.position.y+1.2,2.0)
+	tween.parallel().tween_property(label,"modulate:a",0.0,2.0)
+	tween.tween_callback(label.queue_free)
