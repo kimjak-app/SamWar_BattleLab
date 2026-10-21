@@ -19,6 +19,7 @@ var rejected := 0
 var presentation_speed := 8.0
 var attack_button: Button
 var wait_button: Button # M3-b: the engine's existing 2D wait command, no hotkey (M6).
+var defend_button: Button # M4-a: the engine's existing 2D defend command, no hotkey (M6).
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -102,7 +103,7 @@ func _build_ui() -> void:
 		if layer is CanvasLayer:
 			for child in layer.get_children():
 				if child is Label and child.text.begins_with("LMB"):
-					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격 또는 [대기] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
+					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격·[대기]·[방어] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
 	info.add_theme_font_size_override("font_size",15)
 	status.add_theme_font_size_override("font_size",14)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -135,6 +136,12 @@ func _build_attack_ui() -> void:
 	wait_button.custom_minimum_size = Vector2(110,38)
 	wait_button.pressed.connect(request_wait)
 	layer.add_child(wait_button)
+	defend_button = Button.new()
+	defend_button.text = "방어"
+	defend_button.position = Vector2(314,254)
+	defend_button.custom_minimum_size = Vector2(110,38)
+	defend_button.pressed.connect(request_defend)
+	layer.add_child(defend_button)
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	panel.position = Vector2(get_viewport().get_visible_rect().size.x-394,20)
@@ -260,6 +267,9 @@ func _sync_views() -> void:
 	var wait_block := _wait_block_reason()
 	wait_button.disabled = not wait_block.is_empty()
 	wait_button.tooltip_text = "엔진 대기 (2D 대기 버튼과 같은 명령)" if wait_block.is_empty() else wait_block
+	var defend_block := _defend_block_reason()
+	defend_button.disabled = not defend_block.is_empty()
+	defend_button.tooltip_text = "엔진 방어 (2D 방어 버튼과 같은 명령)" if defend_block.is_empty() else defend_block
 	if phase != "attack_select" and not attack_cells.is_empty(): _clear_attack_range()
 	if phase == "enemy_turn" and not ended and enemy_queue.is_empty(): status.text="적 자동 행동 중 · 입력 잠금 / 결과는 엔진 상태로 동기화"
 	last_phase=phase
@@ -284,7 +294,7 @@ func _refresh_turn_ui(phase: String) -> void:
 		var value: Dictionary = display_values.get(id,{})
 		badge.visible = views[id].visible and not value.is_empty()
 		if not badge.visible: continue
-		badge.text = action_state_text(value)
+		badge.text = action_state_text(value) + (" · 방어 중" if _unit_defending(queries.find_unit(id)) else "")
 		badge.modulate = Color("9fd3ff") if value.side == "ally" else Color("ffb0a0")
 		badge.position = views[id].position+Vector3(0,5.2,0)
 		lines.append("%s %s · %s · 병력 %s · %s" % ["아군" if value.side == "ally" else "적군",id,value.unit_type,value.current_troops,badge.text])
@@ -294,7 +304,11 @@ func _refresh_info() -> void:
 	if not ready_for_input or selected.is_empty(): return
 	var value: Dictionary = display_values.get(selected,{})
 	if value.is_empty(): return
-	info.text = "%s / %s / 병력 %s\n셀 %s / %s\n이동 %s · 행동 %s / 상태 %s" % [selected,value.unit_type,value.current_troops,value.grid_cell,engine.get("current_phase"),value.has_moved,value.has_acted,value.status_effects]
+	info.text = "%s / %s / 병력 %s\n셀 %s / %s\n이동 %s · 행동 %s / 상태 %s%s" % [selected,value.unit_type,value.current_troops,value.grid_cell,engine.get("current_phase"),value.has_moved,value.has_acted,value.status_effects," / 방어 중" if _unit_defending(queries.find_unit(selected)) else ""]
+
+func _unit_defending(unit: BattleUnitState) -> bool:
+	# M4-a approval: the engine's is_defending is read (never written) for badges and the unit panel.
+	return unit != null and unit.is_defending
 
 func _clear_range() -> void:
 	for child in range_view.get_children():
@@ -397,7 +411,14 @@ func _enemy_presentation_busy() -> bool:
 	return not enemy_queue.is_empty() or enemy_hold > 0.0
 
 func _wait_block_reason() -> String:
+	return _ally_command_block_reason("대기")
+
+func _defend_block_reason() -> String:
+	return _ally_command_block_reason("방어")
+
+func _ally_command_block_reason(command: String) -> String:
 	# Guidance only (engine state reads); the engine re-validates the command.
+	# Wait and defend share the same preconditions in the engine.
 	if not battle_result.is_empty(): return "전투 종료 · %s / 모든 입력 잠금" % RESULT_TEXT.get(battle_result,battle_result)
 	var phase: String = engine.get("current_phase")
 	if phase == "enemy_turn": return "적 턴 중 · 적 행동이 끝날 때까지 기다리세요"
@@ -405,8 +426,8 @@ func _wait_block_reason() -> String:
 	if _enemy_presentation_busy(): return "적 행동 재생 중 · 재생이 끝날 때까지 기다리세요"
 	if phase != "ally_turn": return "행동 불가 · 현재 선택 단계를 완료하거나 취소하세요"
 	var active = engine.get("active_unit_state")
-	if active == null: return "대기 불가 · 먼저 아군을 선택하세요"
-	if Adapter.to_view(active).has_acted: return "대기 불가 · 이미 행동한 부대입니다"
+	if active == null: return "%s 불가 · 먼저 아군을 선택하세요" % command
+	if Adapter.to_view(active).has_acted: return "%s 불가 · 이미 행동한 부대입니다" % command
 	return ""
 
 func request_wait() -> void:
@@ -432,6 +453,32 @@ func request_wait() -> void:
 	awaiting_enemy_result=true
 	_append_combat_line("대기 · " + waiting_id)
 	status.text="대기 · %s / 이후 적 자동 행동" % waiting_id
+	_sync_views()
+
+func request_defend() -> void:
+	if not ready_for_input or _input_locked(): return
+	var reason := _defend_block_reason()
+	if not reason.is_empty():
+		_reject(reason)
+		return
+	var defending_id: String = engine.get("active_unit_state").unit_id
+	var troops_before: int = Adapter.to_view(engine.get("active_unit_state")).current_troops
+	var enemy_events_before: int = engine.get("enemy_action_event_log").export().size()
+	enemy_baseline=_state_for_enemy_summary() # before the call: an instant enemy slot is summarised inside it
+	engine.call("_on_defend_button_pressed")
+	# Acceptance is read back exactly like wait: is_defending alone is not used,
+	# because an instant enemy slot can start a new round and reset it.
+	var defended = queries.find_unit(defending_id)
+	var accepted: bool = defended != null and (Adapter.to_view(defended).has_acted or engine.get("enemy_action_event_log").export().size() > enemy_events_before)
+	if not accepted:
+		_reject("행동 불가 · 엔진이 방어를 수락하지 않았습니다")
+		return
+	_clear_range()
+	_clear_attack_range()
+	awaiting_enemy_result=true
+	_append_combat_line("방어 · " + defending_id)
+	# Troops before/after are engine values; the 3D side never computes the recovery.
+	status.text="방어 · %s / 병력 %s→%s · 이후 적 자동 행동" % [defending_id,troops_before,Adapter.to_view(defended).current_troops]
 	_sync_views()
 
 func request_attack() -> void:

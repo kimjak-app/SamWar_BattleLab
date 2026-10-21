@@ -1,0 +1,182 @@
+"""M4-a 3D defend command: pinned scope, zero engine diff, exactly eight engine
+write calls (M3-b seven + `_on_defend_button_pressed`), unchanged read
+properties/calls, one approved read widened (`is_defending` for badges and the
+unit panel, never written), no world-map/result/strategy/skill/reinforcement
+calls, defend guarded and read back, no 3D-side defend/recovery numbers.
+
+M4A_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
+re-pins the merged implementation commit) audits the live worktree.
+"""
+from pathlib import Path
+import argparse, hashlib, os, re, subprocess
+
+BASE = "ff25fdb54ef52ad876c3ce60551e51348bc3693d"  # docs(battle3d): record independent M3-b review
+TIP = os.environ.get("M4A_SCOPE_TIP", "HEAD")
+PLAY = "scripts/battle3d/battle3d_engine_play.gd"
+WORKFLOW = ".github/workflows/verify-c-track.yml"
+VALIDATOR = "tools/validate_battle3d_m4a_defend.py"
+REPORT = "agent/BATTLE3D_M4A_RESULT_20261021.md"
+HARNESS = "tests/scripts/support/battle3d_defend_harness.gd"
+CI_TESTS = ["tests/scripts/test_battle3d_defend_equivalence.gd", "tests/scripts/test_battle3d_defend_default_round.gd",
+            "tests/scripts/test_battle3d_defend_rejections.gd"]
+NEW = {VALIDATOR, REPORT, HARNESS, *CI_TESTS}
+NEW |= {p + ".uid" for p in list(NEW) if p.endswith(".gd")}
+MODIFIED = {PLAY, WORKFLOW}
+# Earlier pinned validators and harnesses stay byte-identical (whitelist also covers them).
+PROTECTED = ["scripts/battle_web_import_test.gd", "scripts/battle3d/lab_presentation.gd", "scripts/battle3d/battle3d_unit_adapter.gd",
+             "scripts/battle3d/battle3d_engine_host.gd", "scripts/battle3d/battle3d_movement_adapter.gd", "scripts/battle_unit_state.gd",
+             "tests/scripts/support/battle3d_wait_harness.gd", "tests/scripts/support/battle3d_enemy_turn_harness.gd",
+             "tests/scripts/support/battle3d_engine_attack_harness.gd", "tests/scripts/support/battle_enemy_turn_oracle_harness.gd",
+             "tools/validate_battle3d_m1b_engine_move.py", "tools/validate_battle3d_m2_engine_attack.py",
+             "tools/validate_battle3d_m3_enemy_turn.py", "tools/validate_battle3d_m3b_wait.py",
+             "tools/validate_battle_enemy_events_s3_1.py", "tools/validate_battle3d_contract.py"]
+GOLDENS = {"tests/golden/battle_attack_baseline_v0.json": "d018cbe618c06043ea6ac6fd22c8a56faa42f284d4e6613f01bfa98dad3dd91c",
+           "tests/golden/battle_move_baseline_v0.json": "b35d3f7987bb2efca5efe1d379b6eddc00cdca1558c17e88733dd1389cf714bd",
+           "tests/golden/battle_enemy_turn_baseline_v0.json": "a3795131b8d2c525f7c096683d98b543410c01a130930783961dab671d9887f7",
+           "tests/golden/battle3d_m3_start_v0.json": "c1a1291fa0a2f23307b67316db64a3c663c38d43e15fd904f5b4e4e67921926a"}
+WAIT = "_end_ally_turn_by_wait"
+DEFEND = "_on_defend_button_pressed"
+COMMANDS = {"_select_ally_unit", "_try_direct_move_to_cell", "_select_post_move_facing",
+            "_handle_right_click_cancel", "try_basic_attack", "_try_attack_enemy_target_from_attack_select", WAIT, DEFEND}
+READ_CALLS = {"_get_alive_enemy_units", "is_unit_in_attack_range", "_is_unit_state_available_for_battle_slot"}
+READ_PROPERTIES = {"current_phase", "is_demo_animating", "active_unit_state", "all_battle_unit_states",
+                   "battle_action_event_log", "ally_move_event_log", "battle_grid_controller", "enemy_action_event_log"}
+VIEW_FIELDS = {"unit_id", "side", "unit_type", "grid_cell", "facing", "current_troops", "max_troops",
+               "allocated_troops", "footprint", "has_moved", "has_acted", "status_effects", "move_range", "attack_range"}
+# The one approved read outside the 14-field view, and where it may be read.
+DEFENDING_READERS = {"_refresh_target_info", "_unit_defending"}
+FORBIDDEN = r"worldmap|world_map|WorldMap|payload|result_toast|result_video|_try_show_battle_result|change_scene|samwar_worldmap|" \
+            r"_recover_wounded_troops_for_defend|_auto_wait_active_ally|_play_enemy|_start_new_round|full_auto|" \
+            r"_mark_enemy_unit_acted|_mark_ally_unit_acted|_return_to_ally_turn|_finish_enemy_actor|_finish_enemy_basic|_enemy_reaction_hit_on|" \
+            r"_on_strategy_button_pressed|_on_unique_skill_button_pressed|_try_use_unique_skill|_can_use_unique_skill|_can_actor_use_unique_skill|" \
+            r"_deploy_reinforce|_deploy_city_reinforcement|_try_deploy_reinforce|reset_action_flags|_reset_ally_action_locks"
+# 3D must not carry the engine's defend/recovery numbers or recompute them.
+RULE_TOKENS = r"max_hp|current_hp|\bheal\s*\(|DEFEND_|RECOVERY|0\.62|\.62\b|damage_multiplier"
+CHANGED_FUNCTIONS = {"_build_ui", "_build_attack_ui", "_sync_views", "_refresh_turn_ui", "_refresh_info", "_wait_block_reason",
+                     "_defend_block_reason", "_ally_command_block_reason", "request_defend", "_unit_defending"}
+NEW_MEMBERS = {"defend_button"}
+
+
+def check_state_writes(code):
+    fields = r"(?:grid_cell|has_moved|has_acted|current_phase|ally_has_moved|last_action|current_troops|current_hp|is_defending|" \
+             r"facing|status_effects|battle_round|is_demo_animating|active_unit_state|move_range|attack_range|side|" \
+             r"max_troops|allocated_troops|dead_unit_ids|battle_momentum)"
+    assignment = r"\s*(?:[+*/%&|^\-]|<<|>>|\*\*)?=(?!=)"
+    assert not re.search(r"\b" + fields + assignment, code), "state assignment"
+    assert not re.search(r"\[\s*['\"]" + fields + r"['\"]\s*\]" + assignment, code), "indexed state assignment"
+    assert not re.search(r"\.(?:set|set_deferred)\(\s*['\"]" + fields + r"['\"]", code), "state property setter"
+
+
+def functions(code):
+    return {m.group(1): m.group(0).rstrip() for m in re.finditer(r"^func (\w+)\([^\n]*\).*?(?=^func |\Z)", code, re.M | re.S)}
+
+
+def members(code):
+    return set(re.findall(r"^(?:var|const) (\w+)", code, re.M))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    root = parser.parse_args().root.resolve()
+
+    def git(*args):
+        return subprocess.check_output(["git", "-C", str(root), *args])
+
+    live = TIP == "HEAD"
+    rev = [BASE] if live else [BASE, TIP]
+
+    def raw(path, base=False):
+        return (root / path).read_bytes() if live and not base else git("show", f"{BASE if base else TIP}:{path}")
+
+    def text(path, base=False):
+        return raw(path, base).decode("utf-8").replace("\r\n", "\n")
+
+    changes = dict((line.split("\t", 1)[1], line.split("\t", 1)[0]) for line in
+                   git("diff", "--no-renames", "--name-status", *rev).decode().splitlines())
+    if live:
+        for p in git("ls-files", "--others", "--exclude-standard").decode().splitlines():
+            changes.setdefault(p, "A")
+    for p, status in changes.items():
+        assert (p in MODIFIED and status == "M") or (p in NEW and status == "A"), ("out of scope", status, p)
+    for p in NEW:
+        assert raw(p).strip(), "missing " + p
+    engine_paths = [p for p in changes if p.startswith("scripts/") and p != PLAY]
+    assert not engine_paths, "engine/service diff must be 0 lines: " + str(engine_paths)
+    assert not git("diff", "--numstat", *rev, "--", "scripts/battle_web_import_test.gd", "scripts/battle_unit_state.gd", "scripts/battle").strip(), "engine numstat"
+    for p in PROTECTED:
+        assert text(p) == text(p, True), "protected bytes: " + p
+    for p, digest in GOLDENS.items():
+        assert hashlib.sha256(raw(p).replace(b"\r\n", b"\n")).hexdigest() == digest, "golden changed " + p
+    wf_diff = git("diff", "--unified=0", *rev, "--", WORKFLOW).decode()
+    assert not any(x.startswith("-") and not x.startswith("---") for x in wf_diff.splitlines()), "workflow additions only"
+    added = [x[1:].strip() for x in wf_diff.splitlines() if x.startswith("+") and not x.startswith("+++")]
+    assert sorted(added) == sorted([VALIDATOR, *CI_TESTS]), added
+
+    play = text(PLAY)
+    code = "\n".join(line.split("#", 1)[0] for line in play.splitlines())
+    old_code = "\n".join(line.split("#", 1)[0] for line in text(PLAY, True).splitlines())
+    calls = re.findall(r'engine\.call\("([^"\n]+)"', code)
+    assert set(calls) == COMMANDS | READ_CALLS, "exact eight commands and three read calls: " + str(set(calls))
+    assert len(COMMANDS) == 8 and calls.count(DEFEND) == 1 and calls.count(WAIT) == 1, "one defend call site, one wait call site"
+    assert len(re.findall(r"engine\.call\(", code)) == len(calls), "no dynamic method names"
+    props = re.findall(r'engine\.get\("([^"\n]+)"\)', code)
+    assert set(props) == READ_PROPERTIES, "read properties unchanged: " + str(set(props))
+    assert len(re.findall(r"engine\.get\(", code)) == len(props), "no dynamic property names"
+    assert not re.search(r"engine\.(?!get\(|call\()\w+", code), "no alternate engine access"
+    assert not re.search(r"\b(?:engine|battle|unit|candidate|target|active|host|waited|defended)\s*\.\s*(?:set\w*\s*\(|\w+\s*=(?!=))", code), "engine/unit write"
+    check_state_writes(code)
+    assert not re.search(r"\b(?:apply_damage|set_grid_cell|set_facing|set_has_moved|set_has_acted|set_last_action|set_deferred|get_distance|find_move_path|request_move|acknowledge_presentation|emit|apply_status_effect)\s*\(", code)
+    assert not re.search(FORBIDDEN, code), "world-map/result/turn-control/strategy/skill/reinforcement call: " + str(re.findall(FORBIDDEN, code))
+    assert not re.search(RULE_TOKENS, code), "engine defend/recovery rule in 3D: " + str(re.findall(RULE_TOKENS, code))
+    reads = set(re.findall(r"\b(?:unit|candidate|target|active|waited|defended)\.(\w+)", code))
+    assert reads <= VIEW_FIELDS | {"is_defending"}, reads
+    f, old_f = functions(code), functions(old_code)
+    readers = {n for n, body in f.items() if re.search(r"\.is_defending\b", body)}
+    assert readers == DEFENDING_READERS, "is_defending read only in the target panel and _unit_defending: " + str(readers)
+    assert "\n".join(x for x in f["_unit_defending"].splitlines() if x.strip()) == "func _unit_defending(unit: BattleUnitState) -> bool:\n\treturn unit != null and unit.is_defending", \
+        "defend display reads the engine flag directly (no 3D-side flag)"
+    assert members(code) - members(old_code) == NEW_MEMBERS, "only defend_button is a new member: " + str(members(code) - members(old_code))
+    changed = {n for n in f if f[n] != old_f.get(n)} | {n for n in old_f if n not in f}
+    assert changed <= CHANGED_FUNCTIONS, "only defend-related functions change: " + str(changed - CHANGED_FUNCTIONS)
+    play_diff = git("diff", "--unified=0", *rev, "--", PLAY).decode("utf-8")
+    added_play = [x[1:].split("#", 1)[0] for x in play_diff.splitlines() if x.startswith("+") and not x.startswith("+++")]
+    floats = [x for x in added_play if re.search(r"(?<![\w.])\d*\.\d+", x)]
+    assert not floats, "no numeric rule constants in added 3D code: " + str(floats)
+
+    defend = f["request_defend"]
+    steps = [x.strip() for x in defend.splitlines() if x.strip()]
+    assert steps[1:5] == ["if not ready_for_input or _input_locked(): return", "var reason := _defend_block_reason()",
+                          "if not reason.is_empty():", "_reject(reason)"], "unconditional input lock, then unconditional guidance: " + str(steps[1:5])
+    assert "battle_result" not in defend, "no battle-end exception inside request_defend"
+    assert defend.index("_input_locked()") < defend.index("_defend_block_reason()") < defend.index(f'engine.call("{DEFEND}")'), "lock, then guidance, then the command"
+    assert WAIT not in defend and DEFEND not in f["request_wait"], "defend and wait each send only their own command"
+    after = defend[defend.index(f'engine.call("{DEFEND}")'):]
+    assert "has_acted" in after and "enemy_action_event_log" in after and "if not accepted:" in after, "acceptance read back from the engine"
+    assert after.index("if not accepted:") < after.index("_append_combat_line"), "acceptance read back before reporting success"
+    assert "is_defending" not in defend and "_unit_defending" not in defend, "acceptance is not judged by is_defending"
+    assert '"행동 불가 · 엔진이 방어를 수락하지 않았습니다"' in after
+    assert '_append_combat_line("방어 · " + defending_id)' in after, "one defend log line"
+    assert re.search(r"Adapter\.to_view\(defended\)\.current_troops", after), "troops after defend read from the engine view"
+    block = f["_ally_command_block_reason"]
+    order = ["battle_result.is_empty()", '"enemy_turn"', '"is_demo_animating"', "_enemy_presentation_busy()", 'phase != "ally_turn"', "active == null", "has_acted"]
+    assert [block.index(x) for x in order] == sorted(block.index(x) for x in order), "result > enemy_turn > animating > queue > phase > selection > acted"
+    assert f["_wait_block_reason"].endswith('return _ally_command_block_reason("대기")'), "wait guidance unchanged in behaviour"
+    assert f["_defend_block_reason"].endswith('return _ally_command_block_reason("방어")'), "defend shares the wait preconditions"
+    assert code.count("request_defend") == 2 and "defend_button.pressed.connect(request_defend)" in f["_build_attack_ui"], "button only, no hotkey"
+    assert "request_defend" not in f["_unhandled_input"] and f["_unhandled_input"] == old_f["_unhandled_input"], "no new input handling"
+    assert "defend_button.disabled = not defend_block.is_empty()" in f["_sync_views"] and "var defend_block := _defend_block_reason()" in f["_sync_views"], "button state from the same guidance"
+    for name in ["_refresh_turn_ui", "_refresh_info"]:
+        lines = [x for x in f[name].splitlines() if "방어 중" in x]
+        assert lines and all("_unit_defending(queries.find_unit(" in x for x in lines), name + " defend display comes from _unit_defending"
+    assert {n for n, body in f.items() if "방어 중" in body} == {"_refresh_turn_ui", "_refresh_info"}, "defend display only in badges/roster and unit panel"
+    for p in CI_TESTS + [HARNESS]:
+        assert "WorldMap.tscn" not in text(p) and "Battle_Main.tscn" not in text(p), p
+    git("diff", "--check", *rev)
+    print(f"M4A_DEFEND validator PASS: base={BASE} scope={TIP}; {len(changes)} paths; engine diff 0; eight commands "
+          f"(+{DEFEND}); {len(READ_PROPERTIES)} read properties unchanged; is_defending read only in {sorted(DEFENDING_READERS)}; "
+          f"no world-map/result/strategy/skill/reinforcement calls")
+
+
+if __name__ == "__main__":
+    main()
