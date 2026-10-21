@@ -10,7 +10,7 @@ from pathlib import Path
 import argparse, hashlib, json, os, re, subprocess
 
 BASE = "608cb77d0d99e9cbefbfecd9ee0f02eb51b6a296"
-TIP = os.environ.get("S4_1_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S4_1_SCOPE_TIP", "1d0f5b608a798b4bb32cd1632045be95761d297d")
 CONTROLLER = "scripts/battle_web_import_test.gd"
 SERVICE = "scripts/battle/services/battle_tactic_event_log_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
