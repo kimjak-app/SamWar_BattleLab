@@ -91,6 +91,7 @@ jobs:
             tools/validate_battle_enemy_strategy_s4_2.py
             tools/validate_battle_skill_rotation_s4_2c.py
             tools/validate_battle_skill_cap_s4_2c2.py
+            tools/validate_battle_setup_port_s4_3.py
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
@@ -163,6 +164,12 @@ jobs:
             tests/scripts/test_battle_enemy_skill_spread_behavior.gd
             tests/scripts/test_battle_enemy_tactic_rules_service.gd
             tests/scripts/test_battle_enemy_skill_cap_behavior.gd
+            tests/scripts/test_battle_setup_port_base_parity_shard_1.gd
+            tests/scripts/test_battle_setup_port_base_parity_shard_2.gd
+            tests/scripts/test_battle_setup_port_s4_3.gd
+            tests/scripts/test_battle_enemy_ai_level_s4_3.gd
+            tests/scripts/test_battle_enemy_ai_level_mid_default.gd
+            tests/scripts/test_battle_auto_presentation_hold_s4_3.gd
             tests/scripts/test_battle_move_oracle_baseline.gd
             tests/scripts/test_battle_ally_move_state_service.gd
             tests/scripts/test_battle_ally_move_event_parity.gd

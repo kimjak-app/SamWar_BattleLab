@@ -890,6 +890,13 @@ var enemy_skill_last_use_round := {}
 var enemy_skill_cap_enabled := false # S4-2c addendum: per-enemy unique skill use cap.
 var enemy_skill_use_count := {} # S4-2c addendum: unit_id -> unique skills used this battle. Not in the resume snapshot.
 var enemy_skill_last_any_use_round := -1 # S4-2c addendum: round of the enemy side's last unique skill (-1 = none).
+# S4-3: battle start setup port (separate from the WorldMap battle context) and the enemy AI level.
+const BattleSetupRulesServiceScript := preload("res://scripts/battle/services/battle_setup_rules_service.gd")
+const BATTLE_SETUP_META_KEY := "samwar_battle_setup"
+var enemy_ai_level := "low" # Applied level. Not in the resume snapshot.
+var enemy_ai_level_applied := false # False until a level is applied; until then the three flags are left alone.
+var _pending_enemy_ai_level := "" # Set by set_enemy_ai_level; applied at the next enemy turn start ("" = none).
+var auto_presentation_hold := false # S4-3: while true the full auto tick does nothing (the 3D presentation is running). Not in the resume snapshot.
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -1482,6 +1489,7 @@ func _ready() -> void:
 	reset_demo_state()
 	_read_worldmap_battle_context_handoff()
 	_try_restore_battle_resume_snapshot()
+	_read_battle_setup_port()
 	_debug_print_unit_visual_root_slots()
 	_debug_print_mvp_scene_slot_scaffold_snapshot_once()
 	_debug_print_capacity_slot_registry()
@@ -1512,6 +1520,94 @@ func _read_worldmap_battle_context_handoff() -> void:
 		return
 	worldmap_battle_context = context_dict.duplicate(true)
 	_apply_worldmap_battle_context_handoff(worldmap_battle_context)
+
+
+func _read_battle_setup_port() -> void:
+	# S4-3: read the battle start setup once and remove it. Not a WorldMap battle: no resume id, save or return.
+	if not Engine.has_meta(BATTLE_SETUP_META_KEY):
+		return
+	var setup: Variant = Engine.get_meta(BATTLE_SETUP_META_KEY)
+	Engine.remove_meta(BATTLE_SETUP_META_KEY)
+	if not setup is Dictionary:
+		_log_battle_setup_ignored("setup is not a Dictionary")
+		return
+	var setup_dict := setup as Dictionary
+	var overrides: Variant = setup_dict.get("unit_overrides", {})
+	if overrides is Dictionary:
+		for unit_id in (overrides as Dictionary).keys():
+			_apply_battle_setup_unit_override(str(unit_id), (overrides as Dictionary)[unit_id])
+	else:
+		_log_battle_setup_ignored("unit_overrides is not a Dictionary")
+	if setup_dict.has("enemy_ai_level"):
+		if set_enemy_ai_level(setup_dict.get("enemy_ai_level")):
+			_apply_pending_enemy_ai_level() # before the first ally turn
+		else:
+			_log_battle_setup_ignored("enemy_ai_level %s" % str(setup_dict.get("enemy_ai_level")))
+
+
+func _apply_battle_setup_unit_override(unit_id: String, override: Variant) -> void:
+	var target: BattleUnitState = null
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state != null and unit_state.unit_id == unit_id:
+			target = unit_state
+	if target == null:
+		_log_battle_setup_ignored("unknown unit_id %s" % unit_id)
+		return
+	if not override is Dictionary or not (override as Dictionary).has("troops_ratio"):
+		_log_battle_setup_ignored("%s has no troops_ratio" % unit_id)
+		return
+	var ratio: Variant = (override as Dictionary).get("troops_ratio")
+	if not BattleSetupRulesServiceScript.is_valid_troops_ratio(ratio):
+		_log_battle_setup_ignored("%s troops_ratio %s" % [unit_id, str(ratio)])
+		return
+	for field in BattleSetupRulesServiceScript.TROOP_FIELDS:
+		target.set(field, BattleSetupRulesServiceScript.scale_troop_value(int(target.get(field)), float(ratio)))
+	print("[BATTLE_SETUP] %s troops_ratio=%s troops=%d/%d hp=%d/%d allocated=%d initial=%d" % [unit_id, str(ratio), target.current_troops, target.max_troops,
+		target.current_hp, target.max_hp, target.allocated_troops, target.initial_allocated_troops])
+
+
+func _log_battle_setup_ignored(reason: String) -> void:
+	print("[BATTLE_SETUP] ignored: %s" % reason)
+
+
+func set_enemy_ai_level(level: Variant) -> bool:
+	# S4-3: an invalid level is refused with no change. A valid one waits for the next enemy turn start.
+	if not BattleSetupRulesServiceScript.is_valid_ai_level(level):
+		return false
+	if enemy_ai_level_applied and level == enemy_ai_level:
+		_pending_enemy_ai_level = ""
+	else:
+		_pending_enemy_ai_level = level
+	return true
+
+
+func get_enemy_ai_level() -> String:
+	return enemy_ai_level
+
+
+func get_pending_enemy_ai_level() -> String:
+	return _pending_enemy_ai_level
+
+
+func _apply_pending_enemy_ai_level() -> void:
+	if _pending_enemy_ai_level.is_empty():
+		return
+	enemy_ai_level = _pending_enemy_ai_level
+	_pending_enemy_ai_level = ""
+	enemy_ai_level_applied = true
+	var flags := BattleSetupRulesServiceScript.flags_for_ai_level(enemy_ai_level)
+	enemy_strategy_enabled = flags.enemy_strategy_enabled
+	enemy_skill_spread_enabled = flags.enemy_skill_spread_enabled
+	enemy_skill_cap_enabled = flags.enemy_skill_cap_enabled
+	print("[ENEMY_AI_LEVEL] round=%d level=%s flags=%s" % [battle_round, enemy_ai_level, str(flags)])
+
+
+func set_auto_presentation_hold(hold: bool) -> void:
+	# S4-3: the 3D holds the full auto tick while its presentation runs. Releasing resumes a blocked tick.
+	var was_holding := auto_presentation_hold
+	auto_presentation_hold = hold
+	if was_holding and not hold and is_full_auto_battle_enabled and current_phase == PHASE_ALLY_TURN and not is_demo_animating:
+		call_deferred("_tick_full_auto_battle_if_needed")
 
 
 func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
@@ -8036,6 +8132,7 @@ func _play_enemy_ai_turn() -> void:
 	if _handle_battle_end_guard("enemy_turn_start"):
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_turn_start reason=result_finalized")
 		return
+	_apply_pending_enemy_ai_level()
 	enemy_action_event_log.emit("enemy_turn_started", {"round":battle_round})
 	is_demo_animating = true
 	_stop_idle_breathing()
@@ -13793,6 +13890,8 @@ func _stop_full_auto_battle(reason: String) -> void:
 
 
 func _tick_full_auto_battle_if_needed() -> void:
+	if auto_presentation_hold:
+		return
 	if not is_full_auto_battle_enabled:
 		return
 	if _handle_battle_end_guard("auto_tick"):
