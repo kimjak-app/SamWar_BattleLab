@@ -9,8 +9,8 @@ service is pure (static, no state, no random numbers, no await); the nine
 existing enemy event kinds are unchanged and exactly one kind is added; the
 ally strategy entry points are byte-identical.
 
-S4_2_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged implementation commit (HEAD audits the live worktree; it was the default until the reviewer
-re-pins the merged implementation commit) audits the live worktree.
+S4_2_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged
+implementation commit. S4_2_SCOPE_TIP=HEAD audits the live worktree.
 """
 from pathlib import Path
 import argparse, ast, os, re, subprocess
