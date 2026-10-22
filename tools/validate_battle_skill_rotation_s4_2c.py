@@ -9,14 +9,15 @@ existing pinned validators unchanged, the rules service pure, both flags still
 default false, the controller change limited to the spread call site, the S4-2
 strategy code byte-identical.
 
-S4_2C_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
-re-pins the merged implementation commit) audits the live worktree.
+Pinned to the S4-2c implementation commit e347ef4 (the S4-2c addendum on top is
+audited by tools/validate_battle_skill_cap_s4_2c2.py); S4_2C_SCOPE_TIP=HEAD
+audits the live worktree instead.
 """
 from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "b83a40216649e802e0e4471d376303e901256261"  # docs(battle): tidy the S4-2 validator scope note
-TIP = os.environ.get("S4_2C_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S4_2C_SCOPE_TIP", "e347ef4cc1339f59038f499490e32aab5aac6720")  # feat(battle): ... rotation order (S4-2c)
 ENGINE = "scripts/battle_web_import_test.gd"
 RULES = "scripts/battle/services/battle_enemy_tactic_rules_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

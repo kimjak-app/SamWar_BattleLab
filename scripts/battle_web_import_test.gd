@@ -887,6 +887,9 @@ var enemy_strategy_enabled := false # S4-2a: the enemy AI may use strategy (D or
 var enemy_skill_spread_enabled := false # S4-2b: enemy unique skills are spread across actors.
 # S4-2b: unit_id -> battle_round of that enemy's last unique skill. Per battle node; not in the resume snapshot.
 var enemy_skill_last_use_round := {}
+var enemy_skill_cap_enabled := false # S4-2c addendum: per-enemy unique skill use cap.
+var enemy_skill_use_count := {} # S4-2c addendum: unit_id -> unique skills used this battle. Not in the resume snapshot.
+var enemy_skill_last_any_use_round := -1 # S4-2c addendum: round of the enemy side's last unique skill (-1 = none).
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -4493,6 +4496,8 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 		return false
 	if not require_high_value and not _is_unique_skill_fallback_value_for_actor(caster_state, skill_data, target_state):
 		return false
+	if _is_enemy_skill_capped(caster_state):
+		return false
 	if _should_enemy_yield_unique_skill(caster_state, skill_data, target_state):
 		return false
 	if String(skill_data.get("effect_type", "")) != "ally_attack_buff":
@@ -4527,6 +4532,8 @@ func _should_enemy_yield_unique_skill(caster_state: BattleUnitState, skill_data:
 			continue
 		if not _can_actor_use_unique_skill(unit_state):
 			continue
+		if _is_enemy_skill_capped(unit_state):
+			continue # a capped enemy cannot use its skill, so it never makes another one yield
 		var other_skill := _get_unique_skill_for_unit(unit_state)
 		others.append(_get_enemy_skill_spread_entry(unit_state, other_skill, _get_best_unique_skill_target_for_actor(unit_state, other_skill), index))
 	var should_yield := BattleEnemyTacticRulesServiceScript.should_yield_unique_skill(actor, others, battle_momentum.get_value("enemy"))
@@ -4557,8 +4564,34 @@ func _get_enemy_skill_spread_entry(unit_state: BattleUnitState, skill_data: Dict
 
 
 func _record_enemy_unique_skill_use(caster_state: BattleUnitState) -> void:
-	if enemy_skill_spread_enabled and caster_state != null and caster_state.side == "enemy":
+	if (enemy_skill_spread_enabled or enemy_skill_cap_enabled) and caster_state != null and caster_state.side == "enemy":
 		enemy_skill_last_use_round[caster_state.unit_id] = battle_round
+		enemy_skill_use_count[caster_state.unit_id] = int(enemy_skill_use_count.get(caster_state.unit_id, 0)) + 1
+		enemy_skill_last_any_use_round = battle_round
+
+
+func _is_enemy_skill_capped(caster_state: BattleUnitState) -> bool:
+	# S4-2c addendum (enemy only, every AI level): a deciding enemy whose use count is 2+ above the
+	# lowest count of the other live enemies holding a unique skill does not use its skill.
+	if not enemy_skill_cap_enabled or caster_state == null or caster_state.side != "enemy":
+		return false
+	var other_counts: Array = []
+	for unit_state in _get_enemy_unique_skill_holders():
+		if unit_state != caster_state:
+			other_counts.append(int(enemy_skill_use_count.get(unit_state.unit_id, 0)))
+	var capped := BattleEnemyTacticRulesServiceScript.is_skill_capped(int(enemy_skill_use_count.get(caster_state.unit_id, 0)), other_counts, battle_round, enemy_skill_last_any_use_round)
+	if capped:
+		print("[ENEMY_SKILL_CAP] round=%d capped=%s own=%d others=%s last_any=%d" % [battle_round, caster_state.unit_id, int(enemy_skill_use_count.get(caster_state.unit_id, 0)), str(other_counts), enemy_skill_last_any_use_round])
+	return capped
+
+
+func _get_enemy_unique_skill_holders() -> Array:
+	# Live, deployed enemies with a unique skill definition (no momentum / target / score condition).
+	var holders: Array = []
+	for unit_state in _get_alive_deployed_unit_states_for_side("enemy"):
+		if unit_state != null and unit_state.is_alive() and not unit_state.unique_skill_definition.is_empty():
+			holders.append(unit_state)
+	return holders
 
 
 func _begin_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
