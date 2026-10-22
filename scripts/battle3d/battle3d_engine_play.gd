@@ -52,6 +52,16 @@ var skill_texts: Array[String] = []
 var momentum_label: Label
 var momentum_display := {} # side -> engine momentum, refreshed only when no enemy replay is pending
 var momentum_note := "" # last momentum skill_effect of an allied skill, shown beside the momentum line
+# M4-c2: enemy-cast skill_* events wait for the replay of that caster's enemy_skill_used (the
+# tactic log runs ahead of the enemy replay); enemy-cast strategy_cast waits for that enemy's
+# replayed enemy_action_completed, like enemy status ticks. Display only; the cursor never waits.
+var pending_enemy_skills := {} # caster_id -> skill_* events not shown yet
+var enemy_skill_open := {} # caster_id -> true between its replayed enemy_skill_used and enemy_action_completed
+var pending_enemy_strategies := {} # caster_id -> strategy_cast events shown with its replayed enemy_action_completed
+var enemy_skill_presentations: Array = []
+var enemy_skill_texts: Array[String] = []
+var enemy_skill_leftovers: Array = [] # events still held when the slot's completion replays (reported, never dropped)
+var presenting_enemy_skill := false
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -708,7 +718,7 @@ func _finish_enemy_summary(slot: Array) -> void:
 				phrases.append("%s %s" % [event.unit_id,WAIT_TEXT.get(event.reason,event.reason)])
 			"enemy_skill_used":
 				phrases.append("%s 특기 %s" % [event.unit_id,event.skill_id])
-	if not has_action_event: phrases.append(_state_diff_text(after))
+	if not has_action_event or slot.any(func(e): return e.kind == "enemy_skill_used"): phrases.append(_state_diff_text(after)) # a skill's troop changes have no move/attack event
 	var summary := "적 행동 결과 · "+" / ".join(phrases)
 	enemy_summaries.append({"before":enemy_baseline.duplicate(true),"after":after.duplicate(true),"text":summary,"events":slot.duplicate(true)})
 	_append_combat_line(summary)
@@ -726,8 +736,9 @@ func _consume_enemy_events() -> void:
 			"enemy_actor_selected":
 				enemy_slot = [event]
 			"enemy_action_completed":
-				enemy_slot.append(event)
-				_finish_enemy_summary(enemy_slot)
+				if not enemy_slot.is_empty(): # empty when battle_ended already closed this slot (enemy skill kill)
+					enemy_slot.append(event)
+					_finish_enemy_summary(enemy_slot)
 				enemy_slot = []
 			"battle_ended":
 				battle_result = event.result_state
@@ -784,9 +795,11 @@ func _present_enemy_event(event: Dictionary) -> void:
 			enemy_hold = enemy_hold_seconds
 		"enemy_skill_used":
 			_enemy_text("적 특기 사용: " + event.skill_id)
+			_open_enemy_skill(event.unit_id)
 			enemy_hold = enemy_hold_seconds
 		"enemy_action_completed":
 			enemy_actor_id = ""
+			_close_enemy_skill(event.unit_id)
 			_flush_enemy_ticks(event.unit_id)
 		"round_started":
 			current_round = event.round
@@ -921,7 +934,10 @@ func _consume_tactic_events() -> void:
 		tactic_cursor += 1
 		match event.kind:
 			"strategy_cast":
-				_present_strategy_cast(event)
+				if _skill_caster_side(event) == "enemy" and _enemy_completion_pending(event.caster_id):
+					pending_enemy_strategies[event.caster_id] = pending_enemy_strategies.get(event.caster_id,[]) + [event]
+				else:
+					_present_strategy_cast(event)
 			"status_tick":
 				if _enemy_completion_pending(event.unit_id):
 					pending_enemy_ticks[event.unit_id] = pending_enemy_ticks.get(event.unit_id,[]) + [event]
@@ -934,7 +950,9 @@ func _consume_tactic_events() -> void:
 				else:
 					_present_arrival(event)
 			"skill_cast", "skill_effect", "skill_finished":
-				if _skill_caster_side(event) == "ally": _present_skill_event(event) # enemy casters: M4-c2
+				if _skill_caster_side(event) == "ally": _present_skill_event(event)
+				elif enemy_skill_open.has(event.caster_id): _present_enemy_skill_event(event)
+				else: pending_enemy_skills[event.caster_id] = pending_enemy_skills.get(event.caster_id,[]) + [event]
 			_:
 				pass # other kinds are skipped
 
@@ -1150,10 +1168,11 @@ func _skill_name(event: Dictionary) -> String:
 
 func _present_skill_event(event: Dictionary) -> void:
 	# Every number, id and outcome comes from the event; 3D computes nothing.
-	skill_presentations.append(event.duplicate(true))
+	if presenting_enemy_skill: enemy_skill_presentations.append(event.duplicate(true))
+	else: skill_presentations.append(event.duplicate(true))
 	match event.kind:
 		"skill_cast":
-			momentum_note = ""
+			if not presenting_enemy_skill: momentum_note = ""
 			var skill_name := _skill_name(event)
 			_skill_label(event.caster_id,skill_name,Color("e8b8ff"))
 			_skill_line("특기 · %s · %s (기세 −%d)" % [event.caster_id,skill_name,event.momentum_cost])
@@ -1179,8 +1198,9 @@ func _present_skill_effect(event: Dictionary) -> void:
 			_skill_label(target,"%s 해제" % status_name,Color("c8d6e0"))
 			_skill_line("특기 해제 · %s · %s 해제" % [target,status_name])
 		"momentum":
-			momentum_note = "%s 기세 %+d" % ["아군" if target == "ally" else "적",event.amount]
-			_skill_line("특기 기세 · " + momentum_note)
+			var note := "%s 기세 %+d" % ["아군" if target == "ally" else "적",event.amount]
+			if not presenting_enemy_skill: momentum_note = note
+			_skill_line("특기 기세 · " + note)
 		"move":
 			_skill_line("특기 이동 · %s 이동 %s → %s" % [target,_cell_text(event.from_cell),_cell_text(event.to_cell)])
 
@@ -1188,6 +1208,12 @@ func _cell_text(cell: Array) -> String:
 	return "(%d, %d)" % [cell[0],cell[1]]
 
 func _skill_line(line: String) -> void:
+	if presenting_enemy_skill:
+		line = "적 " + line
+		enemy_skill_texts.append(line)
+		_append_combat_line(line)
+		status.text = line
+		return
 	skill_texts.append(line)
 	_append_combat_line(line)
 	status.text = line
@@ -1201,10 +1227,35 @@ func _skill_label(unit_id: String, text: String, color: Color) -> void:
 	label.modulate = color
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
-	label.set_meta("skill_label",unit_id)
+	label.set_meta("enemy_skill_label" if presenting_enemy_skill else "skill_label",unit_id)
 	add_child(label)
 	label.position = views[unit_id].position+Vector3(0,4.8,0)
 	var tween := create_tween()
 	tween.tween_property(label,"position:y",label.position.y+1.2,1.6)
 	tween.parallel().tween_property(label,"modulate:a",0.0,1.6)
 	tween.tween_callback(label.queue_free)
+
+func _present_enemy_skill_event(event: Dictionary) -> void:
+	# The M4-c1 indicators with the "적 " prefix, their own lists and label meta.
+	presenting_enemy_skill = true
+	_present_skill_event(event)
+	presenting_enemy_skill = false
+
+func _open_enemy_skill(caster_id: String) -> void:
+	# Replay reached the caster's enemy_skill_used: show what arrived, the rest as it arrives.
+	enemy_skill_open[caster_id] = true
+	for event in pending_enemy_skills.get(caster_id,[]): _present_enemy_skill_event(event)
+	pending_enemy_skills.erase(caster_id)
+
+func _close_enemy_skill(caster_id: String) -> void:
+	enemy_skill_open.erase(caster_id)
+	if pending_enemy_skills.has(caster_id):
+		enemy_skill_leftovers.append({"caster_id":caster_id, "events":pending_enemy_skills[caster_id].duplicate(true)})
+	# Held strategy casts and status ticks of this enemy, together in log order.
+	var held: Array = pending_enemy_strategies.get(caster_id,[]) + pending_enemy_ticks.get(caster_id,[])
+	held.sort_custom(func(a, b): return a.sequence < b.sequence)
+	pending_enemy_strategies.erase(caster_id)
+	pending_enemy_ticks.erase(caster_id)
+	for event in held:
+		if event.kind == "strategy_cast": _present_strategy_cast(event)
+		else: _present_status_tick(event)
