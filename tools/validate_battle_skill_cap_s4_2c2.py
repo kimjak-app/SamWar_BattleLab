@@ -15,7 +15,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "e347ef4cc1339f59038f499490e32aab5aac6720"  # feat(battle): ... rotation order (S4-2c)
-TIP = os.environ.get("S4_2C2_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S4_2C2_SCOPE_TIP", "0dd907b12ddd35540091a8a5795a45234f9c630c")  # feat(battle): cap ... (S4-2c addendum); stack copy 62af862 has the identical diff
 ENGINE = "scripts/battle_web_import_test.gd"
 RULES = "scripts/battle/services/battle_enemy_tactic_rules_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
