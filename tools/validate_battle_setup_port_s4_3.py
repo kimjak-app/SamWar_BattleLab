@@ -14,7 +14,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "e835800d44a8921e63bda2168974b25a77fb398a"  # chore(battle): pin the S4-2c addendum validator (night3 stack, before S4-3)
-TIP = os.environ.get("S4_3_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S4_3_SCOPE_TIP", "79471b2ff815fff1c55275caf9d7e4581afc3831")  # feat(battle): ... (S4-3), night3 stack
 ENGINE = "scripts/battle_web_import_test.gd"
 SERVICE = "scripts/battle/services/battle_setup_rules_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

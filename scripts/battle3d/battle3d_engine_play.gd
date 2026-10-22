@@ -73,6 +73,7 @@ var auto_was_on := false
 var auto_press_pending := false # set by an auto toggle, cleared at the next lab frame: a second press in between is a double press
 var auto_texts: Array[String] = []
 var auto_marks := {} # ally unit_id -> engine event counts while not acted; a quiet (event-less) auto action is shown when it acts
+var auto_hold_sent := false # M5-a2: last value sent with set_auto_presentation_hold (sent only when it changes)
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -301,6 +302,7 @@ func _process(delta: float) -> void:
 			motion.index += 1
 			if motion.index >= motion.path.size(): playback.erase(id)
 	_sync_views()
+	_update_auto_hold()
 
 func _consume_events() -> void:
 	var events: Array = engine.get("ally_move_event_log").export()
@@ -1313,6 +1315,7 @@ func request_auto() -> void:
 		_reject("행동 불가 · 엔진이 자동전투를 %s 않았습니다" % ("끄지" if was_on else "시작하지"))
 		return
 	auto_was_on = not was_on
+	_update_auto_hold()
 	if was_on:
 		_auto_text("자동 중지 · 진행 중인 행동이 끝나면 수동 조작")
 	else:
@@ -1332,6 +1335,25 @@ func _apply_speed() -> void:
 
 func _exit_tree() -> void:
 	Engine.time_scale = 1.0 # never leak a lab speed into the next scene or test
+	_update_auto_hold(true) # never leave the engine auto held
+
+func _presentation_busy() -> bool:
+	# M5-a2: what the auto play waits for: the engine still acting (animating or in an enemy slot),
+	# a move playback (ally or enemy), the enemy replay queue and hold, or engine events not consumed
+	# yet (cursor behind the log). Floating labels (damage, skill, strategy) are not waited for.
+	if engine.get("is_demo_animating") or engine.get("current_phase") == "enemy_turn": return true
+	if not playback.is_empty() or _enemy_presentation_busy(): return true
+	return event_cursor < engine.get("ally_move_event_log").export().size() or action_cursor < engine.get("battle_action_event_log").export().size() \
+		or enemy_cursor < engine.get("enemy_action_event_log").export().size() or tactic_cursor < engine.get("tactic_event_log").export().size()
+
+func _update_auto_hold(closing := false) -> void:
+	# M5-a2: hold the engine auto tick while the 3D presentation runs. Sent on a change only; always
+	# false when auto is off, the battle has a result, or the lab leaves the tree.
+	if not is_instance_valid(engine): return
+	var hold: bool = not closing and engine.get("is_full_auto_battle_enabled") and battle_result.is_empty() and _presentation_busy()
+	if hold == auto_hold_sent: return
+	auto_hold_sent = hold
+	engine.call("set_auto_presentation_hold", hold)
 
 func _refresh_auto_ui() -> void:
 	var on: bool = engine.get("is_full_auto_battle_enabled")

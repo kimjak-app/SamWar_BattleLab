@@ -92,6 +92,7 @@ jobs:
             tools/validate_battle_skill_rotation_s4_2c.py
             tools/validate_battle_skill_cap_s4_2c2.py
             tools/validate_battle_setup_port_s4_3.py
+            tools/validate_battle3d_m5a2_auto_hold.py
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
@@ -212,6 +213,13 @@ jobs:
             tests/scripts/test_battle3d_auto_equivalence_seed_3.gd
             tests/scripts/test_battle3d_auto_speed.gd
             tests/scripts/test_battle3d_auto_stop_rejections.gd
+            tests/scripts/test_battle3d_auto_hold_seed_1.gd
+            tests/scripts/test_battle3d_auto_hold_seed_2.gd
+            tests/scripts/test_battle3d_auto_hold_seed_3.gd
+            tests/scripts/test_battle3d_auto_hold_1x_seed_1.gd
+            tests/scripts/test_battle3d_auto_hold_1x_seed_2.gd
+            tests/scripts/test_battle3d_auto_hold_1x_seed_3.gd
+            tests/scripts/test_battle3d_auto_hold_release.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd
             tests/scripts/test_battle3d_oblique_click.gd
