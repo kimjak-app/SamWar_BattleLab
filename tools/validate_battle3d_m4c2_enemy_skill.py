@@ -7,14 +7,14 @@ order), held events never dropped, enemy display through the M4-c1 indicators
 with the "적 " prefix, its own lists and label meta, the ally momentum note
 untouched, no random / dice hook.
 
-M4C2_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
-re-pins the merged implementation commit) audits the live worktree.
+M4C2_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged
+implementation commit. M4C2_SCOPE_TIP=HEAD audits the live worktree.
 """
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "8957b27c9cbf68e7c4b444b7397a2e68edb7ca93"  # chore(battle3d): pin the M4-c1 validator ...
-TIP = os.environ.get("M4C2_SCOPE_TIP", "HEAD")
+BASE = "b83a40216649e802e0e4471d376303e901256261"  # chore(battle): tidy the S4-2 validator scope note (S4-2 merged)
+TIP = os.environ.get("M4C2_SCOPE_TIP", "2b2340d7cf41bd8ef0566a7f59ec8c50a410b4c2")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4c2_enemy_skill.py"
