@@ -14,8 +14,8 @@ pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "e347ef4cc1339f59038f499490e32aab5aac6720"  # feat(battle): ... rotation order (S4-2c)
-TIP = os.environ.get("S4_2C2_SCOPE_TIP", "HEAD")
+BASE = "d2cd2540291ab2d96fc5f876fcdac7e1d28b90d7"  # feat(battle): ... rotation order (S4-2c)
+TIP = os.environ.get("S4_2C2_SCOPE_TIP", "77b911c3748509c1d827e57c4e96042990b3e9bd")
 ENGINE = "scripts/battle_web_import_test.gd"
 RULES = "scripts/battle/services/battle_enemy_tactic_rules_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

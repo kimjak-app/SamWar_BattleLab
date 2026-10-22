@@ -16,8 +16,8 @@ audits the live worktree instead.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "b83a40216649e802e0e4471d376303e901256261"  # docs(battle): tidy the S4-2 validator scope note
-TIP = os.environ.get("S4_2C_SCOPE_TIP", "e347ef4cc1339f59038f499490e32aab5aac6720")  # feat(battle): ... rotation order (S4-2c)
+BASE = "7cc76cb0f9f73ced3be6da87d8839fffb04e373f"  # chore(battle3d): pin the M5-a validator (merged base for S4-2c)
+TIP = os.environ.get("S4_2C_SCOPE_TIP", "d2cd2540291ab2d96fc5f876fcdac7e1d28b90d7")  # feat(battle): ... rotation order (S4-2c)
 ENGINE = "scripts/battle_web_import_test.gd"
 RULES = "scripts/battle/services/battle_enemy_tactic_rules_service.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
