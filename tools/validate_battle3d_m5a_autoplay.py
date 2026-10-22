@@ -12,7 +12,7 @@ from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
 BASE = "406bb73a024c3a0277ac8c06b891c30bc9e96e6b"  # merged M4-c2 tip (stack base)
-TIP = os.environ.get("M5A_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M5A_SCOPE_TIP", "260b746c5d38de2a229feceb4c585d2f3597187b")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m5a_autoplay.py"
