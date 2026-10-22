@@ -22,7 +22,8 @@ var wait_button: Button # M3-b: the engine's existing 2D wait command, no hotkey
 var defend_button: Button # M4-a: the engine's existing 2D defend command, no hotkey (M6).
 # M4-b: the engine's strategy command. Fourth independent cursor over tactic_event_log;
 # never merged with event_cursor / action_cursor / enemy_cursor. Only strategy_cast and
-# status_tick are handled here; M4-d adds reinforcement_arrived on the same cursor; every other kind is skipped (the cursor still advances).
+# status_tick are handled here; M4-d adds reinforcement_arrived on the same cursor; M4-c1 adds
+# skill_cast/skill_effect/skill_finished of allied casters; every other kind is skipped (the cursor still advances).
 var strategy_button: Button
 var tactic_cursor := 0
 var strategy_marks := Node3D.new()
@@ -35,7 +36,22 @@ var pending_arrivals := {} # M4-d: round -> reinforcement_arrived events shown w
 var arrival_presentations: Array = []
 var arrival_texts: Array[String] = []
 var status_display := {} # unit_id -> engine status_effects shown on badges, refreshed only when no enemy replay is pending
-const STATUS_TEXT := {"shake":"동요","confusion":"혼란","burn":"화상"} # display names; unknown ids are shown as-is
+# Display names, same characters as the engine's status display names; unknown ids are shown as-is.
+const STATUS_TEXT := {"shake":"동요","confusion":"혼란","burn":"화상",
+	"accuracy_down":"명중 저하","action_lock":"행동 봉쇄","attack_defense_down":"공격·방어 저하","attack_defense_up":"공격·방어 상승",
+	"counter_up":"반격 강화","damage_reduction":"피해 감소","defense_down":"방어 저하","defense_up":"방어 상승","fear":"공포",
+	"flank_damage_taken_up":"측후방 피격 증가","flank_damage_up":"측후방 공격 강화","formation_break":"진형 붕괴",
+	"mobility_up":"기동력 상승","momentum_gain_down":"기세 획득 저하","momentum_gain_up":"기세 획득 상승","movement_down":"이동 저하",
+	"rout_resist":"패주 저항","siege_attack_up":"공성 공격 상승","skill_cost_up":"기세 비용 증가","status_resist":"상태 저항"}
+# M4-c1: the engine's unique skill command (allied casters only; enemy skill replay is M4-c2).
+var skill_button: Button
+var skill_marks := Node3D.new()
+var skill_target_ids: Array[String] = []
+var skill_presentations: Array = []
+var skill_texts: Array[String] = []
+var momentum_label: Label
+var momentum_display := {} # side -> engine momentum, refreshed only when no enemy replay is pending
+var momentum_note := "" # last momentum skill_effect of an allied skill, shown beside the momentum line
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -119,7 +135,7 @@ func _build_ui() -> void:
 		if layer is CanvasLayer:
 			for child in layer.get_children():
 				if child is Label and child.text.begins_with("LMB"):
-					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격·[대기]·[방어]·[책략] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
+					child.text = "LMB 선택·이동 / 공격 대상 | RMB 취소 | 휠 줌 | WASD 이동 | Q/E 회전 | F12 캡처\nM3: 아군 공격·[대기]·[방어]·[책략]·[특기] 후 엔진이 적 행동을 자동 진행 · 3D는 적 경로·피격·사유를 재생. 결과 화면 M5 / 월드맵 M7."
 	info.add_theme_font_size_override("font_size",15)
 	status.add_theme_font_size_override("font_size",14)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -165,6 +181,13 @@ func _build_attack_ui() -> void:
 	strategy_button.pressed.connect(request_strategy)
 	layer.add_child(strategy_button)
 	add_child(strategy_marks)
+	skill_button = Button.new()
+	skill_button.text = "특기"
+	skill_button.position = Vector2(554,254)
+	skill_button.custom_minimum_size = Vector2(110,38)
+	skill_button.pressed.connect(request_skill)
+	layer.add_child(skill_button)
+	add_child(skill_marks)
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	panel.position = Vector2(get_viewport().get_visible_rect().size.x-394,20)
@@ -208,6 +231,15 @@ func _build_turn_ui() -> void:
 	turn_label.add_theme_constant_override("outline_size",6)
 	turn_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(turn_label)
+	momentum_label = Label.new()
+	momentum_label.position = turn_label.position+Vector2(0,34)
+	momentum_label.custom_minimum_size = Vector2(520,0)
+	momentum_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	momentum_label.add_theme_font_size_override("font_size",17)
+	momentum_label.add_theme_color_override("font_outline_color",Color.BLACK)
+	momentum_label.add_theme_constant_override("outline_size",5)
+	momentum_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(momentum_label)
 	roster_label = Label.new()
 	roster_label.position = Vector2(size.x-394,size.y-250)
 	roster_label.custom_minimum_size = Vector2(370,0)
@@ -298,7 +330,11 @@ func _sync_views() -> void:
 	var strategy_block := _strategy_block_reason()
 	strategy_button.disabled = not strategy_block.is_empty()
 	strategy_button.tooltip_text = "엔진 책략 (2D 책략 버튼과 같은 명령)" if strategy_block.is_empty() else strategy_block
+	var skill_block := _skill_block_reason()
+	skill_button.disabled = not skill_block.is_empty()
+	skill_button.tooltip_text = "엔진 고유특기 (2D 특기 버튼과 같은 명령)" if skill_block.is_empty() else skill_block
 	if phase != "strategy" and not strategy_target_ids.is_empty(): _clear_strategy_marks()
+	if phase != "unique_skill_target_select" and not skill_target_ids.is_empty(): _clear_skill_marks()
 	if phase != "attack_select" and not attack_cells.is_empty(): _clear_attack_range()
 	if phase == "enemy_turn" and not ended and enemy_queue.is_empty(): status.text="적 자동 행동 중 · 입력 잠금 / 결과는 엔진 상태로 동기화"
 	last_phase=phase
@@ -328,6 +364,8 @@ func _refresh_turn_ui(phase: String) -> void:
 		badge.position = views[id].position+Vector3(0,5.2,0)
 		lines.append("%s %s · %s · 병력 %s · %s" % ["아군" if value.side == "ally" else "적군",id,value.unit_type,value.current_troops,badge.text])
 	roster_label.text = "\n".join(lines)
+	if not _enemy_presentation_busy(): momentum_display = {"ally":engine.get("battle_momentum").get_value("ally"),"enemy":engine.get("battle_momentum").get_value("enemy")}
+	momentum_label.text = "기세 아군 %d / 적 %d%s" % [momentum_display.ally,momentum_display.enemy,"" if momentum_note.is_empty() else " · " + momentum_note]
 
 func _refresh_info() -> void:
 	if not ready_for_input or selected.is_empty(): return
@@ -358,6 +396,9 @@ func _click_world(pos: Vector2) -> void:
 		return
 	if engine.get("current_phase") == "strategy":
 		_click_strategy_cell(cell)
+		return
+	if engine.get("current_phase") == "unique_skill_target_select":
+		_click_skill_cell(cell)
 		return
 	if engine.get("current_phase") != "ally_turn":
 		_reject("방향 확정 또는 취소가 필요합니다")
@@ -892,8 +933,10 @@ func _consume_tactic_events() -> void:
 					held_unit_ids[event.unit_id] = true
 				else:
 					_present_arrival(event)
+			"skill_cast", "skill_effect", "skill_finished":
+				if _skill_caster_side(event) == "ally": _present_skill_event(event) # enemy casters: M4-c2
 			_:
-				pass # other kinds (skills) belong to other steps
+				pass # other kinds are skipped
 
 func _enemy_completion_pending(unit_id: String) -> bool:
 	for queued in enemy_queue:
@@ -1010,4 +1053,158 @@ func _present_arrival(event: Dictionary) -> void:
 	var tween := create_tween()
 	tween.tween_property(label,"position:y",label.position.y+1.2,2.0)
 	tween.parallel().tween_property(label,"modulate:a",0.0,2.0)
+	tween.tween_callback(label.queue_free)
+
+func _skill_block_reason() -> String:
+	# Guidance only (engine reads); the engine re-validates the command. The cost is the
+	# skill data's momentum_cost as the engine returns it, never computed here.
+	var reason := _ally_command_block_reason("특기")
+	if not reason.is_empty(): return reason
+	var caster = engine.get("active_unit_state")
+	var skill: Dictionary = engine.call("_get_unique_skill_for_unit",caster)
+	if skill.is_empty(): return "특기 불가 · 고유특기가 없는 부대입니다"
+	var momentum: int = engine.get("battle_momentum").get_value("ally")
+	if momentum < int(skill.get("momentum_cost",0)): return "특기 불가 · 기세가 부족합니다 (필요 %d / 현재 %d)" % [skill.get("momentum_cost",0),momentum]
+	if engine.call("_get_unique_skill_valid_targets",caster,skill).is_empty(): return "특기 불가 · 유효 대상이 없습니다"
+	if not engine.call("_can_use_unique_skill",caster): return "특기 불가 · 엔진 조건을 충족하지 않습니다"
+	return ""
+
+func request_skill() -> void:
+	if not ready_for_input or _input_locked(): return
+	var reason := _skill_block_reason()
+	if not reason.is_empty():
+		_reject(reason)
+		return
+	var caster = engine.get("active_unit_state")
+	var auto: bool = engine.call("_should_unique_skill_resolve_without_manual_target",engine.call("_get_unique_skill_for_unit",caster))
+	enemy_baseline=_state_for_enemy_summary()
+	engine.call("_on_unique_skill_button_pressed")
+	# Acceptance is read back from the engine: target select opened, and for the three
+	# self-resolving modes the engine's own preview started (it then fires by itself).
+	var accepted: bool = engine.get("current_phase") == "unique_skill_target_select" and (engine.get("is_manual_unique_skill_preview_pending") or not auto)
+	if not accepted:
+		_reject("행동 불가 · 엔진이 특기를 수락하지 않았습니다")
+		return
+	_clear_range()
+	_clear_attack_range()
+	if auto:
+		awaiting_enemy_result=true
+		status.text = "특기 발동 대기 · 엔진이 대상을 정해 발동합니다 / 입력 잠금"
+	else:
+		_show_skill_targets()
+		status.text = "특기 대상 선택 / 보라: 엔진 유효 대상 / 우클릭 취소"
+	_sync_views()
+
+func _show_skill_targets() -> void:
+	_clear_skill_marks()
+	var caster = engine.get("active_unit_state")
+	for candidate in engine.call("_get_unique_skill_valid_targets",caster,engine.call("_get_unique_skill_for_unit",caster)):
+		skill_target_ids.append(candidate.unit_id)
+		var mark := _disc(1.25,Color("b46ee0"),.03)
+		skill_marks.add_child(mark)
+		mark.position = board.world(Adapter.to_view(candidate).grid_cell)+Vector3(0,.1,0)
+
+func _clear_skill_marks() -> void:
+	skill_target_ids.clear()
+	for child in skill_marks.get_children():
+		skill_marks.remove_child(child)
+		child.queue_free()
+
+func _skill_target_at(cell: Vector2i):
+	var caster = engine.get("active_unit_state")
+	for candidate in engine.call("_get_unique_skill_valid_targets",caster,engine.call("_get_unique_skill_for_unit",caster)):
+		if Adapter.to_view(candidate).grid_cell == cell: return candidate
+	return null
+
+func _click_skill_cell(cell: Vector2i) -> void:
+	# Only the engine's own valid targets can be sent; anything else is refused with no engine call.
+	var target = _skill_target_at(cell)
+	if target == null:
+		_reject("대상 아님 · 표시된 부대만 특기 대상입니다")
+		return
+	var casts_before := _skill_cast_count()
+	enemy_baseline=_state_for_enemy_summary()
+	engine.call("_try_use_unique_skill_on_target",target)
+	# Acceptance is a new skill_cast (the commit); has_acted is set only after the presentation.
+	if _skill_cast_count() == casts_before:
+		_reject("행동 불가 · 엔진이 특기를 수락하지 않았습니다")
+		return
+	_clear_skill_marks()
+	awaiting_enemy_result=true
+	_consume_tactic_events()
+	_sync_views()
+
+func _skill_cast_count() -> int:
+	return engine.get("tactic_event_log").export().filter(func(e): return e.kind == "skill_cast").size()
+
+func _skill_caster_side(event: Dictionary) -> String:
+	# skill_effect / skill_finished carry no side: the caster's adapter side decides.
+	var unit = queries.find_unit(event.caster_id)
+	return "" if unit == null else Adapter.to_view(unit).side
+
+func _skill_name(event: Dictionary) -> String:
+	# The caster's engine skill data (pure read) when it is the cast skill; the raw skill_id otherwise.
+	var unit = queries.find_unit(event.caster_id)
+	var skill: Dictionary = {} if unit == null else engine.call("_get_unique_skill_for_unit",unit)
+	return String(skill.get("display_name",event.skill_id)) if skill.get("skill_id","") == event.skill_id else event.skill_id
+
+func _present_skill_event(event: Dictionary) -> void:
+	# Every number, id and outcome comes from the event; 3D computes nothing.
+	skill_presentations.append(event.duplicate(true))
+	match event.kind:
+		"skill_cast":
+			momentum_note = ""
+			var skill_name := _skill_name(event)
+			_skill_label(event.caster_id,skill_name,Color("e8b8ff"))
+			_skill_line("특기 · %s · %s (기세 −%d)" % [event.caster_id,skill_name,event.momentum_cost])
+		"skill_effect":
+			_present_skill_effect(event)
+		"skill_finished":
+			_skill_line("특기 종료 · %s%s" % [event.caster_id,"" if event.cooldown_turns == 0 else " · 쿨다운 %d턴" % event.cooldown_turns])
+
+func _present_skill_effect(event: Dictionary) -> void:
+	var target: String = event.target_id
+	var status_name: String = STATUS_TEXT.get(event.status_id,event.status_id)
+	match event.effect_kind:
+		"damage":
+			_skill_label(target,"−%d%s" % [event.amount,"\n격파" if event.killed else ""],Color("ffe49b"))
+			_skill_line("특기 피해 · %s −%d%s%s" % [target,event.amount," · 격파" if event.killed else "","" if event.status_id.is_empty() else " · " + event.status_id])
+		"heal":
+			_skill_label(target,"+%d" % event.amount,Color("8fe39a"))
+			_skill_line("특기 회복 · %s +%d" % [target,event.amount])
+		"status":
+			_skill_label(target,"%s %d턴" % [status_name,event.turns_after],Color("7ff2c8"))
+			_skill_line("특기 상태 · %s · %s %d턴" % [target,status_name,event.turns_after])
+		"cleanse":
+			_skill_label(target,"%s 해제" % status_name,Color("c8d6e0"))
+			_skill_line("특기 해제 · %s · %s 해제" % [target,status_name])
+		"momentum":
+			momentum_note = "%s 기세 %+d" % ["아군" if target == "ally" else "적",event.amount]
+			_skill_line("특기 기세 · " + momentum_note)
+		"move":
+			_skill_line("특기 이동 · %s 이동 %s → %s" % [target,_cell_text(event.from_cell),_cell_text(event.to_cell)])
+
+func _cell_text(cell: Array) -> String:
+	return "(%d, %d)" % [cell[0],cell[1]]
+
+func _skill_line(line: String) -> void:
+	skill_texts.append(line)
+	_append_combat_line(line)
+	status.text = line
+
+func _skill_label(unit_id: String, text: String, color: Color) -> void:
+	if not views.has(unit_id): return
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 52
+	label.pixel_size = .014
+	label.modulate = color
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.set_meta("skill_label",unit_id)
+	add_child(label)
+	label.position = views[unit_id].position+Vector3(0,4.8,0)
+	var tween := create_tween()
+	tween.tween_property(label,"position:y",label.position.y+1.2,1.6)
+	tween.parallel().tween_property(label,"modulate:a",0.0,1.6)
 	tween.tween_callback(label.queue_free)
