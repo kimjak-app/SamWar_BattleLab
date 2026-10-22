@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/battle3d/battle3d_scenario_shell.gd" id="1"]
+
+[node name="Battle3D_ScenarioShell" type="Node"]
+script = ExtResource("1")
