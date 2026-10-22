@@ -89,7 +89,7 @@ def main():
     added = [x[1:].strip() for x in wf_diff.splitlines() if x.startswith("+") and not x.startswith("+++")]
     assert sorted(added) == sorted([VALIDATOR, *CI_TESTS]), added
 
-    tracked = git("ls-files", "scripts/battle3d").decode().splitlines()
+    tracked = (git("ls-files", "scripts/battle3d") if live else git("ls-tree", "-r", "--name-only", TIP, "--", "scripts/battle3d")).decode().splitlines()  # pinned: the TIP tree
     for p in set(tracked):
         if p.endswith(".gd"):
             body = strip_comments(text(p))
