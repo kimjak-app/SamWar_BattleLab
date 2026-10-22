@@ -1,0 +1,74 @@
+{
+  "seed_1": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "17dd535ad5cf3df8d48421122f0c38b6d93f229977b43581c00f69b6d34729c5",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  },
+  "seed_2": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "12f1519631df165cd0fc03171928e64b7bcfe0b1b661d98bc3ad4acf2e2d89d6",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  },
+  "seed_3": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "146db2a5908a74f1e8b33c61eda249ce4a651dd27f7ebf0b4a4f1061e426bbe9",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  },
+  "seed_4": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "627147a6fa9cc92591ab5f420d77735708c097240b34e0c2f6931ae88cdf4581",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  },
+  "seed_5": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "e5e49504c383ae92be2989f015de140f2e0b7430968487f1848f33b352c376b3",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  },
+  "seed_6": {
+    "ally_move_event_log": "0aa89fe2e60705e5f7e468708ff72935057257aa4bc1c9fed0303bfe70a8519b",
+    "battle_action_event_log": "30a08c853726f189473ff67a430ebcb98abc1daaa6847bb5b2b64ac1d7349530",
+    "controller": "4fe175be5952c229e502460b5375678e38f0a54fc116dd5969d59cb06adad1e3",
+    "enemy_action_event_log": "356053c2920d189a96a08ebf236965bd22dbbb9820b21f8d0dd01b065b358ac0",
+    "result": "defeat",
+    "round": 11,
+    "round_snaps": "88f7d26379db7476ccde940c7769cc27a200f0df8b209e5c6318e330a6bfde09",
+    "tactic": "77a08ea1a21dda851c53f0aeb842d134b97ca4cdf6ffcefe9487edbf61f24e04",
+    "units": "641d078439df220a896359bed54b98abd2bd2c3ccfd82080e1de2aabc6465782",
+    "writes": "8370126971dd10c49c7e0ea32933f5eafb2b71ac2bcbf55bdb7ab5ee616d4143"
+  }
+}
