@@ -8,14 +8,14 @@ allied-caster filter on the skill kinds, every skill number and id displayed
 from the event, status names equal to the engine's display names, no dice hook
 and no random calls in 3D, no world-map/result calls.
 
-M4C1_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
-re-pins the merged implementation commit) audits the live worktree.
+M4C1_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged
+implementation commit; HEAD audits the live worktree.
 """
 from pathlib import Path
 import argparse, ast, hashlib, os, re, subprocess
 
 BASE = "4e0b034f1d180c25bc5bc9198e5a37c3cf6b0871"  # chore(battle3d): re-pin the M4-b and M4-d validators ...
-TIP = os.environ.get("M4C1_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M4C1_SCOPE_TIP", "7c5f46112af9ff0bfa0d1eeff8bcc0b11cb807eb")  # feat(battle3d): connect the engine unique skill command (M4-c1)
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4c1_skill.py"
