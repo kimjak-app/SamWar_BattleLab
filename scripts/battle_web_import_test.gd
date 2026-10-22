@@ -881,6 +881,9 @@ var ally_move_event_log := preload("res://scripts/battle/services/battle_event_l
 var enemy_action_event_log := preload("res://scripts/battle/services/battle_enemy_event_log_service.gd").new()
 var tactic_event_log := preload("res://scripts/battle/services/battle_tactic_event_log_service.gd").new()
 var strategy_roll_override: Callable = Callable() # Test-only dice hook (S4-1); game code never sets it.
+# S4-2: new enemy rules behind flags (default off; turned on only after review).
+const BattleEnemyTacticRulesServiceScript := preload("res://scripts/battle/services/battle_enemy_tactic_rules_service.gd")
+var enemy_strategy_enabled := false # S4-2a: the enemy AI may use strategy (D order).
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -3855,6 +3858,25 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 		floating_ally_command_panel.visible = false
 	_set_phase(PHASE_RESOLVING)
 	_focus_camera_on_combat_pair(caster_state, target_state)
+	_resolve_strategy_effect(caster_state, target_state)
+
+	_mark_ally_unit_acted(caster_state)
+	_show_unit_closeup_for_ally(caster_state)
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
+	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+
+
+func _resolve_strategy_effect(caster_state: BattleUnitState, target_state: BattleUnitState) -> void:
+	# S4-2a: shared strategy effect core (ally and enemy): cast log, success roll,
+	# outcome roll, status, log, tactic event. Side-specific follow-up stays with the callers.
 	_append_battle_log("%s이 책략을 펼쳤습니다." % caster_state.display_name)
 	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(caster_state), "책략!", STRATEGY_CAST_COLOR)
 
@@ -3873,18 +3895,49 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 		_append_battle_log("책략 실패!")
 		tactic_event_log.record_strategy_cast(caster_state, target_state, success_rate, false, "", 0)
 
-	_mark_ally_unit_acted(caster_state)
-	_show_unit_closeup_for_ally(caster_state)
-	_update_ally_ready_frames()
-	_refresh_formation_slot_guides()
+
+func _try_enemy_strategy_for_actor(enemy_actor_state: BattleUnitState, decision_plan: Dictionary) -> bool:
+	# S4-2a (D order): called only when the plan is not ATTACK; uses strategy from
+	# the current cell when a target is in range. Costs no momentum.
+	if not enemy_strategy_enabled:
+		return false
+	if enemy_actor_state == null or enemy_actor_state.side != "enemy":
+		return false
+	if not BattleEnemyTacticRulesServiceScript.can_enemy_use_strategy(enemy_actor_state.is_alive(), _has_enemy_unit_acted(enemy_actor_state), _is_unit_confused(enemy_actor_state), enemy_actor_state.intelligence, STRATEGY_BASIC_INTELLIGENCE):
+		return false
+	var target_state := _get_enemy_strategy_target_for_actor(enemy_actor_state, decision_plan.get("final_target_state", null))
+	if target_state == null:
+		return false
+	_resolve_enemy_strategy(enemy_actor_state, target_state)
+	return true
+
+
+func _get_enemy_strategy_target_for_actor(enemy_actor_state: BattleUnitState, plan_target_state: BattleUnitState) -> BattleUnitState:
+	var pool_status_ids: Array = []
+	for outcome in _get_strategy_outcome_pool(enemy_actor_state):
+		pool_status_ids.append(String(outcome.get("status", "")))
+	var candidates: Array[BattleUnitState] = []
+	var candidate_ids: Array = []
+	for target_state in _get_strategy_targets(enemy_actor_state):
+		var carried: Array = pool_status_ids.filter(func(status_id): return target_state.has_status_effect(status_id))
+		if BattleEnemyTacticRulesServiceScript.is_strategy_target_blocked(carried, pool_status_ids):
+			continue
+		candidates.append(target_state)
+		candidate_ids.append(target_state.unit_id)
+	if candidates.is_empty():
+		return null
+	if plan_target_state != null and BattleEnemyTacticRulesServiceScript.keeps_plan_target(plan_target_state.unit_id, candidate_ids):
+		return plan_target_state
+	return _get_enemy_ai_target_state_from_candidates(enemy_actor_state, candidates)
+
+
+func _resolve_enemy_strategy(caster_state: BattleUnitState, target_state: BattleUnitState) -> void:
+	# Enemy follow-up only: no ally UI, no ally phase change, no enemy turn restart.
+	enemy_action_event_log.record_strategy(caster_state, target_state)
+	_resolve_strategy_effect(caster_state, target_state)
 	_refresh_strategy_status_icon_labels()
-	_cleanup_dead_units()
-	if _is_battle_result_finalized():
-		_set_phase(PHASE_ALLY_TURN)
-		return
-	_set_phase(PHASE_ENEMY_TURN)
-	_append_battle_log("적군 턴")
-	_play_enemy_turn_demo()
+	_mark_enemy_unit_acted(caster_state)
+	_advance_enemy_turn_or_return_to_ally()
 
 
 func _get_strategy_status_display_name(status_id: String) -> String:
@@ -7953,6 +8006,8 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	var action_reason := str(decision_plan.get("action_reason", "WAIT"))
 	if action_reason == "ATTACK":
 		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, target_state)
+		return
+	if _try_enemy_strategy_for_actor(enemy_actor_state, decision_plan):
 		return
 
 	var destination: Vector2i = decision_plan.get("destination", enemy_actor_state.grid_cell)
