@@ -95,6 +95,7 @@ jobs:
             tools/validate_battle3d_m5a2_auto_hold.py
             tools/validate_battle3d_m5b_scenario.py
             tools/validate_battle3d_m5c_option_panel.py
+            tools/validate_battle3d_m4e_enemy_strategy.py
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
@@ -230,6 +231,7 @@ jobs:
             tests/scripts/test_battle3d_scenario_victory_seed_3.gd
             tests/scripts/test_battle3d_option_ai_level.gd
             tests/scripts/test_battle3d_option_ai_level_auto.gd
+            tests/scripts/test_battle3d_enemy_strategy_replay.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd
             tests/scripts/test_battle3d_oblique_click.gd
