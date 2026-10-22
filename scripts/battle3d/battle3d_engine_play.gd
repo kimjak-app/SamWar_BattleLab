@@ -62,6 +62,17 @@ var enemy_skill_presentations: Array = []
 var enemy_skill_texts: Array[String] = []
 var enemy_skill_leftovers: Array = [] # events still held when the slot's completion replays (reported, never dropped)
 var presenting_enemy_skill := false
+
+# M5-a: the engine's own full auto battle (start/stop) and the presentation speed (Engine.time_scale only).
+const AUTO_STATUS := "자동 진행 중 · 엔진이 행동을 선택합니다 / [자동 ■]로 중지"
+const SPEED_STEPS := [1.0, 2.0, 4.0]
+var auto_button: Button
+var speed_button: Button
+var speed_index := 0
+var auto_was_on := false
+var auto_press_pending := false # set by an auto toggle, cleared at the next lab frame: a second press in between is a double press
+var auto_texts: Array[String] = []
+var auto_marks := {} # ally unit_id -> engine event counts while not acted; a quiet (event-less) auto action is shown when it acts
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -131,6 +142,7 @@ func _ready() -> void:
 	_build_facing_ui()
 	_build_attack_ui()
 	_build_turn_ui()
+	_build_auto_ui()
 	camera.make_current()
 	DisplayServer.window_set_title("EASTWAR | M3 3D Enemy Turn 18x10")
 	await host.initialized
@@ -271,6 +283,7 @@ func _build_turn_ui() -> void:
 
 func _process(delta: float) -> void:
 	if not ready_for_input: return
+	auto_press_pending = false
 	super._process(delta) # moving_id stays empty; no mock movement executes.
 	_consume_events()
 	_consume_action_events()
@@ -330,7 +343,7 @@ func _sync_views() -> void:
 	actor_ring.visible = views.has(enemy_actor_id) and views[enemy_actor_id].visible
 	if actor_ring.visible: actor_ring.position=views[enemy_actor_id].position+Vector3(0,.1,0)
 	var phase: String = engine.get("current_phase")
-	attack_button.disabled = phase != "ally_turn" or engine.get("is_demo_animating") or active == null or _enemy_presentation_busy() or ended
+	attack_button.disabled = phase != "ally_turn" or engine.get("is_demo_animating") or active == null or _enemy_presentation_busy() or ended or engine.get("is_full_auto_battle_enabled")
 	var wait_block := _wait_block_reason()
 	wait_button.disabled = not wait_block.is_empty()
 	wait_button.tooltip_text = "엔진 대기 (2D 대기 버튼과 같은 명령)" if wait_block.is_empty() else wait_block
@@ -351,6 +364,7 @@ func _sync_views() -> void:
 	if not target_id.is_empty(): _refresh_target_info(queries.find_unit(target_id))
 	_refresh_turn_ui(phase)
 	_refresh_info()
+	_refresh_auto_ui()
 
 func action_state_text(value: Dictionary) -> String:
 	# Engine flags only (14-field view); the 3D side never derives action order.
@@ -484,6 +498,9 @@ func _input_locked() -> bool:
 	if not battle_result.is_empty():
 		_reject("전투 종료 · %s / 모든 입력 잠금" % RESULT_TEXT.get(battle_result,battle_result))
 		return true
+	if engine.get("is_full_auto_battle_enabled"):
+		_reject("자동 진행 중 · [자동 ■]로 중지한 뒤 조작하세요")
+		return true
 	if engine.get("current_phase") == "enemy_turn":
 		_reject("적 턴 중 · 적 행동이 끝날 때까지 기다리세요")
 		return true
@@ -508,6 +525,7 @@ func _ally_command_block_reason(command: String) -> String:
 	# Guidance only (engine state reads); the engine re-validates the command.
 	# Wait and defend share the same preconditions in the engine.
 	if not battle_result.is_empty(): return "전투 종료 · %s / 모든 입력 잠금" % RESULT_TEXT.get(battle_result,battle_result)
+	if engine.get("is_full_auto_battle_enabled"): return "자동 진행 중 · [자동 ■]로 중지한 뒤 조작하세요"
 	var phase: String = engine.get("current_phase")
 	if phase == "enemy_turn": return "적 턴 중 · 적 행동이 끝날 때까지 기다리세요"
 	if engine.get("is_demo_animating"): return "연출 중 · 중복 명령을 받지 않습니다"
@@ -1259,3 +1277,88 @@ func _close_enemy_skill(caster_id: String) -> void:
 	for event in held:
 		if event.kind == "strategy_cast": _present_strategy_cast(event)
 		else: _present_status_tick(event)
+
+func _build_auto_ui() -> void:
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	auto_button = Button.new()
+	auto_button.text = "자동 ▶"
+	auto_button.position = Vector2(600,300)
+	auto_button.custom_minimum_size = Vector2(150,38)
+	auto_button.pressed.connect(request_auto)
+	layer.add_child(auto_button)
+	speed_button = Button.new()
+	speed_button.position = Vector2(760,300)
+	speed_button.custom_minimum_size = Vector2(110,38)
+	speed_button.pressed.connect(cycle_speed)
+	layer.add_child(speed_button)
+	_apply_speed()
+
+func request_auto() -> void:
+	# Start and stop are the same engine command; acceptance is read back from the engine flag.
+	if not ready_for_input: return
+	if auto_press_pending:
+		_reject("연타 · 같은 순간의 두 번째 입력은 보내지 않습니다")
+		return
+	var was_on: bool = engine.get("is_full_auto_battle_enabled")
+	if not was_on:
+		if _input_locked(): return
+		var reason := _ally_command_block_reason("자동")
+		if not reason.is_empty():
+			_reject(reason)
+			return
+	auto_press_pending = true
+	engine.call("_toggle_full_auto_battle")
+	if engine.get("is_full_auto_battle_enabled") == was_on:
+		_reject("행동 불가 · 엔진이 자동전투를 %s 않았습니다" % ("끄지" if was_on else "시작하지"))
+		return
+	auto_was_on = not was_on
+	if was_on:
+		_auto_text("자동 중지 · 진행 중인 행동이 끝나면 수동 조작")
+	else:
+		_clear_range()
+		_clear_attack_range()
+		_auto_text(AUTO_STATUS)
+	_sync_views()
+
+func cycle_speed() -> void:
+	# Presentation speed only (3D state); never an engine command.
+	speed_index = (speed_index + 1) % SPEED_STEPS.size()
+	_apply_speed()
+
+func _apply_speed() -> void:
+	Engine.time_scale = SPEED_STEPS[speed_index]
+	speed_button.text = "속도 %dx" % int(SPEED_STEPS[speed_index])
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0 # never leak a lab speed into the next scene or test
+
+func _refresh_auto_ui() -> void:
+	var on: bool = engine.get("is_full_auto_battle_enabled")
+	auto_button.text = "자동 ■ (중지)" if on else "자동 ▶"
+	auto_button.disabled = not on and not _ally_command_block_reason("자동").is_empty()
+	if on or auto_was_on: _note_quiet_auto_actions()
+	if auto_was_on and not on:
+		# The engine turned auto off by itself (battle end, safety limit, no ally that can act).
+		auto_was_on = false
+		_auto_text("자동 종료 · 엔진이 자동전투를 껐습니다" + ("" if battle_result.is_empty() else " · " + RESULT_TEXT.get(battle_result,battle_result)))
+
+func _note_quiet_auto_actions() -> void:
+	# Auto waits and confused turns leave no ally event: shown when the engine marks the ally acted
+	# without a new action_completed / skill_cast / strategy_cast for it.
+	var completed: Array = engine.get("battle_action_event_log").export().filter(func(e): return e.kind == "action_completed")
+	var casts: Array = engine.get("tactic_event_log").export().filter(func(e): return e.kind in ["skill_cast", "strategy_cast"])
+	for unit in queries.alive_units:
+		var value: Dictionary = Adapter.to_view(unit)
+		if value.side != "ally" or not engine.call("_is_unit_state_available_for_battle_slot",unit): continue
+		var counts := [completed.filter(func(e): return e.unit_id == value.unit_id).size(), casts.filter(func(e): return e.caster_id == value.unit_id).size()]
+		if not value.has_acted:
+			auto_marks[value.unit_id] = counts
+		elif auto_marks.has(value.unit_id):
+			if auto_marks[value.unit_id] == counts: _auto_text("자동 · %s 행동 완료 (대기 또는 혼란: 엔진 이벤트 없음)" % value.unit_id)
+			auto_marks.erase(value.unit_id)
+
+func _auto_text(line: String) -> void:
+	auto_texts.append(line)
+	_append_combat_line(line)
+	status.text = line
