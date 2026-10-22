@@ -85,8 +85,10 @@ def main() -> int:
             "BattleUnitState.unit_id changes must rebuild hero authority", errors)
     require("build_battle_unit_payload(runtime_hero, data)" in battle_unit_state,
             "context hero changes must rebuild the full battle payload", errors)
-    require('visual_key = unit_type' in battle_unit_state,
-            "context hero rebuild must keep visual_key and unit_type identical", errors)
+    # d973b2d: the context hero rebuild takes visual_key from the unit type visual metadata
+    # (dedicated gunner / mounted archer visuals) instead of copying unit_type.
+    require('visual_key = String(UnitTypeContractScript.get_visual_metadata(unit_type, nation).get("visual_key", unit_type))' in battle_unit_state,
+            "context hero rebuild must take visual_key from the unit type visual metadata", errors)
 
     require("func request_load()" in game_session,
             "GameSession load entry is missing", errors)

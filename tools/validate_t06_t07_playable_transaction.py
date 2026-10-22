@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_PATH = ROOT / "data/heroes/generated/hero_unique_skills.json"
+BASE_STATS_PATH = ROOT / "data/heroes/generated/hero_base_stats.json"
 RESOLVER_PATH = ROOT / "scripts/battle/battle_skill_resolver.gd"
 MOMENTUM_PATH = ROOT / "scripts/battle/battle_momentum_state.gd"
 SNAPSHOT_PATH = ROOT / "scripts/battle/battle_runtime_snapshot.gd"
@@ -62,8 +63,11 @@ def main() -> int:
     effect_types = {str(skill.get("effect_type", "")) for skill in skills}
     mapping_keys = extract_mapping_keys(resolver)
     cost_distribution = Counter(int(skill.get("momentum_cost", 0)) for skill in skills)
-    require(errors, len(skills) == 39, f"expected 39 unique skills, found {len(skills)}")
-    require(errors, cost_distribution == Counter({1: 1, 2: 9, 3: 18, 4: 11}),
+    # One unique skill per hero: the count is read from the hero base stats (39 -> 44, a006074 / 74f974e).
+    hero_count = len(json.loads(read(BASE_STATS_PATH)).get("heroes", []))
+    require(errors, len(skills) == hero_count, f"expected {hero_count} unique skills (one per hero), found {len(skills)}")
+    # The five Imjin War skills (74f974e) all cost 3: 18 -> 23 at cost 3.
+    require(errors, cost_distribution == Counter({1: 1, 2: 9, 3: 23, 4: 11}),
             f"momentum distribution mismatch: {dict(cost_distribution)}")
     require(errors, effect_types <= mapping_keys,
             f"resolver mapping missing effect types: {sorted(effect_types - mapping_keys)}")
@@ -78,7 +82,8 @@ def main() -> int:
 
     require(errors, "STARTING_MOMENTUM := 3" in momentum, "starting momentum must be 3")
     require(errors, "MAX_MOMENTUM := 10" in momentum, "momentum cap must be 10")
-    require(errors, "ROUND_END_GAIN := 1" in momentum, "round end gain must be 1")
+    # 414a2ea (balance) raised the round end gain to 2; S4-1/S4-2 rely on it.
+    require(errors, "ROUND_END_GAIN := 2" in momentum, "round end gain must be 2")
     require(errors, "BASIC_ATTACK_GAIN := 1" in momentum, "basic attack gain must be 1")
     require(errors, "RECEIVED_HIT_LOSS := 1" in momentum, "normal hit loss must be 1")
     require(errors, "SPECIAL_HIT_EXTRA_LOSS := 1" in momentum, "special hit extra loss must be 1")
@@ -153,7 +158,7 @@ def main() -> int:
         return 1
 
     print("T06-7 HOTFIX1 RUNTIME VALIDATION PASS")
-    print("39 skills; cost 1/9/18/11; shared momentum 3/10; round/basic/special contracts locked")
+    print(f"{len(skills)} skills; cost 1/9/23/11; shared momentum 3/10; round/basic/special contracts locked")
     print("player/AI resolver, UI/log evidence, and battle snapshot save/resume locked")
     return 0
 
