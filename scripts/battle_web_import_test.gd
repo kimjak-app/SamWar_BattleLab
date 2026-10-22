@@ -4512,10 +4512,10 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 
 
 func _should_enemy_yield_unique_skill(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
-	# S4-2b (enemy only): yield when another unacted enemy that can use its skill
-	# ranks higher (raw score minus the recent-use penalty) with a high-value raw
-	# score, and the shared momentum cannot pay for both. Deterministic; the
-	# yielding actor goes on with its plan.
+	# S4-2c (enemy only): rotation. When this actor and the other unacted enemies
+	# that can use a high-value skill cannot all be paid by the shared momentum,
+	# only the one whose last use is the oldest (then raw score, then actor order)
+	# uses it. Deterministic; the yielding actor goes on with its plan.
 	if not enemy_skill_spread_enabled or caster_state == null or caster_state.side != "enemy":
 		return false
 	var order := _get_enemy_skill_spread_order()
@@ -4531,7 +4531,7 @@ func _should_enemy_yield_unique_skill(caster_state: BattleUnitState, skill_data:
 		others.append(_get_enemy_skill_spread_entry(unit_state, other_skill, _get_best_unique_skill_target_for_actor(unit_state, other_skill), index))
 	var should_yield := BattleEnemyTacticRulesServiceScript.should_yield_unique_skill(actor, others, battle_momentum.get_value("enemy"))
 	if should_yield:
-		print("[ENEMY_SKILL_SPREAD] round=%d yield=%s raw=%d adjusted=%d others=%s momentum=%d" % [battle_round, caster_state.unit_id, actor.raw, actor.adjusted, str(others.map(func(entry): return [entry.unit_id, entry.raw, entry.adjusted, entry.cost])), battle_momentum.get_value("enemy")])
+		print("[ENEMY_SKILL_SPREAD] round=%d yield=%s raw=%d last=%d others=%s momentum=%d" % [battle_round, caster_state.unit_id, actor.raw, actor.last_use_round, str(others.map(func(entry): return [entry.unit_id, entry.raw, entry.last_use_round, entry.cost])), battle_momentum.get_value("enemy")])
 	return should_yield
 
 
@@ -4550,7 +4550,6 @@ func _get_enemy_skill_spread_entry(unit_state: BattleUnitState, skill_data: Dict
 	return {
 		"unit_id":unit_state.unit_id,
 		"raw":raw,
-		"adjusted":BattleEnemyTacticRulesServiceScript.adjusted_skill_score(raw, battle_round, last_use_round),
 		"last_use_round":last_use_round,
 		"order":order_index,
 		"cost":_get_effective_unique_skill_cost(unit_state, skill_data),
