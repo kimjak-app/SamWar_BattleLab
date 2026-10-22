@@ -90,6 +90,7 @@ jobs:
             tools/validate_battle_tactic_events_s4_1.py
             tools/validate_battle_enemy_strategy_s4_2.py
             tools/validate_battle_skill_rotation_s4_2c.py
+            tools/validate_battle_skill_cap_s4_2c2.py
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
@@ -161,6 +162,7 @@ jobs:
             tests/scripts/test_battle_enemy_skill_spread_base_parity.gd
             tests/scripts/test_battle_enemy_skill_spread_behavior.gd
             tests/scripts/test_battle_enemy_tactic_rules_service.gd
+            tests/scripts/test_battle_enemy_skill_cap_behavior.gd
             tests/scripts/test_battle_move_oracle_baseline.gd
             tests/scripts/test_battle_ally_move_state_service.gd
             tests/scripts/test_battle_ally_move_event_parity.gd

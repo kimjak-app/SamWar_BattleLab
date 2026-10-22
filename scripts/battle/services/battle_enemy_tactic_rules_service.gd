@@ -65,3 +65,25 @@ static func should_yield_unique_skill(actor: Dictionary, others: Array, momentum
 		if candidate != actor and ranks_ahead(candidate, actor):
 			return true
 	return false
+
+
+# S4-2c addendum: enemy unique skill use cap (every AI level).
+const SKILL_CAP_USE_GAP := 2
+const SKILL_CAP_RELEASE_IDLE_ROUNDS := 2
+
+
+## A deciding enemy is capped when its use count is at least SKILL_CAP_USE_GAP
+## above the lowest count among the other live, deployed enemies that have a
+## unique skill (none -> never capped). Safety release: when the whole enemy
+## side has used no unique skill for SKILL_CAP_RELEASE_IDLE_ROUNDS rounds
+## (current round - last any use >= 3), the cap is lifted. No last use at all
+## means no release (the gap cannot be reached without a use anyway).
+static func is_skill_capped(own_count: int, other_counts: Array, battle_round: int, last_any_use_round: int) -> bool:
+	if other_counts.is_empty():
+		return false
+	var lowest: int = other_counts.min()
+	if own_count - lowest < SKILL_CAP_USE_GAP:
+		return false
+	if last_any_use_round != NO_USE_ROUND and battle_round - last_any_use_round > SKILL_CAP_RELEASE_IDLE_ROUNDS:
+		return false
+	return true
