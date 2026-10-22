@@ -884,6 +884,9 @@ var strategy_roll_override: Callable = Callable() # Test-only dice hook (S4-1); 
 # S4-2: new enemy rules behind flags (default off; turned on only after review).
 const BattleEnemyTacticRulesServiceScript := preload("res://scripts/battle/services/battle_enemy_tactic_rules_service.gd")
 var enemy_strategy_enabled := false # S4-2a: the enemy AI may use strategy (D order).
+var enemy_skill_spread_enabled := false # S4-2b: enemy unique skills are spread across actors.
+# S4-2b: unit_id -> battle_round of that enemy's last unique skill. Per battle node; not in the resume snapshot.
+var enemy_skill_last_use_round := {}
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -4490,6 +4493,8 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 		return false
 	if not require_high_value and not _is_unique_skill_fallback_value_for_actor(caster_state, skill_data, target_state):
 		return false
+	if _should_enemy_yield_unique_skill(caster_state, skill_data, target_state):
+		return false
 	if String(skill_data.get("effect_type", "")) != "ally_attack_buff":
 		if target_state == null:
 			return false
@@ -4500,9 +4505,61 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 		selected_attack_target_side = caster_state.side
 	_append_battle_log("%s 고유특기 선택" % caster_state.display_name)
 	enemy_action_event_log.record_skill(caster_state, skill_data, target_state)
+	_record_enemy_unique_skill_use(caster_state)
 	is_auto_action_in_progress = caster_state.side == "ally"
 	_begin_auto_unique_skill_preview(caster_state, skill_data)
 	return true
+
+
+func _should_enemy_yield_unique_skill(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
+	# S4-2b (enemy only): yield when another unacted enemy that can use its skill
+	# ranks higher (raw score minus the recent-use penalty) with a high-value raw
+	# score, and the shared momentum cannot pay for both. Deterministic; the
+	# yielding actor goes on with its plan.
+	if not enemy_skill_spread_enabled or caster_state == null or caster_state.side != "enemy":
+		return false
+	var order := _get_enemy_skill_spread_order()
+	var actor := _get_enemy_skill_spread_entry(caster_state, skill_data, target_state, order.find(caster_state))
+	var others: Array = []
+	for index in range(order.size()):
+		var unit_state: BattleUnitState = order[index]
+		if unit_state == caster_state or not _is_unit_state_available_for_battle_slot(unit_state) or _has_enemy_unit_acted(unit_state):
+			continue
+		if not _can_actor_use_unique_skill(unit_state):
+			continue
+		var other_skill := _get_unique_skill_for_unit(unit_state)
+		others.append(_get_enemy_skill_spread_entry(unit_state, other_skill, _get_best_unique_skill_target_for_actor(unit_state, other_skill), index))
+	var should_yield := BattleEnemyTacticRulesServiceScript.should_yield_unique_skill(actor, others, battle_momentum.get_value("enemy"))
+	if should_yield:
+		print("[ENEMY_SKILL_SPREAD] round=%d yield=%s raw=%d adjusted=%d others=%s momentum=%d" % [battle_round, caster_state.unit_id, actor.raw, actor.adjusted, str(others.map(func(entry): return [entry.unit_id, entry.raw, entry.adjusted, entry.cost])), battle_momentum.get_value("enemy")])
+	return should_yield
+
+
+func _get_enemy_skill_spread_order() -> Array:
+	# Same actor order as `_get_next_available_enemy_ai_actor` (the tie-break of last resort).
+	var order: Array = []
+	for candidate in [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state, enemy_reinforce_01_unit_state, enemy_reinforce_02_unit_state]:
+		if candidate != null:
+			order.append(candidate)
+	return order
+
+
+func _get_enemy_skill_spread_entry(unit_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState, order_index: int) -> Dictionary:
+	var raw := _score_unique_skill_plan_for_actor(unit_state, skill_data, target_state)
+	var last_use_round := int(enemy_skill_last_use_round.get(unit_state.unit_id, BattleEnemyTacticRulesServiceScript.NO_USE_ROUND))
+	return {
+		"unit_id":unit_state.unit_id,
+		"raw":raw,
+		"adjusted":BattleEnemyTacticRulesServiceScript.adjusted_skill_score(raw, battle_round, last_use_round),
+		"last_use_round":last_use_round,
+		"order":order_index,
+		"cost":_get_effective_unique_skill_cost(unit_state, skill_data),
+	}
+
+
+func _record_enemy_unique_skill_use(caster_state: BattleUnitState) -> void:
+	if enemy_skill_spread_enabled and caster_state != null and caster_state.side == "enemy":
+		enemy_skill_last_use_round[caster_state.unit_id] = battle_round
 
 
 func _begin_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:

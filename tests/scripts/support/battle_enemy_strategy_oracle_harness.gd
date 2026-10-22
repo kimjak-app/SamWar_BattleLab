@@ -13,6 +13,14 @@ const STRATEGY_SCENARIOS := [
 	"ES11_skill_first", "ES12_blocked_plan_target_fallback", "ES13_second_actor_skips_afflicted", "ES14_burning_caster_tick",
 	"ES15_burn_tick_ends_battle", "ES16_round_complete", "ES17_basic_fail",
 ]
+# S4-2b skill spread scenarios: production enemies guan_yu (units[5], cost 3),
+# zhang_fei (units[6], cost 3), xiahou_dun (units[7], cost 2) next to three
+# allies; every raw score is high value (268 / 240 / 341 on this board). All
+# allies have acted, so the enemy side keeps acting until the round ends.
+const SPREAD_SCENARIOS := [
+	"SP01_single_candidate", "SP02_yield_one_momentum", "SP03_both_affordable", "SP04_penalty_one_round",
+	"SP05_no_history", "SP06_penalty_two_rounds", "SP07_yield_then_blocked",
+]
 const BATTLE_SEEDS := [1, 2, 3, 4, 5, 6]
 const BATTLE_ALLY_ACTIONS := 10
 var flags := {} # property -> value, set right after the battle node gets its script
@@ -154,6 +162,54 @@ func run_battle(tree: SceneTree, seed_value: int) -> Dictionary:
 		await settle_enemy(tree, battle, label + " action " + str(actions))
 		samples.append(snapshot(battle, "action_%d" % actions))
 	var result := {"case":label, "checkpoints":samples, "logs_end":logs4(battle)}
+	if post_hook.is_valid(): result["_post"] = post_hook.call(battle, null)
+	await _teardown(tree, battle)
+	return result
+
+static func spread_spec(label: String) -> Dictionary:
+	# unacted enemy indices, enemy momentum, battle round, last-use history {index: round}, blocked index
+	var spec := {"unacted":[5, 7], "momentum":4, "round":1, "history":{}, "blocked":-1}
+	match label:
+		"SP01_single_candidate": spec.merge({"unacted":[5], "momentum":3}, true)
+		"SP03_both_affordable": spec.momentum = 5
+		"SP04_penalty_one_round": spec.merge({"unacted":[5, 6], "momentum":5, "round":3, "history":{5:2}}, true)
+		"SP05_no_history": spec.merge({"unacted":[5, 6], "momentum":5, "round":3}, true)
+		"SP06_penalty_two_rounds": spec.merge({"unacted":[5, 6], "momentum":5, "round":3, "history":{5:1}}, true)
+		"SP07_yield_then_blocked": spec.blocked = 7
+	return spec
+
+func run_spread_scenario(tree: SceneTree, label: String) -> Dictionary:
+	var battle: Node = await _new_battle(tree)
+	var units: Array[BattleUnitState] = battle.get("all_battle_unit_states")
+	expect(units.size() == 10, label + " ten production units")
+	var spec := spread_spec(label)
+	var skills := {}
+	for i in [5, 6, 7]: skills[i] = units[i].unique_skill_definition.duplicate(true)
+	var cells := {0:Vector2i(8,4), 1:Vector2i(8,5), 2:Vector2i(8,3), 3:Vector2i(0,9), 4:Vector2i(1,9), 5:Vector2i(9,4), 6:Vector2i(9,5), 7:Vector2i(9,3), 8:Vector2i(17,0), 9:Vector2i(16,0)}
+	for i in cells: _setup_unit(units[i], "infantry", cells[i])
+	for i in [5, 6, 7]: units[i].unique_skill_definition = skills[i]
+	var momentum = battle.get("battle_momentum")
+	momentum.spend("enemy", momentum.get_value("enemy"), "fixture")
+	momentum.gain("enemy", spec.momentum, "fixture")
+	battle.set("battle_round", spec.round)
+	var history := {}
+	for i in spec.history: history[units[i].unit_id] = spec.history[i]
+	battle.set("enemy_skill_last_use_round", history) # S4-2b fixture; no-op on BASE
+	if spec.blocked >= 0: battle.set("skill_block_unit_id", units[spec.blocked].unit_id)
+	var lock = battle.get("action_lock_state_service")
+	for i in range(5, 10):
+		if not spec.unacted.has(i): lock.register_unit_acted(units[i], "enemy")
+	for i in range(0, 5): lock.register_unit_acted(units[i], "ally")
+	_sync(battle, units)
+	await tree.process_frame
+	var samples: Array = [snapshot(battle, "start")]
+	seed(ACTION_SEED)
+	battle.call("_set_phase", "enemy_turn")
+	battle.call("_play_enemy_turn_demo")
+	await settle_enemy(tree, battle, label)
+	samples.append(snapshot(battle, "settled"))
+	var result := {"case":label, "checkpoints":samples, "logs_end":logs4(battle)}
+	result["_ids"] = {"guan":units[5].unit_id, "zhang":units[6].unit_id, "xiahou":units[7].unit_id}
 	if post_hook.is_valid(): result["_post"] = post_hook.call(battle, null)
 	await _teardown(tree, battle)
 	return result
