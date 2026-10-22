@@ -15,6 +15,8 @@ const FIELDS := {
 	"enemy_skill_used": ["unit_id", "skill_id", "target_id"],
 	"round_started": ["round"],
 	"battle_ended": ["result_state"],
+	# S4-2a: an enemy strategy attempt (recorded before its strategy_cast effect).
+	"enemy_strategy_used": ["unit_id", "target_id"],
 }
 const WAIT_REASONS := ["wait", "confused", "no_path", "path_blocked", "no_target"]
 const ANGLE_TYPES := ["front", "side", "back"]
@@ -85,6 +87,12 @@ func record_skill(caster: BattleUnitState, skill_data: Dictionary, target: Battl
 	})
 
 
+func record_strategy(caster: BattleUnitState, target: BattleUnitState) -> Dictionary:
+	if caster == null or caster.side != "enemy" or target == null:
+		return {}
+	return emit("enemy_strategy_used", {"unit_id": caster.unit_id, "target_id": target.unit_id})
+
+
 func stage_move_path(unit_id: String, path: Array) -> void:
 	_staged_move_unit_id = unit_id
 	_staged_move_path = []
@@ -140,6 +148,8 @@ func _valid_fields(kind: String, fields: Dictionary) -> bool:
 			return WAIT_REASONS.has(fields.reason)
 		"enemy_skill_used":
 			return fields.skill_id is String and fields.target_id is String
+		"enemy_strategy_used":
+			return _id(fields.target_id)
 		"enemy_moved":
 			if not fields.path is Array or fields.path.size() < 2:
 				return false

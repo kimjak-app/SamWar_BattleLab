@@ -146,6 +146,14 @@ jobs:
             tests/scripts/test_battle_tactic_event_semantics.gd
             tests/scripts/test_battle_tactic_skill_semantics_shard_1.gd
             tests/scripts/test_battle_tactic_skill_semantics_shard_2.gd
+            tests/scripts/test_battle_enemy_strategy_base_parity_shard_1.gd
+            tests/scripts/test_battle_enemy_strategy_base_parity_shard_2.gd
+            tests/scripts/test_battle_enemy_strategy_base_parity_shard_3.gd
+            tests/scripts/test_battle_enemy_rules_ally_parity_shard_1.gd
+            tests/scripts/test_battle_enemy_rules_ally_parity_shard_2.gd
+            tests/scripts/test_battle_enemy_rules_ally_parity_shard_3.gd
+            tests/scripts/test_battle_enemy_rules_ally_parity_shard_4.gd
+            tests/scripts/test_battle_enemy_strategy_behavior.gd
             tests/scripts/test_battle_move_oracle_baseline.gd
             tests/scripts/test_battle_ally_move_state_service.gd
             tests/scripts/test_battle_ally_move_event_parity.gd
