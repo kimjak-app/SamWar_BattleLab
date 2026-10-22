@@ -80,7 +80,7 @@ def main():
     assert not any(x.startswith("-") and not x.startswith("---") for x in wf_diff.splitlines()), "workflow additions only"
     added = [x[1:].strip() for x in wf_diff.splitlines() if x.startswith("+") and not x.startswith("+++")]
     assert sorted(added) == sorted([VALIDATOR, *CI_TESTS]), added
-    for p in git("ls-files", "scripts/battle3d").decode().splitlines():
+    for p in (git("ls-files", "scripts/battle3d") if live else git("ls-tree", "-r", "--name-only", TIP, "--", "scripts/battle3d")).decode().splitlines():  # pinned: the TIP tree
         if p.endswith(".gd"):
             assert not re.search(r"\b(randf|randi|randf_range|randi_range|RandomNumberGenerator)\b|\bseed\s*\(|strategy_roll_override", strip_comments(text(p))), "3D random/hook: " + p
 

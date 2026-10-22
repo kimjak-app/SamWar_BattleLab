@@ -154,7 +154,7 @@ def main():
     assert sorted(added) == sorted([VALIDATOR, *CI_TESTS]), added
 
     # No 3D file mentions the dice hook or rolls random numbers.
-    tracked = git("ls-files", "scripts/battle3d").decode().splitlines() + ([p for p in changes if p.startswith("scripts/battle3d/")] if live else [])
+    tracked = (git("ls-files", "scripts/battle3d") if live else git("ls-tree", "-r", "--name-only", TIP, "--", "scripts/battle3d")).decode().splitlines()  # pinned: the TIP tree + ([p for p in changes if p.startswith("scripts/battle3d/")] if live else [])
     for p in set(tracked):
         if not p.endswith(".gd"):
             continue
