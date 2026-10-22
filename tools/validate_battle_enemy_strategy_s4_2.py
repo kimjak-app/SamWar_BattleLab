@@ -156,7 +156,9 @@ def main():
     for flag in FLAGS:
         assert re.search(r"^var " + flag + r" := false\b", new, re.M), "flag default false: " + flag
         assert len(re.findall(r"\b" + flag + r"\s*=(?!=)", new)) == 0, "the engine never assigns " + flag
-    for p in git("ls-files", "scripts", "scenes", "*.gd").decode().splitlines() + [x for x in changes if live and x.endswith(".gd")]:
+    # Pinned mode lists the files of the TIP tree (files added after TIP do not exist there).
+    tracked = git("ls-files", "scripts", "scenes", "*.gd") if live else git("ls-tree", "-r", "--name-only", TIP, "--", "scripts", "scenes", "*.gd")
+    for p in tracked.decode().splitlines() + [x for x in changes if live and x.endswith(".gd")]:
         if p.startswith("tests/") or not p.endswith(".gd") or not (root / p).exists() and live:
             continue
         body = text(p)
