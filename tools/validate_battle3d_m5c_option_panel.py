@@ -12,7 +12,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "63b08fe738eb7337f6f1c3e4734f4981e3ca1c60"  # feat(battle3d): ... (M5-b), night3 stack
-TIP = os.environ.get("M5C_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M5C_SCOPE_TIP", "f11375974b0df1c22ffb4d3c4c8fe30174dd7d3f")  # feat(battle3d): ... (M5-c), night3 stack
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m5c_option_panel.py"

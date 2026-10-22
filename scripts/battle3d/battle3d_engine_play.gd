@@ -823,6 +823,10 @@ func _present_enemy_event(event: Dictionary) -> void:
 		"enemy_waited":
 			_enemy_text("적 %s · %s" % [event.unit_id,WAIT_TEXT.get(event.reason,event.reason)])
 			enemy_hold = enemy_hold_seconds
+		"enemy_strategy_used":
+			# M4-e: the enemy's strategy choice; its outcome (strategy_cast) is shown with the slot's completion.
+			_enemy_text("적 책략 사용: %s → %s" % [event.unit_id,event.target_id])
+			enemy_hold = enemy_hold_seconds
 		"enemy_skill_used":
 			_enemy_text("적 특기 사용: " + event.skill_id)
 			_open_enemy_skill(event.unit_id)
@@ -998,10 +1002,11 @@ func _flush_enemy_ticks(unit_id: String) -> void:
 func _present_strategy_cast(event: Dictionary) -> void:
 	# Every number and outcome comes from the event.
 	var outcome: String = ("%s %d턴" % [STATUS_TEXT.get(event.status_id,event.status_id),event.turns_after]) if event.success else "실패"
+	var prefix := "적 " if _skill_caster_side(event) == "enemy" else "" # M4-e: enemy casts read like the M4-c2 enemy skill lines
 	tactic_presentations.append(event.duplicate(true))
 	_tactic_label(event.target_id,outcome,Color("7ff2c8") if event.success else Color("ff5f78"))
-	_append_combat_line("책략 · %s → %s · %s · %s (%s)" % [event.caster_id,event.target_id,"성공" if event.success else "실패",outcome,_rate_text(event.success_rate)])
-	_tactic_text("책략 %s · %s" % ["성공" if event.success else "실패",outcome])
+	_append_combat_line(prefix + "책략 · %s → %s · %s · %s (%s)" % [event.caster_id,event.target_id,"성공" if event.success else "실패",outcome,_rate_text(event.success_rate)])
+	_tactic_text(prefix + "책략 %s · %s" % ["성공" if event.success else "실패",outcome])
 
 func _present_status_tick(event: Dictionary) -> void:
 	tactic_presentations.append(event.duplicate(true))
