@@ -9,14 +9,14 @@ service is pure (static, no state, no random numbers, no await); the nine
 existing enemy event kinds are unchanged and exactly one kind is added; the
 ally strategy entry points are byte-identical.
 
-S4_2_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
+S4_2_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged implementation commit (HEAD audits the live worktree; it was the default until the reviewer
 re-pins the merged implementation commit) audits the live worktree.
 """
 from pathlib import Path
 import argparse, ast, os, re, subprocess
 
 BASE = "8957b27c9cbf68e7c4b444b7397a2e68edb7ca93"  # chore(battle3d): pin the M4-c1 validator ...
-TIP = os.environ.get("S4_2_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("S4_2_SCOPE_TIP", "04ce32d26a9a474ee69ac8b2eced01768e73a872")
 ENGINE = "scripts/battle_web_import_test.gd"
 EVENT_LOG = "scripts/battle/services/battle_enemy_event_log_service.gd"
 RULES = "scripts/battle/services/battle_enemy_tactic_rules_service.gd"
