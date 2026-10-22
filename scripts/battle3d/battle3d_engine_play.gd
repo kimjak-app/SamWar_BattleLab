@@ -74,6 +74,14 @@ var auto_press_pending := false # set by an auto toggle, cleared at the next lab
 var auto_texts: Array[String] = []
 var auto_marks := {} # ally unit_id -> engine event counts while not acted; a quiet (event-less) auto action is shown when it acts
 var auto_hold_sent := false # M5-a2: last value sent with set_auto_presentation_hold (sent only when it changes)
+# M5-c: enemy AI level option panel (engine values only; the engine decides which rules a level turns on).
+const AI_LEVEL_ORDER := ["low", "mid", "high"]
+const AI_LEVEL_TEXT := {"low":"하", "mid":"중", "high":"상"}
+var option_toggle: Button
+var option_panel: VBoxContainer
+var ai_level_label: Label
+var ai_level_buttons := {}
+var ai_level_texts: Array[String] = []
 var target_info: Label
 var combat_log: Label
 var action_cursor := 0 # Independent from ally_move_event_log's event_cursor.
@@ -144,6 +152,7 @@ func _ready() -> void:
 	_build_attack_ui()
 	_build_turn_ui()
 	_build_auto_ui()
+	_build_option_ui()
 	camera.make_current()
 	DisplayServer.window_set_title("EASTWAR | M3 3D Enemy Turn 18x10")
 	await host.initialized
@@ -367,6 +376,7 @@ func _sync_views() -> void:
 	_refresh_turn_ui(phase)
 	_refresh_info()
 	_refresh_auto_ui()
+	_refresh_option_ui()
 
 func action_state_text(value: Dictionary) -> String:
 	# Engine flags only (14-field view); the 3D side never derives action order.
@@ -1336,6 +1346,67 @@ func _apply_speed() -> void:
 func _exit_tree() -> void:
 	Engine.time_scale = 1.0 # never leak a lab speed into the next scene or test
 	_update_auto_hold(true) # never leave the engine auto held
+
+func _build_option_ui() -> void:
+	# A separate top-right area, clear of the command rows (y=254 / y=300) and the turn header.
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var size := get_viewport().get_visible_rect().size
+	var box := VBoxContainer.new()
+	box.position = Vector2(size.x-230,16)
+	box.custom_minimum_size = Vector2(210,0)
+	layer.add_child(box)
+	option_toggle = Button.new()
+	option_toggle.text = "옵션 ▾"
+	option_toggle.pressed.connect(toggle_option_panel)
+	box.add_child(option_toggle)
+	option_panel = VBoxContainer.new()
+	box.add_child(option_panel)
+	ai_level_label = Label.new()
+	ai_level_label.add_theme_font_size_override("font_size",15)
+	ai_level_label.add_theme_color_override("font_outline_color",Color.BLACK)
+	ai_level_label.add_theme_constant_override("outline_size",5)
+	ai_level_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ai_level_label.custom_minimum_size = Vector2(210,0)
+	option_panel.add_child(ai_level_label)
+	var row := HBoxContainer.new()
+	option_panel.add_child(row)
+	for level in AI_LEVEL_ORDER:
+		var button := Button.new()
+		button.text = AI_LEVEL_TEXT[level]
+		button.custom_minimum_size = Vector2(64,34)
+		button.toggle_mode = true # shows the engine's level; reset from the engine on every refresh
+		button.pressed.connect(request_ai_level.bind(level))
+		row.add_child(button)
+		ai_level_buttons[level] = button
+
+func toggle_option_panel() -> void:
+	# Presentation only (folds the panel); never an engine command.
+	option_panel.visible = not option_panel.visible
+	option_toggle.text = "옵션 ▾" if option_panel.visible else "옵션 ▸"
+
+func request_ai_level(level: String) -> void:
+	# The engine accepts a level at any time and applies it from the next enemy turn; the
+	# panel is usable during auto, the enemy turn and input locks (no _input_locked here).
+	if not ready_for_input: return
+	if not engine.call("set_enemy_ai_level", level):
+		_ai_level_text("적 AI 변경 거절 · 엔진이 %s 등급을 받지 않았습니다" % AI_LEVEL_TEXT.get(level, level))
+		return
+	_refresh_option_ui()
+	_ai_level_text("적 AI 선택 · " + ai_level_label.text)
+
+func _refresh_option_ui() -> void:
+	var current: String = engine.call("get_enemy_ai_level")
+	var pending: String = engine.call("get_pending_enemy_ai_level")
+	ai_level_label.text = "적 AI: %s" % AI_LEVEL_TEXT.get(current, current)
+	if not pending.is_empty(): ai_level_label.text += " → %s (다음 적 턴부터 적용)" % AI_LEVEL_TEXT.get(pending, pending)
+	for level in ai_level_buttons:
+		ai_level_buttons[level].button_pressed = level == (current if pending.is_empty() else pending)
+
+func _ai_level_text(line: String) -> void:
+	ai_level_texts.append(line)
+	_append_combat_line(line)
+	status.text = line
 
 func _presentation_busy() -> bool:
 	# M5-a2: what the auto play waits for: the engine still acting (animating or in an enemy slot),
