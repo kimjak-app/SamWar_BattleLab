@@ -5,14 +5,14 @@ boundary = M4-c1 + that one flag, `Engine.time_scale` only in the speed setter
 and the restore in `_exit_tree`, the auto lock in `_input_locked` and the
 shared command guidance, no auto decision made by 3D, no random / dice hook.
 
-M5A_SCOPE_TIP=<commit> audits BASE..commit; HEAD (default until the reviewer
-re-pins the merged implementation commit) audits the live worktree.
+M5A_SCOPE_TIP=<commit> audits BASE..commit; the default is the merged
+implementation commit. M5A_SCOPE_TIP=HEAD audits the live worktree.
 """
 from pathlib import Path
 import argparse, hashlib, os, re, subprocess
 
 BASE = "406bb73a024c3a0277ac8c06b891c30bc9e96e6b"  # merged M4-c2 tip (stack base)
-TIP = os.environ.get("M5A_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("M5A_SCOPE_TIP", "651ac3723f506a880f79ec1ded91263d13c2e50a")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m5a_autoplay.py"
