@@ -37,8 +37,10 @@ def main() -> int:
             "battle adapter bypasses HeroRuntimeFactory", errors)
     require("build_battle_unit_payload" in factory,
             "factory battle payload builder missing", errors)
-    require('result["visual_key"] = unit_type' in factory,
-            "factory does not synchronize battle visual_key", errors)
+    # d973b2d: the factory takes visual_key from the T07 visual metadata (dedicated gunner /
+    # mounted archer visuals) instead of copying unit_type.
+    require('result["visual_key"] = String(visual_metadata.get("visual_key", unit_type))' in factory,
+            "factory does not take battle visual_key from the unit type visual metadata", errors)
 
     require("HeroRuntimeFactoryScript.build_battle_unit_payload" in battle_unit_state,
             "BattleUnitState creation does not enforce factory payloads", errors)
@@ -55,9 +57,12 @@ def main() -> int:
     units = load_json(ROOT / "data/heroes/generated/unit_type_rules.json")
     roles = load_json(ROOT / "data/heroes/generated/battle_role_rules.json")
 
-    require(len(base.get("heroes", [])) == 39, "base hero count must be 39", errors)
-    require(len(profiles.get("profiles", [])) == 39, "profile count must be 39", errors)
-    require(len(skills.get("skills", [])) == 39, "skill count must be 39", errors)
+    # Hero count read from the base stats (39 -> 44 with the Imjin War heroes: a006074, 315c31b, 74f974e);
+    # profiles and skills must match it.
+    hero_count = len(base.get("heroes", []))
+    require(hero_count > 0, "base hero list must not be empty", errors)
+    require(len(profiles.get("profiles", [])) == hero_count, f"profile count must equal the hero count {hero_count}", errors)
+    require(len(skills.get("skills", [])) == hero_count, f"skill count must equal the hero count {hero_count}", errors)
     require(len(units.get("unit_types", [])) == 5, "unit type count must be 5", errors)
     require(len(roles.get("roles", [])) == 8, "role count must be 8", errors)
 

@@ -7,10 +7,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_PATH = ROOT / "data/heroes/generated/hero_battle_profiles.json"
+BASE_STATS_PATH = ROOT / "data/heroes/generated/hero_base_stats.json"
 UNIT_RULE_PATH = ROOT / "data/heroes/generated/unit_type_rules.json"
 
 ALLOWED_UNITS = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
-EXPECTED_DISTRIBUTION = {"infantry": 11, "cavalry": 10, "archer": 11, "gunner": 4, "mounted_archer": 3}
+# 39-hero distribution (5f4e943) plus the five Imjin War heroes (315c31b: three infantry, two cavalry).
+EXPECTED_DISTRIBUTION = {"infantry": 14, "cavalry": 12, "archer": 11, "gunner": 4, "mounted_archer": 3}
 EXPECTED_FINAL = {
     "kim_chun_chu": "infantry",
     "uija_wang": "infantry",
@@ -31,7 +33,8 @@ def main() -> None:
     rule_ids = {str(row.get("unit_type", "")) for row in rules}
     distribution = Counter(by_hero.values())
 
-    assert len(profiles) == 39, f"profile count={len(profiles)}"
+    hero_count = len(load_json(BASE_STATS_PATH).get("heroes", []))
+    assert len(profiles) == hero_count, f"profile count={len(profiles)} heroes={hero_count}"
     assert rule_ids == ALLOWED_UNITS, f"unit rules={sorted(rule_ids)}"
     assert "support" not in by_hero.values(), "support remains in hero profiles"
     assert dict(distribution) == EXPECTED_DISTRIBUTION, f"distribution={dict(distribution)}"
@@ -39,7 +42,7 @@ def main() -> None:
         actual = by_hero.get(hero_id)
         assert actual == expected_unit, f"{hero_id}: {actual} != {expected_unit}"
 
-    print("FIVE UNIT ASSIGNMENT PASS: 11/10/11/4/3; final infantry corrections locked; support role-only")
+    print(f"FIVE UNIT ASSIGNMENT PASS: {len(profiles)} profiles 14/12/11/4/3; final infantry corrections locked; support role-only")
 
 
 if __name__ == "__main__":

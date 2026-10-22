@@ -13,7 +13,13 @@ for unit_type, values in expected.items():
         errors.append(f"{unit_type}: movement/range/action contract mismatch")
 if rules["gunner"].get("counterattack_max_range") != 0 or rules["mounted_archer"].get("counterattack_max_range") != 0:
     errors.append("ranged no-counterattack contract mismatch")
-source = (ROOT / "scripts/battle_web_import_test.gd").read_text(encoding="utf-8")
+# S1-2 / S2-2 (aa0d667, f934f31) moved the move and attack state writes into services:
+# the shared contract tokens are checked in the controller plus those services.
+source = "\n".join((ROOT / p).read_text(encoding="utf-8") for p in (
+    "scripts/battle_web_import_test.gd",
+    "scripts/battle/services/battle_ally_move_state_service.gd",
+    "scripts/battle/services/battle_attack_state_service.gd",
+))
 combat_query = (ROOT / "scripts/battle/services/battle_combat_query_service.gd").read_text(encoding="utf-8")
 if "UnitTypeContractScript.can_unit_attack" not in combat_query:
     errors.append("combat query service missing shared action-eligibility contract")

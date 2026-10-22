@@ -117,6 +117,21 @@ def function_block(text: str, function_name: str) -> str:
     return match.group(0)
 
 
+def extends_chain(script: Path) -> list[Path]:
+    # Scripts reached through `extends "res://..."`, nearest first.
+    chain: list[Path] = []
+    current = script
+    while current.exists():
+        match = re.search(r'^extends\s+"res://([^"]+)"', current.read_text(encoding="utf-8"), re.M)
+        if not match:
+            break
+        current = ROOT / match.group(1)
+        if current in chain:
+            break
+        chain.append(current)
+    return chain
+
+
 def main() -> int:
     base_scene_text = BASE_SCENE.read_text(encoding="utf-8")
     imjin_scene_text = IMJIN_SCENE.read_text(encoding="utf-8")
@@ -128,7 +143,9 @@ def main() -> int:
 
     assert 'path="res://tests/scenes/Battle_UI_Production_Test.tscn"' in imjin_scene_text, "Test2 must inherit Test1"
     assert 'path="res://tests/scripts/battle_ui_production_imjin_test.gd"' in imjin_scene_text, "Test2 script missing"
-    assert 'extends "res://scripts/battle_web_import_test.gd"' in imjin_script_text, "Test2 must reuse production battle controller"
+    # 0826ac2 made Test2 extend scripts/battle/battle_controller.gd, which extends the production
+    # controller: follow the extends chain instead of matching one line.
+    assert BASE_CONTROLLER in extends_chain(IMJIN_SCRIPT), "Test2 must reuse production battle controller"
     node_count = imjin_scene_text.count("[node ")
     assert node_count <= 3, f"Test2 scene has unexpectedly many nodes ({node_count}); check for Test1 UI duplication"
     assert len(imjin_scene_text) < 2000, "Test2 scene unexpectedly copied production UI"
