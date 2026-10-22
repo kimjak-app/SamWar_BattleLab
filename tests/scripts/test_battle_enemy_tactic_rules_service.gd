@@ -68,5 +68,17 @@ func run() -> void:
 	# Determinism.
 	var first := [Rules.should_yield_unique_skill(x, [y], 4), Rules.ranks_ahead(x, y)]
 	for i in range(5): expect([Rules.should_yield_unique_skill(x, [y], 4), Rules.ranks_ahead(x, y)] == first, "same inputs -> same outputs")
+	# S4-2c addendum use cap: own - min(others) >= 2 locks, unless the side used nothing for two rounds (round - L >= 3).
+	expect(Rules.SKILL_CAP_USE_GAP == 2 and Rules.SKILL_CAP_RELEASE_IDLE_ROUNDS == 2, "cap constants")
+	expect(not Rules.is_skill_capped(1, [0], 5, 4), "gap 1 -> free")
+	expect(Rules.is_skill_capped(2, [0], 5, 4), "gap 2 -> capped")
+	expect(Rules.is_skill_capped(3, [0], 5, 4), "gap 3 -> capped")
+	expect(not Rules.is_skill_capped(5, [], 5, 4), "no other holder -> free")
+	expect(Rules.is_skill_capped(2, [3, 0, 1], 5, 4) and not Rules.is_skill_capped(2, [3, 1, 1], 5, 4), "the lowest of many others counts")
+	expect(Rules.is_skill_capped(2, [0], 5, 3), "round - L = 2 -> still capped")
+	expect(not Rules.is_skill_capped(2, [0], 5, 2), "round - L = 3 -> safety release")
+	expect(Rules.is_skill_capped(2, [0], 5, none), "no side use yet -> no release")
+	var cap_first := Rules.is_skill_capped(2, [0, 1], 5, 3)
+	for i in range(5): expect(Rules.is_skill_capped(2, [0, 1], 5, 3) == cap_first, "cap: same inputs -> same output")
 	print("[ENEMY_TACTIC_RULES] checks=", checks, " failures=", failures)
 	quit(0 if failures.is_empty() else 1)
