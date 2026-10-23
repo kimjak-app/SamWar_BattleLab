@@ -39,8 +39,16 @@ func run() -> void:
 				if h.shell.result_panel.visible: break
 			h.expect(h.shell.result_panel.visible and h.shell.result_label.text.begins_with("승리"), "first battle ended: " + h.shell.result_label.text)
 		else:
-			for i in range(400): await process_frame
-			h.expect(h.lab.engine.writes.size() >= 2 and h.lab.engine.auto_battle_step_count >= 2, "restart %d after a partly played battle (%d steps)" % [round_index + 1, h.lab.engine.auto_battle_step_count])
+			# Wait for the state (two engine auto steps), not a frame count: the game time per
+			# frame depends on the machine (at 1/2000 s per frame the second step needs ~770
+			# frames). The cap only bounds a battle whose auto never progresses.
+			var b: Node = h.lab.engine
+			var frames := 0
+			while frames < 20000 and b.auto_battle_step_count < 2:
+				await process_frame
+				frames += 1
+			h.expect(b.writes.size() >= 2 and b.auto_battle_step_count >= 2, "restart %d after a partly played battle (%d steps after %d frames; auto=%s hold=%s phase=%s anim=%s auto_texts=%s)" % [round_index + 1, b.auto_battle_step_count, frames,
+				b.is_full_auto_battle_enabled, b.auto_presentation_hold, b.current_phase, b.is_demo_animating, str(h.lab.auto_texts.slice(-2))])
 		await h.press_restart(self)
 		h.expect(not is_instance_valid(old_lab) and h.shell.lab != old_lab and h.shell.scenario == "win_practice", "restart %d: old lab freed, same scenario" % (round_index + 1))
 		fresh_checks("restart %d" % (round_index + 1), fresh)
