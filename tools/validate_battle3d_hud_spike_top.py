@@ -16,7 +16,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "ba058c8a8e09f955230b5d48dd97e9de09074637"  # docs(battle): record the G0 const removal checks ...
-TIP = os.environ.get("HUD_SPIKE_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("HUD_SPIKE_SCOPE_TIP", "f0e91dcfd268b77e7eceead9842ba2de887e5dfa")  # feat(battle3d): HUD spike ...
 HUD_SCENE = "scenes/battle3d/Battle3D_TopHud.tscn"
 HUD_SCRIPT = "scripts/battle3d/battle3d_top_hud.gd"
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
