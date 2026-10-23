@@ -7,7 +7,26 @@ const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_de
 const TROOP_FIELDS := ["current_troops", "max_troops", "allocated_troops", "initial_allocated_troops", "current_hp", "max_hp"]
 
 func digest(value: Variant) -> String:
-	return JSON.stringify(value, "", true).sha256_text()
+	return JSON.stringify(canonical(value), "", true).sha256_text()
+
+func canonical(value: Variant) -> Variant:
+	# Floats as their exact IEEE-754 bits: the text form of a float is rounded by the
+	# platform's float-to-text code, which differs between builds (Windows wrote
+	# 0.0413429625332356 for 0.04134296253323554992..., Linux 0.0413429625332355).
+	match typeof(value):
+		TYPE_FLOAT:
+			return "f64:" + PackedFloat64Array([value]).to_byte_array().hex_encode()
+		TYPE_VECTOR2, TYPE_VECTOR3:
+			var parts: Array = []
+			for i in range(3 if typeof(value) == TYPE_VECTOR3 else 2): parts.append(canonical(float(value[i])))
+			return parts
+		TYPE_DICTIONARY:
+			var out := {}
+			for key in value: out[key] = canonical(value[key])
+			return out
+		TYPE_ARRAY:
+			return value.map(func(item): return canonical(item))
+	return value
 
 func open_with_setup(tree: SceneTree, setup: Variant) -> Node:
 	# setup == null: no key at all.
