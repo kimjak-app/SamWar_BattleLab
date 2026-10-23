@@ -1,7 +1,6 @@
 class_name BattleAttackStateService
 extends RefCounted
 
-const UnitTypeContract = preload("res://scripts/battle/unit_type_contract.gd")
 
 # Called at the existing damage write, after the controller computes the formula.
 # No validation policy, presentation, scheduling, or action consumption here.
