@@ -15,8 +15,8 @@ pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "7977f257284a3750a9d2b1f61233d4faa06f6ca2"  # feat(battle3d): ... (M5-a2), night3 stack
-TIP = os.environ.get("M5B_SCOPE_TIP", "f221609109e579227a6cbe494ba6d5b976da3da7")  # feat(battle3d): ... (M5-b), night3 stack
+BASE = "204a9041772e0f6b1e188b71905125ad046f7941"  # feat(battle3d): ... (M5-a2)
+TIP = os.environ.get("M5B_SCOPE_TIP", "81fdc434f366af17ffd1d4ba79c8b28f3afdf463")  # feat(battle3d): ... (M5-b)
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 SCENE = "scenes/battle3d/Battle3D_ScenarioShell.tscn"
 WORKFLOW = ".github/workflows/verify-c-track.yml"

@@ -10,8 +10,8 @@ pins the merged implementation commit) audits the live worktree.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "f11375974b0df1c22ffb4d3c4c8fe30174dd7d3f"  # feat(battle3d): ... (M5-c), night3 stack
-TIP = os.environ.get("M4E_SCOPE_TIP", "HEAD")
+BASE = "410c2794fca669bea340a7c12b355263e60066f8"  # feat(battle3d): ... (M5-c)
+TIP = os.environ.get("M4E_SCOPE_TIP", "f50dd6cfdf76493ff0c5d724f5d3059e6b91c91d")
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_m4e_enemy_strategy.py"
