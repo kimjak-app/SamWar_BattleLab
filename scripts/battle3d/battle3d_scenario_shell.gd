@@ -7,6 +7,7 @@ extends Node
 # the allied units the engine still has alive). A new battle frees the whole lab
 # (engine host included) and creates a fresh one; nothing is carried over.
 const LAB_SCENE := "res://scenes/battle3d/Battle3D_EnginePlayLab.tscn"
+const TOP_HUD_SCENE := "res://scenes/battle3d/Battle3D_TopHud.tscn"
 const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const SETUP_KEY := "samwar_battle_setup"
 const WIN_PRACTICE_RATIO := 0.25
@@ -24,11 +25,21 @@ var restart_button: Button
 var choose_button: Button
 var result_text := ""
 var lab_count := 0
+# HUD spike: the 2D top HUD as an overlay (layer 5, under the shell's layer 10).
+# It shows the lab's momentum_display and current_round only (no engine call).
+# While it is shown the lab's own round/momentum text labels, which sit in the
+# same screen area, are hidden (option a); false keeps both (overlap).
+var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
+var hide_lab_top_labels := true
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
 	layer.layer = 10 # above the lab's own UI layers
 	add_child(layer)
+	top_hud = load(TOP_HUD_SCENE).instantiate()
+	top_hud.visible = false
+	top_hud.refresh = _refresh_top_hud
+	add_child(top_hud)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -110,6 +121,15 @@ func _process(_delta: float) -> void:
 	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input or result_panel.visible: return
 	if lab.battle_result.is_empty() or lab._enemy_presentation_busy(): return
 	_show_result()
+
+func _refresh_top_hud() -> void:
+	# Like the 2D HUD: shown during the battle, hidden once the battle has a result.
+	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input and lab.battle_result.is_empty() and not lab.momentum_display.is_empty()
+	top_hud.visible = live
+	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
+	if lab != null and is_instance_valid(lab) and lab.turn_label != null:
+		lab.turn_label.visible = not (live and hide_lab_top_labels)
+		lab.momentum_label.visible = lab.turn_label.visible
 
 func _show_result() -> void:
 	# Engine values only: the result from the battle_ended event, the round from the engine events, alive allied units.
