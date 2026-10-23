@@ -14,7 +14,7 @@
 | 항목 | 원인 | 처리 |
 |---|---|---|
 | **F1** S4-3 BASE 동등성 시드 6 `round_snaps` | **확인됨**: 게임 상태 차이가 아니라 **실수→문자열 반올림이 플랫폼마다 다름**. 다이제스트가 JSON 텍스트를 해시한다. 시드 6 라운드 10의 "다음 난수" 0.04134296253323554992…를 Windows Godot는 `0.0413429625332356`, Linux는 `0.0413429625332355`(정확한 15자리 반올림)로 쓴다. Windows JSON에서 이 한 값만 `…355`로 바꾸면 해시가 Linux 값 `8e44b0a1…`과 **정확히 같아진다** | 커밋 F1: 다이제스트가 실수를 **IEEE-754 비트(16진)** 로 해시. 골든은 BASE(`e835800`, S4-3 이전) 워크트리에서 새 형식으로 다시 생성. 비교 항목은 하나도 빼지 않았다(더 엄격해짐) |
-| **F2** M5-a2 "3D idle at every engine auto action start" | **확인됨(Windows에서 부하를 걸어 재현, Linux와 같은 수치)**: 엔진이 **한 프레임의 지연 호출 처리 안에서** 자동 행동 하나를 끝내고(이동이 프레임을 넘지 않고 `resolving → facing_select → ally_turn`) `_set_phase(ally_turn)`이 다음 자동 틱을 **같은 처리 안에** 다시 넣는다. 3D는 프레임마다 한 번(`_process`)만 hold를 정하므로 그 사이에 끼어들 수 없다 | **구현하지 않음(멈춤 규칙)**. 3D 쓰기 14번째 범위로는 해결할 수 없다(엔진에 3D가 반응할 신호·훅이 없음). 엔진 구조 변경 옵션 3개를 §2-4에 적었다. **결정 필요** |
+| **F2** M5-a2 "3D idle at every engine auto action start" | **확인됨(Windows에서 부하를 걸어 재현, Linux와 같은 수치)**: 엔진이 **한 프레임의 지연 호출 처리 안에서** 자동 행동 하나를 끝내고(이동이 프레임을 넘지 않고 `resolving → facing_select → ally_turn`) `_set_phase(ally_turn)`이 다음 자동 틱을 **같은 처리 안에** 다시 넣는다. 3D는 프레임마다 한 번(`_process`)만 hold를 정하므로 그 사이에 끼어들 수 없다 | 처음엔 구현하지 않음(멈춤 규칙, 옵션 §2-4). **김작 결정 후 옵션 A 구현** — 커밋 `75beed7`, §7 |
 | **F3** M5-b "restart 2/3 after a partly played battle (0 steps)" | **확인됨(가설 1)**: 400프레임 대기가 프레임 길이에 의존한다. 프레임당 게임 시간을 1/2000초로 줄이면(`--fixed-fps 2000`) Windows에서도 실패한다(1스텝). 두 번째 스텝까지 정상 프레임으로 약 29프레임, 짧은 프레임으로 약 773프레임이 걸린다. **Linux의 "0스텝"(1이 아님)은 미확인**이다. F2와 같은 뿌리인지는 Linux 실행 없이 가를 수 없다 | 커밋 F3: 프레임 수 대신 **상태(자동 스텝 2)** 를 기다린다(상한 20000프레임, 진행이 멈춘 전투는 그대로 실패). 실패 문구에 자동·hold·단계·연출 상태와 자동 문구를 넣어 Linux에서 원인을 바로 볼 수 있게 했다 |
 
 ## 1. F1 — S4-3 BASE 동등성 `round_snaps`(시드 6)
@@ -155,3 +155,64 @@ f338 HOLD true (3D _process가 그제야 봄)
 - F2 옵션 결정(A/B/C)
 - F3 Linux 재실행으로 "0 steps" 원인 확인
 - Windows Godot의 실수 → 문자열 반올림 차이 자체는 엔진(Godot) 쪽 동작이라 손대지 않았다. 다른 골든 다이제스트 중 실수를 텍스트로 해시하는 것이 있는지는 이번 범위 밖이다(이번 실패 6개 외에는 Linux에서 통과).
+
+
+## 7. F2 구현 — 옵션 A(엔진 래치), 김작 결정 후
+
+- 결정: "F2는 옵션 A로 구현".
+  - 조건 ①: 3D가 닫히면(랩 종료, 새 전투) 래치가 풀려 엔진 자동이 영영 멈추지 않을 것
+  - 조건 ②: 래치가 꺼져 있으면(3D 없음) 엔진 단독 자동이 BASE와 완전히 같을 것
+  - 기존 동등성 골든·테스트는 고치지 말고 새 테스트만 추가할 것
+- 커밋 `75beed7` `fix(battle): latch the auto presentation hold at every auto step (F2, option A)`
+
+### 7-1. 변경
+
+| 파일 | 변경 |
+|---|---|
+| 엔진 `battle_web_import_test.gd` (+5) | 멤버 `auto_presentation_latch := false`(이어하기 스냅샷 밖). `set_auto_presentation_hold(hold)`: `hold`가 true면 래치를 켠다(**시그니처 그대로**). `_tick_full_auto_battle_if_needed`: 스텝 수를 올린 직후, 행동 실행 **전에** `if auto_presentation_latch: auto_presentation_hold = true` |
+| 3D `battle3d_engine_play.gd` (+3 −1) | `_update_auto_hold`가 원하는 값을 마지막으로 보낸 값과 **엔진의 실제 hold**(`engine.get("auto_presentation_hold")`) 둘 다와 비교한다. 엔진이 래치로 다시 건 hold도 반드시 푼다. 쓰기 호출 지점·인자는 그대로(14번째 쓰기 1곳) |
+| 새 테스트 `test_battle_auto_presentation_latch.gd` | §7-3 |
+| 새 validator `validate_auto_presentation_latch_f2.py` | 범위 고정(위 줄만 바뀜, 시그니처 그대로, 래치 기본 off, 켜는 곳 1곳, 스텝 시작에서 행동 전 재무장, 3D 새 읽기 1개·새 쓰기 0) |
+| CI | validator 1 + 테스트 1 추가 |
+
+### 7-2. 설계에서 바뀐 점 (§2-4 옵션 A 설명과 다른 것, 숨기지 않음)
+
+1. **3D 읽기 1개 추가**(`auto_presentation_hold`). §2-4에서는 "3D 그대로"라고 적었지만 실제로는 필요했다.
+   - 래치는 엔진이 hold를 스스로 다시 건다. 3D가 "마지막으로 보낸 값"만 기억하면 엔진은 걸려 있는데 3D는 풀려 있다고 믿는 경우가 생긴다.
+   - 예: 스텝이 3D가 바쁘다고 보기 전에 끝남 → 3D는 아무것도 보내지 않음 → 자동이 영영 멈춤
+   - 그래서 엔진의 실제 hold와도 비교한다.
+   - 쓰기는 늘지 않았다. M5-a2 validator가 이 읽기를 금지하지만, 그 validator는 M5-a2 커밋(`aa895cc`)에 고정돼 있어 영향이 없다.
+2. **래치를 끄는 별도 호출을 만들지 않았다**.
+   - 처음엔 `set_auto_presentation_hold(hold, latch)`로 인자를 늘리려 했다. 그런데 기존 M5-a2 테스트 하니스가 이 함수를 인자 1개로 재정의하고 있어 Godot가 "signature doesn't match the parent"로 거부했다. 기존 테스트를 고치지 않으려고 시그니처를 그대로 뒀다.
+   - **조건 ①은 구조로 보장된다**: 엔진 호스트가 3D 랩의 자식이다. 그래서 랩을 닫거나 새 전투를 시작하면(셸이 랩을 `free`) 래치를 가진 엔진 노드가 함께 해제된다. 새 랩의 엔진은 래치가 꺼진 채 시작한다.
+   - 3D의 닫기 경로(`_exit_tree` → `_update_auto_hold(true)`)는 엔진이 걸려 있으면 false를 보낸다.
+   - 테스트로 확인했다(§7-3 ③).
+   - 한계: 엔진이 3D보다 오래 사는 구조(지금은 없음)가 생기면 래치를 끄는 경로가 따로 필요하다.
+
+### 7-3. 새 테스트 `test_battle_auto_presentation_latch.gd` (12 checks, 22초)
+
+| # | 조건 | 확인 |
+|---|---|---|
+| ② 래치 꺼짐 | 3D 없음, hold를 한 번도 보내지 않음, 엔진 전자동 4x | 6스텝 동안 hold·래치가 한 프레임도 켜지지 않음(스스로 멈추지 않음). 전투 전체의 BASE 동등성은 **기존 S4-3 골든 테스트가 그대로** 확인(shard 1·2 통과, 골든 미수정) |
+| 래치 켜짐 | hold true → 자동 시작 → 해제 5번 | 해제할 때마다 **정확히 1스텝**, 그 뒤 60프레임 동안 다음 스텝 없음(다시 걸림). 같은 프레임에 틱 2번 → 1스텝(두 번째는 래치에 막힘) |
+| ① 닫힘 | 3D 랩, 자동 중 래치·hold 켜짐 | 랩을 닫으면 그 엔진 해제, 마지막 hold 호출 false. 새 랩의 엔진은 래치·hold 꺼짐이고 자동이 해제를 거치며 계속 진행(3스텝 이상) |
+
+### 7-4. 재현 조건에서 재확인
+
+- F2를 재현했던 "4개 동시(CPU 부하)" trace를 수정 코드로 다시 돌렸다.
+- 시드 1·2·3(4회) 모두 **자동 행동 시작 때 3D가 비어 있지 않은 경우 0번**이다. 수정 전에는 4회 모두 일지 80번째에서 재현됐다.
+- 원문 `evidence/f2/f2fix_load_*.log`
+
+### 7-5. 기존 테스트 (수정 없이)
+
+- 영향받는 29개를 모두 돌렸고 전부 exit 0이다:
+  - S4-3 6개(BASE 동등성 shard 1·2 포함)
+  - M5-a 자동 동등성 3·속도·중지
+  - M5-a2 hold 4x 3·1x 3·release
+  - M5-b 6개, M5-c 2개, M4-e 1개
+  - 3D 특기 동등성 shard 1, 책략 혼합 로그
+- M5-a2 hold 테스트의 "hold 호출 교대" 검사도 그대로 통과한다. 3D는 바쁠 때 여전히 true를 보내고, 끝나면 false를 보낸다.
+- validator 50개 중 49개 PASS다. 나머지 `validate_battle3d_m4e_enemy_strategy.py`는 live 모드라 수정 커밋들을 범위 밖으로 본다. TIP `099bab0`이면 PASS다.
+- 새 F2 validator는 live·고정(`75beed7`) 모두 PASS다.
+- 원문 `evidence/f2_ci_subset/`
+- **Linux에서는 돌리지 않았다**. 클코치 환경 재실행이 필요하다.
