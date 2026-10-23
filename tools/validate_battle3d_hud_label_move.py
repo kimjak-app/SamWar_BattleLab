@@ -15,7 +15,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "eebb1040c6ff9b8d3583e9ea286ee2fce31f6fd1"  # docs(battle3d): HUD spike report ... (feature/hud-spike-top-20261023)
-TIP = os.environ.get("HUD_LABEL_MOVE_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("HUD_LABEL_MOVE_SCOPE_TIP", "eadf13c2bd296ce5278cedb5ecc88001629dc13e")  # feat(battle3d): move the lab round/momentum labels ...
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 HUD_SCRIPT = "scripts/battle3d/battle3d_top_hud.gd"
 TEST = "tests/scripts/test_battle3d_top_hud.gd"
