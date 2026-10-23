@@ -463,3 +463,29 @@ NIGHT3 (S4-3, M5-a2, M5-b, M5-c, M4-e, legacy validators refresh, F1 to F3 fixes
 - Mutation probes (mine): S4-3 18 probes, 14 caught by tests; not caught: ratio 1.0 rejected (equivalent: an ignored override leaves the value unchanged), minimum 1 removed and zero field raised (test gap: no data value floors to 0 and no troop field is 0), release ticking when not holding (test gap). M5-a2, M5-b, M5-c and M4-e probes were still running when this was merged; their results and the test gaps found (so far: M5-b enemy replay timing and alive-count before reinforcements, M4-e strategy after a move, M5-a2 result-time release) go into a follow-up commit
 - Notes: three stage reports and the 3D validators of the pinned stages show the same defect (a pinned validator listed files from HEAD instead of its TIP tree), fixed in 7977f25 and 9a2685e; the setup port stays opt-in (no meta = unchanged game); the F2 latch lives on the engine node the 3D lab owns (closing the lab frees it), so an engine that outlives its 3D (world map round trip, M7) needs its own way to turn the latch off; the 3D now has 15 write calls (14th set_auto_presentation_hold, 15th set_enemy_ai_level) and 3 more read calls (get_enemy_ai_level, get_pending_enemy_ai_level, the engine's auto_presentation_hold)
 - Next: HUD spike (top momentum diamonds and turn display on the 3D lab), follow-up test gap commit, H0 audit decisions
+
+## NIGHT3 test gaps / NIGHT4–6 independent review (2026-10-23 ~ 10-24, 클코치)
+
+검수자: 클코치(독립). 빌더: 클코드. Linux(헤드리스, Godot 4.6.2)에서 직접 돌린 것과 못 한 것을 나눠 적는다.
+
+### 1. NIGHT3 테스트 보완 (G0~G11) — `integration` `ba058c8`(푸시됨)
+- 내 변이 검증 84개(S4-3 18, M5-a2+F2 래치 21, M5-b 18, M5-c 15, M4-e 12): 62개 잡음, 22개 못 잡음. 못 잡은 22개 중 동등·중복 안전장치가 아닌 구멍 11개(G1~G11)를 클코드가 새 테스트 3개로 막았다.
+- 내가 새 테스트에 직접 넣은 변이 10개(G1·G3~G11): 전부 새 테스트가 잡았다(G2는 클코드 확인만, 내가 돌리지 않음).
+- G11은 엔진에 "이동한 뒤 책략" 경로가 없어(호출 지점 `battle_web_import_test.gd:8200` 한 곳) 이동 없는 형태로 대체했다.
+- G0: `battle_attack_state_service.gd`의 `const UnitTypeContract = preload(...)` 한 줄 삭제(전역 `class_name UnitTypeContract`와 이름 겹침 경고, S2-2 `f934f31`부터). 김작이 고도 오류창에서 경고가 사라진 것을 눈으로 확인했다.
+- Linux 전체 CI: 검증기 51개 통과, 테스트 148개 중 145개 통과 + 3개 타임아웃(내 러너의 4병렬·240초 제한). 3개는 단독 실행에서 통과(99/97/106초).
+
+### 2. HUD 시험 + T1 라벨 이동 + T2 아이콘 결함 + N1~N5 + T3·NIGHT6 측정
+- 독립 `feature/*` 가지(기준 `ba058c8`)를 클코드가 푸시: `hud-spike-top-20261023`(`eebb104`), `night4-n1`…`n5`, `hud-label-move-20261024`(`c0022de`), `roster-icon-fix-20261024`(`5514c8e`), `fx-rng-measure-20261024`(`f4b725c`), `dice-rng-measure-20261024`(`0908de3`).
+- HUD 보고서(`HUD_SPIKE_TOP_RESULT_20261023.md`) 맨 위의 "푸시: 못 했다"는 푸시 전 시점의 기록이다. 푸시는 그 뒤에 되었다.
+- 내가 합쳐서 돌린 통합 가지(HUD + N1~N5 + T1 + T2 + T3 + 요약) Linux 전체 CI: 검증기 53, 테스트 150, 실패 0.
+- 내 변이 프로브: HUD 12개 중 11개 잡음(못 잡은 1개는 `ready_for_input` 중복 조건으로 보임), T1 6개·T2 3개 전부 잡음.
+- T2: `Battle_Production.tscn` 아군 1번 카드의 `UniqueSkillReadyIcon`이 `2cb0008`(08-14)에서 2번 카드 밑으로 옮겨져 있던 것을 되돌렸다(위치 −102@Slot02 = −8@Slot01로 화면 위치 동일, 다른 카드와 같은 규칙). 실제 화면에서 켜지는지는 사람이 확인하지 않았다.
+- N1·N4·N5 핵심 사실은 코드와 대조해 확인했다: 아이콘 노드 배치(`Battle_Production.tscn:4573, 4617, 4726`), 격자 18×10이 2D 씬(`:733-734`)과 3D `heightfield.json` board에 따로 있음, 난수는 책략 주사위 2줄 + 연출 함수의 `randf*`/`randi*`.
+- NIGHT6 측정 재현(내가 직접): 적 픽스처·엔진·시드 1(첫 주사위 전 720단계, 전체 7374단계), 아군 픽스처·엔진·시드 2(97단계, 3610단계, 라운드 8 패배) 모두 클코드 CSV와 같다.
+- 알려진 문제: `agent/*.csv`는 Godot가 번역 파일로 자동 변환해 `agent/`에 `.translation`/`.csv.import`가 생긴다(N2·T3 CSV). `agent/.gdignore` 추가 여부는 김작 결정 대기. NIGHT6부터는 `agent/data/`에 `.gdignore`와 함께 둔다.
+
+### 3. 못 한 것
+- 사람이 직접 한 플레이는 없다(HUD는 김작이 고도에서 눈으로 본 적이 있으나 T1 이후 화면은 아직 못 봤다).
+- Windows 실행은 클코드 쪽만, Linux 실행은 내 쪽만 확인했다.
+- 옛 T08 검증기 정리(삭제 4 / 기대값 수정 2 / 씬 결함 2 후보)와 테스트 장면의 같은 아이콘 결함은 김작 승인 대기.
