@@ -13,8 +13,8 @@ pins the merged commit) audits the live worktree.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "5763d63bedb55a39c4a76cc86242b53eec7704af"  # docs(battle): restore the night3 fix report text (before the F2 latch)
-TIP = os.environ.get("F2_SCOPE_TIP", "HEAD")
+BASE = "a19e427265a0e66f202eec54a026598ac5f68efb"  # docs(battle): restore the night3 fix report text (before the F2 latch)
+TIP = os.environ.get("F2_SCOPE_TIP", "1d6b25f2855955a17b58bd52f5f3fcb90231ccf4")
 ENGINE = "scripts/battle_web_import_test.gd"
 PLAY = "scripts/battle3d/battle3d_engine_play.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
