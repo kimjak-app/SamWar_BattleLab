@@ -27,10 +27,13 @@ var result_text := ""
 var lab_count := 0
 # HUD spike: the 2D top HUD as an overlay (layer 5, under the shell's layer 10).
 # It shows the lab's momentum_display and current_round only (no engine call).
-# While it is shown the lab's own round/momentum text labels, which sit in the
-# same screen area, are hidden (option a); false keeps both (overlap).
+# The lab's own round/momentum text labels sat in the same screen area; the
+# shell moves them (position and size only) to two lines right under the HUD
+# frame, each as wide as its text and centred on the HUD. They stay visible.
+# The lab's left info panel grows with the selected unit's status list; when it
+# reaches under the labels they shift right of it (same gap).
+const LAB_LABEL_GAP := 6.0 # below the HUD frame
 var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
-var hide_lab_top_labels := true
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -127,9 +130,21 @@ func _refresh_top_hud() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input and lab.battle_result.is_empty() and not lab.momentum_display.is_empty()
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
-	if lab != null and is_instance_valid(lab) and lab.turn_label != null:
-		lab.turn_label.visible = not (live and hide_lab_top_labels)
-		lab.momentum_label.visible = lab.turn_label.visible
+	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
+
+func _place_lab_top_labels() -> void:
+	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
+	var frame: Rect2 = top_hud.frame_rect()
+	var info_panel: Control = lab.info
+	while not info_panel.get_parent() is CanvasLayer: info_panel = info_panel.get_parent()
+	var left_limit: float = info_panel.get_global_rect().end.x + LAB_LABEL_GAP
+	var y := frame.end.y + LAB_LABEL_GAP
+	for label in [lab.turn_label, lab.momentum_label]:
+		label.custom_minimum_size.x = 0.0 # the lab gave both a fixed 520 width
+		var text_size: Vector2 = label.get_minimum_size()
+		label.size = text_size
+		label.position = Vector2(maxf(frame.get_center().x - text_size.x * 0.5, left_limit), y)
+		y += text_size.y + 2.0
 
 func _show_result() -> void:
 	# Engine values only: the result from the battle_ended event, the round from the engine events, alive allied units.

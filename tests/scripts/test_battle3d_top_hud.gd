@@ -2,11 +2,13 @@ extends SceneTree
 # HUD spike: the 2D top HUD copy (momentum diamonds, "round / 30") on the
 # scenario shell. Expected values are built here from the engine: filled slots =
 # the engine's momentum, label = "%d / 30" % battle_round. Default battle: start
-# 3/3 1/30, three waits to round 2 (round-end gain), the lab's round/momentum
-# text labels hidden while the HUD is shown (false = both shown, overlap), the
-# HUD applies only on a value change and adds no engine write. Win practice
-# played with [자동] to the result: every frame the HUD shows the lab's values,
-# and once the battle has a result the HUD is hidden like the 2D one.
+# 3/3 1/30, three waits to round 2 (round-end gain), the HUD applies only on a
+# value change and adds no engine write. The lab's round/momentum text labels
+# stay visible, moved by the shell to two lines right under the HUD frame, each
+# as wide as its text and centred on the HUD (game window 1920x1080): never on
+# the HUD and never on another visible lab or shell UI. Win practice played with [자동] to the result: every frame the HUD
+# shows the lab's values and the labels stay clear; once the battle has a
+# result the HUD is hidden like the 2D one and the labels still show.
 var h
 var hud
 
@@ -27,6 +29,51 @@ func expect_engine_values(label: String) -> void:
 	var want := "%d / 30" % b.battle_round
 	h.expect(hud.turn_label().text == want, "%s: turn '%s' == '%s'" % [label, hud.turn_label().text, want])
 
+func other_ui_rects() -> Array:
+	# Top-level visible controls of the lab's and the shell's canvas layers, except
+	# the two moved labels and the lab's full-window result text.
+	var out := []
+	var layers: Array = h.lab.get_children().filter(func(n): return n is CanvasLayer)
+	layers.append(h.shell.layer)
+	for layer in layers:
+		for c in layer.get_children():
+			if c is Control and c.is_visible_in_tree() and not [h.lab.turn_label, h.lab.momentum_label, h.lab.result_overlay].has(c):
+				out.append([c.name if c.name != "" else c.get_class(), c.get_global_rect()])
+	return out
+
+var shifted_frames := 0
+
+func info_panel_rect() -> Rect2:
+	var c: Control = h.lab.info
+	while not c.get_parent() is CanvasLayer: c = c.get_parent()
+	return c.get_global_rect()
+
+func label_problems() -> Array:
+	var problems := []
+	var frame: Rect2 = hud.frame_rect()
+	var others := other_ui_rects()
+	for label in [h.lab.turn_label, h.lab.momentum_label]:
+		var r: Rect2 = label.get_global_rect()
+		if not label.is_visible_in_tree(): problems.append("hidden")
+		if r.intersects(frame): problems.append("on the HUD %s" % r)
+		var info_right: float = info_panel_rect().end.x
+		var centred: bool = is_equal_approx(r.get_center().x, frame.get_center().x)
+		var shifted: bool = r.position.x >= info_right + 6.0 - 0.01 and r.get_center().x > frame.get_center().x # right of the panel (a shrink shows one frame later)
+		if not (centred or shifted): problems.append("neither centred on the HUD nor right of the info panel %s" % r)
+		if shifted: shifted_frames += 1
+		for o in others:
+			if r.intersects(o[1]): problems.append("%s overlaps %s %s" % [r, o[0], o[1]])
+	return problems
+
+func expect_labels_placed(tag: String) -> void:
+	var frame: Rect2 = hud.frame_rect()
+	var t: Rect2 = h.lab.turn_label.get_global_rect()
+	var m: Rect2 = h.lab.momentum_label.get_global_rect()
+	h.expect(is_equal_approx(t.position.y, frame.end.y + 6.0) and is_equal_approx(t.get_center().x, frame.get_center().x) and is_equal_approx(m.get_center().x, frame.get_center().x) and is_equal_approx(m.position.y, t.end.y + 2.0),
+		"%s: labels centred right under the HUD frame %s (turn %s, momentum %s)" % [tag, frame, t, m])
+	var problems := label_problems()
+	h.expect(problems.is_empty(), "%s: labels visible, off the HUD and off other UI %s" % [tag, str(problems)])
+
 func settle(label: String) -> void:
 	var stable := 0
 	for i in range(6000):
@@ -41,6 +88,7 @@ func run() -> void:
 	h = load("res://tests/scripts/support/battle3d_scenario_harness.gd").new()
 	var plain: Dictionary = await h.bare_start(self, {})
 	await h.open_shell(self)
+	root.size = Vector2i(1920, 1080) # the game window (project.godot); the lab lays out its UI from it
 	hud = h.shell.top_hud
 	h.expect(hud.layer == 5 and h.shell.layer.layer == 10 and not hud.visible, "start screen: HUD (layer 5, under the shell's 10) hidden")
 	await h.press_scenario(self, "default")
@@ -49,20 +97,26 @@ func run() -> void:
 	h.expect(hud.visible and b.battle_momentum.get_value("ally") == 3 and b.battle_momentum.get_value("enemy") == 3 and b.battle_round == 1, "default started: HUD shown, engine 3/3 round 1")
 	expect_engine_values("start")
 	h.expect(b.writes == plain.writes, "before any input: writes == an engine started alone %s" % str(b.writes))
-	h.expect(not h.lab.turn_label.visible and not h.lab.momentum_label.visible, "lab round/momentum text labels hidden while the HUD is shown")
+	expect_labels_placed("start")
 	# Only a value change re-applies; idle frames add no engine write.
 	var applies: int = hud.apply_count
 	var writes: Array = b.writes.duplicate()
 	for i in range(30): await process_frame
 	h.expect(hud.apply_count == applies and b.writes == writes, "30 idle frames: no re-apply (%d), no engine write" % hud.apply_count)
-	# Overlap option: keep the lab's labels; their rects lie inside the HUD's top area.
-	h.shell.hide_lab_top_labels = false
-	await process_frame
-	var top: Rect2 = hud.get_node("ProductionHudRoot/TopHudRoot").get_global_rect()
-	h.expect(h.lab.turn_label.visible and h.lab.momentum_label.visible and top.intersects(h.lab.turn_label.get_global_rect()) and top.intersects(h.lab.momentum_label.get_global_rect()), "hide off: lab labels shown and overlapping the HUD %s / %s / %s" % [top, h.lab.turn_label.get_global_rect(), h.lab.momentum_label.get_global_rect()])
-	h.shell.hide_lab_top_labels = true
-	await process_frame
-	h.expect(not h.lab.turn_label.visible, "hide on again")
+	# A wide info panel (as with a long status list): the labels move right of it.
+	# Test-only: the lab rewrites the info text every frame, so the width is forced instead, then restored.
+	var info_min: Vector2 = h.lab.info.custom_minimum_size
+	h.lab.info.custom_minimum_size.x = 820.0
+	for i in range(3): await process_frame
+	var wide_right: float = info_panel_rect().end.x
+	var wide_problems := label_problems()
+	h.expect(wide_right > h.lab.turn_label.get_global_rect().get_center().x - 400.0 and wide_problems.is_empty() and h.lab.turn_label.get_global_rect().position.x >= wide_right + 6.0 - 0.01,
+		"wide info panel (right edge %s): labels shifted right of it %s %s" % [wide_right, h.lab.turn_label.get_global_rect(), str(wide_problems)])
+	h.lab.info.custom_minimum_size = info_min
+	for i in range(3): await process_frame
+	h.expect(is_equal_approx(h.lab.turn_label.get_global_rect().get_center().x, hud.frame_rect().get_center().x), "info panel back to normal: labels centred again")
+	# The lab's original place (centre top) is under the HUD: the shell moved them.
+	h.expect(not hud.frame_rect().intersects(h.lab.turn_label.get_global_rect()) and h.lab.turn_label.text.begins_with("라운드 1 · 아군 턴"), "turn label moved off the HUD, text unchanged '%s'" % h.lab.turn_label.text)
 	# Three waits: the round ends, both sides gain, the HUD follows after the enemy replay.
 	for step in range(3):
 		var active = b.active_unit_state
@@ -89,7 +143,13 @@ func run() -> void:
 	h.lab._sync_views()
 	seed(1)
 	h.press_auto()
+	expect_labels_placed("win practice start (a new lab)")
 	var mismatched := 0
+	var label_bad := 0
+	var label_first := []
+	var min_left := 99999.0
+	var max_info_right := 0.0
+	var enemy_frames := 0
 	var ally_rises := 0
 	var last_ally := 3
 	for i in range(80000):
@@ -99,10 +159,19 @@ func run() -> void:
 			if hud.shown != want or hud.filled_count("Ally") != mini(want.Ally, 10) or hud.filled_count("Enemy") != mini(want.Enemy, 10): mismatched += 1
 			if want.Ally > last_ally: ally_rises += 1
 			last_ally = want.Ally
+		var problems := label_problems()
+		if not problems.is_empty():
+			label_bad += 1
+			if label_first.is_empty(): label_first = problems
+		if h.lab.turn_label.text.contains("적 턴"): enemy_frames += 1
+		min_left = minf(min_left, minf(h.lab.turn_label.get_global_rect().position.x, h.lab.momentum_label.get_global_rect().position.x))
+		max_info_right = maxf(max_info_right, info_panel_rect().end.x)
 		if h.shell.result_panel.visible: break
 	h.expect(h.shell.result_panel.visible and b.call("_get_battle_result_state") == "victory", "win practice ends in victory")
 	h.expect(mismatched == 0 and ally_rises > 0, "every shown frame matched the lab's values (mismatches %d, ally rises %d)" % [mismatched, ally_rises])
-	h.expect(not hud.visible and h.lab.turn_label.visible, "battle result: HUD hidden (like 2D), lab labels back")
+	h.expect(label_bad == 0 and enemy_frames > 0, "every frame of the battle: labels clear (bad frames %d, first %s, enemy-turn frames %d)" % [label_bad, str(label_first), enemy_frames])
+	h.expect(not hud.visible and h.lab.turn_label.text.contains("전투 종료") and label_problems().is_empty(), "battle result: HUD hidden (like 2D), '%s' shown clear of the result panel" % h.lab.turn_label.text)
+	print("[TOP_HUD] labels min_left=", min_left, " info_panel max_right=", max_info_right, " shifted label-frames=", shifted_frames)
 	print("[TOP_HUD] applies=", hud.apply_count, " writes_default=", three_waits.size(), " ally_rises=", ally_rises)
 	await finish()
 
