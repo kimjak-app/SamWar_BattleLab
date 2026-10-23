@@ -1,0 +1,253 @@
+level,ally,seed,round,actor_index,unit_id,moved,b_cell,b_raw,b_target,b_cost,b_valid,b_can_use,b_hv,b_fb,a_cell,a_raw,a_target,a_valid,a_can_use,a_hv,a_fb,a_attack_target,a_attack_kills,momentum_before,events,skill_used
+none,auto,1,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",75,zhang_fei,1,True,False,True,,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,1,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[6, 4]",-1000000,jeong_dojeon,1,False,False,False,jeong_dojeon,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[4, 2]",268,gwon_yul,2,True,True,True,gwon_yul,False,3,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,1,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,False,False,False,"[5, 3]",-1000000,zhang_fei,1,False,False,False,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,3,9,xiahou_dun,False,"[6, 4]",-1000000,jeong_dojeon,2,1,False,False,False,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,0,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,0,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,4,12,guan_yu,False,"[4, 2]",-1000000,gwon_yul,3,3,False,False,False,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,4,13,zhang_fei,False,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,4,14,xiahou_dun,False,"[6, 4]",521,jeong_dojeon,2,1,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,auto,1,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,5,17,zhang_fei,False,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,5,18,xiahou_dun,True,"[6, 4]",-1000000,,2,0,False,False,False,"[3, 4]",357,yi_sunsin,2,True,True,True,ally_reinforce_01_demo,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,1,5,19,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,5,20,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,6,21,zhang_fei,True,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,"[4, 3]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_01_demo,False,2,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,6,22,xiahou_dun,False,"[3, 4]",537,yi_sunsin,2,2,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,auto,1,6,23,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[3, 2]",,,,False,,,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,6,24,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,1,7,25,zhang_fei,False,"[4, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,7,26,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,7,27,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,ally_reinforce_01_demo,False,3,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,8,28,zhang_fei,False,"[4, 3]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,5,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,8,29,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,5,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,8,30,enemy_reinforce_02_test_unit,False,"[6, 3]",,,,,False,,,,,,,,,,,,6,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,9,31,zhang_fei,True,"[4, 3]",-1000000,zhang_fei,3,1,True,False,False,"[2, 3]",75,zhang_fei,1,True,False,True,ally_reinforce_02_test_unit,False,8,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,9,32,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,9,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,9,33,enemy_reinforce_02_test_unit,True,"[6, 3]",,,,,False,,,"[4, 3]",,,,False,,,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,1,10,34,zhang_fei,False,"[2, 3]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,9,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,10,35,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+none,auto,1,10,36,enemy_reinforce_02_test_unit,False,"[4, 3]",,,,,False,,,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",75,zhang_fei,1,True,False,True,,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,2,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[6, 4]",-1000000,jeong_dojeon,1,False,False,False,jeong_dojeon,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[4, 2]",268,gwon_yul,2,True,True,True,gwon_yul,False,3,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,2,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,False,False,False,"[5, 3]",-1000000,zhang_fei,1,False,False,False,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,3,9,xiahou_dun,False,"[6, 4]",-1000000,jeong_dojeon,2,1,False,False,False,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,0,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,0,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,4,12,guan_yu,False,"[4, 2]",-1000000,gwon_yul,3,3,False,False,False,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,4,13,zhang_fei,False,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,4,14,xiahou_dun,False,"[6, 4]",521,jeong_dojeon,2,1,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,auto,2,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,5,17,zhang_fei,False,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,5,18,xiahou_dun,True,"[6, 4]",-1000000,,2,0,False,False,False,"[3, 4]",357,yi_sunsin,2,True,True,True,ally_reinforce_01_demo,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,auto,2,5,19,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,5,20,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,6,21,zhang_fei,True,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,"[4, 3]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_01_demo,False,2,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,6,22,xiahou_dun,False,"[3, 4]",537,yi_sunsin,2,2,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,auto,2,6,23,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[3, 2]",,,,False,,,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,6,24,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,auto,2,7,25,zhang_fei,False,"[4, 3]",-1000000,zhang_fei,3,1,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,7,26,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,7,27,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,ally_reinforce_01_demo,False,3,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,8,28,zhang_fei,False,"[4, 3]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,5,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,8,29,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,5,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,8,30,enemy_reinforce_02_test_unit,False,"[6, 3]",,,,,False,,,,,,,,,,,,6,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,9,31,zhang_fei,True,"[4, 3]",-1000000,zhang_fei,3,1,True,False,False,"[2, 3]",75,zhang_fei,1,True,False,True,ally_reinforce_02_test_unit,False,8,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,9,32,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,9,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,9,33,enemy_reinforce_02_test_unit,True,"[6, 3]",,,,,False,,,"[4, 3]",,,,False,,,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,auto,2,10,34,zhang_fei,False,"[2, 3]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,9,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,10,35,enemy_reinforce_01_demo,False,"[3, 2]",,,,,False,,,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+none,auto,2,10,36,enemy_reinforce_02_test_unit,False,"[4, 3]",,,,,False,,,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+none,wait,1,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",-1000000,zhang_fei,1,True,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[5, 4]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[6, 4]",-1000000,,0,False,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,True,False,False,"[7, 5]",-1000000,zhang_fei,1,True,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,3,9,xiahou_dun,True,"[5, 4]",-1000000,,2,0,False,False,False,"[5, 6]",341,jeong_dojeon,2,True,True,True,jeong_dojeon,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,1,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,4,12,guan_yu,True,"[6, 4]",-1000000,,3,0,False,False,False,"[4, 5]",268,gwon_yul,1,True,True,True,gwon_yul,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,1,4,13,zhang_fei,True,"[7, 5]",-1000000,zhang_fei,3,1,True,False,False,"[5, 4]",-1000000,zhang_fei,1,True,False,False,,False,4,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,4,14,xiahou_dun,False,"[5, 6]",521,gwon_yul,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,wait,1,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,5,17,guan_yu,True,"[4, 5]",-1000000,,3,0,False,False,False,"[3, 7]",476,yi_sunsin,3,True,True,True,yi_sunsin,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,1,5,18,zhang_fei,True,"[5, 4]",-1000000,zhang_fei,3,1,False,False,False,"[4, 6]",-1000000,zhang_fei,1,False,False,False,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,5,19,xiahou_dun,True,"[5, 6]",-1000000,,2,0,False,False,False,"[4, 8]",-1000000,yi_sunsin,1,False,False,False,yi_sunsin,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,wait,1,5,20,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,1,6,22,guan_yu,False,"[3, 7]",448,yi_sunsin,3,2,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,wait,1,6,23,zhang_fei,True,"[4, 6]",-1000000,zhang_fei,3,1,False,False,False,"[1, 6]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_02_test_unit,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,wait,1,6,24,xiahou_dun,True,"[4, 8]",-1000000,,2,0,False,False,False,"[1, 8]",341,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used,True
+none,wait,2,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",-1000000,zhang_fei,1,True,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[5, 4]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[6, 4]",-1000000,,0,False,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,True,False,False,"[7, 5]",-1000000,zhang_fei,1,True,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,3,9,xiahou_dun,True,"[5, 4]",-1000000,,2,0,False,False,False,"[5, 6]",341,jeong_dojeon,2,True,True,True,jeong_dojeon,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,2,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,4,12,guan_yu,True,"[6, 4]",-1000000,,3,0,False,False,False,"[4, 5]",268,gwon_yul,1,True,True,True,gwon_yul,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,2,4,13,zhang_fei,True,"[7, 5]",-1000000,zhang_fei,3,1,True,False,False,"[5, 4]",-1000000,zhang_fei,1,True,False,False,,False,4,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,4,14,xiahou_dun,False,"[5, 6]",521,gwon_yul,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,wait,2,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,5,17,guan_yu,True,"[4, 5]",-1000000,,3,0,False,False,False,"[3, 7]",476,yi_sunsin,3,True,True,True,yi_sunsin,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+none,wait,2,5,18,zhang_fei,True,"[5, 4]",-1000000,zhang_fei,3,1,False,False,False,"[4, 6]",-1000000,zhang_fei,1,False,False,False,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,5,19,xiahou_dun,True,"[5, 6]",-1000000,,2,0,False,False,False,"[4, 8]",-1000000,yi_sunsin,1,False,False,False,yi_sunsin,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,wait,2,5,20,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+none,wait,2,6,22,guan_yu,False,"[3, 7]",448,yi_sunsin,3,2,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+none,wait,2,6,23,zhang_fei,True,"[4, 6]",-1000000,zhang_fei,3,1,False,False,False,"[1, 6]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_02_test_unit,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+none,wait,2,6,24,xiahou_dun,True,"[4, 8]",-1000000,,2,0,False,False,False,"[1, 8]",341,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used,True
+mid,auto,1,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",75,zhang_fei,1,True,False,True,,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[6, 4]",-1000000,jeong_dojeon,1,False,False,False,jeong_dojeon,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[4, 2]",268,gwon_yul,2,True,True,True,gwon_yul,False,3,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,3,8,zhang_fei,True,"[6, 3]",240,zhang_fei,3,1,True,True,True,"[5, 3]",240,zhang_fei,1,True,True,True,jeong_dojeon,False,4,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,3,9,xiahou_dun,False,"[6, 4]",521,jeong_dojeon,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,4,12,guan_yu,False,"[4, 2]",-1000000,gwon_yul,3,3,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+mid,auto,1,4,13,zhang_fei,False,"[5, 3]",240,zhang_fei,3,1,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,4,14,xiahou_dun,True,"[6, 4]",-1000000,,2,0,False,False,False,"[4, 4]",-1000000,gwon_yul,2,False,False,False,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,gwon_yul,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,5,17,guan_yu,False,"[4, 2]",448,gwon_yul,3,3,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,5,18,zhang_fei,True,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,"[4, 3]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,5,19,xiahou_dun,True,"[4, 4]",-1000000,ally_reinforce_01_demo,2,1,False,False,False,"[3, 4]",-1000000,yi_sunsin,2,False,False,False,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,5,20,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+mid,auto,1,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,6,22,zhang_fei,False,"[4, 3]",240,zhang_fei,3,1,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_action_completed,False
+mid,auto,1,6,23,xiahou_dun,False,"[3, 4]",521,ally_reinforce_01_demo,2,2,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,6,24,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+mid,auto,1,6,25,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,7,26,zhang_fei,True,"[4, 3]",-1000000,zhang_fei,3,1,False,False,False,"[3, 3]",-1000000,zhang_fei,1,False,False,False,yi_sunsin,False,2,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,7,27,xiahou_dun,False,"[3, 4]",357,yi_sunsin,2,1,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,1,7,28,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,ally_reinforce_02_test_unit,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,1,7,29,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,1,8,30,xiahou_dun,True,"[3, 4]",-1000000,,2,0,False,False,False,"[1, 4]",341,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used,True
+mid,auto,2,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",75,zhang_fei,1,True,False,True,,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[6, 4]",-1000000,jeong_dojeon,1,False,False,False,jeong_dojeon,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[4, 2]",268,gwon_yul,2,True,True,True,gwon_yul,False,3,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,3,8,zhang_fei,True,"[6, 3]",240,zhang_fei,3,1,True,True,True,"[5, 3]",240,zhang_fei,1,True,True,True,jeong_dojeon,False,4,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,3,9,xiahou_dun,False,"[6, 4]",521,jeong_dojeon,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,4,12,guan_yu,False,"[4, 2]",-1000000,gwon_yul,3,3,False,False,False,,,,,,,,,,2,enemy_actor_selected|enemy_action_completed,False
+mid,auto,2,4,13,zhang_fei,False,"[5, 3]",240,zhang_fei,3,1,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,4,14,xiahou_dun,True,"[6, 4]",-1000000,,2,0,False,False,False,"[4, 4]",-1000000,gwon_yul,2,False,False,False,gwon_yul,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,gwon_yul,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,5,17,guan_yu,False,"[4, 2]",448,gwon_yul,3,3,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,5,18,zhang_fei,True,"[5, 3]",-1000000,zhang_fei,3,1,False,False,False,"[4, 3]",-1000000,zhang_fei,1,False,False,False,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,5,19,xiahou_dun,True,"[4, 4]",-1000000,ally_reinforce_01_demo,2,1,False,False,False,"[3, 4]",-1000000,yi_sunsin,2,False,False,False,ally_reinforce_01_demo,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,5,20,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,1,enemy_actor_selected|enemy_action_completed,False
+mid,auto,2,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,6,22,zhang_fei,False,"[4, 3]",240,zhang_fei,3,1,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_action_completed,False
+mid,auto,2,6,23,xiahou_dun,False,"[3, 4]",521,ally_reinforce_01_demo,2,2,True,True,True,,,,,,,,,,3,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,6,24,enemy_reinforce_01_demo,False,"[5, 1]",,,,,False,,,,,,,,,,,,0,enemy_actor_selected|enemy_action_completed,False
+mid,auto,2,6,25,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,7,26,zhang_fei,True,"[4, 3]",-1000000,zhang_fei,3,1,False,False,False,"[3, 3]",-1000000,zhang_fei,1,False,False,False,yi_sunsin,False,2,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,7,27,xiahou_dun,False,"[3, 4]",357,yi_sunsin,2,1,True,True,True,,,,,,,,,,2,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,auto,2,7,28,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,ally_reinforce_02_test_unit,False,0,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,auto,2,7,29,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,auto,2,8,30,xiahou_dun,True,"[3, 4]",-1000000,,2,0,False,False,False,"[1, 4]",341,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,2,enemy_actor_selected|enemy_moved|enemy_skill_used,True
+mid,wait,1,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",-1000000,zhang_fei,1,True,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[5, 4]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[6, 4]",-1000000,,0,False,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,True,False,False,"[7, 5]",-1000000,zhang_fei,1,True,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,3,9,xiahou_dun,True,"[5, 4]",-1000000,,2,0,False,False,False,"[5, 6]",341,jeong_dojeon,2,True,True,True,jeong_dojeon,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,1,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,4,12,guan_yu,True,"[6, 4]",-1000000,,3,0,False,False,False,"[4, 5]",268,gwon_yul,1,True,True,True,gwon_yul,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,1,4,13,zhang_fei,True,"[7, 5]",-1000000,zhang_fei,3,1,True,False,False,"[5, 4]",-1000000,zhang_fei,1,True,False,False,,False,4,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,4,14,xiahou_dun,False,"[5, 6]",521,gwon_yul,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,wait,1,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,5,17,guan_yu,True,"[4, 5]",-1000000,,3,0,False,False,False,"[3, 7]",476,yi_sunsin,3,True,True,True,yi_sunsin,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,1,5,18,zhang_fei,True,"[5, 4]",-1000000,zhang_fei,3,1,False,False,False,"[4, 6]",-1000000,zhang_fei,1,False,False,False,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,5,19,xiahou_dun,True,"[5, 6]",-1000000,,2,0,False,False,False,"[4, 8]",-1000000,yi_sunsin,1,False,False,False,yi_sunsin,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,1,5,20,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,6,22,guan_yu,False,"[3, 7]",448,yi_sunsin,3,2,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_action_completed,False
+mid,wait,1,6,23,zhang_fei,True,"[4, 6]",-1000000,zhang_fei,3,1,True,False,False,"[1, 6]",75,zhang_fei,1,True,False,True,ally_reinforce_02_test_unit,False,5,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,1,6,24,xiahou_dun,False,"[4, 8]",521,yi_sunsin,2,1,True,True,True,,,,,,,,,,6,enemy_actor_selected|enemy_action_completed,False
+mid,wait,1,6,25,enemy_reinforce_01_demo,True,"[2, 1]",,,,,False,,,"[2, 4]",,,,False,,,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,6,26,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,7,27,guan_yu,True,"[3, 7]",268,ally_reinforce_02_test_unit,3,1,True,True,True,"[2, 7]",268,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,9,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,1,7,28,zhang_fei,False,"[1, 6]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+mid,wait,1,7,29,xiahou_dun,True,"[4, 8]",-1000000,,2,0,False,False,False,"[1, 8]",521,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,1,7,30,enemy_reinforce_01_demo,True,"[2, 4]",,,,,False,,,"[1, 5]",,,,False,,,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,1,7,31,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,,False,10,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,1,8,32,guan_yu,False,"[2, 7]",448,ally_reinforce_02_test_unit,3,1,True,True,True,,,,,,,,,,10,enemy_actor_selected|enemy_skill_used,True
+mid,wait,2,1,0,guan_yu,True,"[14, 2]",-1000000,,3,0,False,False,False,"[10, 2]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,1,1,zhang_fei,True,"[12, 3]",-1000000,zhang_fei,3,1,True,False,False,"[9, 3]",-1000000,zhang_fei,1,True,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,1,2,xiahou_dun,True,"[13, 4]",-1000000,,2,0,False,False,False,"[9, 4]",-1000000,,0,False,False,False,,False,3,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,2,3,guan_yu,True,"[10, 2]",-1000000,,3,0,False,False,False,"[6, 2]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,2,4,zhang_fei,True,"[9, 3]",-1000000,zhang_fei,3,1,True,False,False,"[6, 3]",-1000000,zhang_fei,1,True,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,2,5,xiahou_dun,True,"[9, 4]",-1000000,,2,0,False,False,False,"[5, 4]",-1000000,,0,False,False,False,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,2,6,enemy_reinforce_01_demo,True,"[14, 1]",,,,,False,,,"[11, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,3,7,guan_yu,True,"[6, 2]",-1000000,,3,0,False,False,False,"[6, 4]",-1000000,,0,False,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,3,8,zhang_fei,True,"[6, 3]",-1000000,zhang_fei,3,1,True,False,False,"[7, 5]",-1000000,zhang_fei,1,True,False,False,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,3,9,xiahou_dun,True,"[5, 4]",-1000000,,2,0,False,False,False,"[5, 6]",341,jeong_dojeon,2,True,True,True,jeong_dojeon,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,2,3,10,enemy_reinforce_01_demo,True,"[11, 1]",,,,,False,,,"[8, 1]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,3,11,enemy_reinforce_02_test_unit,True,"[16, 3]",,,,,False,,,"[14, 3]",,,,False,,,,False,5,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,4,12,guan_yu,True,"[6, 4]",-1000000,,3,0,False,False,False,"[4, 5]",268,gwon_yul,1,True,True,True,gwon_yul,False,7,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,2,4,13,zhang_fei,True,"[7, 5]",-1000000,zhang_fei,3,1,True,False,False,"[5, 4]",-1000000,zhang_fei,1,True,False,False,,False,4,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,4,14,xiahou_dun,False,"[5, 6]",521,gwon_yul,2,1,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_skill_used|enemy_action_completed,True
+mid,wait,2,4,15,enemy_reinforce_01_demo,True,"[8, 1]",,,,,False,,,"[5, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,4,16,enemy_reinforce_02_test_unit,True,"[14, 3]",,,,,False,,,"[12, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,5,17,guan_yu,True,"[4, 5]",-1000000,,3,0,False,False,False,"[3, 7]",476,yi_sunsin,3,True,True,True,yi_sunsin,False,4,enemy_actor_selected|enemy_moved|enemy_skill_used|enemy_action_completed,True
+mid,wait,2,5,18,zhang_fei,True,"[5, 4]",-1000000,zhang_fei,3,1,False,False,False,"[4, 6]",-1000000,zhang_fei,1,False,False,False,,False,1,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,5,19,xiahou_dun,True,"[5, 6]",-1000000,,2,0,False,False,False,"[4, 8]",-1000000,yi_sunsin,1,False,False,False,yi_sunsin,False,1,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,2,5,20,enemy_reinforce_01_demo,True,"[5, 1]",,,,,False,,,"[2, 1]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,5,21,enemy_reinforce_02_test_unit,True,"[12, 3]",,,,,False,,,"[10, 3]",,,,False,,,,False,2,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,6,22,guan_yu,False,"[3, 7]",448,yi_sunsin,3,2,True,True,True,,,,,,,,,,4,enemy_actor_selected|enemy_action_completed,False
+mid,wait,2,6,23,zhang_fei,True,"[4, 6]",-1000000,zhang_fei,3,1,True,False,False,"[1, 6]",75,zhang_fei,1,True,False,True,ally_reinforce_02_test_unit,False,5,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,2,6,24,xiahou_dun,False,"[4, 8]",521,yi_sunsin,2,1,True,True,True,,,,,,,,,,6,enemy_actor_selected|enemy_action_completed,False
+mid,wait,2,6,25,enemy_reinforce_01_demo,True,"[2, 1]",,,,,False,,,"[2, 4]",,,,False,,,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,6,26,enemy_reinforce_02_test_unit,True,"[10, 3]",,,,,False,,,"[8, 3]",,,,False,,,,False,7,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,7,27,guan_yu,True,"[3, 7]",268,ally_reinforce_02_test_unit,3,1,True,True,True,"[2, 7]",268,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,9,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,2,7,28,zhang_fei,False,"[1, 6]",75,zhang_fei,3,1,True,False,True,,,,,,,,,,10,enemy_actor_selected|enemy_action_completed,False
+mid,wait,2,7,29,xiahou_dun,True,"[4, 8]",-1000000,,2,0,False,False,False,"[1, 8]",521,ally_reinforce_02_test_unit,1,True,True,True,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,2,7,30,enemy_reinforce_01_demo,True,"[2, 4]",,,,,False,,,"[1, 5]",,,,False,,,ally_reinforce_02_test_unit,False,10,enemy_actor_selected|enemy_moved|enemy_action_completed,False
+mid,wait,2,7,31,enemy_reinforce_02_test_unit,True,"[8, 3]",,,,,False,,,"[6, 3]",,,,False,,,,False,10,enemy_actor_selected|enemy_moved|enemy_waited|enemy_action_completed,False
+mid,wait,2,8,32,guan_yu,False,"[2, 7]",448,ally_reinforce_02_test_unit,3,1,True,True,True,,,,,,,,,,10,enemy_actor_selected|enemy_skill_used,True
