@@ -897,6 +897,7 @@ var enemy_ai_level := "low" # Applied level. Not in the resume snapshot.
 var enemy_ai_level_applied := false # False until a level is applied; until then the three flags are left alone.
 var _pending_enemy_ai_level := "" # Set by set_enemy_ai_level; applied at the next enemy turn start ("" = none).
 var auto_presentation_hold := false # S4-3: while true the full auto tick does nothing (the 3D presentation is running). Not in the resume snapshot.
+var auto_presentation_latch := false # F2: while true every auto step re-arms the hold at its start (one release = one step). Off until the 3D sends a hold. Not in the resume snapshot.
 var combat_query_service := BattleCombatQueryServiceScript.new()
 var damage_formula_service := BattleDamageFormulaServiceScript.new()
 var action_lock_state_service := BattleActionLockStateServiceScript.new()
@@ -1604,7 +1605,10 @@ func _apply_pending_enemy_ai_level() -> void:
 
 func set_auto_presentation_hold(hold: bool) -> void:
 	# S4-3: the 3D holds the full auto tick while its presentation runs. Releasing resumes a blocked tick.
+	# F2: the first hold turns the step latch on; it lives as long as this engine node (the 3D owns it).
 	var was_holding := auto_presentation_hold
+	if hold:
+		auto_presentation_latch = true
 	auto_presentation_hold = hold
 	if was_holding and not hold and is_full_auto_battle_enabled and current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		call_deferred("_tick_full_auto_battle_if_needed")
@@ -13921,6 +13925,8 @@ func _tick_full_auto_battle_if_needed() -> void:
 		_stop_full_auto_battle("행동 가능한 아군 없음")
 		return
 	auto_battle_step_count += 1
+	if auto_presentation_latch:
+		auto_presentation_hold = true # F2: the next step waits for the 3D, even if this one ends inside this frame
 	_run_auto_action_for_active_ally_once()
 
 

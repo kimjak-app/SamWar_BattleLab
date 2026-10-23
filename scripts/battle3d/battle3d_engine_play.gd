@@ -1425,9 +1425,12 @@ func _presentation_busy() -> bool:
 func _update_auto_hold(closing := false) -> void:
 	# M5-a2: hold the engine auto tick while the 3D presentation runs. Sent on a change only; always
 	# false when auto is off, the battle has a result, or the lab leaves the tree.
+	# F2: the engine re-arms the hold at every auto step (latch), so the value is also compared with
+	# the engine's own hold: a latched hold is released even when the last value sent was false.
 	if not is_instance_valid(engine): return
 	var hold: bool = not closing and engine.get("is_full_auto_battle_enabled") and battle_result.is_empty() and _presentation_busy()
-	if hold == auto_hold_sent: return
+	var engine_hold: bool = engine.get("auto_presentation_hold")
+	if hold == auto_hold_sent and hold == engine_hold: return
 	auto_hold_sent = hold
 	engine.call("set_auto_presentation_hold", hold)
 
