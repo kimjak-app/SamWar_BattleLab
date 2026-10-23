@@ -81,3 +81,29 @@
 
 - Linux에서 돌리지 않았다.
 - 사람이 직접 한 플레이는 없다(테스트·로그만).
+
+
+## 7. G0 — 이름 겹침 경고 한 줄 (김작 승인 후, 별도 커밋)
+
+- 승인: 김작 "G0 고쳐. 별도 커밋으로 const 한 줄만 지우고 검증기·영향 테스트 결과 보고해줘."
+- 커밋 `15cbc80` `fix(battle): drop the UnitTypeContract const that shadows its global class (G0)`
+- 변경: `scripts/battle/services/battle_attack_state_service.gd` 4번째 줄 `const UnitTypeContract = preload("res://scripts/battle/unit_type_contract.gd")` **1줄 삭제**(diff `1 deletion(-)`). 그 밖의 엔진·서비스 코드는 바꾸지 않았다.
+  - 이 파일의 `UnitTypeContract.can_move_after_attack`(32줄)·`get_post_attack_move_limit`(34줄)은 이제 전역 클래스(`unit_type_contract.gd`의 `class_name UnitTypeContract`)를 그대로 쓴다.
+- 사실 확인: 같은 이름의 const는 저장소 `scripts`·`tests`·`tools` 전체에서 이 한 줄뿐이었다(grep).
+
+### 7-1. 결과 (Windows)
+
+| 확인 | 결과 |
+|---|---|
+| `tools/validate_*.py` 전체 90개, 수정 전(`6835dcc` 분리 워크트리) vs 수정 후 | **결과 동일**(diff 0). 실패 9개는 수정 전과 같은 옛 검증기다(`hero_design_registry`, 컷인 오탐, T08 7개, ⑦에서 건드리지 않기로 한 것). 5병종 계열 `validate_five_unit_type_*` 4개, `validate_gunner_runtime_and_ai`, `validate_hero_five_unit_assignment`는 전후 모두 통과 |
+| CI 목록 validator 51개 | 모두 PASS |
+| 공격 상태 서비스 계열 | `test_battle_attack_state_service` 70 checks 통과(수정 전과 같은 70). `test_battle_attack_oracle_shard_1/2`, `test_battle_attack_event_parity` 통과 |
+| 공격을 쓰는 다른 테스트 | `test_battle3d_engine_attack_shard_1/2/3`·`_rejections`·`_sync`, `test_battle_enemy_turn_oracle_shard_1/2`, `test_battle_tactic_oracle_shard_1`, `test_battle_move_oracle_baseline`, `test_battle3d_skill_equivalence_shard_1` 모두 통과 |
+
+- 합계: 테스트 14개, validator 51개, 실패 0, 실행 전후 `git status`는 이 한 줄 변경만.
+- 원문 zip `evidence/g0/`
+
+### 7-2. 미확인
+
+- **Godot 경고가 사라지는지는 확인하지 못했다.** 수정 전에도 헤드리스 실행(`--editor --quit-after 2`, 공격 상태 테스트)의 출력에 그 경고가 나오지 않았다. 그래서 전후 비교가 안 된다. 에디터 화면(오류창)에서 직접 봐야 한다.
+- 사람이 직접 한 플레이는 없다.
