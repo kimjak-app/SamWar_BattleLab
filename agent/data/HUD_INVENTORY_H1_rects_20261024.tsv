@@ -1,0 +1,79 @@
+2D_HUD	ProductionHudRoot/TopHudRoot	Control	visible_in_tree=true	rect=497,20 920x100	end=1417,120
+2D_HUD	ProductionHudRoot/AllyRosterSideBanner	TextureRect	visible_in_tree=true	rect=347,123 60x126	end=407,249
+2D_HUD	ProductionHudRoot/EnemyRosterSideBanner	TextureRect	visible_in_tree=true	rect=1504,126 60x126	end=1564,252
+2D_HUD	ProductionHudRoot/AllyRosterHud	Panel	visible_in_tree=true	rect=54,150 270x524	end=324,674
+2D_HUD	ProductionHudRoot/EnemyRosterHud	Panel	visible_in_tree=true	rect=1595,156 270x524	end=1865,680
+2D_HUD	ProductionHudRoot/InteractionGuideHud	Panel	visible_in_tree=false	rect=459,828 842x66	end=1301,894
+2D_HUD	ProductionHudRoot/ActorComparisonHud	Panel	visible_in_tree=false	rect=536,888 842x160	end=1378,1048
+2D_HUD	ProductionHudRoot/GlobalCommandHud	Panel	visible_in_tree=false	rect=1457,826 442x76	end=1899,902
+2D_HUD	ProductionHudRoot/BattleLogHud	Panel	visible_in_tree=true	rect=39,793 262x262	end=301,1055
+2D_HUD	ProductionHudRoot/TooltipHud	Panel	visible_in_tree=false	rect=1457,744 442x70	end=1899,814
+2D_HUD	ProductionHudRoot/FacingSelectionHud	Control	visible_in_tree=false	rect=717,742 480x70	end=1197,812
+2D_HUD	ProductionHudRoot/BottomHudRoot	Control	visible_in_tree=false	rect=-12,240 0x0	end=-12,240
+2D_HUD	ProductionHudRoot/BattleSupplyHud	Control	visible_in_tree=false	rect=1580,830 290x220	end=1870,1050
+2D_HUD	ProductionHudRoot/CurrentActorInfoHud	Control	visible_in_tree=true	rect=451,825 1012x220	end=1463,1045
+2D_HUD	ProductionHudRoot/AllyRosterPortraitOnlyLayer	Control	visible_in_tree=false	rect=-3,2 0x0	end=-3,2
+2D_HUD	ProductionHudRoot/EnemyRosterPortraitOnlyLayer	Control	visible_in_tree=false	rect=-3,2 0x0	end=-3,2
+2D_BATTLEUI	BattleUI/TopBar	Panel	visible_in_tree=false	rect=48,24 1824x64	end=1872,88
+2D_BATTLEUI	BattleUI/T02BattleSupplyAnchor	Control	visible_in_tree=true	rect=0,0 1920x1080	end=1920,1080
+2D_BATTLEUI	BattleUI/LeftPanel	Panel	visible_in_tree=false	rect=24,132 228x744	end=252,876
+2D_BATTLEUI	BattleUI/RightPanel	Panel	visible_in_tree=false	rect=1674,279 234x623	end=1908,902
+2D_BATTLEUI	BattleUI/BattleMiniLogPanel	Panel	visible_in_tree=false	rect=2,876 262x184	end=264,1060
+2D_BATTLEUI	BattleUI/FormationSlotGuideLayer	Control	visible_in_tree=false	rect=-22,0 1920x1080	end=1898,1080
+2D_BATTLEUI	BattleUI/CommandBar	Panel	visible_in_tree=true	rect=1337,-3 576x89	end=1913,86
+2D_BATTLEUI	BattleUI/FloatingAllyCommandPanel	Panel	visible_in_tree=false	rect=0,0 176x214	end=176,214
+2D_BATTLEUI	BattleUI/RoundToastRoot	Control	visible_in_tree=false	rect=0,0 1920x1080	end=1920,1080
+2D_BATTLEUI	BattleUI/UniqueSkillToastRoot	Control	visible_in_tree=false	rect=0,0 1920x1080	end=1920,1080
+2D_BATTLEUI	BattleUI/AllyFacingIndicator	Label	visible_in_tree=true	rect=700,313 60x59	end=760,373
+2D_BATTLEUI	BattleUI/EnemyFacingIndicator	Label	visible_in_tree=true	rect=1680,476 60x60	end=1740,536
+2D_BATTLEUI	BattleUI/AllySupportFacingIndicator	Label	visible_in_tree=true	rect=872,346 60x60	end=932,406
+2D_BATTLEUI	BattleUI/EnemySupportFacingIndicator	Label	visible_in_tree=true	rect=1507,444 60x59	end=1567,504
+2D_BATTLEUI	BattleUI/AllyMain03FacingIndicator	Label	visible_in_tree=true	rect=872,281 60x60	end=932,341
+2D_BATTLEUI	BattleUI/AllyReinforce01FacingIndicator	Label	visible_in_tree=false	rect=642,346 60x60	end=702,406
+2D_BATTLEUI	BattleUI/AllyReinforce02FacingIndicator	Label	visible_in_tree=false	rect=642,216 60x60	end=702,276
+2D_BATTLEUI	BattleUI/EnemyMain03FacingIndicator	Label	visible_in_tree=true	rect=1507,509 60x59	end=1567,569
+2D_BATTLEUI	BattleUI/EnemyReinforce01FacingIndicator	Label	visible_in_tree=false	rect=1738,444 60x59	end=1798,504
+2D_BATTLEUI	BattleUI/EnemyReinforce02FacingIndicator	Label	visible_in_tree=false	rect=1738,573 60x60	end=1798,633
+2D_BATTLEUI	BattleUI/AllyReadyFrame	Panel	visible_in_tree=false	rect=316,756 116x116	end=432,872
+2D_BATTLEUI	BattleUI/AllySupportReadyFrame	Panel	visible_in_tree=false	rect=529,644 116x116	end=645,760
+2D_BATTLEUI	BattleUI/AllyMain03ReadyFrame	Panel	visible_in_tree=false	rect=425,584 116x116	end=541,700
+2D_BATTLEUI	BattleUI/AllyReinforce01ReadyFrame	Panel	visible_in_tree=false	rect=314,912 116x116	end=430,1028
+2D_BATTLEUI	BattleUI/AllyReinforce02ReadyFrame	Panel	visible_in_tree=false	rect=139,720 116x116	end=255,836
+2D_BATTLEUI	BattleUI/UnitCloseupPanel	Panel	visible_in_tree=false	rect=0,103 236x176	end=236,279
+2D_BATTLEUI	BattleUI/FacingSelectionPanel	Panel	visible_in_tree=false	rect=720,878 480x102	end=1200,980
+2D_BATTLEUI	BattleUI/FacingArrowPanel	Control	visible_in_tree=false	rect=0,0 280x280	end=280,280
+2D_BATTLEUI	BattleUI/SkillCutinLayer	Control	visible_in_tree=false	rect=0,0 1920x1080	end=1920,1080
+2D_BATTLEUI	BattleUI/WorldMapResultReturnButton	Button	visible_in_tree=false	rect=850,942 220x42	end=1070,984
+2D_LAYER	EnemyRetreatToastLayer/EnemyRetreatToastRoot	Control	visible_in_tree=false	rect=0,0 440x104	end=440,104
+2D_LAYER	CutinOverlay/CutinBackdrop	ColorRect	visible_in_tree=false	rect=0,0 1152x720	end=1152,720
+2D_LAYER	CutinOverlay/CutinImage	TextureRect	visible_in_tree=false	rect=740,380 440x320	end=1180,700
+2D_LAYER	CutinOverlay/CutinNameLabel	Label	visible_in_tree=false	rect=810,668 300x48	end=1110,716
+2D_LAYER	CutinOverlay/CutinQuoteLabel	Label	visible_in_tree=false	rect=740,740 440x56	end=1180,796
+2D_LAYER	ResultOverlay/ResultBackdrop	ColorRect	visible_in_tree=false	rect=0,0 1152x720	end=1152,720
+2D_LAYER	ResultOverlay/VideoStreamPlayer_Result	VideoStreamPlayer	visible_in_tree=false	rect=192,144 768x432	end=960,576
+2D_LAYER	ResultOverlay/ResultImage	TextureRect	visible_in_tree=false	rect=740,370 440x340	end=1180,710
+2D_LAYER	ResultOverlay/ResultTitleLabel	Label	visible_in_tree=false	rect=852,716 216x72	end=1068,788
+2D_LAYER	HeroCutinOverlay/HeroCutinInputBlocker	Control	visible_in_tree=false	rect=0,0 1920x1080	end=1920,1080
+2D_LAYER	HeroCutinOverlay/HeroCutinViewport	Control	visible_in_tree=false	rect=384,216 1152x648	end=1536,864
+3D_LAB(layer 1)	@PanelContainer@49	PanelContainer	visible_in_tree=true	rect=22,20 470x185	end=492,205
+3D_LAB(layer 1)	@Label@55	Label	visible_in_tree=true	rect=24,710 936x49	end=960,759
+3D_LAB(layer 1)	lab.hover	Label	visible_in_tree=true	rect=24,680 1x23	end=25,703
+3D_LAB(layer 1)	lab.facing_ui	HBoxContainer	visible_in_tree=false	rect=24,300 316x31	end=340,331
+3D_LAB(layer 1)	lab.attack_button	Button	visible_in_tree=true	rect=24,254 160x38	end=184,292
+3D_LAB(layer 1)	lab.wait_button	Button	visible_in_tree=true	rect=194,254 110x38	end=304,292
+3D_LAB(layer 1)	lab.defend_button	Button	visible_in_tree=true	rect=314,254 110x38	end=424,292
+3D_LAB(layer 1)	lab.strategy_button	Button	visible_in_tree=true	rect=434,254 110x38	end=544,292
+3D_LAB(layer 1)	lab.skill_button	Button	visible_in_tree=true	rect=554,254 110x38	end=664,292
+3D_LAB(layer 1)	@PanelContainer@177	PanelContainer	visible_in_tree=true	rect=3446,20 370x66	end=3816,86
+3D_LAB(layer 1)	lab.turn_label	Label	visible_in_tree=true	rect=770,126 373x31	end=1143,157
+3D_LAB(layer 1)	lab.momentum_label	Label	visible_in_tree=true	rect=890,159 134x24	end=1024,183
+3D_LAB(layer 1)	lab.roster_label	Label	visible_in_tree=true	rect=1526,830 370x151	end=1896,981
+3D_LAB(layer 1)	lab.result_overlay	Label	visible_in_tree=false	rect=0,0 1920x1080	end=1920,1080
+3D_LAB(layer 1)	lab.auto_button	Button	visible_in_tree=true	rect=600,300 150x38	end=750,338
+3D_LAB(layer 1)	lab.speed_button	Button	visible_in_tree=true	rect=760,300 110x38	end=870,338
+3D_LAB(layer 1)	@VBoxContainer@190	VBoxContainer	visible_in_tree=true	rect=1690,16 210x95	end=1900,111
+3D_LAB_CHILD	lab.option_toggle	Button	visible_in_tree=true	rect=1690,16 210x31	end=1900,47
+3D_LAB_CHILD	lab.option_panel	VBoxContainer	visible_in_tree=true	rect=1690,51 210x60	end=1900,111
+3D_SHELL(layer 10)	shell.start_panel	VBoxContainer	visible_in_tree=false	rect=500,260 494x149	end=994,409
+3D_SHELL(layer 10)	shell.result_panel	VBoxContainer	visible_in_tree=false	rect=470,470 0x0	end=470,470
+3D_TOPHUD	frame	rect=[P: (497.0, 20.0), S: (920.0, 100.0)]
