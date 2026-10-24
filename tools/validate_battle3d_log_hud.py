@@ -17,7 +17,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "2b082703f9f43dffe16b9720fac2fb28b477fa3e"  # docs(battle3d): H1 inventory of the 2D HUD for the 3D port (read only)
-TIP = os.environ.get("LOG_HUD_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("LOG_HUD_SCOPE_TIP", "85cdbf193e26307ac509803cfb58b7b058a5573b")  # feat(battle3d): HUD block 2 ...
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SCENE = "scenes/battle3d/Battle3D_LogHud.tscn"
