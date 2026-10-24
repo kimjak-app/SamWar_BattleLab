@@ -100,6 +100,7 @@ jobs:
             tools/validate_battle_s1_2_ally_move_state_service.py
             tools/validate_battle3d_hud_spike_top.py
             tools/validate_battle3d_hud_label_move.py
+            tools/validate_battle3d_log_hud.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
             tools/validate_battle3d_m3_enemy_turn.py
@@ -240,6 +241,7 @@ jobs:
             tests/scripts/test_battle3d_scenario_gaps.gd
             tests/scripts/test_battle3d_option_strategy_gaps.gd
             tests/scripts/test_battle3d_top_hud.gd
+            tests/scripts/test_battle3d_log_hud.gd
             tests/scripts/test_battle_roster_ready_icon.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd

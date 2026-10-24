@@ -120,6 +120,13 @@ var result_overlay: Label
 var actor_ring: MeshInstance3D
 var action_badges := Node3D.new()
 
+func read_battle_log_lines() -> Array:
+	# NIGHT7 HUD block 2: the one approved new engine read (2D log text, engine
+	# `battle_log_lines`, at most four lines). A copy, so a reader can never change
+	# the engine's array; no engine command.
+	var lines = engine.get("battle_log_lines")
+	return [] if lines == null else (lines as Array).duplicate()
+
 func _ready() -> void:
 	# Reuse original terrain, models, formation, camera and lighting without fixtures.
 	port.units.clear()

@@ -34,6 +34,11 @@ var lab_count := 0
 # reaches under the labels they shift right of it (same gap).
 const LAB_LABEL_GAP := 6.0 # below the HUD frame
 var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
+# HUD block 2: the 2D battle log panel (layer 5). Its lines come from one place,
+# `log_lines()`: the lab's read of the engine's 2D log (shown at once, not held
+# back for the 3D replay). Shown and hidden with the top HUD, like the 2D.
+const LOG_HUD_SCENE := "res://scenes/battle3d/Battle3D_LogHud.tscn"
+var log_hud # Battle3D_LogHud.tscn (CanvasLayer with battle3d_log_hud.gd)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -43,6 +48,9 @@ func _ready() -> void:
 	top_hud.visible = false
 	top_hud.refresh = _refresh_top_hud
 	add_child(top_hud)
+	log_hud = load(LOG_HUD_SCENE).instantiate()
+	log_hud.visible = false
+	add_child(log_hud)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -130,7 +138,13 @@ func _refresh_top_hud() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input and lab.battle_result.is_empty() and not lab.momentum_display.is_empty()
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
+	log_hud.visible = live
+	if live: log_hud.show_lines(log_lines())
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
+
+func log_lines() -> Array:
+	# The single source of the log panel's text.
+	return lab.read_battle_log_lines()
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
