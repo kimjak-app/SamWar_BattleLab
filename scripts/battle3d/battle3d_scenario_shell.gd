@@ -34,6 +34,15 @@ var lab_count := 0
 # reaches under the labels they shift right of it (same gap).
 const LAB_LABEL_GAP := 6.0 # below the HUD frame
 var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
+# HUD block 1: the 2D top command buttons (option, speed, auto, end turn,
+# retreat) in the 2D row (layer 6). They call the lab's own functions only. The
+# lab's auto and speed buttons are moved off-screen (kept for the lab tests);
+# the lab's option box opens under the option button, closed by default.
+const TopCommands = preload("res://scripts/battle3d/battle3d_top_commands.gd")
+const LAB_OFFSCREEN_X := 4000.0
+const OPTION_BOX_GAP := 6.0 # below the command row
+var top_commands: CanvasLayer
+var commands_lab: Node = null # the lab whose controls were last moved
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -43,6 +52,14 @@ func _ready() -> void:
 	top_hud.visible = false
 	top_hud.refresh = _refresh_top_hud
 	add_child(top_hud)
+	top_commands = TopCommands.new()
+	top_commands.layer = 6
+	top_commands.visible = false
+	top_commands.on_option = toggle_option_box
+	top_commands.on_speed = func(): lab.cycle_speed()
+	top_commands.on_auto = func(): lab.request_auto()
+	top_commands.on_end_turn = func(): lab.request_wait()
+	add_child(top_commands)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -131,6 +148,32 @@ func _refresh_top_hud() -> void:
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
+	_refresh_top_commands()
+
+func _refresh_top_commands() -> void:
+	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input
+	top_commands.visible = live
+	if not live: return
+	if commands_lab != lab: _place_lab_commands()
+	var wait_tip: String = lab.wait_button.tooltip_text
+	top_commands.show_state(lab.engine.get("is_full_auto_battle_enabled"), lab.auto_button.disabled, lab.wait_button.disabled,
+		"턴 종료" if not lab.wait_button.disabled else wait_tip, int(lab.SPEED_STEPS[lab.speed_index]))
+
+func _place_lab_commands() -> void:
+	# The lab builds these once and never moves them again.
+	for button in [lab.auto_button, lab.speed_button]:
+		button.position.x = LAB_OFFSCREEN_X
+	var box: Control = lab.option_toggle.get_parent()
+	box.position = Vector2(top_commands.slot_rect(0).position.x, top_commands.slot_rect(0).end.y + OPTION_BOX_GAP)
+	box.visible = false
+	lab.option_toggle.visible = false # the option button replaces it
+	commands_lab = lab
+
+func toggle_option_box() -> void:
+	# Presentation only: opens/closes the lab's option box (never an engine command).
+	var box: Control = lab.option_toggle.get_parent()
+	box.visible = not box.visible
+	if box.visible and not lab.option_panel.visible: lab.toggle_option_panel()
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
