@@ -14,7 +14,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "150d179928a4b0d56d49d4ea9f1c9f6788427f1d"  # Merge feature/hud-read-proposals-20261024 (docs)
-TIP = os.environ.get("LAB_ROSTER_OFFSCREEN_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("LAB_ROSTER_OFFSCREEN_SCOPE_TIP", "80a647295febc6155e692113ee97e877f9cb74aa")  # feat(battle3d): move the lab debug unit list ...
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 TEST = "tests/scripts/test_battle3d_lab_roster_label_offscreen.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
