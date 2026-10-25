@@ -21,7 +21,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "4a57108cdc84c8ee0d8e022652c5d82b9404d1e1"  # Merge feature/test-strengthen-20261025 (base with block 4-1)
-TIP = os.environ.get("COMMAND_PANEL_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("COMMAND_PANEL_SCOPE_TIP", "717135a3d0f83354d65a1419c9f930998d6009c2")  # feat(battle3d): HUD block 4-2 floating command panel and facing arrows
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SCENE = "scenes/battle3d/Battle3D_CommandPanel.tscn"
