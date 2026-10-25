@@ -22,7 +22,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "4a57108cdc84c8ee0d8e022652c5d82b9404d1e1"  # Merge feature/test-strengthen-20261025 (base with block 4-1)
-TIP = os.environ.get("CUTIN_TOAST_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("CUTIN_TOAST_SCOPE_TIP", "27951f21e36665f7384fe1404b211c00cb7e78cc")  # feat(battle3d): HUD block 5 hero cut-in videos, battle toasts and ending video
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SCENE = "scenes/battle3d/Battle3D_CutinToastHud.tscn"
