@@ -298,11 +298,12 @@ func run() -> void:
 		var o := r.intersection(roster.roster_rect())
 		var o2 := r.intersection(actor_hud.panel_rect())
 		print("[ALLY_ACTOR] overlap ", pair[0], " ", r, " visible=", (pair[1] as Control).is_visible_in_tree(), " with roster ", o.size if o.has_area() else Vector2.ZERO, " with panel ", o2.size if o2.has_area() else Vector2.ZERO)
-	var wait_rect: Rect2 = lab.wait_button.get_global_rect()
-	var point := wait_rect.intersection(roster.roster_rect()).get_center()
-	h.expect(roster.roster_rect().has_point(point) and not lab.wait_button.disabled, "click point %s is on the roster and on the enabled [대기] %s" % [point, wait_rect])
-	var presses := [0]
-	lab.wait_button.pressed.connect(func(): presses[0] += 1)
+	# Block 4-2 moved the lab's buttons off screen (the command panel replaces them); the same roster
+	# point (once over the lab's [대기]) now lies over the 3D field, and a real click there must still
+	# pass through the roster to what is under it: the lab's world click (an off-board cell is rejected).
+	var point := Vector2(249, 273)
+	h.expect(roster.roster_rect().has_point(point) and not lab.wait_button.get_global_rect().intersects(root.get_visible_rect()), "click point %s is on the roster; the lab's [대기] is off screen %s" % [point, lab.wait_button.get_global_rect()])
+	var rejected_before: int = lab.rejected
 	mouse(root, point, false, true)
 	await process_frame
 	var hovered: Control = root.gui_get_hovered_control() if root.has_method("gui_get_hovered_control") else null
@@ -310,9 +311,8 @@ func run() -> void:
 	await process_frame
 	mouse(root, point, false)
 	await process_frame
-	h.expect(presses[0] == 1, "a real mouse click on the roster over [대기] presses the lab button (presses=%d, hovered=%s)" % [presses[0], hovered.name if hovered else "?"])
-	if hovered != null: h.expect(hovered == lab.wait_button, "the hovered control under the roster is the lab's [대기] (%s)" % hovered.name)
-	if presses[0] == 0: h.press_wait() # keep the rest of the test going
+	h.expect(hovered == null and lab.rejected == rejected_before + 1, "a real mouse click on the roster passes through to the lab's world click (hovered %s, lab rejections +%d)" % [hovered.name if hovered else "none", lab.rejected - rejected_before])
+	h.press_wait() # the wait that starts the enemy slot (the lab's own button path)
 	# Status rows and card status held during an enemy replay (the engine has finished its enemy turn first).
 	var waited := 0
 	while not (lab._enemy_presentation_busy() and b.current_phase != "enemy_turn") and waited < 2000:

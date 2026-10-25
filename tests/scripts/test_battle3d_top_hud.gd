@@ -106,6 +106,7 @@ func run() -> void:
 	# A wide info panel (as with a long status list): the labels move right of it.
 	# Test-only: the lab rewrites the info text every frame, so the width is forced instead, then restored.
 	var info_min: Vector2 = h.lab.info.custom_minimum_size
+	h.shell._lab_info_box().visible = true # block 4-2 hides the box; shown for this check only (a hidden container keeps its old size)
 	h.lab.info.custom_minimum_size.x = 820.0
 	for i in range(3): await process_frame
 	var wide_right: float = info_panel_rect().end.x
@@ -114,6 +115,8 @@ func run() -> void:
 		"wide info panel (right edge %s): labels shifted right of it %s %s" % [wide_right, h.lab.turn_label.get_global_rect(), str(wide_problems)])
 	h.lab.info.custom_minimum_size = info_min
 	for i in range(3): await process_frame
+	h.shell._lab_info_box().visible = false # hidden again once it is back to its normal size
+	await process_frame
 	h.expect(is_equal_approx(h.lab.turn_label.get_global_rect().get_center().x, hud.frame_rect().get_center().x), "info panel back to normal: labels centred again")
 	# The lab's original place (centre top) is under the HUD: the shell moved them.
 	h.expect(not hud.frame_rect().intersects(h.lab.turn_label.get_global_rect()) and h.lab.turn_label.text.begins_with("라운드 1 · 아군 턴"), "turn label moved off the HUD, text unchanged '%s'" % h.lab.turn_label.text)
