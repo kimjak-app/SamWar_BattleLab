@@ -48,6 +48,12 @@ var commands_lab: Node = null # the lab whose controls were last moved
 # back for the 3D replay). Shown and hidden with the top HUD, like the 2D.
 const LOG_HUD_SCENE := "res://scenes/battle3d/Battle3D_LogHud.tscn"
 var log_hud # Battle3D_LogHud.tscn (CanvasLayer with battle3d_log_hud.gd)
+# HUD block 3: the 2D enemy roster (layer 5). The cards are built in one place,
+# `enemy_cards()`, from the lab's values (views, display_values, enemy_actor_id)
+# and the lab's four approved reads (hud_display_name, hud_portrait,
+# hud_troop_icon, hud_status_summary). Shown and hidden with the top HUD.
+const ENEMY_ROSTER_SCENE := "res://scenes/battle3d/Battle3D_EnemyRosterHud.tscn"
+var enemy_roster # Battle3D_EnemyRosterHud.tscn (CanvasLayer with battle3d_enemy_roster_hud.gd)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -68,6 +74,9 @@ func _ready() -> void:
 	log_hud = load(LOG_HUD_SCENE).instantiate()
 	log_hud.visible = false
 	add_child(log_hud)
+	enemy_roster = load(ENEMY_ROSTER_SCENE).instantiate()
+	enemy_roster.visible = false
+	add_child(enemy_roster)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -157,6 +166,8 @@ func _refresh_top_hud() -> void:
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
 	log_hud.visible = live
 	if live: log_hud.show_lines(log_lines())
+	enemy_roster.visible = live
+	if live: enemy_roster.show_cards(enemy_cards())
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
 	_refresh_top_commands()
 
@@ -188,6 +199,17 @@ func toggle_option_box() -> void:
 func log_lines() -> Array:
 	# The single source of the log panel's text.
 	return lab.read_battle_log_lines()
+
+func enemy_cards() -> Array:
+	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown.
+	var cards := []
+	for id in lab.hud_enemy_unit_ids():
+		var value: Dictionary = lab.display_values.get(id, {})
+		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
+			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
+			"status":lab.hud_status_summary(id), "actor":id == lab.enemy_actor_id})
+	return cards
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
