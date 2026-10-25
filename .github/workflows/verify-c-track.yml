@@ -105,6 +105,7 @@ jobs:
             tools/validate_battle3d_top_buttons_plain.py
             tools/validate_battle3d_log_hud.py
             tools/validate_battle3d_enemy_roster.py
+            tools/validate_battle3d_ally_roster_actor.py
             tools/validate_battle3d_m1b_engine_move.py
             tools/validate_battle3d_m2_engine_attack.py
             tools/validate_battle3d_m3_enemy_turn.py
@@ -249,6 +250,7 @@ jobs:
             tests/scripts/test_battle3d_top_commands.gd
             tests/scripts/test_battle3d_log_hud.gd
             tests/scripts/test_battle3d_enemy_roster.gd
+            tests/scripts/test_battle3d_ally_roster_actor.gd
             tests/scripts/test_battle_roster_ready_icon.gd
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd

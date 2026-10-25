@@ -56,6 +56,18 @@ var log_hud # Battle3D_LogHud.tscn (CanvasLayer with battle3d_log_hud.gd)
 # hud_troop_icon, hud_status_summary). Shown and hidden with the top HUD.
 const ENEMY_ROSTER_SCENE := "res://scenes/battle3d/Battle3D_EnemyRosterHud.tscn"
 var enemy_roster # Battle3D_EnemyRosterHud.tscn (CanvasLayer with battle3d_enemy_roster_hud.gd)
+# HUD block 4-1: the 2D ally roster and current-actor panel (layer 5). The ally
+# cards are built in one place, `ally_cards()` (like `enemy_cards()`, plus the
+# ready icon from the lab's _can_use_unique_skill read and the gold frame on
+# the lab's hud_ally_actor_id), and the actor values in one place,
+# `current_actor()`: the engine's active unit, the lab's reads (N1-N3, N5, N6,
+# the unique skill) and the hero data reader (registry stats, profile, skill,
+# current-actor portrait). Shown and hidden with the top HUD.
+const ALLY_ROSTER_SCENE := "res://scenes/battle3d/Battle3D_AllyRosterHud.tscn"
+const CURRENT_ACTOR_SCENE := "res://scenes/battle3d/Battle3D_CurrentActorHud.tscn"
+const HeroData = preload("res://scripts/battle3d/battle3d_hero_data_reader.gd")
+var ally_roster # Battle3D_AllyRosterHud.tscn (CanvasLayer with battle3d_ally_roster_hud.gd)
+var actor_hud # Battle3D_CurrentActorHud.tscn (CanvasLayer with battle3d_current_actor_hud.gd)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -79,6 +91,12 @@ func _ready() -> void:
 	enemy_roster = load(ENEMY_ROSTER_SCENE).instantiate()
 	enemy_roster.visible = false
 	add_child(enemy_roster)
+	ally_roster = load(ALLY_ROSTER_SCENE).instantiate()
+	ally_roster.visible = false
+	add_child(ally_roster)
+	actor_hud = load(CURRENT_ACTOR_SCENE).instantiate()
+	actor_hud.visible = false
+	add_child(actor_hud)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -170,6 +188,10 @@ func _refresh_top_hud() -> void:
 	if live: log_hud.show_lines(log_lines())
 	enemy_roster.visible = live
 	if live: enemy_roster.show_cards(enemy_cards())
+	ally_roster.visible = live
+	if live: ally_roster.show_cards(ally_cards())
+	actor_hud.visible = live
+	if live: actor_hud.show_actor(current_actor())
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
 	_refresh_top_commands()
 
@@ -213,6 +235,49 @@ func enemy_cards() -> Array:
 			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
 			"status":lab.hud_status_summary(id), "actor":id == lab.enemy_actor_id})
 	return cards
+
+func ally_cards() -> Array:
+	# Card order = the engine's ally slot order; shown = the lab's own unit view is shown.
+	var cards := []
+	var actor: String = lab.hud_ally_actor_id()
+	for id in lab.hud_ally_unit_ids():
+		var value: Dictionary = lab.display_values.get(id, {})
+		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
+			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
+			"status":lab.hud_status_summary(id), "ready":lab.hud_skill_ready(id), "actor":id == actor})
+	return cards
+
+func current_actor() -> Dictionary:
+	# The 2D current-actor values (battle_current_actor_hud_controller.gd _sync_current_actor_info)
+	# for the engine's active unit; {} = none. The registry comes first, as in the 2D.
+	var id: String = lab.hud_active_unit_id()
+	if id.is_empty(): return {}
+	var value: Dictionary = lab.display_values.get(id, {})
+	var hero_id := HeroData.resolve_hero_id(lab.hud_hero_id(id), id)
+	var stats: Dictionary = HeroData.base_stats(hero_id).get("stats", {})
+	var unit_type := str(HeroData.battle_profile(hero_id).get("unit_type", value.get("unit_type", "")))
+	var skill := HeroData.unique_skill_for_hero(hero_id)
+	if skill.is_empty(): skill = lab.hud_unique_skill(id)
+	var portrait: Texture2D = HeroData.current_actor_portrait(hero_id)
+	if portrait == null: portrait = lab.hud_portrait(id)
+	var country := HeroData.portrait_country(hero_id)
+	var troop_icon: Texture2D = null if country.is_empty() else lab.hud_troop_icon_for_key("%s_%s" % [country, unit_type])
+	if troop_icon == null: troop_icon = lab.hud_troop_icon(id)
+	var rows := []
+	for entry in lab.hud_status_entries(id):
+		var summary := str(entry.get("summary", entry.get("label", "")))
+		if summary.contains("부상"): continue # hidden in the 2D panel
+		if rows.size() < 5: rows.append({"summary":str(entry.get("summary", entry.get("label", "상태"))), "tooltip":str(entry.get("tooltip", entry.get("description", summary)))})
+	return {"unit_id":id, "name":lab.hud_display_name(id), "type_name":lab.hud_unit_type_name(unit_type),
+		"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
+		"stats":[_stat(stats, "leadership"), _stat(stats, "martial"), _stat(stats, "intelligence")],
+		"skill_name":str(skill.get("display_name", skill.get("name", "고유특기"))), "skill_description":str(skill.get("description", skill.get("concept", ""))),
+		"portrait":portrait, "troop_icon":troop_icon, "ready":lab.hud_skill_ready(id), "status_rows":rows}
+
+static func _stat(stats: Dictionary, key: String) -> Variant:
+	# A registry stat as the 2D int; "-" when the registry has none (the unit-field fallback, N10, is not approved).
+	return int(stats[key]) if stats.has(key) else "-"
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.

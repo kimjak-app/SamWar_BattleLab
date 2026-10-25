@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle3d/battle3d_current_actor_hud.gd" id="current_actor_hud_script"]
+[ext_resource type="PackedScene" path="res://scenes/battle/ui/CurrentActorInfoHud.tscn" id="current_actor_info_hud"]
+
+[node name="Battle3DCurrentActorHud" type="CanvasLayer"]
+layer = 5
+script = ExtResource("current_actor_hud_script")
+
+[node name="ProductionHudRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -3.0
+offset_top = 2.0
+offset_right = 1917.0
+offset_bottom = 1082.0
+mouse_filter = 2
+
+[node name="CurrentActorInfoHud" parent="ProductionHudRoot" instance=ExtResource("current_actor_info_hud")]
