@@ -82,6 +82,25 @@ const FACING_OFFSETS := {"up":Vector2i(0, -1), "down":Vector2i(0, 1), "left":Vec
 const FACING_TEXT := {"up":"↑", "down":"↓", "left":"←", "right":"→"}
 var command_panel # Battle3D_CommandPanel.tscn (CanvasLayer with battle3d_command_panel.gd)
 
+# HUD block 5: the 2D hero cut-in, battle toasts, still skill toast and ending
+# video (layers 8-9). The lab records each presented skill_cast and holds its
+# skill events while a cut-in plays (lab.hud_cutin_enabled); the shell plays the
+# registry's video for the caster (the cut-in reader; the hero id from the
+# lab's unique-skill read, the 2D owner match with N6) and releases the hold
+# once the cut-in schedule ended and the cast's next event has arrived. Rounds
+# and arrivals come from the lab's own event reads; the ending video plays
+# before the result panel.
+const CUTIN_TOAST_SCENE := "res://scenes/battle3d/Battle3D_CutinToastHud.tscn"
+const CutinReader = preload("res://scripts/battle3d/battle3d_cutin_reader.gd")
+const CUTIN_EVENT_WAIT_SEC := 8.0 # after the cut-in schedule, the longest wait for the cast's next event (then released anyway)
+var cutin_hud # Battle3D_CutinToastHud.tscn (Node with battle3d_cutin_toast_hud.gd)
+var cast_cursor := 0
+var toasted_round := 0
+var arrival_cursor := 0
+var toasted_arrival_rounds := {}
+var ending_started := false
+var cutin_log: Array = [] # per cast: {caster, skill_id, route ("video"/"still"), owner}
+
 func _ready() -> void:
 	layer = CanvasLayer.new()
 	layer.layer = 10 # above the lab's own UI layers
@@ -118,6 +137,9 @@ func _ready() -> void:
 	command_panel.on_wait = func(): lab.request_wait()
 	command_panel.on_facing = func(direction: String): lab.confirm_facing(direction)
 	add_child(command_panel)
+	cutin_hud = load(CUTIN_TOAST_SCENE).instantiate()
+	cutin_hud.on_ending_done = _on_ending_done
+	add_child(cutin_hud)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -172,6 +194,7 @@ func start_scenario(id: String) -> void:
 	var setup := scenario_setup(id)
 	if not setup.is_empty(): Engine.set_meta(SETUP_KEY, setup) # read and removed by the engine in its _ready
 	lab = create_lab()
+	lab.hud_cutin_enabled = true
 	add_child(lab)
 	lab_count += 1
 	start_panel.visible = false
@@ -187,6 +210,13 @@ func choose_scenario() -> void:
 	start_panel.visible = true
 
 func _close_lab() -> void:
+	if cutin_hud != null: cutin_hud.reset()
+	cast_cursor = 0
+	toasted_round = 0
+	arrival_cursor = 0
+	toasted_arrival_rounds.clear()
+	ending_started = false
+	cutin_log.clear()
 	if Engine.has_meta(SETUP_KEY): Engine.remove_meta(SETUP_KEY) # never left for the next battle
 	if lab == null or not is_instance_valid(lab): return
 	var grid = lab.queries.grid # the engine's ISO grid projection lives outside the tree
@@ -198,7 +228,8 @@ func _close_lab() -> void:
 func _process(_delta: float) -> void:
 	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input or result_panel.visible: return
 	if lab.battle_result.is_empty() or lab._enemy_presentation_busy(): return
-	_show_result()
+	if lab.hud_cutin_hold or not lab.hud_held_skill_events.is_empty(): return # block 5: the last cut-in and its effects first
+	_begin_ending()
 
 func _refresh_top_hud() -> void:
 	# Like the 2D HUD: shown during the battle, hidden once the battle has a result.
@@ -217,6 +248,7 @@ func _refresh_top_hud() -> void:
 	_refresh_top_commands()
 	command_panel.visible = live
 	if live: command_panel.show_state(command_state())
+	_refresh_cutin_toasts()
 
 func _refresh_top_commands() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input
@@ -346,6 +378,56 @@ func _lab_info_box() -> Control:
 	var info_panel: Control = lab.info
 	while not info_panel.get_parent() is CanvasLayer: info_panel = info_panel.get_parent()
 	return info_panel
+
+func _refresh_cutin_toasts() -> void:
+	# Toasts from the lab's rounds and arrivals; one cut-in at a time for the lab's recorded casts.
+	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input: return
+	if not lab.battle_result.is_empty(): cutin_hud.result_finalized = true
+	if lab.current_round != toasted_round:
+		toasted_round = lab.current_round
+		cutin_hud.toast_round(toasted_round)
+	while arrival_cursor < lab.arrival_presentations.size():
+		var arrival: Dictionary = lab.arrival_presentations[arrival_cursor]
+		arrival_cursor += 1
+		if not toasted_arrival_rounds.has(arrival.round): # one toast per arriving round, as the 2D deploys a pair at once
+			toasted_arrival_rounds[arrival.round] = true
+			cutin_hud.toast_reinforcement()
+	if cutin_hud.cutin_playing:
+		var next_event_arrived: bool = not lab.hud_held_skill_events.is_empty()
+		if cutin_hud.cutin_tween_done and (next_event_arrived or cutin_hud.cutin_seconds() > CUTIN_EVENT_WAIT_SEC):
+			cutin_hud.end_cutin()
+			lab.hud_release_cutin_hold()
+		return
+	if cast_cursor < lab.hud_skill_casts.size():
+		var cast: Dictionary = lab.hud_skill_casts[cast_cursor]
+		cast_cursor += 1
+		_start_cutin(cast)
+
+func _start_cutin(cast: Dictionary) -> void:
+	# The 2D _play_committed_hero_cutin route: caster and skill owner must be the same hero; the registry entry's
+	# video when there is one, else the still toast (released at once, like the 2D toast that does not block).
+	var skill: Dictionary = lab.hud_unique_skill(cast.caster_id)
+	var caster_hero: String = CutinReader.canonical_hero(lab.hud_hero_id(cast.caster_id))
+	var owner: String = CutinReader.canonical_hero(str(skill.get("hero_id", lab.hud_hero_id(cast.caster_id))))
+	var entry: Dictionary = CutinReader.entry_for(owner, cast.skill_id) if owner == caster_hero else {}
+	var route := "video" if not entry.is_empty() and cutin_hud.play_cutin(entry, 1.0 / Engine.time_scale) else "still"
+	cutin_log.append({"caster":cast.caster_id, "skill_id":cast.skill_id, "route":route, "owner":owner, "caster_hero":caster_hero})
+	if route == "video": return
+	var image := CutinReader.fallback_image(owner, cast.skill_id)
+	cutin_hud.show_still_toast(load(image) if image != "" else null, str(skill.get("toast_text", "%s!" % str(skill.get("name", "고유특기")))), cast.get("side", "") == "enemy")
+	lab.hud_release_cutin_hold()
+
+func _begin_ending() -> void:
+	# The 2D order: the ending video, then the result toast; here also the shell's result panel.
+	if ending_started: return
+	ending_started = true
+	cutin_hud.result_finalized = true
+	if not cutin_hud.play_ending(lab.battle_result): _on_ending_done(lab.battle_result)
+
+func _on_ending_done(state: String) -> void:
+	if lab == null or not is_instance_valid(lab) or result_panel.visible: return
+	_show_result()
+	if state in ["victory", "defeat"]: cutin_hud.toast_end(state == "victory")
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
