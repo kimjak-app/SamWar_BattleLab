@@ -22,7 +22,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "2b082703f9f43dffe16b9720fac2fb28b477fa3e"  # docs(battle3d): H1 inventory of the 2D HUD for the 3D port (read only)
-TIP = os.environ.get("ENEMY_ROSTER_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("ENEMY_ROSTER_SCOPE_TIP", "84c655825325e94b920c704043354e9b17f3f35e")  # feat(battle3d): HUD block 3 ...
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SCENE = "scenes/battle3d/Battle3D_EnemyRosterHud.tscn"
