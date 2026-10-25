@@ -10,7 +10,9 @@ extends SceneTree
 #     same engine function as the 2D [턴 종료]); with no active ally the lab and
 #     the engine both do nothing;
 #   retreat -> disabled, no handler: a click changes nothing.
-# Also: the row's rects and the 2D textures, the lab's auto/speed buttons moved
+# Also: the row's rects; all five one plain text-button style (polish 1-B, the 2D
+# round icons not used), each text fitting 68x68, retreat visibly dimmed, auto
+# lit (brighter gold border and text) while on; the lab's auto/speed buttons moved
 # off-screen (still pressable by the lab tests), the row hidden on the start screen.
 var h
 var cmd
@@ -66,8 +68,20 @@ func run() -> void:
 	var xs := [1435, 1521, 1607, 1693, 1779]
 	for i in range(5):
 		h.expect(cmd.visible and buttons[i].is_visible_in_tree() and buttons[i].get_global_rect() == Rect2(xs[i], 27, 68, 68), "button %d at %d,27 68x68: %s" % [i, xs[i], buttons[i].get_global_rect()])
-	h.expect(cmd.auto_button.texture_normal.resource_path == "res://assets/ui/battle/top_actions/auto_battle_button.png" and cmd.end_turn_button.texture_normal.resource_path == "res://assets/ui/battle/top_actions/end_turn_button.png" \
-		and cmd.retreat_button.texture_normal.resource_path == "res://assets/ui/battle/top_actions/retreat_button.png" and cmd.retreat_button.texture_disabled == cmd.retreat_button.texture_normal, "2D top-action textures; disabled looks the same")
+	# Polish 1-B (Kim, 10-25): all five are the same plain text-button style; the 2D round icons are not used.
+	var texts := buttons.map(func(x): return x.text)
+	h.expect(texts == ["옵션", "속도\n×1", "자동\n전투", "턴 종료", "후퇴"] and buttons.all(func(x): return x is Button and not x is TextureButton and x.icon == null), "five text buttons, no 2D picture %s" % str(texts))
+	var border0: Color = (buttons[0].get_theme_stylebox("normal") as StyleBoxFlat).border_color
+	h.expect(buttons.all(func(x): return x.get_theme_stylebox("normal") is StyleBoxFlat and (x.get_theme_stylebox("normal") as StyleBoxFlat).border_color == border0), "one style for all five (same frame and border)")
+	for x in buttons:
+		var font: Font = x.get_theme_font("font")
+		var style: StyleBox = x.get_theme_stylebox("normal")
+		var need: Vector2 = font.get_multiline_string_size(x.text, HORIZONTAL_ALIGNMENT_CENTER, -1, x.get_theme_font_size("font_size")) + Vector2(style.get_margin(SIDE_LEFT) + style.get_margin(SIDE_RIGHT), style.get_margin(SIDE_TOP) + style.get_margin(SIDE_BOTTOM))
+		h.expect(need.x <= 68.0 and need.y <= 68.0 and x.size == Vector2(68, 68), "'%s' fits in 68x68 (needs %s)" % [x.text.replace("\n", "/"), need])
+		print("[TOP_COMMANDS] text size ", x.text.replace("\n", "/"), " needs ", need)
+	var dis: StyleBoxFlat = cmd.retreat_button.get_theme_stylebox("disabled")
+	h.expect(cmd.retreat_button.disabled and dis.border_color.a < border0.a and dis.border_color.v < border0.v and cmd.retreat_button.get_theme_color("font_disabled_color").v < cmd.retreat_button.get_theme_color("font_color").v,
+		"retreat disabled is dimmed (border %s vs %s, text darker)" % [dis.border_color, border0])
 	var screen := Rect2(0, 0, 1920, 1080)
 	h.expect(not screen.intersects(lab.auto_button.get_global_rect()) and not screen.intersects(lab.speed_button.get_global_rect()), "lab auto/speed moved off-screen %s %s" % [lab.auto_button.get_global_rect(), lab.speed_button.get_global_rect()])
 	var box: Control = lab.option_toggle.get_parent()
@@ -119,10 +133,10 @@ func run() -> void:
 	# Auto: on (one toggle), tooltip like 2D, then off.
 	writes_before = b.writes.duplicate()
 	await click(cmd.auto_button)
-	h.expect(b.is_full_auto_battle_enabled and b.writes.slice(writes_before.size()) == ["_toggle_full_auto_battle"] and cmd.auto_button.tooltip_text == "자동중지" and not cmd.auto_button.disabled, "auto click: engine full auto on, tooltip 자동중지")
+	h.expect(b.is_full_auto_battle_enabled and b.writes.slice(writes_before.size()) == ["_toggle_full_auto_battle"] and cmd.auto_button.tooltip_text == "자동중지" and not cmd.auto_button.disabled and (cmd.auto_button.get_theme_stylebox("normal") as StyleBoxFlat).border_color != border0 and cmd.auto_button.text == "자동\n전투", "auto click: engine full auto on, tooltip 자동중지")
 	for i in range(10): await process_frame
 	await click(cmd.auto_button)
-	h.expect(not b.is_full_auto_battle_enabled and b.writes.count("_toggle_full_auto_battle") == 2 and cmd.auto_button.tooltip_text == "자동전투", "second auto click: engine full auto off, tooltip 자동전투")
+	h.expect(not b.is_full_auto_battle_enabled and b.writes.count("_toggle_full_auto_battle") == 2 and cmd.auto_button.tooltip_text == "자동전투" and (cmd.auto_button.get_theme_stylebox("normal") as StyleBoxFlat).border_color == border0 and cmd.auto_button.text == "자동\n전투", "second auto click: engine full auto off, tooltip 자동전투")
 	# Lab's own (off-screen) buttons still work as before.
 	lab.speed_button.pressed.emit()
 	await process_frame
