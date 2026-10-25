@@ -72,6 +72,8 @@ func run() -> void:
 	var texts := buttons.map(func(x): return x.text)
 	h.expect(texts == ["옵션", "속도\n×1", "자동\n전투", "턴 종료", "후퇴"] and buttons.all(func(x): return x is Button and not x is TextureButton and x.icon == null), "five text buttons, no 2D picture %s" % str(texts))
 	var border0: Color = (buttons[0].get_theme_stylebox("normal") as StyleBoxFlat).border_color
+	var auto_text_colors := func() -> Array: return ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"].map(func(n): return cmd.auto_button.get_theme_color(n))
+	var text0: Array = auto_text_colors.call() # the auto button's text colors while off
 	h.expect(buttons.all(func(x): return x.get_theme_stylebox("normal") is StyleBoxFlat and (x.get_theme_stylebox("normal") as StyleBoxFlat).border_color == border0), "one style for all five (same frame and border)")
 	for x in buttons:
 		var font: Font = x.get_theme_font("font")
@@ -134,9 +136,11 @@ func run() -> void:
 	writes_before = b.writes.duplicate()
 	await click(cmd.auto_button)
 	h.expect(b.is_full_auto_battle_enabled and b.writes.slice(writes_before.size()) == ["_toggle_full_auto_battle"] and cmd.auto_button.tooltip_text == "자동중지" and not cmd.auto_button.disabled and (cmd.auto_button.get_theme_stylebox("normal") as StyleBoxFlat).border_color != border0 and cmd.auto_button.text == "자동\n전투", "auto click: engine full auto on, tooltip 자동중지")
+	h.expect(auto_text_colors.call().all(func(c): return not text0.has(c)), "auto on: every text color (normal/hover/pressed/focus) differs from the off colors %s / %s" % [auto_text_colors.call(), text0])
 	for i in range(10): await process_frame
 	await click(cmd.auto_button)
 	h.expect(not b.is_full_auto_battle_enabled and b.writes.count("_toggle_full_auto_battle") == 2 and cmd.auto_button.tooltip_text == "자동전투" and (cmd.auto_button.get_theme_stylebox("normal") as StyleBoxFlat).border_color == border0 and cmd.auto_button.text == "자동\n전투", "second auto click: engine full auto off, tooltip 자동전투")
+	h.expect(auto_text_colors.call() == text0, "auto off: the text colors are back to the off colors %s" % [auto_text_colors.call()])
 	# Lab's own (off-screen) buttons still work as before.
 	lab.speed_button.pressed.emit()
 	await process_frame

@@ -126,6 +126,21 @@ func run() -> void:
 	h.expect(not changed_early and held_frames > 0 and card_text(gi, "StatusLabel") == String(b.call("_get_formation_status_summary_text", g)),
 		"card status held for %d replay frames, then = engine '%s' (card '%s')" % [held_frames, b.call("_get_formation_status_summary_text", g), card_text(gi, "StatusLabel")])
 	print("[ENEMY_ROSTER] status hold: replay frames held=", held_frames, " old='", old_status, "' new='", card_text(gi, "StatusLabel"), "'")
+	# Redraw only on change: while nothing changes the roster is not re-applied; one value change re-applies it exactly once.
+	var settle := 0
+	while (lab._enemy_presentation_busy() or b.current_phase != "ally_turn") and settle < 2000:
+		await process_frame
+		settle += 1
+	for i in range(5): await process_frame
+	var applies: int = roster.apply_count
+	for i in range(20): await process_frame
+	h.expect(roster.apply_count == applies, "20 still frames: the roster is not re-applied (apply_count %d -> %d)" % [applies, roster.apply_count])
+	var still_status := card_text(gi, "StatusLabel")
+	g.apply_status_effect("burn", 3, 12) # test-only fixture write: one card value changes
+	var changed_status := String(b.call("_get_formation_status_summary_text", g))
+	for i in range(5): await process_frame
+	h.expect(changed_status != still_status and card_text(gi, "StatusLabel") == changed_status and roster.apply_count == applies + 1,
+		"one status change ('%s' -> '%s'): the roster is re-applied exactly once (apply_count %d -> %d)" % [still_status, changed_status, applies, roster.apply_count])
 	# Win practice with [자동]: every frame.
 	h.shell.choose_button.pressed.emit()
 	await process_frame
