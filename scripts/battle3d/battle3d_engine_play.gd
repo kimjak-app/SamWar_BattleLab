@@ -120,6 +120,58 @@ var result_overlay: Label
 var actor_ring: MeshInstance3D
 var action_badges := Node3D.new()
 
+# HUD block 3 (enemy roster): the four approved engine reads N1-N4, by unit_id
+# (no BattleUnitState leaves the lab). N2 is read once per unit, N3 again only
+# when the unit's facing changes, N4 only while no enemy replay is pending (the
+# status_display rule); the HUD gets values or shared textures, never commands.
+const HUD_UNIT_TYPE_NAMES := {"infantry":"보병", "cavalry":"기병", "archer":"궁병", "gunner":"총병", "mounted_archer":"기마궁병"} # battle_roster_hud_controller.gd _unit_type_name
+var hud_portraits := {} # unit_id -> Texture2D (N2)
+var hud_troop_icons := {} # unit_id -> [facing, Texture2D] (N3)
+var hud_status_texts := {} # unit_id -> String (N4)
+
+func hud_enemy_unit_ids() -> Array:
+	# Enemy units in the engine's slot order (all_battle_unit_states, an existing read).
+	var ids := []
+	for unit in engine.get("all_battle_unit_states"):
+		if unit.side == "enemy": ids.append(unit.unit_id)
+	return ids
+
+func _hud_unit(unit_id: String) -> BattleUnitState:
+	for unit in engine.get("all_battle_unit_states"):
+		if unit.unit_id == unit_id: return unit
+	return null
+
+func hud_display_name(unit_id: String) -> String:
+	# N1: the unit's display_name field (not added to Adapter.VIEW_FIELDS).
+	var unit := _hud_unit(unit_id)
+	return "" if unit == null else String(unit.display_name)
+
+func hud_portrait(unit_id: String) -> Texture2D:
+	# N2: engine _get_closeup_portrait_texture_for_unit, once per unit (it loads and fills the engine's texture cache).
+	if not hud_portraits.has(unit_id):
+		var unit := _hud_unit(unit_id)
+		hud_portraits[unit_id] = null if unit == null else engine.call("_get_closeup_portrait_texture_for_unit", unit)
+	return hud_portraits[unit_id]
+
+func hud_troop_icon(unit_id: String) -> Texture2D:
+	# N3: engine _get_troop_icon_texture_for_visual_key("", unit), again only when [unit_id, facing] changes.
+	var unit := _hud_unit(unit_id)
+	if unit == null: return null
+	var cached = hud_troop_icons.get(unit_id)
+	if cached == null or cached[0] != unit.facing:
+		hud_troop_icons[unit_id] = [unit.facing, engine.call("_get_troop_icon_texture_for_visual_key", "", unit)]
+	return hud_troop_icons[unit_id][1]
+
+func hud_status_summary(unit_id: String) -> String:
+	# N4: engine _get_formation_status_summary_text, refreshed only while no enemy replay is pending.
+	if not _enemy_presentation_busy() or not hud_status_texts.has(unit_id):
+		var unit := _hud_unit(unit_id)
+		hud_status_texts[unit_id] = "" if unit == null else String(engine.call("_get_formation_status_summary_text", unit))
+	return hud_status_texts[unit_id]
+
+func hud_unit_type_name(unit_type: String) -> String:
+	return HUD_UNIT_TYPE_NAMES.get(unit_type, "부대")
+
 func _ready() -> void:
 	# Reuse original terrain, models, formation, camera and lighting without fixtures.
 	port.units.clear()

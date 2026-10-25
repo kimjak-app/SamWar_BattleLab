@@ -34,6 +34,12 @@ var lab_count := 0
 # reaches under the labels they shift right of it (same gap).
 const LAB_LABEL_GAP := 6.0 # below the HUD frame
 var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
+# HUD block 3: the 2D enemy roster (layer 5). The cards are built in one place,
+# `enemy_cards()`, from the lab's values (views, display_values, enemy_actor_id)
+# and the lab's four approved reads (hud_display_name, hud_portrait,
+# hud_troop_icon, hud_status_summary). Shown and hidden with the top HUD.
+const ENEMY_ROSTER_SCENE := "res://scenes/battle3d/Battle3D_EnemyRosterHud.tscn"
+var enemy_roster # Battle3D_EnemyRosterHud.tscn (CanvasLayer with battle3d_enemy_roster_hud.gd)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -43,6 +49,9 @@ func _ready() -> void:
 	top_hud.visible = false
 	top_hud.refresh = _refresh_top_hud
 	add_child(top_hud)
+	enemy_roster = load(ENEMY_ROSTER_SCENE).instantiate()
+	enemy_roster.visible = false
+	add_child(enemy_roster)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -130,7 +139,20 @@ func _refresh_top_hud() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input and lab.battle_result.is_empty() and not lab.momentum_display.is_empty()
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
+	enemy_roster.visible = live
+	if live: enemy_roster.show_cards(enemy_cards())
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
+
+func enemy_cards() -> Array:
+	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown.
+	var cards := []
+	for id in lab.hud_enemy_unit_ids():
+		var value: Dictionary = lab.display_values.get(id, {})
+		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
+			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
+			"status":lab.hud_status_summary(id), "actor":id == lab.enemy_actor_id})
+	return cards
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
