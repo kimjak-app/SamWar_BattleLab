@@ -102,6 +102,7 @@ jobs:
             tools/validate_battle3d_hud_label_move.py
             tools/validate_battle3d_lab_roster_label_offscreen.py
             tools/validate_battle3d_top_commands.py
+            tools/validate_battle3d_top_buttons_plain.py
             tools/validate_battle3d_log_hud.py
             tools/validate_battle3d_enemy_roster.py
             tools/validate_battle3d_m1b_engine_move.py
