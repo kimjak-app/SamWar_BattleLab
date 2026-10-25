@@ -232,6 +232,47 @@ func hud_troop_icon_for_key(visual_key: String) -> Texture2D:
 		hud_troop_icons_by_key[visual_key] = engine.call("_get_troop_icon_texture_for_visual_key", visual_key, null)
 	return hud_troop_icons_by_key[visual_key]
 
+# HUD block 4-2 (command panel + facing arrows): the one approved new engine
+# read N7 (the unique skill's effective momentum cost, a value copy) and the
+# panel's open rule from values the lab already reads. No command.
+func hud_skill_cost(unit_id: String) -> int:
+	# N7: engine _get_effective_unique_skill_cost for the unit's unique skill (-1 = no skill).
+	var unit := _hud_unit(unit_id)
+	if unit == null: return -1
+	var skill: Dictionary = engine.call("_get_unique_skill_for_unit", unit)
+	return -1 if skill.is_empty() else int(engine.call("_get_effective_unique_skill_cost", unit, skill))
+
+func hud_command_panel_open() -> bool:
+	# The lab's command rule: an ally to act in ally_turn, no presentation, auto, enemy replay or result.
+	var active = engine.get("active_unit_state")
+	return ready_for_input and battle_result.is_empty() and active != null and active.side == "ally" and views.has(active.unit_id) and views[active.unit_id].visible \
+		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy()
+
+func hud_range_cell_positions() -> Array:
+	# The move-range cells the lab already shows (range_view discs), as world positions.
+	var out := []
+	for dot in range_view.get_children(): out.append((dot as Node3D).position)
+	return out
+
+# HUD block 5 (cut-in): when the scenario shell turns it on, every presented
+# skill_cast is recorded for the shell's cut-in and holds the lab: the skill
+# events after it wait here and are presented in order when the shell releases
+# the hold (its cut-in ended); input is locked and the auto play waits while
+# held. No engine read or command; the lab alone (shell off) never holds.
+var hud_cutin_enabled := false
+var hud_skill_casts: Array = [] # every presented skill_cast (copies), in order
+var hud_cutin_hold := false
+var hud_held_skill_events: Array = [] # [event, enemy presentation] waiting for the release
+
+func hud_release_cutin_hold() -> void:
+	# Present what waited, in order, until the next skill_cast holds again.
+	hud_cutin_hold = false
+	while not hud_held_skill_events.is_empty() and not hud_cutin_hold:
+		var item: Array = hud_held_skill_events.pop_front()
+		presenting_enemy_skill = item[1]
+		_present_skill_event(item[0])
+	presenting_enemy_skill = false
+
 func _ready() -> void:
 	# Reuse original terrain, models, formation, camera and lighting without fixtures.
 	port.units.clear()
@@ -466,7 +507,7 @@ func _sync_views() -> void:
 	actor_ring.visible = views.has(enemy_actor_id) and views[enemy_actor_id].visible
 	if actor_ring.visible: actor_ring.position=views[enemy_actor_id].position+Vector3(0,.1,0)
 	var phase: String = engine.get("current_phase")
-	attack_button.disabled = phase != "ally_turn" or engine.get("is_demo_animating") or active == null or _enemy_presentation_busy() or ended or engine.get("is_full_auto_battle_enabled")
+	attack_button.disabled = phase != "ally_turn" or engine.get("is_demo_animating") or active == null or _enemy_presentation_busy() or ended or engine.get("is_full_auto_battle_enabled") or hud_cutin_hold
 	var wait_block := _wait_block_reason()
 	wait_button.disabled = not wait_block.is_empty()
 	wait_button.tooltip_text = "엔진 대기 (2D 대기 버튼과 같은 명령)" if wait_block.is_empty() else wait_block
@@ -634,6 +675,9 @@ func _input_locked() -> bool:
 	if _enemy_presentation_busy():
 		_reject("적 행동 재생 중 · 재생이 끝날 때까지 기다리세요")
 		return true
+	if hud_cutin_hold:
+		_reject("특기 연출 중 · 컷인이 끝날 때까지 기다리세요")
+		return true
 	return false
 
 func _enemy_presentation_busy() -> bool:
@@ -654,6 +698,7 @@ func _ally_command_block_reason(command: String) -> String:
 	if phase == "enemy_turn": return "적 턴 중 · 적 행동이 끝날 때까지 기다리세요"
 	if engine.get("is_demo_animating"): return "연출 중 · 중복 명령을 받지 않습니다"
 	if _enemy_presentation_busy(): return "적 행동 재생 중 · 재생이 끝날 때까지 기다리세요"
+	if hud_cutin_hold: return "특기 연출 중 · 컷인이 끝날 때까지 기다리세요"
 	if phase != "ally_turn": return "행동 불가 · 현재 선택 단계를 완료하거나 취소하세요"
 	var active = engine.get("active_unit_state")
 	if active == null: return "%s 불가 · 먼저 아군을 선택하세요" % command
@@ -1315,6 +1360,12 @@ func _skill_name(event: Dictionary) -> String:
 
 func _present_skill_event(event: Dictionary) -> void:
 	# Every number, id and outcome comes from the event; 3D computes nothing.
+	if hud_cutin_hold: # HUD block 5: a cut-in is playing; shown when it ends
+		hud_held_skill_events.append([event.duplicate(true), presenting_enemy_skill])
+		return
+	if hud_cutin_enabled and event.kind == "skill_cast":
+		hud_skill_casts.append(event.duplicate(true))
+		hud_cutin_hold = true
 	if presenting_enemy_skill: enemy_skill_presentations.append(event.duplicate(true))
 	else: skill_presentations.append(event.duplicate(true))
 	match event.kind:
@@ -1531,6 +1582,7 @@ func _presentation_busy() -> bool:
 	# yet (cursor behind the log). Floating labels (damage, skill, strategy) are not waited for.
 	if engine.get("is_demo_animating") or engine.get("current_phase") == "enemy_turn": return true
 	if not playback.is_empty() or _enemy_presentation_busy(): return true
+	if hud_cutin_hold or not hud_held_skill_events.is_empty(): return true # HUD block 5: a cut-in is playing
 	return event_cursor < engine.get("ally_move_event_log").export().size() or action_cursor < engine.get("battle_action_event_log").export().size() \
 		or enemy_cursor < engine.get("enemy_action_event_log").export().size() or tactic_cursor < engine.get("tactic_event_log").export().size()
 

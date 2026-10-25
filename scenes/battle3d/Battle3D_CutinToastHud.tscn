@@ -1,0 +1,129 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle3d/battle3d_cutin_toast_hud.gd" id="cutin_toast_hud_script"]
+[ext_resource type="Shader" uid="uid://b3nol2fhvwj1s" path="res://assets/web_battle/ui/round_toast/round_toast_ink_spread.gdshader" id="11_round_toast_shader"]
+[ext_resource type="Texture2D" uid="uid://bjb2sekdtihkr" path="res://assets/web_battle/ui/round_toast/round_toast_ink_war_01.png" id="12_round_toast_texture"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="37_hero_cutin_presentation"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_round_toast_ink"]
+shader = ExtResource("11_round_toast_shader")
+shader_parameter/progress = 0.0
+shader_parameter/edge_softness = 0.12
+shader_parameter/noise_strength = 0.18
+shader_parameter/spread_center = Vector2(0.5, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_round_toast"]
+font_size = 72
+font_color = Color(1, 0.894118, 0.611765, 1)
+outline_size = 3
+outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
+shadow_size = 2
+shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
+shadow_offset = Vector2(2, 3)
+
+[node name="Battle3DCutinToastHud" type="Node"]
+script = ExtResource("cutin_toast_hud_script")
+
+[node name="ToastLayer" type="CanvasLayer" parent="."]
+layer = 8
+
+[node name="RoundToastRoot" type="Control" parent="ToastLayer"]
+visible = false
+z_index = 300
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+pivot_offset = Vector2(960, 540)
+mouse_filter = 2
+
+[node name="RoundToastImage" type="TextureRect" parent="ToastLayer/RoundToastRoot"]
+material = SubResource("ShaderMaterial_round_toast_ink")
+layout_mode = 0
+offset_left = 550.0
+offset_top = 300.0
+offset_right = 1370.0
+offset_bottom = 720.0
+pivot_offset = Vector2(410, 210)
+mouse_filter = 2
+texture = ExtResource("12_round_toast_texture")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RoundToastLabel" type="Label" parent="ToastLayer/RoundToastRoot"]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 430.0
+offset_right = 1320.0
+offset_bottom = 590.0
+pivot_offset = Vector2(360, 80)
+text = "BATTLE 1"
+label_settings = SubResource("LabelSettings_round_toast")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UniqueSkillToastRoot" type="Control" parent="ToastLayer"]
+visible = false
+z_index = 260
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+pivot_offset = Vector2(576, 324)
+mouse_filter = 2
+
+[node name="UniqueSkillInkBurst" type="ColorRect" parent="ToastLayer/UniqueSkillToastRoot"]
+visible = false
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.42)
+
+[node name="UniqueSkillCutinImage" type="TextureRect" parent="ToastLayer/UniqueSkillToastRoot"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 149.0
+offset_right = 1129.0
+offset_bottom = 486.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UniqueSkillNameLabel" type="Label" parent="ToastLayer/UniqueSkillToastRoot"]
+layout_mode = 0
+offset_left = 47.0
+offset_top = 368.0
+offset_right = 1105.0
+offset_bottom = 464.0
+text = "고유특기!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HeroCutinOverlay" type="CanvasLayer" parent="."]
+layer = 9
+visible = false
+
+[node name="HeroCutinInputBlocker" type="Control" parent="HeroCutinOverlay"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="HeroCutinViewport" type="Control" parent="HeroCutinOverlay"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = -324.0
+offset_right = 576.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroCutinPresentation" parent="HeroCutinOverlay/HeroCutinViewport" instance=ExtResource("37_hero_cutin_presentation")]
+layout_mode = 1
