@@ -27,7 +27,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "d1a91bfacb9c33e292563ea7b6b84340c294741a"  # integration: blocks 1-3 and the read proposals
-TIP = os.environ.get("ALLY_ROSTER_ACTOR_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("ALLY_ROSTER_ACTOR_SCOPE_TIP", "2fe5f060ff6afdcf305a98b58da29fc6d28c2543")  # feat(battle3d): HUD block 4-1 ally roster and current-actor panel
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 ROSTER_SCENE = "scenes/battle3d/Battle3D_AllyRosterHud.tscn"
