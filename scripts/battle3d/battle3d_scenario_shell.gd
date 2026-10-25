@@ -38,6 +38,8 @@ var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
 # retreat) in the 2D row (layer 6). They call the lab's own functions only. The
 # lab's auto and speed buttons are moved off-screen (kept for the lab tests);
 # the lab's option box opens under the option button, closed by default.
+# The lab's debug "부대 상태" text (roster_label) is moved off-screen the same way:
+# its text keeps updating for the lab tests; the 2D rosters take its place.
 const TopCommands = preload("res://scripts/battle3d/battle3d_top_commands.gd")
 const LAB_OFFSCREEN_X := 4000.0
 const OPTION_BOX_GAP := 6.0 # below the command row
@@ -177,6 +179,7 @@ func _place_lab_commands() -> void:
 	box.position = Vector2(top_commands.slot_rect(0).position.x, top_commands.slot_rect(0).end.y + OPTION_BOX_GAP)
 	box.visible = false
 	lab.option_toggle.visible = false # the option button replaces it
+	lab.roster_label.position.x = LAB_OFFSCREEN_X # debug unit list off-screen (kept, still updated)
 	commands_lab = lab
 
 func toggle_option_box() -> void:
