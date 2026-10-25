@@ -23,7 +23,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "150d179928a4b0d56d49d4ea9f1c9f6788427f1d"  # Merge feature/hud-read-proposals-20261024 (docs)
-TIP = os.environ.get("TOP_BUTTONS_PLAIN_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("TOP_BUTTONS_PLAIN_SCOPE_TIP", "9bce8c55ead419316f0f59f059b3cc04816d5843")  # feat(battle3d): top command row in one plain text-button style
 ROW = "scripts/battle3d/battle3d_top_commands.gd"
 TEST = "tests/scripts/test_battle3d_top_commands.gd"
 WORKFLOW = ".github/workflows/verify-c-track.yml"
