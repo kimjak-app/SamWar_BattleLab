@@ -178,6 +178,60 @@ func hud_status_summary(unit_id: String) -> String:
 func hud_unit_type_name(unit_type: String) -> String:
 	return HUD_UNIT_TYPE_NAMES.get(unit_type, "부대")
 
+# HUD block 4-1 (ally roster + current actor): the two approved new engine reads
+# N5 (status entries) and N6 (hero id), plus wrappers over reads the lab already
+# makes (active_unit_state, current_phase, _can_use_unique_skill,
+# _get_unique_skill_for_unit, the N3 troop icon by visual key). Values or copies
+# only; no command.
+const HUD_ALLY_ACTOR_PHASES := ["ally_turn", "facing_select", "attack_select", "unique_skill_target_select", "strategy"] # 2D _is_production_roster_ally_actor_phase
+var hud_status_entry_lists := {} # unit_id -> Array (N5)
+var hud_troop_icons_by_key := {} # visual key -> Texture2D (N3 with a visual key, the 2D current-actor rule)
+
+func hud_ally_unit_ids() -> Array:
+	var ids := []
+	for unit in engine.get("all_battle_unit_states"):
+		if unit.side == "ally": ids.append(unit.unit_id)
+	return ids
+
+func hud_active_unit_id() -> String:
+	# The engine's active_unit_state (the 2D current actor).
+	var unit = engine.get("active_unit_state")
+	return "" if unit == null else String(unit.unit_id)
+
+func hud_ally_actor_id() -> String:
+	# The 2D roster's gold frame on the ally side: active_unit_state during the ally input phases.
+	var unit = engine.get("active_unit_state")
+	if unit == null or unit.side != "ally" or not HUD_ALLY_ACTOR_PHASES.has(String(engine.get("current_phase"))): return ""
+	return String(unit.unit_id)
+
+func hud_status_entries(unit_id: String) -> Array:
+	# N5: engine _get_unit_status_display_entries (deep copy), refreshed only while no enemy replay is pending.
+	if not _enemy_presentation_busy() or not hud_status_entry_lists.has(unit_id):
+		var unit := _hud_unit(unit_id)
+		hud_status_entry_lists[unit_id] = [] if unit == null else (engine.call("_get_unit_status_display_entries", unit) as Array).duplicate(true)
+	return hud_status_entry_lists[unit_id].duplicate(true)
+
+func hud_hero_id(unit_id: String) -> String:
+	# N6: engine _get_hero_id_for_unit_state (a string copy).
+	var unit := _hud_unit(unit_id)
+	return "" if unit == null else String(engine.call("_get_hero_id_for_unit_state", unit))
+
+func hud_skill_ready(unit_id: String) -> bool:
+	# The engine's _can_use_unique_skill (already read by the lab's skill button); true only for the active ally.
+	var unit := _hud_unit(unit_id)
+	return unit != null and bool(engine.call("_can_use_unique_skill", unit))
+
+func hud_unique_skill(unit_id: String) -> Dictionary:
+	# The engine's _get_unique_skill_for_unit (already read by the lab), a copy.
+	var unit := _hud_unit(unit_id)
+	return {} if unit == null else (engine.call("_get_unique_skill_for_unit", unit) as Dictionary).duplicate(true)
+
+func hud_troop_icon_for_key(visual_key: String) -> Texture2D:
+	# N3 by visual key (the 2D current-actor rule: country + unit type), once per key.
+	if not hud_troop_icons_by_key.has(visual_key):
+		hud_troop_icons_by_key[visual_key] = engine.call("_get_troop_icon_texture_for_visual_key", visual_key, null)
+	return hud_troop_icons_by_key[visual_key]
+
 func _ready() -> void:
 	# Reuse original terrain, models, formation, camera and lighting without fixtures.
 	port.units.clear()
