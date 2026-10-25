@@ -232,6 +232,28 @@ func hud_troop_icon_for_key(visual_key: String) -> Texture2D:
 		hud_troop_icons_by_key[visual_key] = engine.call("_get_troop_icon_texture_for_visual_key", visual_key, null)
 	return hud_troop_icons_by_key[visual_key]
 
+# HUD block 4-2 (command panel + facing arrows): the one approved new engine
+# read N7 (the unique skill's effective momentum cost, a value copy) and the
+# panel's open rule from values the lab already reads. No command.
+func hud_skill_cost(unit_id: String) -> int:
+	# N7: engine _get_effective_unique_skill_cost for the unit's unique skill (-1 = no skill).
+	var unit := _hud_unit(unit_id)
+	if unit == null: return -1
+	var skill: Dictionary = engine.call("_get_unique_skill_for_unit", unit)
+	return -1 if skill.is_empty() else int(engine.call("_get_effective_unique_skill_cost", unit, skill))
+
+func hud_command_panel_open() -> bool:
+	# The lab's command rule: an ally to act in ally_turn, no presentation, auto, enemy replay or result.
+	var active = engine.get("active_unit_state")
+	return ready_for_input and battle_result.is_empty() and active != null and active.side == "ally" and views.has(active.unit_id) and views[active.unit_id].visible \
+		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy()
+
+func hud_range_cell_positions() -> Array:
+	# The move-range cells the lab already shows (range_view discs), as world positions.
+	var out := []
+	for dot in range_view.get_children(): out.append((dot as Node3D).position)
+	return out
+
 func _ready() -> void:
 	# Reuse original terrain, models, formation, camera and lighting without fixtures.
 	port.units.clear()

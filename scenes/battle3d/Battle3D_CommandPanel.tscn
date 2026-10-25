@@ -1,0 +1,99 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle3d/battle3d_command_panel.gd" id="command_panel_script"]
+
+[node name="Battle3DCommandPanel" type="CanvasLayer"]
+layer = 7
+script = ExtResource("command_panel_script")
+
+[node name="FloatingAllyCommandPanel" type="Panel" parent="."]
+visible = false
+z_index = 200
+offset_right = 176.0
+offset_bottom = 214.0
+mouse_filter = 1
+
+[node name="FloatingBasicAttackButton" type="Button" parent="FloatingAllyCommandPanel"]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 164.0
+offset_bottom = 46.0
+text = "기본공격"
+
+[node name="FloatingUniqueSkillButton" type="Button" parent="FloatingAllyCommandPanel"]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 52.0
+offset_right = 164.0
+offset_bottom = 86.0
+disabled = true
+text = "고유특기"
+
+[node name="FloatingTacticsButton" type="Button" parent="FloatingAllyCommandPanel"]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 92.0
+offset_right = 164.0
+offset_bottom = 126.0
+disabled = true
+text = "책략"
+
+[node name="FloatingMoveButton" type="Button" parent="FloatingAllyCommandPanel"]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 132.0
+offset_right = 164.0
+offset_bottom = 166.0
+text = "방어"
+
+[node name="FloatingWaitButton" type="Button" parent="FloatingAllyCommandPanel"]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 172.0
+offset_right = 164.0
+offset_bottom = 206.0
+text = "대기"
+
+[node name="FacingArrowPanel" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 280.0
+offset_bottom = 280.0
+mouse_filter = 1
+
+[node name="FaceUpArrowButton" type="Button" parent="FacingArrowPanel"]
+layout_mode = 0
+offset_left = 88.0
+offset_right = 160.0
+offset_bottom = 72.0
+text = "↑"
+
+[node name="FaceLeftArrowButton" type="Button" parent="FacingArrowPanel"]
+layout_mode = 0
+offset_top = 88.0
+offset_right = 72.0
+offset_bottom = 160.0
+text = "←"
+
+[node name="FaceRightArrowButton" type="Button" parent="FacingArrowPanel"]
+layout_mode = 0
+offset_left = 208.0
+offset_top = 88.0
+offset_right = 280.0
+offset_bottom = 160.0
+text = "→"
+
+[node name="FaceDownArrowButton" type="Button" parent="FacingArrowPanel"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 208.0
+offset_right = 160.0
+offset_bottom = 280.0
+text = "↓"

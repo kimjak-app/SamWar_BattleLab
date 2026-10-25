@@ -68,6 +68,19 @@ const CURRENT_ACTOR_SCENE := "res://scenes/battle3d/Battle3D_CurrentActorHud.tsc
 const HeroData = preload("res://scripts/battle3d/battle3d_hero_data_reader.gd")
 var ally_roster # Battle3D_AllyRosterHud.tscn (CanvasLayer with battle3d_ally_roster_hud.gd)
 var actor_hud # Battle3D_CurrentActorHud.tscn (CanvasLayer with battle3d_current_actor_hud.gd)
+# HUD block 4-2: the 2D floating command panel and facing arrows (layer 7). Its
+# state is built in one place, `command_state()`: the lab's open rule, the
+# lab's own (hidden) buttons' disabled/tooltip, the unique skill name and its N7
+# cost, and screen points from the lab camera (the unit model, the move-range
+# cells, the four neighbour cells). Its buttons call only the lab's request_*
+# and confirm_facing. The lab's five buttons and facing row move off-screen and
+# its info box is hidden (kept, still updated) in `_place_lab_commands`.
+const COMMAND_PANEL_SCENE := "res://scenes/battle3d/Battle3D_CommandPanel.tscn"
+const PANEL_ANCHOR_HEIGHT := 1.6 # metres above the unit model's root: the panel follows the model, not the cell
+const FACING_ARROW_SCALE := 0.96 # 2D FACING_ARROW_BUTTON_SIZE_SCALE
+const FACING_OFFSETS := {"up":Vector2i(0, -1), "down":Vector2i(0, 1), "left":Vector2i(-1, 0), "right":Vector2i(1, 0)} # 2D grid directions
+const FACING_TEXT := {"up":"↑", "down":"↓", "left":"←", "right":"→"}
+var command_panel # Battle3D_CommandPanel.tscn (CanvasLayer with battle3d_command_panel.gd)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -97,6 +110,14 @@ func _ready() -> void:
 	actor_hud = load(CURRENT_ACTOR_SCENE).instantiate()
 	actor_hud.visible = false
 	add_child(actor_hud)
+	command_panel = load(COMMAND_PANEL_SCENE).instantiate()
+	command_panel.on_attack = func(): lab.request_attack()
+	command_panel.on_skill = func(): lab.request_skill()
+	command_panel.on_strategy = func(): lab.request_strategy()
+	command_panel.on_defend = func(): lab.request_defend()
+	command_panel.on_wait = func(): lab.request_wait()
+	command_panel.on_facing = func(direction: String): lab.confirm_facing(direction)
+	add_child(command_panel)
 	start_panel = VBoxContainer.new()
 	start_panel.position = Vector2(500,260)
 	layer.add_child(start_panel)
@@ -194,6 +215,8 @@ func _refresh_top_hud() -> void:
 	if live: actor_hud.show_actor(current_actor())
 	if lab != null and is_instance_valid(lab) and lab.turn_label != null: _place_lab_top_labels()
 	_refresh_top_commands()
+	command_panel.visible = live
+	if live: command_panel.show_state(command_state())
 
 func _refresh_top_commands() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input
@@ -213,6 +236,10 @@ func _place_lab_commands() -> void:
 	box.visible = false
 	lab.option_toggle.visible = false # the option button replaces it
 	lab.roster_label.position.x = LAB_OFFSCREEN_X # debug unit list off-screen (kept, still updated)
+	for button in [lab.attack_button, lab.wait_button, lab.defend_button, lab.strategy_button, lab.skill_button]:
+		button.position.x = LAB_OFFSCREEN_X # the command panel replaces them (kept, still updated)
+	lab.facing_ui.position.x = LAB_OFFSCREEN_X # the facing arrows replace it
+	_lab_info_box().visible = false # hidden in place, so its rect still places the top labels
 	commands_lab = lab
 
 func toggle_option_box() -> void:
@@ -278,6 +305,47 @@ func current_actor() -> Dictionary:
 static func _stat(stats: Dictionary, key: String) -> Variant:
 	# A registry stat as the 2D int; "-" when the registry has none (the unit-field fallback, N10, is not approved).
 	return int(stats[key]) if stats.has(key) else "-"
+
+func command_state() -> Dictionary:
+	# The command panel's state in one place (see the block 4-2 comment above).
+	var state := {"open":false, "facing_open":false}
+	var id: String = lab.hud_active_unit_id()
+	if id.is_empty() or not lab.views.has(id): return state
+	var screen := get_viewport().get_visible_rect()
+	if lab.hud_command_panel_open():
+		var anchor: Vector2 = lab.camera.unproject_position(lab.views[id].position + Vector3(0, PANEL_ANCHOR_HEIGHT, 0))
+		if screen.has_point(anchor): # a unit off screen hides the panel
+			var skill: Dictionary = lab.hud_unique_skill(id)
+			var skill_text := "고유특기" if skill.is_empty() else "%s · 기세 %d" % [str(skill.get("name", "고유특기")), lab.hud_skill_cost(id)]
+			var buttons := []
+			for pair in [["기본공격", lab.attack_button], [skill_text, lab.skill_button], ["책략", lab.strategy_button], ["방어", lab.defend_button], ["대기", lab.wait_button]]:
+				buttons.append({"text":pair[0], "disabled":pair[1].disabled, "tooltip":pair[1].tooltip_text})
+			var range_rects := []
+			for world in lab.hud_range_cell_positions(): range_rects.append(cell_screen_rect(world))
+			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects}, true)
+	if lab.facing_ui.visible:
+		var cell: Vector2i = lab.display_values.get(id, {}).get("grid_cell", Vector2i(-1, -1))
+		var arrows := {}
+		for direction in FACING_OFFSETS:
+			var target: Vector2i = cell + FACING_OFFSETS[direction]
+			var valid: bool = lab.board.valid(target)
+			var rect := cell_screen_rect(lab.board.world(target)) if valid else Rect2()
+			arrows[direction] = {"valid":valid, "text":FACING_TEXT[direction], "center":rect.get_center(), "size":rect.size * FACING_ARROW_SCALE}
+		state.merge({"facing_open":true, "arrows":arrows}, true)
+	return state
+
+func cell_screen_rect(world: Vector3) -> Rect2:
+	# The screen box of one grid cell around a world point: the four edge midpoints projected by the lab camera.
+	var half: float = lab.board.CELL * 0.5
+	var rect := Rect2(lab.camera.unproject_position(world), Vector2.ZERO)
+	for offset in [Vector3(half, 0, 0), Vector3(-half, 0, 0), Vector3(0, 0, half), Vector3(0, 0, -half)]:
+		rect = rect.expand(lab.camera.unproject_position(world + offset))
+	return rect
+
+func _lab_info_box() -> Control:
+	var info_panel: Control = lab.info
+	while not info_panel.get_parent() is CanvasLayer: info_panel = info_panel.get_parent()
+	return info_panel
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.
