@@ -1,9 +1,11 @@
 extends SceneTree
 # Block 7 test 6 (expectations changed in block 8, look pass 1+2): the board's defaults, on a fresh builder and on the
-# board the game builds (the scenario shell's lab): show_bridges = false, mountain_height_scale = 0.5, and the forest
+# board the game builds (the scenario shell's lab): show_bridges = true and show_far_bridge = false (block 4-4: the row 5
+# bridge only), mountain_height_scale = 0.5, and the forest
 # trees: scatter_inner_trees = true, forest_trees_outside_play = false, scatter_boundary_trees = false (no clusters off
 # the board). The ground nodes are named Terrain and Ford (lab_presentation.gd _add_ground_collision and
-# battle3d_grid_projection.gd attach_surface_collisions look them up by those names); no bridge with the defaults.
+# battle3d_grid_projection.gd attach_surface_collisions look them up by those names). Bridges (block 4-4), by the row their
+# centre stands on (3 m cells): defaults -> one on row 5, none on row 14; far bridge on -> rows 5 and 14; bridges off -> none.
 # Tree count: this test counts the forest cells of the 18x10 play area in terrain_types.json itself (expected 24) and
 # expects 1 to 3 trees per cell (김작's density decision), i.e. 24..72; controls: forest trees outside the play area on
 # -> more trees, boundary clusters on -> more trees, both tree kinds off -> none.
@@ -27,8 +29,26 @@ func tree_count(settings: Dictionary) -> int:
 	b.free()
 	return n
 
+func bridge_rows(field) -> Array:
+	# The row each bridge (a WoodenLogBridges child holding meshes) stands on, from its position (3 m cells).
+	var rows := []
+	var root = field.get_node_or_null("WoodenLogBridges")
+	if root == null: return [-1]
+	for bridge in root.get_children():
+		if not bridge.is_queued_for_deletion() and not bridge.find_children("*", "MeshInstance3D", true, false).is_empty(): rows.append(floori(bridge.position.z / 3.0))
+	rows.sort()
+	return rows
+
+func bridge_rows_with(settings: Dictionary) -> Array:
+	var b = Builder.new()
+	for key in settings: b.set(key, settings[key])
+	b.setup_from_board(Board.new())
+	var rows := bridge_rows(b)
+	b.free()
+	return rows
+
 func check_field(field, label: String) -> void:
-	h.expect(field.show_bridges == false, "%s: show_bridges false (got %s)" % [label, field.show_bridges])
+	h.expect(field.show_bridges == true and field.show_far_bridge == false, "%s: show_bridges true, show_far_bridge false (got %s, %s)" % [label, field.show_bridges, field.show_far_bridge])
 	h.expect(field.scatter_inner_trees == true, "%s: scatter_inner_trees true (got %s)" % [label, field.scatter_inner_trees])
 	h.expect(field.forest_trees_outside_play == false, "%s: forest_trees_outside_play false (got %s)" % [label, field.forest_trees_outside_play])
 	h.expect(field.scatter_boundary_trees == false, "%s: scatter_boundary_trees false (got %s)" % [label, field.scatter_boundary_trees])
@@ -36,8 +56,7 @@ func check_field(field, label: String) -> void:
 	var terrain = field.get_node_or_null("Terrain")
 	var ford = field.get_node_or_null("Ford")
 	h.expect(terrain is MeshInstance3D and ford is MeshInstance3D, "%s: MeshInstance3D children named Terrain and Ford (%s, %s)" % [label, terrain, ford])
-	var bridges = field.get_node_or_null("WoodenLogBridges")
-	h.expect(bridges != null and bridges.find_children("*", "MeshInstance3D", true, false).is_empty(), "%s: no bridge mesh with show_bridges off" % label)
+	h.expect(bridge_rows(field) == [5], "%s: one bridge, on row 5 (rows %s)" % [label, str(bridge_rows(field))])
 	# A headless (dummy) renderer does not keep MultiMesh transforms, so trees are compared by count.
 	var trees = field.get_node_or_null("SymbolicBoundaryTrees")
 	var n: int = trees.multimesh.instance_count if trees != null and trees.multimesh != null else -1
@@ -58,7 +77,10 @@ func run() -> void:
 	h.expect(default_count == explicit and outside > default_count and clusters > default_count and none == 0,
 		"tree counts: default %d = explicit defaults %d; outside-play forest on %d > default; boundary clusters on %d > default (default has none); all off %d" % [default_count, explicit, outside, clusters, none])
 	var fresh = Builder.new()
-	h.expect(fresh.show_bridges == false and fresh.scatter_inner_trees == true and fresh.forest_trees_outside_play == false and fresh.scatter_boundary_trees == false and fresh.mountain_height_scale == 0.5,
+	var far := bridge_rows_with({"show_far_bridge":true})
+	var off := bridge_rows_with({"show_bridges":false, "show_far_bridge":true})
+	h.expect(far == [5, 14] and off.is_empty(), "far bridge on: rows %s (want [5, 14]); bridges off: rows %s (want none)" % [str(far), str(off)])
+	h.expect(fresh.show_bridges == true and fresh.show_far_bridge == false and fresh.scatter_inner_trees == true and fresh.forest_trees_outside_play == false and fresh.scatter_boundary_trees == false and fresh.mountain_height_scale == 0.5,
 		"the builder's declared defaults before building")
 	h.expect(fresh.forest_trees_per_cell_min == 1 and fresh.forest_trees_per_cell_max == 3, "density 1-3 per cell (got %d-%d)" % [fresh.forest_trees_per_cell_min, fresh.forest_trees_per_cell_max])
 	fresh.setup_from_board(Board.new())

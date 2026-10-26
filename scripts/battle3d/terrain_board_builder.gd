@@ -70,8 +70,10 @@ var mountain_visual_style: int = 0
 ## Scale factor for interior mountain ridges (default 0.5 for Three Kingdoms 8R low ridges)
 @export_range(0.1, 1.5, 0.05) var mountain_height_scale: float = 0.5
 
-## Toggle 3D wooden log bridges (default false: ford row 5 shows shallow sand/gravel bar)
-@export var show_bridges: bool = false
+## Toggle 3D wooden log bridges (block 4-4: default true = the row 5 bridge over the ford only)
+@export var show_bridges: bool = true
+## The second bridge (row 14, scenery outside the play area): default false; on = both bridges as before
+@export var show_far_bridge: bool = false
 
 ## Forest cell trees (default true: places 2~4 trees per forest cell inside playable area)
 @export var scatter_inner_trees: bool = true
@@ -853,7 +855,7 @@ func _build_water_plane() -> void:
 	water_mesh_instance.material_override = water_shader_material
 
 
-## 5) Optional 3D Wooden Log Bridges (default OFF: show_bridges = false)
+## 5) Optional 3D Wooden Log Bridges (block 4-4: default the row 5 bridge; show_far_bridge adds row 14)
 func _rebuild_all_wooden_log_bridges() -> void:
 	if bridges_root != null:
 		bridges_root.queue_free()
@@ -864,7 +866,7 @@ func _rebuild_all_wooden_log_bridges() -> void:
 	if not show_bridges:
 		return
 
-	for bridge_row in [5.5, 14.5]:
+	for bridge_row in ([5.5, 14.5] if show_far_bridge else [5.5]):
 		var wz: float = bridge_row * TILE_SIZE
 		var wx: float = 28.0 + 1.4 * sin(wz * 0.25)
 		var world_pos := Vector3(wx, WATER_SURFACE_Y + 0.22, wz)
