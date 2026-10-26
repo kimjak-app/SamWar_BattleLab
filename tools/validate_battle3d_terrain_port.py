@@ -10,6 +10,12 @@ battlefield.glb kept.
 No new engine read and no command: the lab's engine.call / engine.get name sets are the base's and the 15 writes are
 counted as before.
 
+Block 8 (look pass 1+2) extends the same scope on top of block 7 (LOOK_BASE): Grok's files as delivered (LOOK_A), only
+the builder's three compile fixes (LOOK_B), only the forest density's two defaults (LOOK_C), then the outer ground texture
+(new asset + import) set by the game lab and the preview, the lab's background colour, two block 7 test expectations and
+two new tests. The pin moved from d441c23 (block 7) to the block 8 implementation commit so this one validator audits
+both blocks; every block 7 check stays.
+
 TERRAIN_PORT_SCOPE_TIP=<commit> audits BASE..commit and reads every file and file list from that commit's tree;
 HEAD audits the live worktree.
 """
@@ -18,7 +24,11 @@ import argparse, os, re, subprocess
 
 BASE = "0dd923981bf73e97a453cb10f34c90b990c29855"  # docs(battle3d): HUD block 4-3 report (origin/feature/hud-block43-controls-fix-20261026)
 DELIVERED = "9a6f6f29e51bef52b3472acc30e1cb0ad3a67602"  # chore(battle3d): the Grok 20x20 terrain port and its preview scene as delivered
-TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "d441c2341ffeb219d514b5e0a62d13ffdc83e376")  # feat(battle3d): block 7 play area on the 20x20 board
+TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "@@TIP@@")  # block 8 implementation (was d441c23, block 7)
+LOOK_BASE = "7d1558e3f0b47d53c30f8621b80bcf1ec9208ade"  # docs(battle3d): HUD block 7 terrain port report
+LOOK_A = "e9f450e"  # chore(battle3d): Grok look pass 1+2 files as delivered
+LOOK_B = "923cb2c"  # fix(battle3d): the builder's three compile errors only
+LOOK_C = "13932f1"  # feat(battle3d): forest density 1-3 trees per cell
 BOARD = "scripts/battle3d/lab_heightfield.gd"
 PROJECTION = "scripts/battle3d/battle3d_grid_projection.gd"
 PRESENTATION = "scripts/battle3d/lab_presentation.gd"
@@ -36,9 +46,17 @@ FIXTURES = ["tests/data/block7_old_play_area_0dd9239.json", "tests/data/block7_o
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_terrain_port.py"
 REPORT = "agent/HUD_BLOCK7_TERRAIN_PORT_RESULT_20261026.md"
-EDITED_AFTER_DELIVERY = {BOARD, PRESENTATION, CONNECT}  # delivered files the play-area split then edits
+BUILDER = "scripts/battle3d/terrain_board_builder.gd"
+PREVIEW = "scripts/battle3d/terrain_preview.gd"
+LOOK_AS_DELIVERED = {"scripts/battle3d/eastwar_terrain_20x20.gdshader", "README_미리보기.md"}  # replaced by look pass 1+2, unchanged since LOOK_A
+WATER = "scripts/battle3d/eastwar_terrain_20x20_water.gdshader"
+OUTER = "assets/terrain_textures_pack/outer_ground_B20.png"
+LOOK_TESTS = ["tests/scripts/test_battle3d_look12_tree_height.gd", "tests/scripts/test_battle3d_look12_forest_fade.gd"]
+LOOK_REPORT = "agent/HUD_BLOCK8_LOOK12_RESULT_20261026.md"
+EDITED_AFTER_DELIVERY = {BOARD, PRESENTATION, CONNECT, BUILDER, PREVIEW, *LOOK_AS_DELIVERED}  # delivered files later edited (block 7 split, block 8 look)
 MODIFIED = {PROJECTION, SHELL, LAB, CONTRACT, PARITY, OBLIQUE, CAMERA_TEST, WORKFLOW}
-NEW = {VALIDATOR, REPORT, *NEW_TESTS, *FIXTURES, *(p + ".uid" for p in NEW_TESTS)}
+NEW = {VALIDATOR, REPORT, *NEW_TESTS, *FIXTURES, *(p + ".uid" for p in NEW_TESTS),
+       WATER, WATER + ".uid", OUTER, OUTER + ".import", LOOK_REPORT, *LOOK_TESTS, *(p + ".uid" for p in LOOK_TESTS)}
 PROTECTED_PREFIXES = ["scripts/battle_web_import_test.gd", "scripts/battle/", "scripts/battle_unit_state.gd", "scripts/ui/", "scripts/worldmap/",
                       "scripts/battle3d/battle3d_unit_adapter.gd", "scripts/battle3d/battle3d_engine_host.gd", "scripts/battle3d/battle3d_movement_adapter.gd",
                       "tests/golden/", "tests/scripts/support/", "data/"]
@@ -104,7 +122,7 @@ def main():
         assert p in tree, "missing in the audited tree: " + p
     assert not [p for p in changes if p.startswith("tools/") and p not in (VALIDATOR, CONTRACT)], "other validators unchanged"
     removed, added = diff(WORKFLOW)
-    assert not removed and sorted(x.strip() for x in added) == sorted([VALIDATOR, *NEW_TESTS]), "workflow: the seven tests and this validator added"
+    assert not removed and sorted(x.strip() for x in added) == sorted([VALIDATOR, *NEW_TESTS, *LOOK_TESTS]), "workflow: the seven block 7 tests, the two block 8 tests and this validator added"
 
     # No new engine read or command; the 15 writes as they were.
     lab_now, lab_base = strip_comments(text(LAB)), strip_comments(text(LAB, at=BASE))
@@ -150,6 +168,29 @@ def main():
     assert len(re.findall(r"^\s*assert\b", contract_now, re.M)) >= len(re.findall(r"^\s*assert\b", contract_then, re.M)), "contract validator: asserts not reduced"
     found = subprocess.run(["git", "-c", "core.quotepath=false", "-C", str(root), "grep", *(["--untracked"] if live else []), "-l", "battlefield.glb", *([] if live else [TIP]), "--", "tests/scripts/*.gd"], capture_output=True).stdout.decode()
     assert not [p for p in found.splitlines() if "battlefield.glb" in strip_comments(text(p.split(":", 1)[1] if not live else p))], "no test loads battlefield.glb"
+    # Block 8: Grok's files as delivered, then only the instructed lines.
+    for p in LOOK_AS_DELIVERED | {WATER}:
+        assert live or blob(p, TIP) == blob(p, LOOK_A), "look pass file as delivered: " + p
+    changed_look = dict((l.split("\t", 1)[1], l.split("\t", 1)[0]) for l in git("diff", "--no-renames", "--name-status", LOOK_BASE, LOOK_A).decode().splitlines())
+    assert set(changed_look) == {BUILDER, PREVIEW, WATER, WATER + ".uid", *LOOK_AS_DELIVERED}, ("look pass A: the zip's files only", sorted(changed_look))
+    removed, added = diff(BUILDER, a=LOOK_A)
+    assert sorted(x.strip() for x in removed) == sorted(["var contour_wave: float = absf(fract(elev * 7.5) - 0.5) * 2.0", "ok = False", "chosen_ok = True",
+                                                        "@export_range(1, 6, 1) var forest_trees_per_cell_min: int = 2", "@export_range(1, 6, 1) var forest_trees_per_cell_max: int = 4"]) \
+        and sorted(x.strip() for x in added) == sorted(["var contour_wave: float = absf(fposmod(elev * 7.5, 1.0) - 0.5) * 2.0", "ok = false", "chosen_ok = true",
+                                                        "@export_range(1, 6, 1) var forest_trees_per_cell_min: int = 1", "@export_range(1, 6, 1) var forest_trees_per_cell_max: int = 3"]), ("builder: three compile fixes and two density defaults only", removed, added)
+    for path, allowed in [(PREVIEW, ["OUTER_GROUND = preload(", "field.outer_ground_texture = OUTER_GROUND"]),
+                          (PRESENTATION, ["OUTER_GROUND = preload(", "field.outer_ground_texture = OUTER_GROUND", 'background_color=Color("8d897a")'])]:
+        removed, added = diff(path, a=LOOK_A)
+        assert len(added) == len(allowed) and all(any(a in x for x in added) for a in allowed) and len(removed) == len(allowed) - 2, (path, "block 8: the outer ground (and the background colour) only", removed, added)
+    assert f'preload("res://{OUTER}")' in text(PRESENTATION) and f'preload("res://{OUTER}")' in text(PREVIEW), "the game lab and the preview load the same outer ground"
+    assert "mipmaps/generate=true" in text(OUTER + ".import"), "the outer ground is imported with mipmaps"
+    for p in ["tests/scripts/test_battle3d_block7_defaults.gd", "tests/scripts/test_battle3d_block7_triangle_budget.gd"]:
+        now, then = strip_comments(text(p)), strip_comments(text(p, at=LOOK_BASE))
+        assert now.count("expect(") >= then.count("expect("), (p, "block 8 changed expectations, checks not reduced", then.count("expect("), now.count("expect("))
+    removed, added = diff("tests/scripts/test_battle3d_block7_triangle_budget.gd", a=LOOK_BASE)
+    assert [x for x in removed if x.startswith("const ")] == ["const BACKGROUND_MAX := 7488"] and "const BACKGROUND_MAX := 12000" in "\n".join(added) \
+        and all(f"const {k}" in text("tests/scripts/test_battle3d_block7_triangle_budget.gd") for k in ["TERRAIN_MAX := 28800", "TREES_MAX := 16000", "TREE_MAX := 200"]), "triangle budget: only the background ceiling moved (12,000)"
+    assert 'var haze_color: Color = Color("8d897a")' in text(BUILDER) and 'background_color=Color("8d897a")' in text(PRESENTATION), "background = haze colour"
     git("diff", "--check", *rev)
     print(f"TERRAIN_PORT validator PASS: base={BASE} delivered={DELIVERED} scope={TIP}; {len(changes)} paths; no new engine read or write; PLAY_SIZE once, {len(readers)} reader files")
 

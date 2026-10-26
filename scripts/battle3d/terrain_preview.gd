@@ -6,6 +6,7 @@ extends Node3D
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
+const OUTER_GROUND = preload("res://assets/terrain_textures_pack/outer_ground_B20.png") # block 8: same as the game lab
 
 const PREVIEW_UNITS: Array[Dictionary] = [
 	{"unit_id": "lab_ally_01", "side": "ally", "unit_type": "infantry", "current_troops": 3200, "grid_cell": Vector2i(3, 5)},
@@ -36,6 +37,7 @@ func _ready() -> void:
 	# 1. 3D 지형 생성 (terrain_board_builder.gd)
 	field = TerrainBuilder.new()
 	field.name = "Battlefield"
+	field.outer_ground_texture = OUTER_GROUND
 	field.setup_from_board(board)
 	add_child(field)
 	trees_enabled = bool(field.scatter_inner_trees) or bool(field.scatter_boundary_trees)

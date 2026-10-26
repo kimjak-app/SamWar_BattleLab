@@ -3,6 +3,7 @@ extends Node3D
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const MockPort = preload("res://scripts/battle3d/lab_demo_port.gd")
 const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
+const OUTER_GROUND = preload("res://assets/terrain_textures_pack/outer_ground_B20.png")
 var board = Board.new()
 var port = MockPort.new()
 var camera := Camera3D.new()
@@ -29,13 +30,14 @@ func _ready() -> void:
 	port.board=board
 	port.move_accepted.connect(_move_accepted)
 	var field = TerrainBuilder.new()
+	field.outer_ground_texture = OUTER_GROUND # block 8: the painted ground outside the play area (empty = a grey placeholder)
 	field.setup_from_board(board)
 	add_child(field)
 	_add_ground_collision(field)
 	var env := WorldEnvironment.new()
 	env.environment=Environment.new()
 	env.environment.background_mode=Environment.BG_COLOR
-	env.environment.background_color=Color("18232e")
+	env.environment.background_color=Color("8d897a") # block 8: = the builder's haze_color, so the ground fades into the sky
 	env.environment.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
 	env.environment.ambient_light_color=Color("c7d8e4")
 	env.environment.ambient_light_energy=.35
