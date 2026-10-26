@@ -122,9 +122,11 @@ def main():
     assert click.index("if not board.valid(cell):") < click.index('engine.get("current_phase")') and "return" in click[click.index("if not board.valid(cell):"):click.index('engine.get("current_phase")')], "the guard returns before the first engine read"
 
     # The play area: one definition, its readers, no 18/10 literal left in the 3D presentation.
-    defs = {p: re.findall(r"^const\s+PLAY_SIZE\s*:=\s*Vector2i\((\d+),\s*(\d+)\)", text(p), re.M) for p in tree if p.startswith("scripts/") and p.endswith(".gd")}
+    found = subprocess.run(["git", "-c", "core.quotepath=false", "-C", str(root), "grep", *(["--untracked"] if live else []), "-l", "PLAY_SIZE", *([] if live else [TIP]), "--", "scripts/*.gd"], capture_output=True).stdout.decode()
+    candidates = {line.split(":", 1)[1] if not live else line for line in found.splitlines()}  # one git grep instead of reading every script
+    defs = {p: re.findall(r"^const\s+PLAY_SIZE\s*:=\s*Vector2i\((\d+),\s*(\d+)\)", text(p), re.M) for p in candidates}
     assert {p: d for p, d in defs.items() if d} == {BOARD: [("18", "10")]}, "PLAY_SIZE defined once, in lab_heightfield.gd, as 18x10"
-    readers = {p for p in tree if p.startswith("scripts/") and p.endswith(".gd") and "PLAY_SIZE" in strip_comments(text(p))}
+    readers = {p for p in candidates if "PLAY_SIZE" in strip_comments(text(p))}
     assert readers == PLAY_READERS, ("PLAY_SIZE readers", sorted(readers))
     board = strip_comments(text(BOARD))
     assert re.search(r"func valid\(c: Vector2i\) -> bool:\n\s*return c\.x >= 0 and c\.y >= 0 and c\.x < PLAY_SIZE\.x and c\.y < PLAY_SIZE\.y", board), "valid() is the play area"
@@ -146,7 +148,8 @@ def main():
     assert len(removed) == 1 and len(added) == 1 and "lab.board.SIZE.x" in removed[0] and "lab.board.PLAY_SIZE.x" in added[0], ("camera test: only its focus limit", removed, added)
     contract_now, contract_then = text(CONTRACT), text(CONTRACT, at=BASE)
     assert len(re.findall(r"^\s*assert\b", contract_now, re.M)) >= len(re.findall(r"^\s*assert\b", contract_then, re.M)), "contract validator: asserts not reduced"
-    assert not [p for p in tree if p.startswith("tests/scripts/") and p.endswith(".gd") and "battlefield.glb" in strip_comments(text(p))], "no test loads battlefield.glb"
+    found = subprocess.run(["git", "-c", "core.quotepath=false", "-C", str(root), "grep", *(["--untracked"] if live else []), "-l", "battlefield.glb", *([] if live else [TIP]), "--", "tests/scripts/*.gd"], capture_output=True).stdout.decode()
+    assert not [p for p in found.splitlines() if "battlefield.glb" in strip_comments(text(p.split(":", 1)[1] if not live else p))], "no test loads battlefield.glb"
     git("diff", "--check", *rev)
     print(f"TERRAIN_PORT validator PASS: base={BASE} delivered={DELIVERED} scope={TIP}; {len(changes)} paths; no new engine read or write; PLAY_SIZE once, {len(readers)} reader files")
 
