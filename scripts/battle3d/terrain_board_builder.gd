@@ -81,7 +81,7 @@ var mountain_visual_style: int = 0
 ## Place trees on forest cells outside playable area (default false: no trees outside 18x10 playable board)
 @export var forest_trees_outside_play: bool = false
 
-## Trees per forest cell (2~4, fixed deterministic seed, >= 0.4m inside cell border, non-overlapping)
+## Trees per forest cell (1~3, fixed deterministic seed, >= 0.4m inside cell border, non-overlapping)
 @export_range(1, 6, 1) var forest_trees_per_cell_min: int = 1
 @export_range(1, 6, 1) var forest_trees_per_cell_max: int = 3
 
