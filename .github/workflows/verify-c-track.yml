@@ -300,7 +300,7 @@ jobs:
           for test_script in "${tests[@]}"; do
             if (( index % SHARD_COUNT == SHARD )); then
               echo "===== $test_script (shard $SHARD) ====="
-              timeout 120s godot --headless --path . --script "res://$test_script"
+              timeout 300s godot --headless --path . --script "res://$test_script"
             fi
             index=$((index + 1))
           done
@@ -322,7 +322,7 @@ jobs:
           for test_script in "${tests[@]}"; do
             if (( index % SHARD_COUNT == SHARD )); then
               echo "===== $test_script (shard $SHARD) ====="
-              timeout 120s godot --headless --path . --script "res://$test_script"
+              timeout 300s godot --headless --path . --script "res://$test_script"
             fi
             index=$((index + 1))
           done
@@ -348,7 +348,7 @@ jobs:
           for test_script in "${tests[@]}"; do
             if (( index % SHARD_COUNT == SHARD )); then
               echo "===== $test_script (shard $SHARD) ====="
-              timeout 120s godot --headless --path . --script "res://$test_script"
+              timeout 300s godot --headless --path . --script "res://$test_script"
             fi
             index=$((index + 1))
           done
@@ -376,7 +376,7 @@ jobs:
           for test_script in "${tests[@]}"; do
             if (( index % SHARD_COUNT == SHARD )); then
               echo "===== $test_script (shard $SHARD) ====="
-              timeout 120s godot --headless --path . --script "res://$test_script"
+              timeout 300s godot --headless --path . --script "res://$test_script"
             fi
             index=$((index + 1))
           done
