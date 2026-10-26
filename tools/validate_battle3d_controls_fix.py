@@ -15,7 +15,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "2f7f53fa03b0e09914fa354fa159ae00df4c851d"  # Merge feature/hud-block5-cutin-result-toast-20261025 (integration with blocks 4-2 and 5)
-TIP = os.environ.get("CONTROLS_FIX_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("CONTROLS_FIX_SCOPE_TIP", "0de2d9f169039db31febb3d9b957e2815d7a156a")  # test(battle3d): block 4-3 checks in their own file
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
 PANEL = "scripts/battle3d/battle3d_command_panel.gd"
