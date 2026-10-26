@@ -18,7 +18,7 @@ import argparse, os, re, subprocess
 
 BASE = "0dd923981bf73e97a453cb10f34c90b990c29855"  # docs(battle3d): HUD block 4-3 report (origin/feature/hud-block43-controls-fix-20261026)
 DELIVERED = "9a6f6f29e51bef52b3472acc30e1cb0ad3a67602"  # chore(battle3d): the Grok 20x20 terrain port and its preview scene as delivered
-TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "@@TIP@@")
+TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "d441c2341ffeb219d514b5e0a62d13ffdc83e376")  # feat(battle3d): block 7 play area on the 20x20 board
 BOARD = "scripts/battle3d/lab_heightfield.gd"
 PROJECTION = "scripts/battle3d/battle3d_grid_projection.gd"
 PRESENTATION = "scripts/battle3d/lab_presentation.gd"
@@ -59,7 +59,7 @@ def main():
     root = parser.parse_args().root.resolve()
 
     def git(*args):
-        return subprocess.check_output(["git", "-C", str(root), *args])
+        return subprocess.check_output(["git", "-c", "core.quotepath=false", "-C", str(root), *args])
 
     live = TIP == "HEAD"
     rev = [BASE] if live else [BASE, TIP]
