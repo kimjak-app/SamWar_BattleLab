@@ -1021,8 +1021,8 @@ func _scatter_symbolic_boundary_trees() -> void:
 			var wz: float = lerpf(12.0, 33.0, row_f) + rng.randf_range(-0.9, 0.9)
 			var wy: float = sample_smooth_height_at_world(wx, wz)
 			var sc: float = rng.randf_range(0.85, 1.15)
-			var basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
-			tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+			var tree_basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
+			tree_transforms.append(Transform3D(tree_basis, Vector3(wx, wy, wz)))
 			tree_colors.append(Color(1.0, 1.0, 1.0, 1.0))
 
 		var cluster_2_count: int = 38
@@ -1032,8 +1032,8 @@ func _scatter_symbolic_boundary_trees() -> void:
 			var wz: float = lerpf(1.0, 14.5, row_f) + rng.randf_range(-0.8, 0.8)
 			var wy: float = sample_smooth_height_at_world(wx, wz)
 			var sc: float = rng.randf_range(0.85, 1.15)
-			var basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
-			tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+			var tree_basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
+			tree_transforms.append(Transform3D(tree_basis, Vector3(wx, wy, wz)))
 			tree_colors.append(Color(1.0, 1.0, 1.0, 1.0))
 
 	# 2) Forest cell trees (default ON: scatter_inner_trees = true)
@@ -1063,10 +1063,10 @@ func _scatter_symbolic_boundary_trees() -> void:
 					var wy: float = board_ref.height(wx, wz) if board_ref != null else sample_smooth_height_at_world(wx, wz)
 					var sc: float = float(item["scale"])
 					var yaw: float = float(item["yaw"])
-					var basis := Basis.from_euler(Vector3(0.0, yaw, 0.0)).scaled(Vector3(sc, sc, sc))
+					var tree_basis := Basis.from_euler(Vector3(0.0, yaw, 0.0)).scaled(Vector3(sc, sc, sc))
 					var idx: int = tree_transforms.size()
 					inst_indices.append(idx)
-					tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+					tree_transforms.append(Transform3D(tree_basis, Vector3(wx, wy, wz)))
 					tree_colors.append(Color(1.0, 1.0, 1.0, alpha_val))
 
 				_forest_cell_to_instances[cell_coord] = inst_indices
