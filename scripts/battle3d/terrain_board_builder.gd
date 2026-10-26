@@ -615,7 +615,7 @@ func _get_or_create_procedural_outer_ground_texture() -> ImageTexture:
 			c = c.lerp(col_ochre, _smoothstep_f(0.45, 0.72, elev))
 			c = c.lerp(col_ridge, _smoothstep_f(0.68, 0.92, elev))
 
-			var contour_wave: float = absf(fract(elev * 7.5) - 0.5) * 2.0
+			var contour_wave: float = absf(fposmod(elev * 7.5, 1.0) - 0.5) * 2.0
 			var contour_line: float = 1.0 - _smoothstep_f(0.0, 0.14, contour_wave)
 			var omni_shade: float = clampf(1.0 - slope_mag * 0.14 - clampf(laplacian, -0.12, 0.12) - contour_line * 0.07, 0.78, 1.14)
 			img.set_pixel(px, py, Color(clampf(c.r * omni_shade, 0.0, 1.0), clampf(c.g * omni_shade, 0.0, 1.0), clampf(c.b * omni_shade, 0.0, 1.0), 1.0))
@@ -961,12 +961,12 @@ func _generate_cell_tree_placements(cell_x: int, cell_y: int) -> Array[Dictionar
 			var ok: bool = true
 			for prev in placed:
 				if Vector2(lx - float(prev["lx"]), lz - float(prev["lz"])).length() < min_dist:
-					ok = False
+					ok = false
 					break
 			if ok:
 				chosen_lx = lx
 				chosen_lz = lz
-				chosen_ok = True
+				chosen_ok = true
 				break
 
 		if not chosen_ok:
