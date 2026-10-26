@@ -6,7 +6,7 @@ const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd"
 var board = Board.new()
 var port = MockPort.new()
 var camera := Camera3D.new()
-var focus := Vector3(board.SIZE.x*board.CELL*.5,0,board.SIZE.y*board.CELL*.5)
+var focus := Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5) # block 7: the play area's centre (camera limits are the play area)
 var yaw := 0.32
 var zoom := 60.0
 var selected := ""
@@ -61,7 +61,7 @@ func _ready() -> void:
 	ring.visible=false
 	_build_grid()
 	_build_ui()
-	_event("ready",{"units":views.size(),"grid":"%dx%d square" % [board.SIZE.x,board.SIZE.y],"renderer":"gl_compatibility"})
+	_event("ready",{"units":views.size(),"grid":"%dx%d square" % [board.PLAY_SIZE.x,board.PLAY_SIZE.y],"renderer":"gl_compatibility"})
 
 func _event(kind: String, data: Dictionary) -> void:
 	data["event"]=kind
@@ -151,11 +151,11 @@ func _line(points: PackedVector3Array, color: Color, parent: Node3D) -> void:
 	parent.add_child(n)
 
 func data_extent(axis: int) -> float:
-	return board.SIZE.y*board.CELL if axis==0 else board.SIZE.x*board.CELL
+	return board.PLAY_SIZE.y*board.CELL if axis==0 else board.PLAY_SIZE.x*board.CELL # block 7: grid lines over the play area only
 
 func _build_grid() -> void:
 	for axis in range(2):
-		for k in range(board.SIZE.x+1 if axis==0 else board.SIZE.y+1):
+		for k in range(board.PLAY_SIZE.x+1 if axis==0 else board.PLAY_SIZE.y+1):
 			var points := PackedVector3Array()
 			for t in range(int(data_extent(axis)/.5)+1):
 				var x: float=k*board.CELL if axis==0 else t*.5
@@ -189,7 +189,7 @@ func _build_ui() -> void:
 	title.modulate=Color("efca80")
 	box.add_child(title)
 	var sub := Label.new()
-	sub.text="3D PRESENTATION PROTOTYPE   ·   %d × %d" % [board.SIZE.x,board.SIZE.y]
+	sub.text="3D PRESENTATION PROTOTYPE   ·   %d × %d" % [board.PLAY_SIZE.x,board.PLAY_SIZE.y]
 	sub.add_theme_font_size_override("font_size",13)
 	box.add_child(sub)
 	info=Label.new()
@@ -218,8 +218,8 @@ func _process(delta: float) -> void:
 	var pan := Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT))-float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)),float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN))-float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)))
 	if pan.length()>0:
 		focus+=Vector3(pan.x*cos(yaw)+pan.y*sin(yaw),0,-pan.x*sin(yaw)+pan.y*cos(yaw))*delta*zoom*.45
-		focus.x=clampf(focus.x,0,board.SIZE.x*board.CELL)
-		focus.z=clampf(focus.z,0,board.SIZE.y*board.CELL)
+		focus.x=clampf(focus.x,0,board.PLAY_SIZE.x*board.CELL)
+		focus.z=clampf(focus.z,0,board.PLAY_SIZE.y*board.CELL)
 		yaw+=delta*(float(Input.is_physical_key_pressed(KEY_Q))-float(Input.is_physical_key_pressed(KEY_E)))
 	_update_camera()
 	if not moving_id.is_empty():
@@ -269,7 +269,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_G: grid_view.visible=not grid_view.visible
 		if event.keycode==KEY_HOME:
-			focus=Vector3(board.SIZE.x*board.CELL*.5,0,board.SIZE.y*board.CELL*.5)
+			focus=Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5)
 			yaw=.32
 			zoom=60
 		if event.keycode==KEY_F12: _capture()
@@ -279,8 +279,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			var dx := -1.0 if event.keycode in [KEY_A,KEY_LEFT] else (1.0 if event.keycode in [KEY_D,KEY_RIGHT] else 0.0)
 			var dz := -1.0 if event.keycode in [KEY_W,KEY_UP] else (1.0 if event.keycode in [KEY_S,KEY_DOWN] else 0.0)
 			focus+=Vector3(dx*cos(yaw)+dz*sin(yaw),0,-dx*sin(yaw)+dz*cos(yaw))*.5
-			focus.x=clampf(focus.x,0,board.SIZE.x*board.CELL)
-			focus.z=clampf(focus.z,0,board.SIZE.y*board.CELL)
+			focus.x=clampf(focus.x,0,board.PLAY_SIZE.x*board.CELL)
+			focus.z=clampf(focus.z,0,board.PLAY_SIZE.y*board.CELL)
 		_update_camera()
 		if event.keycode in [KEY_Q,KEY_E,KEY_W,KEY_A,KEY_S,KEY_D]: _event("camera_key",{"key":event.as_text(),"yaw":yaw,"focus":[focus.x,focus.z]})
 

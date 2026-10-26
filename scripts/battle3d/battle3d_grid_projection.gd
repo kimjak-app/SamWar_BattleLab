@@ -4,8 +4,8 @@ var heightfield=Heightfield.new()
 var world_3d: World3D
 
 func _init() -> void:
-	grid_width=heightfield.SIZE.x
-	grid_height=heightfield.SIZE.y
+	grid_width=heightfield.PLAY_SIZE.x # block 7: the engine's play area, not the 20x20 board
+	grid_height=heightfield.PLAY_SIZE.y
 
 func grid_to_world_3d(cell: Vector2i) -> Vector3:
 	return heightfield.world(cell)

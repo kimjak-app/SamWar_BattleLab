@@ -580,6 +580,9 @@ func _click_world(pos: Vector2) -> void:
 	if _input_locked():
 		return
 	var cell: Vector2i = projection.world_to_grid_from_ray(camera.project_ray_origin(pos),camera.project_ray_normal(pos))
+	if not board.valid(cell): # block 7: outside the play area (scenery or off the board): no cell, no engine query
+		_reject("칸 없음 · 플레이 구역 밖입니다")
+		return
 	if engine.get("current_phase") == "attack_select":
 		_click_attack_cell(cell)
 		return

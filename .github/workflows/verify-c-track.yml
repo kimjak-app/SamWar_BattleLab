@@ -119,6 +119,7 @@ jobs:
             tools/validate_battle3d_m4c1_skill.py
             tools/validate_battle3d_m4c2_enemy_skill.py
             tools/validate_battle3d_m5a_autoplay.py
+            tools/validate_battle3d_terrain_port.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -265,6 +266,13 @@ jobs:
             tests/scripts/test_battle3d_movement_parity.gd
             tests/scripts/test_battle3d_modes.gd
             tests/scripts/test_battle3d_oblique_click.gd
+            tests/scripts/test_battle3d_block7_outside_cells.gd
+            tests/scripts/test_battle3d_block7_old_play_area.gd
+            tests/scripts/test_battle3d_block7_foot_height.gd
+            tests/scripts/test_battle3d_block7_board_data.gd
+            tests/scripts/test_battle3d_block7_triangle_budget.gd
+            tests/scripts/test_battle3d_block7_defaults.gd
+            tests/scripts/test_battle3d_block7_ford_demo_moves.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )

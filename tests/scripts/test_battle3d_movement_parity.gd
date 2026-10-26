@@ -1,6 +1,7 @@
 extends SceneTree
 const Adapter=preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const GridProjection=preload("res://scripts/battle3d/battle3d_grid_projection.gd")
+const TerrainBuilder=preload("res://scripts/battle3d/terrain_board_builder.gd")
 const Queries=preload("res://scripts/battle3d/battle3d_movement_adapter.gd")
 const Service=preload("res://scripts/battle/services/battle_movement_query_service.gd")
 # Independent contract from B3D-F1 brief, not derived from Adapter.VIEW_FIELDS.
@@ -53,8 +54,8 @@ func run_scenario(label: String,units: Array[BattleUnitState],breakthrough: bool
 	expect(not mover.status_effects.has("unexpected_visual_effect"),label+" isolated dictionary")
 	var budget: int=service.get_effective_move_range(mover)
 	var expected: Dictionary=service.get_reachable_paths(mover.grid_cell,mover,budget,flat,units,breakthrough)
-	for x in range(18):
-		for y in range(10):
+	for x in range(projection.heightfield.PLAY_SIZE.x): # block 7: the play area (= the flat engine grid, checked in _run)
+		for y in range(projection.heightfield.PLAY_SIZE.y):
 			var target := Vector2i(x,y)
 			var result: Dictionary=query.query(mover.unit_id,target,breakthrough)
 			expect(result.budget==budget,label+" budget")
@@ -70,6 +71,7 @@ func _run() -> void:
 	expect(Adapter.VIEW_FIELDS==EXPECTED_VIEW_FIELDS,"VIEW_FIELDS exact size/order/elements")
 	flat.grid_width=18
 	flat.grid_height=10
+	expect(projection.heightfield.PLAY_SIZE==Vector2i(flat.grid_width,flat.grid_height) and projection.is_in_bounds(Vector2i(17,9)) and not projection.is_in_bounds(Vector2i(18,9)) and not projection.is_in_bounds(Vector2i(17,10)),"block 7: the play area is the 18x10 engine grid")
 	query.grid=projection
 	for kind in ["infantry","cavalry","archer","gunner","mounted_archer"]:
 		var mover := fixture("fixture_"+kind,Vector2i(4,4),kind)
@@ -102,7 +104,8 @@ func _run() -> void:
 func ray_tests() -> void:
 	var stage := Node3D.new()
 	root.add_child(stage)
-	var terrain=load("res://assets/battle3d/battlefield.glb").instantiate()
+	var terrain=TerrainBuilder.new() # block 7: the 20x20 board the lab builds (battlefield.glb is the old 18x10 ground)
+	terrain.setup_from_board(projection.heightfield)
 	stage.add_child(terrain)
 	GridProjection.attach_surface_collisions(terrain)
 	projection.world_3d=stage.get_world_3d()
@@ -115,8 +118,8 @@ func ray_tests() -> void:
 	await physics_frame
 	for size in [64.0,80.0,100.0]:
 		camera.size=size
-		for x in range(18):
-			for y in range(10):
+		for x in range(projection.heightfield.PLAY_SIZE.x):
+			for y in range(projection.heightfield.PLAY_SIZE.y):
 				var cell := Vector2i(x,y)
 				var point: Vector3=projection.grid_to_world_3d(cell)
 				var screen := camera.unproject_position(point)
@@ -129,9 +132,9 @@ func ray_tests() -> void:
 	var occlusion_cases := 0
 	for origin in [Vector3(0,1.3,4.5),Vector3(10.5,1.3,24)]:
 		var found := false
-		for x in range(18):
+		for x in range(projection.heightfield.PLAY_SIZE.x):
 			if found: break
-			for y in range(10):
+			for y in range(projection.heightfield.PLAY_SIZE.y):
 				var target := Vector2i(x,y)
 				var point: Vector3=projection.grid_to_world_3d(target)
 				var distance: float = origin.distance_to(point)

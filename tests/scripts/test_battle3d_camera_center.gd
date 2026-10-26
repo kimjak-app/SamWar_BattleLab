@@ -61,7 +61,7 @@ func check_centred(lab, label: String) -> Dictionary:
 	var free: Rect2 = h.shell.camera_free_rect()
 	var view := root.get_visible_rect()
 	var point: Vector2 = lab.camera.unproject_position(lab.views[id].position)
-	var size := Vector2(lab.board.SIZE.x * lab.board.CELL, lab.board.SIZE.y * lab.board.CELL)
+	var size := Vector2(lab.board.PLAY_SIZE.x * lab.board.CELL, lab.board.PLAY_SIZE.y * lab.board.CELL) # block 7: the camera's focus limit is the play area, not the 20x20 board
 	var focus: Vector3 = lab.focus
 	var clamped := is_equal_approx(focus.x, 0.0) or is_equal_approx(focus.x, size.x) or is_equal_approx(focus.z, 0.0) or is_equal_approx(focus.z, size.y)
 	var free_ok: bool = view.encloses(free) and free.has_area() and hud_rects().all(func(r): return not (r as Rect2).intersection(view).intersects(free))

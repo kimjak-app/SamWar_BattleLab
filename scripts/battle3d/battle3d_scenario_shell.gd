@@ -481,7 +481,7 @@ func _refresh_camera_center() -> void:
 	centred_turn = key
 	var id: String = lab.hud_ally_actor_id()
 	var target := camera_free_rect().get_center()
-	var board_size := Vector2(lab.board.SIZE.x * lab.board.CELL, lab.board.SIZE.y * lab.board.CELL)
+	var board_size := Vector2(lab.board.PLAY_SIZE.x * lab.board.CELL, lab.board.PLAY_SIZE.y * lab.board.CELL) # block 7: the play area's focus limits
 	camera_target = CameraCenter.focus_for(lab.camera, lab.focus, lab.views[id].position, target, board_size)
 	if is_instance_valid(camera_tween): camera_tween.kill()
 	camera_tween = create_tween()

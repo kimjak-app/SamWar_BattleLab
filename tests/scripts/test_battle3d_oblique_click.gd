@@ -1,5 +1,6 @@
 extends SceneTree
 const GridProjection = preload("res://scripts/battle3d/battle3d_grid_projection.gd")
+const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 var checks := 0
 var failures := 0
 
@@ -14,13 +15,14 @@ func expect(ok: bool, label: String) -> void:
 
 # Independent visibility oracle, matching the existing occlusion test's 0.02
 # world-unit heightfield sampling. Never ask the method under test if visible.
+# Block 7: the whole 20x20 board's ground occludes (scenery included), not only the play area.
 func occluded(projection: Node, origin: Vector3, point: Vector3, cell: Vector2i) -> bool:
 	var distance := origin.distance_to(point)
 	var direction := origin.direction_to(point)
 	for sample in range(1, int(distance / 0.02)):
 		var p := origin + direction * sample * 0.02
 		var c: Vector2i = projection.heightfield.cell_at(p)
-		if projection.is_in_bounds(c) and p.y <= projection.heightfield.height(p.x, p.z):
+		if projection.heightfield.on_board(c) and p.y <= projection.heightfield.height(p.x, p.z):
 			return c != cell
 	return false
 
@@ -43,7 +45,8 @@ func _run() -> void:
 	viewport.add_child(stage)
 	var projection := GridProjection.new()
 	stage.add_child(projection)
-	var terrain = load("res://assets/battle3d/battlefield.glb").instantiate()
+	var terrain = TerrainBuilder.new() # block 7: the 20x20 board the lab builds (battlefield.glb is the old 18x10 ground)
+	terrain.setup_from_board(projection.heightfield)
 	stage.add_child(terrain)
 	GridProjection.attach_surface_collisions(terrain)
 	projection.world_3d = stage.get_world_3d()
@@ -53,8 +56,9 @@ func _run() -> void:
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.far = 200
 	camera.current = true
-	var focus := Vector3(projection.heightfield.SIZE.x * projection.heightfield.CELL * 0.5, 0,
-		projection.heightfield.SIZE.y * projection.heightfield.CELL * 0.5)
+	var play: Vector2i = projection.heightfield.PLAY_SIZE # block 7: the lab's focus is the play area's centre
+	var focus := Vector3(play.x * projection.heightfield.CELL * 0.5, 0,
+		play.y * projection.heightfield.CELL * 0.5)
 	await physics_frame
 	await physics_frame
 	var total_visible := 0
@@ -69,8 +73,8 @@ func _run() -> void:
 			var flat_differences := 0
 			var outside := 0
 			var hidden := 0
-			for x in range(18):
-				for y in range(10):
+			for x in range(play.x):
+				for y in range(play.y):
 					var cell := Vector2i(x,y)
 					var point: Vector3 = projection.grid_to_world_3d(cell)
 					var screen := camera.unproject_position(point)
@@ -90,7 +94,7 @@ func _run() -> void:
 			# Reject vacuous coverage and ensure every camera setup catches flat rays.
 			expect(visible>0,"nonempty visible coverage")
 			expect(flat_differences>0,"terrain-sensitive coverage per camera")
-			expect(visible+outside+hidden==180,"all cells classified")
+			expect(visible+outside+hidden==play.x*play.y,"all cells classified")
 			total_visible += visible
 			total_flat_differences += flat_differences
 			print("[OBLIQUE_CAMERA] yaw=%.2f zoom=%.0f visible=%d passed=%d flat_different=%d outside=%d occluded=%d" % [yaw,zoom,visible,passed,flat_differences,outside,hidden])

@@ -27,6 +27,14 @@ for file in list(S.glob('*.gd'))+list((ROOT/'tests/scripts').glob('test_battle3d
     for path in re.findall(r'(?:load|preload)\("res://([^"%]+)"\)',text):
         assert (ROOT/path).exists(), path
 data=json.loads((ROOT/'assets/battle3d/heightfield.json').read_text(encoding='utf8'))
-assert (data['board']['width'],data['board']['height'])==(18,10)
-assert (data['nx'],data['nz'])==(109,61)
-print('BATTLE3D_CONTRACT PASS: 14-field ordered view contract, projection inheritance, engine query ownership, resources, 18x10 metadata')
+# Block 7: the one 18x10 assertion is split by meaning (none dropped): the play area (the engine's battle grid) stays
+# 18x10 in its one definition; the board (ground, heights, terrain types) is 20x20 of 3 m cells; the height grid
+# covers the board at 0.5 m (20 x 3 / 0.5 + 1 = 121 per axis).
+heightfield=(S/'lab_heightfield.gd').read_text(encoding='utf8')
+play=re.findall(r'^const\s+PLAY_SIZE\s*:=\s*Vector2i\((\d+),\s*(\d+)\)',heightfield,re.M)
+assert play==[('18','10')], ('play area 18x10, defined once', play)
+assert 'grid_width=heightfield.PLAY_SIZE.x' in projection and 'grid_height=heightfield.PLAY_SIZE.y' in projection, 'the projection grid is the play area'
+assert (data['board']['width'],data['board']['height'])==(20,20), 'board 20x20'
+assert data['board']['cell_size']==3.0 and data['step']==0.5, 'cell 3 m, height step 0.5 m'
+assert (data['nx'],data['nz'])==(121,121) and len(data['heights'])==121 and all(len(r)==121 for r in data['heights']), 'height grid 121x121'
+print('BATTLE3D_CONTRACT PASS: 14-field ordered view contract, projection inheritance, engine query ownership, resources, play 18x10 / board 20x20 / heights 121x121 metadata')
