@@ -24,7 +24,7 @@ import argparse, os, re, subprocess
 
 BASE = "0dd923981bf73e97a453cb10f34c90b990c29855"  # docs(battle3d): HUD block 4-3 report (origin/feature/hud-block43-controls-fix-20261026)
 DELIVERED = "9a6f6f29e51bef52b3472acc30e1cb0ad3a67602"  # chore(battle3d): the Grok 20x20 terrain port and its preview scene as delivered
-TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "@@TIP@@")  # block 8 implementation (was d441c23, block 7)
+TIP = os.environ.get("TERRAIN_PORT_SCOPE_TIP", "3824924a5cbcd9fff0450a9465ee5d0e523ea8da")  # feat(battle3d): block 8 look pass 1+2 wiring (was d441c23, block 7)
 LOOK_BASE = "7d1558e3f0b47d53c30f8621b80bcf1ec9208ade"  # docs(battle3d): HUD block 7 terrain port report
 LOOK_A = "e9f450e"  # chore(battle3d): Grok look pass 1+2 files as delivered
 LOOK_B = "923cb2c"  # fix(battle3d): the builder's three compile errors only
