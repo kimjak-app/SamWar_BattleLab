@@ -80,8 +80,8 @@ var mountain_visual_style: int = 0
 @export var forest_trees_outside_play: bool = false
 
 ## Trees per forest cell (2~4, fixed deterministic seed, >= 0.4m inside cell border, non-overlapping)
-@export_range(1, 6, 1) var forest_trees_per_cell_min: int = 2
-@export_range(1, 6, 1) var forest_trees_per_cell_max: int = 4
+@export_range(1, 6, 1) var forest_trees_per_cell_min: int = 1
+@export_range(1, 6, 1) var forest_trees_per_cell_max: int = 3
 
 ## Fade forest cell trees to alpha ~0.35 when occupied via set_forest_cell_fade(cell, fade)
 @export var forest_fade_when_occupied: bool = true
