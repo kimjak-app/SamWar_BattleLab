@@ -88,7 +88,7 @@ func run() -> void:
 		await wait_seconds(0.5)
 		results.append(check_centred(lab, "%dx%d first ally" % [size.x, size.y]))
 		# Each ally turn of round 1 and round 2 (the bottom-left reinforcement arrives in round 2).
-		for turn in range(6):
+		for turn in range(6 if size.x == 1920 else 3): # 1920x1080 reaches the bottom-left reinforcement; 1280x800 three turns (CI 120 s per test)
 			var key: String = h.shell.camera_turn_key()
 			var enemy_focus_moves := 0
 			lab.request_wait()

@@ -255,6 +255,7 @@ jobs:
             tests/scripts/test_battle3d_enemy_roster.gd
             tests/scripts/test_battle3d_ally_roster_actor.gd
             tests/scripts/test_battle3d_command_panel.gd
+            tests/scripts/test_battle3d_command_panel_checks.gd
             tests/scripts/test_battle3d_acted_ally_click.gd
             tests/scripts/test_battle3d_camera_center.gd
             tests/scripts/test_battle3d_facing_arrows.gd

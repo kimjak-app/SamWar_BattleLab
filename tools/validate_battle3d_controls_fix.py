@@ -14,7 +14,7 @@ HEAD audits the live worktree.
 from pathlib import Path
 import argparse, os, re, subprocess
 
-BASE = "2f7f53f"  # Merge feature/hud-block5-cutin-result-toast-20261025 (integration with blocks 4-2 and 5)
+BASE = "2f7f53fa03b0e09914fa354fa159ae00df4c851d"  # Merge feature/hud-block5-cutin-result-toast-20261025 (integration with blocks 4-2 and 5)
 TIP = os.environ.get("CONTROLS_FIX_SCOPE_TIP", "HEAD")
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
@@ -22,7 +22,7 @@ PANEL = "scripts/battle3d/battle3d_command_panel.gd"
 CAMERA = "scripts/battle3d/battle3d_camera_center.gd"
 TILE = "scripts/battle3d/battle3d_facing_tile.gd"
 PANEL_TEST = "tests/scripts/test_battle3d_command_panel.gd"
-NEW_TESTS = ["tests/scripts/test_battle3d_acted_ally_click.gd", "tests/scripts/test_battle3d_camera_center.gd", "tests/scripts/test_battle3d_facing_arrows.gd", "tests/scripts/test_battle3d_panel_drag.gd"]
+NEW_TESTS = ["tests/scripts/test_battle3d_command_panel_checks.gd", "tests/scripts/test_battle3d_acted_ally_click.gd", "tests/scripts/test_battle3d_camera_center.gd", "tests/scripts/test_battle3d_facing_arrows.gd", "tests/scripts/test_battle3d_panel_drag.gd"]
 WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_controls_fix.py"
 REPORT = "agent/HUD_BLOCK43_CONTROLS_FIX_RESULT_20261026.md"
@@ -111,8 +111,10 @@ def main():
     # The block 4-2 test: removed lines only in the two arrow checks and the expected-position rects; the additions are present.
     removed, added = diff(PANEL_TEST)
     assert all(("TEXT[d]" in x or "want" in x or "arrow_sizes" in x or "grid texts" in x or "is_equal_approx(h.shell.cell_screen_rect" in x) for x in removed), ("block 4-2 test: only the arrow checks changed", removed)
+    assert len(added) <= 14, ("block 4-2 test: only the own-cell rect and the two arrow checks", added)
+    checks = text("tests/scripts/test_battle3d_command_panel_checks.gd")
     for needle in ["func block43_additions() -> void:", "skill_cost_up", "func independent_open(lab, b) -> bool:", "func expected_position(", "_on_strategy_button_pressed", "hud_range_cell_positions()"]:
-        assert any(needle in x for x in added), "block 4-2 test addition: " + needle
+        assert needle in checks, "block 4-2 test additions (own file): " + needle
     git("diff", "--check", *rev)
     print(f"CONTROLS_FIX validator PASS: base={BASE} scope={TIP}; {len(changes)} paths; no new engine read or write; items 1-4 and cleanup present")
 
