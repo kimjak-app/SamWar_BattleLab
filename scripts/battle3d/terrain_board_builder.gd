@@ -3,29 +3,65 @@ extends Node3D
 ## EASTWAR FIELD LAB — 20x20 (3.0m cell = 60m x 60m) 3D Terrain & Vista Builder (Godot 4.6)
 ## - Heightfield unified with res://assets/battle3d/heightfield.json (step=0.5m, 121x121 vertices)
 ## - Terrain types unified with res://assets/battle3d/terrain_types.json (preserves 18x10 region 100%)
-## - Three Kingdoms 8 Remake style:
-##   * Flat dark slate-blue water plane (no wave displacement or depth gradient)
-##   * Ford cell (row 5) shown as shallow sand/gravel bar by default; wooden log bridges off by default (show_bridges = false)
-##   * Low interior mountain ridges by default (mountain_height_scale = 0.5); tall silhouette ridges in out-of-bounds vista
-##   * Symbolic trees only: 0 trees on playable cells; 2 symbolic clusters (38 trees each = 76 trees, 156 tris/tree = 11,856 tris <= 16,000) just outside board boundary; distant background uses low-poly ridge silhouette + texture
+## - Visual Pass 1 (Out-of-Bounds + Compatibility Water):
+##   * Seamless same-height OutOfBoundsVista (0.0m seam step via 0.5m-to-1.5m edge stitching, 9,920 tris <= 12,000)
+##   * Gentle 4~8m outer rolling ridges, 1-cell (3.0m) soft desaturation/darkening, 100% haze lock at 45m
+##   * Pale yellow border line along play_rect (play_cells read in one place: _get_play_rect_world())
+##   * Flat RiverWaterPlane ribbon mesh (y = -0.12, 4,120 tris) with baked shoreline/ford vertex colors & UVs
+## - Visual Pass 2 (Forest Cell Trees + Out-of-Bounds Painted Ground):
+##   * Boundary tree clusters off by default (scatter_boundary_trees = false)
+##   * Forest cell trees (2~4 per cell, seed-deterministic, >= 0.4m inside border, non-overlapping, height <= 4.0m)
+##   * Unit occupation semi-transparency via set_forest_cell_fade(cell, fade) (alpha ~0.35; 100% opaque when unfaded)
+##   * Out-of-bounds world-UV painted ground texture (outer_ground_texture + procedural cartographic fallback)
+##   * Greyish-yellow default haze color (#8d897a)
 
 const HeightfieldScript = preload("res://scripts/battle3d/lab_heightfield.gd")
 const DefaultTerrainShader = preload("res://scripts/battle3d/eastwar_terrain_20x20.gdshader")
+const DefaultWaterShader = preload("res://scripts/battle3d/eastwar_terrain_20x20_water.gdshader")
 
 enum TerrainType { PLAIN = 0, FOREST = 1, HILL = 2, MOUNTAIN = 3, WATER = 4, FORT = 5, FORD = 6 }
 enum OverlayType { NONE = 0, SNOW = 1, MUD = 2, CHARRED = 3 }
 
 const GRID_W: int = 20
 const GRID_H: int = 20
-const TILE_SIZE: float = 3.0          # 1 cell = 3.0m x 3.0m (playable board = 60.0m x 60.0m)
+const TILE_SIZE: float = 3.0          # 1 cell = 3.0m x 3.0m (20x20 data board = 60.0m x 60.0m)
 const SUBDIV: int = 6                 # 6x6 subdiv per cell -> 0.5m step (120x120 Quads = 28,800 tris)
 const WATER_SURFACE_Y: float = -0.12  # Flat water surface level (below ford 0.14m, above riverbed -0.32m)
-const VISTA_MARGIN: float = 24.0      # Out-of-bounds vista extension (8 cells = 24.0m on each side)
-const VISTA_STEP: float = 1.5         # Low-poly step for out-of-bounds vista & silhouette mountain ring
+const VISTA_MARGIN: float = 45.0      # Out-of-bounds distance where haze reaches 100% (45.0m)
+const VISTA_APRON_MIN: float = -156.0 # Far fog-locked apron min xz (covers ortho zoom 20..85 at any yaw)
+const VISTA_APRON_MAX: float = 210.0  # Far fog-locked apron max xz (covers ortho zoom 20..85 at any yaw)
+const FOREST_OCCUPIED_ALPHA: float = 0.35
+const FOREST_LAYOUT_SEED: int = 20261031
 
 @export var terrain_shader: Shader = DefaultTerrainShader
+@export var water_shader: Shader = DefaultWaterShader
 @export var texture_folder_path: String = "res://assets/terrain_textures_pack"
 @export var use_pbr_textures: bool = true
+
+## Playable grid dimensions in cells (read ONLY in _get_play_rect_world())
+@export var play_cells: Vector2i = Vector2i(18, 10)
+
+## Out-of-bounds distance fog color (default #8d897a greyish-yellow)
+@export var haze_color: Color = Color("8d897a")
+
+## Playable zone border line controls (thin pale-yellow boundary line along play_rect)
+@export var show_border_line: bool = true
+@export var border_line_color: Color = Color(0.92, 0.84, 0.58, 1.0)
+@export_range(0.05, 0.30, 0.01) var border_line_width: float = 0.12
+@export_range(0.0, 2.0, 0.05) var border_line_strength: float = 0.85
+
+## Out-of-bounds "painted ground" controls (top-down omnidirectional cartographic texture in world UV)
+@export var outer_ground_texture: Texture2D
+@export var use_procedural_outer_ground: bool = true
+@export var outer_ground_world_size: float = 220.0
+@export_range(0.0, 1.0, 0.05) var outer_ground_strength: float = 1.0
+
+## River water shader controls (Three Kingdoms 8R tone + 2-layer flow, sun glint, baked shore foam)
+@export_range(0.0, 1.0, 0.01) var water_flow_speed: float = 0.08
+@export_range(0.05, 1.0, 0.01) var water_ripple_scale: float = 0.22
+@export_range(0.0, 0.5, 0.01) var water_foam_width: float = 0.16
+@export var water_shallow_color: Color = Color(0.27, 0.36, 0.40, 1.0)
+@export var water_deep_color: Color = Color(0.14, 0.21, 0.26, 1.0)
 
 ## 0: Regional mix (West=Style1, NE=Style2, SE=Style3), 1: Green Ridge+Crag, 2: Mossy Forest Peak, 3: Ochre Earth Rock
 @export_enum("0_Regional_Mix:0", "1_Green_Ridge_Crag:1", "2_Mossy_Forest_Peak:2", "3_Ochre_Boulder:3")
@@ -37,11 +73,24 @@ var mountain_visual_style: int = 0
 ## Toggle 3D wooden log bridges (default false: ford row 5 shows shallow sand/gravel bar)
 @export var show_bridges: bool = false
 
-## Toggle inner playable board trees (default false: 0 trees on unit cells, forest uses 02_forest_floor texture)
-@export var scatter_inner_trees: bool = false
+## Forest cell trees (default true: places 2~4 trees per forest cell inside playable area)
+@export var scatter_inner_trees: bool = true
 
-## Toggle symbolic boundary pine clusters outside playable board (default true: 2 clusters x 38 trees = 76 trees)
-@export var scatter_boundary_trees: bool = true
+## Place trees on forest cells outside playable area (default false: no trees outside 18x10 playable board)
+@export var forest_trees_outside_play: bool = false
+
+## Trees per forest cell (2~4, fixed deterministic seed, >= 0.4m inside cell border, non-overlapping)
+@export_range(1, 6, 1) var forest_trees_per_cell_min: int = 2
+@export_range(1, 6, 1) var forest_trees_per_cell_max: int = 4
+
+## Fade forest cell trees to alpha ~0.35 when occupied via set_forest_cell_fade(cell, fade)
+@export var forest_fade_when_occupied: bool = true
+
+## Slot for future Tripo forest tree mesh (if null, falls back to tree_mesh or built-in 156-tri oriental pine)
+@export var forest_tree_mesh: Mesh
+
+## Toggle symbolic boundary pine clusters outside playable board (default false per Visual Pass 2)
+@export var scatter_boundary_trees: bool = false
 
 @export var tree_mesh: Mesh
 
@@ -62,9 +111,24 @@ var control_image: Image
 var control_texture: ImageTexture
 var highlight_image: Image
 var highlight_texture: ImageTexture
+var procedural_outer_ground_tex: ImageTexture
 var shader_material: ShaderMaterial
+var water_shader_material: ShaderMaterial
 
 var _noise_macro: FastNoiseLite
+var _noise_water: FastNoiseLite
+var _noise_outer_map: FastNoiseLite
+var _noise_outer_detail: FastNoiseLite
+
+var _tree_bark_mat: StandardMaterial3D
+var _tree_foliage_mat: StandardMaterial3D
+var _forest_cell_to_instances: Dictionary = {} # Vector2i(x, y) -> PackedInt32Array
+var _faded_forest_cells: Dictionary = {}       # Vector2i(x, y) -> bool
+
+
+## Single point of truth reading `play_cells` to compute world xz play_rect (min_x, min_z, max_x, max_z)
+func _get_play_rect_world() -> Vector4:
+	return Vector4(0.0, 0.0, float(play_cells.x) * TILE_SIZE, float(play_cells.y) * TILE_SIZE)
 
 
 func setup_from_board(p_board) -> void:
@@ -94,6 +158,23 @@ func _init_noises() -> void:
 	_noise_macro.frequency = 0.032
 	_noise_macro.fractal_octaves = 3
 
+	_noise_water = FastNoiseLite.new()
+	_noise_water.seed = 20261026
+	_noise_water.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_noise_water.frequency = 0.045
+	_noise_water.fractal_octaves = 2
+
+	_noise_outer_map = FastNoiseLite.new()
+	_noise_outer_map.seed = 20261027
+	_noise_outer_map.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_noise_outer_map.frequency = 0.018
+	_noise_outer_map.fractal_octaves = 3
+
+	_noise_outer_detail = FastNoiseLite.new()
+	_noise_outer_detail.seed = 20261028
+	_noise_outer_detail.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_noise_outer_detail.frequency = 0.055
+	_noise_outer_detail.fractal_octaves = 2
 
 func _load_terrain_grids_from_json() -> void:
 	terrain_grid.resize(GRID_H)
@@ -152,12 +233,16 @@ func _smoothstep_f(edge0: float, edge1: float, x: float) -> float:
 	return t * t * (3.0 - 2.0 * t)
 
 
-## Unified height formula used to bake heightfield.json and extend seamlessly into out-of-bounds vista
+## Unified height formula:
+## - Inside 0..60m x 0..60m: 100% identical to heightfield.json (zero change inside playable or 20x20 board)
+## - Outside 0..60m x 0..60m: C1-continuous transition (d_out 0..3m flat gradient match) into gentle, broad
+##   outer ridges (height difference ~4.4m to 7.5m, max slope ~13 deg so camera view is never blocked),
+##   while keeping the North (z < 0) and South (z > 60) river channel and valley corridor smoothly open.
 func sample_smooth_height_at_world(wx: float, wz: float) -> float:
 	var board_w: float = float(GRID_W) * TILE_SIZE
 	var board_h: float = float(GRID_H) * TILE_SIZE
 
-	# Inside the playable 20x20 grid (0..60m x 0..60m), read directly from heightfield.json grid when at default scale
+	# Inside the 20x20 grid (0..60m x 0..60m), read directly from heightfield.json grid when at default scale
 	if board_ref != null and wx >= 0.0 and wx <= board_w and wz >= 0.0 and wz <= board_h and absf(mountain_height_scale - 0.5) <= 0.0001:
 		var step_s: float = float(board_ref.data.step)
 		var ix: int = clampi(int(round(wx / step_s)), 0, int(board_ref.data.nx) - 1)
@@ -179,17 +264,20 @@ func sample_smooth_height_at_world(wx: float, wz: float) -> float:
 
 	var land: float = base + h1 + h2 + sw_ridge + se_ridge + ne_ridge
 
-	# Out-of-bounds background vista silhouette mountain ring (0 inside 0..60m, rises smoothly in outer ring)
+	# Out-of-bounds gentle, broad outer ridges (0 inside 0..60m, rises smoothly over 3..34m outside)
 	var dx_out: float = maxf(0.0, maxf(-wx, wx - board_w))
 	var dz_out: float = maxf(0.0, maxf(-wz, wz - board_h))
 	var d_out: float = sqrt(dx_out * dx_out + dz_out * dz_out)
 	if d_out > 0.0:
-		var ring_rise: float = _smoothstep_f(4.5, 21.0, d_out)
+		var ring_rise: float = _smoothstep_f(3.0, 34.0, d_out)
+		var far_settle: float = 1.0 - 0.35 * _smoothstep_f(48.0, 95.0, d_out)
 		var angle: float = atan2(wz - board_h * 0.5, wx - board_w * 0.5)
-		var silhouette_wave: float = 1.0 + 0.38 * sin(angle * 5.0 + 0.6) + 0.24 * cos(angle * 9.0 - 0.4)
-		# Keep river valley open where river flows out at North (z < 0) and South (z > 60)
-		var river_corridor: float = _smoothstep_f(3.2, 10.5, absf(wx - rc))
-		land += ring_rise * 3.85 * silhouette_wave * river_corridor
+		var broad_wave: float = 1.0 + 0.25 * sin(angle * 3.0 + 0.5) + 0.12 * cos(angle * 5.0 - 0.3)
+		var radial_undulation: float = 0.45 * sin(d_out * 0.14 + angle * 2.0)
+		var ridge_h: float = (5.4 * broad_wave + radial_undulation) * ring_rise * far_settle
+		# Keep river valley corridor open where river continues North (z < 0) and South (z > 60)
+		var river_corridor: float = _smoothstep_f(3.6, 15.0, absf(wx - rc))
+		land += ridge_h * river_corridor
 
 	var d_river: float = absf(wx - rc)
 	var s_river: float = _smoothstep_f(1.15, 3.45, d_river)
@@ -340,71 +428,132 @@ func _build_ford_sandbar_mesh() -> void:
 	ford_mesh_instance.material_override = ford_mat
 
 
-## 3) Out-of-Bounds Background Vista & Low-Poly Silhouette Mountain Ring ("OutOfBoundsVista")
-## Surrounds the 60m x 60m playable board with continuous ground and distant silhouette ridges (no vertical cliff cutaway)
+## Builds non-uniform 1D coordinate array for OutOfBoundsVista (coarser further out, 0 T-junctions)
+func _build_vista_axis_coords(board_span: float) -> PackedFloat32Array:
+	var coords := PackedFloat32Array()
+	# 1) Far negative fog-locked apron (1 interval: -156.0 -> -45.0)
+	coords.append(VISTA_APRON_MIN)
+	# 2) Mid negative fog zone (-45.0 -> -12.0 at 3.0m step: 11 intervals)
+	for i in range(11):
+		coords.append(-45.0 + float(i) * 3.0)
+	# 3) Near negative transition (-12.0 -> 0.0 at 1.5m step: 8 intervals)
+	for i in range(8):
+		coords.append(-12.0 + float(i) * 1.5)
+	# 4) Board span (0.0 -> 60.0 at 1.5m step: 40 intervals)
+	var board_steps: int = int(round(board_span / 1.5))
+	for i in range(board_steps + 1):
+		coords.append(float(i) * 1.5)
+	# 5) Near positive transition (60.0 -> 72.0 at 1.5m step: 8 intervals)
+	for i in range(1, 9):
+		coords.append(board_span + float(i) * 1.5)
+	# 6) Mid positive fog zone (72.0 -> 105.0 at 3.0m step: 11 intervals)
+	for i in range(1, 12):
+		coords.append(board_span + 12.0 + float(i) * 3.0)
+	# 7) Far positive fog-locked apron (1 interval: 105.0 -> 210.0)
+	coords.append(VISTA_APRON_MAX)
+	return coords
+
+
+func _emit_vista_tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, board_w: float, board_h: float) -> void:
+	st.set_uv(Vector2(a.x / board_w, a.z / board_h))
+	st.add_vertex(a)
+	st.set_uv(Vector2(b.x / board_w, b.z / board_h))
+	st.add_vertex(b)
+	st.set_uv(Vector2(c.x / board_w, c.z / board_h))
+	st.add_vertex(c)
+
+
+## 3) Out-of-Bounds Continuous Ground & Gentle Outer Ridges ("OutOfBoundsVista")
+## - Stitches 0.5m Terrain boundary vertices directly to 1.5m Vista ring (0.000000m seam step, 0 T-junctions)
+## - No vertical cliff skirt and no bottom cap
+## - Total triangles = 9,920 (<= 12,000 budget), no collision, cast_shadow = OFF
 func _build_out_of_bounds_vista_mesh() -> void:
 	var board_w: float = float(GRID_W) * TILE_SIZE
 	var board_h: float = float(GRID_H) * TILE_SIZE
-	var min_x: float = -VISTA_MARGIN
-	var max_x: float = board_w + VISTA_MARGIN
-	var min_z: float = -VISTA_MARGIN
-	var max_z: float = board_h + VISTA_MARGIN
 
-	var count_x: int = int(round((max_x - min_x) / VISTA_STEP)) + 1
-	var count_z: int = int(round((max_z - min_z) / VISTA_STEP)) + 1
+	var xs: PackedFloat32Array = _build_vista_axis_coords(board_w)
+	var zs: PackedFloat32Array = _build_vista_axis_coords(board_h)
+	var count_x: int = xs.size()
+	var count_z: int = zs.size()
 
 	var vista_h: Array = []
 	vista_h.resize(count_z)
 	for vz in range(count_z):
-		vista_h[vz] = []
-		var wz: float = min_z + float(vz) * VISTA_STEP
+		var row_h := PackedFloat32Array()
+		row_h.resize(count_x)
+		var wz: float = zs[vz]
 		for vx in range(count_x):
-			var wx: float = min_x + float(vx) * VISTA_STEP
-			vista_h[vz].append(sample_smooth_height_at_world(wx, wz))
+			row_h[vx] = sample_smooth_height_at_world(xs[vx], wz)
+		vista_h[vz] = row_h
 
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	st.set_color(Color(1.0, 1.0, 1.0, 1.0))
 
 	for vz in range(count_z - 1):
-		var z0: float = min_z + float(vz) * VISTA_STEP
-		var z1: float = z0 + VISTA_STEP
-		for vx in range(count_x - 1):
-			var x0: float = min_x + float(vx) * VISTA_STEP
-			var x1: float = x0 + VISTA_STEP
+		var z0: float = zs[vz]
+		var z1: float = zs[vz + 1]
+		var row0: PackedFloat32Array = vista_h[vz]
+		var row1: PackedFloat32Array = vista_h[vz + 1]
 
-			# Skip quads strictly inside the 60m x 60m playable board (already covered by "Terrain")
+		for vx in range(count_x - 1):
+			var x0: float = xs[vx]
+			var x1: float = xs[vx + 1]
+
+			# Skip interior 0..60m x 0..60m cells (already covered by 28,800-tri "Terrain" mesh)
 			if x0 >= -0.001 and x1 <= board_w + 0.001 and z0 >= -0.001 and z1 <= board_h + 0.001:
 				continue
 
-			var p00 := Vector3(x0, vista_h[vz][vx], z0)
-			var p10 := Vector3(x1, vista_h[vz][vx + 1], z0)
-			var p01 := Vector3(x0, vista_h[vz + 1][vx], z1)
-			var p11 := Vector3(x1, vista_h[vz + 1][vx + 1], z1)
+			var p00 := Vector3(x0, row0[vx], z0)
+			var p10 := Vector3(x1, row0[vx + 1], z0)
+			var p01 := Vector3(x0, row1[vx], z1)
+			var p11 := Vector3(x1, row1[vx + 1], z1)
 
-			st.set_uv(Vector2(x0 / board_w, z0 / board_h))
-			st.add_vertex(p00)
-			st.set_uv(Vector2(x1 / board_w, z0 / board_h))
-			st.add_vertex(p10)
-			st.set_uv(Vector2(x0 / board_w, z1 / board_h))
-			st.add_vertex(p01)
-
-			st.set_uv(Vector2(x1 / board_w, z0 / board_h))
-			st.add_vertex(p10)
-			st.set_uv(Vector2(x1 / board_w, z1 / board_h))
-			st.add_vertex(p11)
-			st.set_uv(Vector2(x0 / board_w, z1 / board_h))
-			st.add_vertex(p01)
-
-			# Add thin 0.18m inner lip along the 0..60m seam to prevent any sub-step T-junction pinhole
-			if absf(z1 - 0.0) < 0.001 and x0 >= 0.0 and x1 <= board_w:
-				_add_quad(st, p01, p11, p01 - Vector3(0.0, 0.18, 0.0), p11 - Vector3(0.0, 0.18, 0.0))
-			elif absf(z0 - board_h) < 0.001 and x0 >= 0.0 and x1 <= board_w:
-				_add_quad(st, p10, p00, p10 - Vector3(0.0, 0.18, 0.0), p00 - Vector3(0.0, 0.18, 0.0))
-			if absf(x1 - 0.0) < 0.001 and z0 >= 0.0 and z1 <= board_h:
-				_add_quad(st, p11, p10, p11 - Vector3(0.0, 0.18, 0.0), p10 - Vector3(0.0, 0.18, 0.0))
-			elif absf(x0 - board_w) < 0.001 and z0 >= 0.0 and z1 <= board_h:
-				_add_quad(st, p00, p01, p00 - Vector3(0.0, 0.18, 0.0), p01 - Vector3(0.0, 0.18, 0.0))
+			# Stitch 0.5m Terrain perimeter vertices on the 4 inner boundary edges (zero T-junctions, 0.0m step)
+			if absf(z1 - 0.0) < 0.001 and x0 >= -0.001 and x1 <= board_w + 0.001:
+				# North seam (z1 == 0.0, x0..x1 = 1.5m subdivided into 3 x 0.5m segments on Terrain edge)
+				var xm1: float = x0 + 0.5
+				var xm2: float = x0 + 1.0
+				var s1 := Vector3(xm1, sample_smooth_height_at_world(xm1, 0.0), 0.0)
+				var s2 := Vector3(xm2, sample_smooth_height_at_world(xm2, 0.0), 0.0)
+				_emit_vista_tri(st, p00, s1, p01, board_w, board_h)
+				_emit_vista_tri(st, p00, p10, s1, board_w, board_h)
+				_emit_vista_tri(st, p10, s2, s1, board_w, board_h)
+				_emit_vista_tri(st, p10, p11, s2, board_w, board_h)
+			elif absf(z0 - board_h) < 0.001 and x0 >= -0.001 and x1 <= board_w + 0.001:
+				# South seam (z0 == 60.0, x0..x1 = 1.5m subdivided into 3 x 0.5m segments on Terrain edge)
+				var xm1: float = x0 + 0.5
+				var xm2: float = x0 + 1.0
+				var n1 := Vector3(xm1, sample_smooth_height_at_world(xm1, board_h), board_h)
+				var n2 := Vector3(xm2, sample_smooth_height_at_world(xm2, board_h), board_h)
+				_emit_vista_tri(st, p00, n1, p01, board_w, board_h)
+				_emit_vista_tri(st, n1, n2, p01, board_w, board_h)
+				_emit_vista_tri(st, n2, p11, p01, board_w, board_h)
+				_emit_vista_tri(st, n2, p10, p11, board_w, board_h)
+			elif absf(x1 - 0.0) < 0.001 and z0 >= -0.001 and z1 <= board_h + 0.001:
+				# West seam (x1 == 0.0, z0..z1 = 1.5m subdivided into 3 x 0.5m segments on Terrain edge)
+				var zm1: float = z0 + 0.5
+				var zm2: float = z0 + 1.0
+				var e1 := Vector3(0.0, sample_smooth_height_at_world(0.0, zm1), zm1)
+				var e2 := Vector3(0.0, sample_smooth_height_at_world(0.0, zm2), zm2)
+				_emit_vista_tri(st, p00, p10, e1, board_w, board_h)
+				_emit_vista_tri(st, p00, e1, p01, board_w, board_h)
+				_emit_vista_tri(st, p01, e1, e2, board_w, board_h)
+				_emit_vista_tri(st, p01, e2, p11, board_w, board_h)
+			elif absf(x0 - board_w) < 0.001 and z0 >= -0.001 and z1 <= board_h + 0.001:
+				# East seam (x0 == 60.0, z0..z1 = 1.5m subdivided into 3 x 0.5m segments on Terrain edge)
+				var zm1: float = z0 + 0.5
+				var zm2: float = z0 + 1.0
+				var w1 := Vector3(board_w, sample_smooth_height_at_world(board_w, zm1), zm1)
+				var w2 := Vector3(board_w, sample_smooth_height_at_world(board_w, zm2), zm2)
+				_emit_vista_tri(st, p00, p10, w1, board_w, board_h)
+				_emit_vista_tri(st, w1, p10, w2, board_w, board_h)
+				_emit_vista_tri(st, w2, p10, p11, board_w, board_h)
+				_emit_vista_tri(st, w2, p11, p01, board_w, board_h)
+			else:
+				# Standard outer quad (2 triangles)
+				_emit_vista_tri(st, p00, p10, p01, board_w, board_h)
+				_emit_vista_tri(st, p10, p11, p01, board_w, board_h)
 
 	st.generate_normals()
 	st.generate_tangents()
@@ -419,23 +568,91 @@ func _build_out_of_bounds_vista_mesh() -> void:
 	vista_mesh_instance.mesh = vista_mesh
 	vista_mesh_instance.material_override = shader_material
 
+func _sample_tileable_noise(noise: FastNoiseLite, u: float, v: float, period: float) -> float:
+	var x0: float = u * period
+	var y0: float = v * period
+	var n00: float = noise.get_noise_2d(x0, y0)
+	var n10: float = noise.get_noise_2d(x0 - period, y0)
+	var n01: float = noise.get_noise_2d(x0, y0 - period)
+	var n11: float = noise.get_noise_2d(x0 - period, y0 - period)
+	var wx: float = _smoothstep_f(0.0, 1.0, u)
+	var wy: float = _smoothstep_f(0.0, 1.0, v)
+	return lerpf(lerpf(n00, n10, wx), lerpf(n01, n11, wx), wy)
 
-func _add_quad(st: SurfaceTool, tl: Vector3, tr: Vector3, bl: Vector3, br: Vector3) -> void:
-	st.set_uv(Vector2(0.0, 0.0))
-	st.add_vertex(tl)
-	st.set_uv(Vector2(1.0, 0.0))
-	st.add_vertex(tr)
-	st.set_uv(Vector2(0.0, 1.0))
-	st.add_vertex(bl)
-	st.set_uv(Vector2(1.0, 0.0))
-	st.add_vertex(tr)
-	st.set_uv(Vector2(1.0, 1.0))
-	st.add_vertex(br)
-	st.set_uv(Vector2(0.0, 1.0))
-	st.add_vertex(bl)
+
+## Generates a seamless 256x256 top-down omnidirectional cartographic painted terrain texture with mipmaps
+func _get_or_create_procedural_outer_ground_texture() -> ImageTexture:
+	if procedural_outer_ground_tex != null:
+		return procedural_outer_ground_tex
+
+	var sz: int = 256
+	var period: float = 128.0
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+
+	var col_valley := Color(0.39, 0.41, 0.33, 1.0)
+	var col_plain  := Color(0.49, 0.47, 0.39, 1.0)
+	var col_ochre  := Color(0.57, 0.52, 0.42, 1.0)
+	var col_ridge  := Color(0.64, 0.59, 0.49, 1.0)
+
+	for py in range(sz):
+		var v: float = float(py) / float(sz)
+		for px in range(sz):
+			var u: float = float(px) / float(sz)
+			var n_macro: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_map, u, v, period)
+			var n_det: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_detail, u, v, period)
+			var elev: float = clampf(n_macro * 0.74 + n_det * 0.26, 0.0, 1.0)
+
+			# Omnidirectional (directionless) ambient occlusion / curvature shading + subtle contour rings
+			var eps: float = 1.0 / float(sz)
+			var e_r: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_map, fposmod(u + eps, 1.0), v, period)
+			var e_l: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_map, fposmod(u - eps, 1.0), v, period)
+			var e_d: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_map, u, fposmod(v + eps, 1.0), period)
+			var e_u: float = 0.5 + 0.5 * _sample_tileable_noise(_noise_outer_map, u, fposmod(v - eps, 1.0), period)
+			var slope_mag: float = sqrt(pow(e_r - e_l, 2.0) + pow(e_d - e_u, 2.0)) * 9.5
+			var laplacian: float = (e_r + e_l + e_d + e_u - 4.0 * n_macro) * 14.0
+
+			var c: Color = col_valley.lerp(col_plain, _smoothstep_f(0.20, 0.48, elev))
+			c = c.lerp(col_ochre, _smoothstep_f(0.45, 0.72, elev))
+			c = c.lerp(col_ridge, _smoothstep_f(0.68, 0.92, elev))
+
+			var contour_wave: float = absf(fract(elev * 7.5) - 0.5) * 2.0
+			var contour_line: float = 1.0 - _smoothstep_f(0.0, 0.14, contour_wave)
+			var omni_shade: float = clampf(1.0 - slope_mag * 0.14 - clampf(laplacian, -0.12, 0.12) - contour_line * 0.07, 0.78, 1.14)
+			img.set_pixel(px, py, Color(clampf(c.r * omni_shade, 0.0, 1.0), clampf(c.g * omni_shade, 0.0, 1.0), clampf(c.b * omni_shade, 0.0, 1.0), 1.0))
+
+	img.generate_mipmaps()
+	procedural_outer_ground_tex = ImageTexture.create_from_image(img)
+	return procedural_outer_ground_tex
+
+
+func _update_outer_ground_shader_params() -> void:
+	if shader_material == null:
+		return
+	var active_outer_tex: Texture2D = outer_ground_texture
+	var enable_outer: bool = false
+	if active_outer_tex != null:
+		enable_outer = true
+	elif use_procedural_outer_ground:
+		active_outer_tex = _get_or_create_procedural_outer_ground_texture()
+		enable_outer = true
+
+	shader_material.set_shader_parameter("use_outer_ground_tex", enable_outer)
+	shader_material.set_shader_parameter("outer_ground_world_size", outer_ground_world_size)
+	shader_material.set_shader_parameter("outer_ground_strength", outer_ground_strength)
+	if active_outer_tex != null:
+		shader_material.set_shader_parameter("outer_ground_tex", active_outer_tex)
+
+
+func set_outer_ground_enabled(enabled: bool) -> void:
+	use_procedural_outer_ground = enabled
+	if shader_material != null:
+		var has_tex: bool = enabled and (outer_ground_texture != null or _get_or_create_procedural_outer_ground_texture() != null)
+		shader_material.set_shader_parameter("use_outer_ground_tex", has_tex)
 
 
 func _apply_terrain_shader_material() -> void:
+	var play_rect_world: Vector4 = _get_play_rect_world()
+
 	shader_material = ShaderMaterial.new()
 	if terrain_shader == null:
 		terrain_shader = DefaultTerrainShader
@@ -444,10 +661,17 @@ func _apply_terrain_shader_material() -> void:
 	shader_material.set_shader_parameter("tile_world_size", TILE_SIZE)
 	shader_material.set_shader_parameter("water_level_y", WATER_SURFACE_Y)
 	shader_material.set_shader_parameter("vista_max_distance", VISTA_MARGIN)
+	shader_material.set_shader_parameter("play_rect", play_rect_world)
+	shader_material.set_shader_parameter("haze_color", Vector3(haze_color.r, haze_color.g, haze_color.b))
+	shader_material.set_shader_parameter("show_border_line", show_border_line)
+	shader_material.set_shader_parameter("border_line_color", border_line_color)
+	shader_material.set_shader_parameter("border_line_width", border_line_width)
+	shader_material.set_shader_parameter("border_line_strength", border_line_strength)
 	shader_material.set_shader_parameter("terrain_control_map", control_texture)
 	shader_material.set_shader_parameter("tactical_highlight_map", highlight_texture)
 	shader_material.set_shader_parameter("use_pbr_textures", use_pbr_textures)
 	shader_material.set_shader_parameter("mountain_visual_style", mountain_visual_style)
+	_update_outer_ground_shader_params()
 
 	var noise_tex := NoiseTexture2D.new()
 	noise_tex.seamless = true
@@ -483,8 +707,25 @@ func _apply_terrain_shader_material() -> void:
 		if ResourceLoader.exists(full_path):
 			shader_material.set_shader_parameter(param_name, load(full_path))
 
+## Finds exact world X where terrain height crosses WATER_SURFACE_Y (-0.12) on West (side=-1) or East (side=+1) bank
+func _find_river_shore_x(wz: float, side: float) -> float:
+	var rc: float = 28.0 + 1.4 * sin(wz * 0.25)
+	var x_in: float = rc + side * 1.15
+	var x_out: float = rc + side * 3.45
+	for _iter in range(10):
+		var x_mid: float = 0.5 * (x_in + x_out)
+		var h_mid: float = sample_smooth_height_at_world(x_mid, wz)
+		if h_mid < WATER_SURFACE_Y:
+			x_in = x_mid
+		else:
+			x_out = x_mid
+	return 0.5 * (x_in + x_out)
 
-## 4) Flat Dark Slate-Blue Water Plane ("RiverWaterPlane", Three Kingdoms 8R style: 2 triangles)
+
+## 4) Flat River Water Ribbon Mesh ("RiverWaterPlane", y = -0.12, Compatibility water shader)
+## - Extends along the river channel from North out-of-bounds (-156m) through playable board to South (+210m)
+## - Bakes exact riverbank shoreline distance (COLOR.r), Ford sandbar proximity (COLOR.g), and depth gradient (COLOR.b)
+## - Total triangles = 4,120 (206 Z-rows x 10 X-cols x 2 tris), no depth texture required
 func _build_water_plane() -> void:
 	if water_mesh_instance == null:
 		water_mesh_instance = MeshInstance3D.new()
@@ -492,21 +733,124 @@ func _build_water_plane() -> void:
 		water_mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(water_mesh_instance)
 
-	var board_w: float = float(GRID_W) * TILE_SIZE
-	var board_h: float = float(GRID_H) * TILE_SIZE
-	var plane := PlaneMesh.new()
-	plane.size = Vector2(board_w + VISTA_MARGIN * 2.0, board_h + VISTA_MARGIN * 2.0)
-	plane.subdivide_width = 0
-	plane.subdivide_depth = 0
-	water_mesh_instance.mesh = plane
-	water_mesh_instance.position = Vector3(board_w * 0.5, WATER_SURFACE_Y, board_h * 0.5)
+	var ford_row_idx: int = 5
+	if board_ref != null:
+		ford_row_idx = board_ref.ford_row
+	var ford_z_world: float = (float(ford_row_idx) + 0.5) * TILE_SIZE
 
-	var w_mat := StandardMaterial3D.new()
-	# Three Kingdoms 8 Remake style: flat, dark muted slate-blue (low saturation), no wave displacement
-	w_mat.albedo_color = Color(0.18, 0.25, 0.30, 1.0)
-	w_mat.roughness = 0.42
-	w_mat.metallic = 0.05
-	water_mesh_instance.material_override = w_mat
+	# Build Z slices along river: coarse in far fog apron, 1.5m in outer fog fade, 0.5m across board & near vista
+	var z_slices := PackedFloat32Array()
+	z_slices.append(VISTA_APRON_MIN)
+	for i in range(22):
+		z_slices.append(-45.0 + float(i) * 1.5)
+	for i in range(157):
+		z_slices.append(-12.0 + float(i) * 0.5)
+	for i in range(1, 27):
+		z_slices.append(66.0 + float(i) * 1.5)
+	z_slices.append(VISTA_APRON_MAX)
+
+	var nz: int = z_slices.size()
+	var nx: int = 11 # col 0: under West bank, col 1: West shore, cols 2..8: open water, col 9: East shore, col 10: under East bank
+
+	var verts: Array = []
+	var uvs: Array = []
+	var cols: Array = []
+	verts.resize(nz)
+	uvs.resize(nz)
+	cols.resize(nz)
+
+	for iz in range(nz):
+		var wz: float = z_slices[iz]
+		var x_west: float = _find_river_shore_x(wz, -1.0)
+		var x_east: float = _find_river_shore_x(wz, 1.0)
+
+		var d_ford_z: float = maxf(0.0, absf(wz - ford_z_world) - 1.00)
+		var ford_prox_z: float = 1.0 - _smoothstep_f(0.0, 0.85, d_ford_z)
+
+		var row_v: Array[Vector3] = []
+		var row_uv: Array[Vector2] = []
+		var row_c: Array[Color] = []
+
+		for ix in range(nx):
+			var wx: float = 0.0
+			var u_open: float = 0.0
+			var shore_dist: float = 0.0
+			var vis_mask: float = 1.0
+
+			if ix == 0:
+				wx = x_west - 0.45
+				u_open = 0.0
+				shore_dist = 0.0
+				vis_mask = 0.0
+			elif ix == nx - 1:
+				wx = x_east + 0.45
+				u_open = 1.0
+				shore_dist = 0.0
+				vis_mask = 0.0
+			else:
+				u_open = float(ix - 1) / float(nx - 3) # 0.0 at ix=1 (West shore) .. 1.0 at ix=9 (East shore)
+				wx = lerpf(x_west, x_east, u_open)
+				shore_dist = 1.0 - absf(u_open * 2.0 - 1.0)
+				vis_mask = 1.0
+
+			var depth_grad: float = _smoothstep_f(0.0, 0.85, shore_dist) * (1.0 - ford_prox_z * 0.60)
+			row_v.append(Vector3(wx, WATER_SURFACE_Y, wz))
+			row_uv.append(Vector2(u_open, wz / TILE_SIZE))
+			row_c.append(Color(shore_dist, ford_prox_z, depth_grad, vis_mask))
+
+		verts[iz] = row_v
+		uvs[iz] = row_uv
+		cols[iz] = row_c
+
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_normal(Vector3(0.0, 1.0, 0.0))
+
+	for iz in range(nz - 1):
+		var rv0: Array = verts[iz]
+		var rv1: Array = verts[iz + 1]
+		var ruv0: Array = uvs[iz]
+		var ruv1: Array = uvs[iz + 1]
+		var rc0: Array = cols[iz]
+		var rc1: Array = cols[iz + 1]
+
+		for ix in range(nx - 1):
+			st.set_color(rc0[ix]);     st.set_uv(ruv0[ix]);     st.add_vertex(rv0[ix])
+			st.set_color(rc0[ix + 1]); st.set_uv(ruv0[ix + 1]); st.add_vertex(rv0[ix + 1])
+			st.set_color(rc1[ix]);     st.set_uv(ruv1[ix]);     st.add_vertex(rv1[ix])
+
+			st.set_color(rc0[ix + 1]); st.set_uv(ruv0[ix + 1]); st.add_vertex(rv0[ix + 1])
+			st.set_color(rc1[ix + 1]); st.set_uv(ruv1[ix + 1]); st.add_vertex(rv1[ix + 1])
+			st.set_color(rc1[ix]);     st.set_uv(ruv1[ix]);     st.add_vertex(rv1[ix])
+
+	var water_mesh: ArrayMesh = st.commit()
+	water_mesh_instance.mesh = water_mesh
+	water_mesh_instance.position = Vector3.ZERO
+
+	var play_rect_world: Vector4 = _get_play_rect_world()
+	water_shader_material = ShaderMaterial.new()
+	if water_shader == null:
+		water_shader = DefaultWaterShader
+	water_shader_material.shader = water_shader
+	water_shader_material.set_shader_parameter("play_rect", play_rect_world)
+	water_shader_material.set_shader_parameter("vista_max_distance", VISTA_MARGIN)
+	water_shader_material.set_shader_parameter("haze_color", Vector3(haze_color.r, haze_color.g, haze_color.b))
+	water_shader_material.set_shader_parameter("show_border_line", show_border_line)
+	water_shader_material.set_shader_parameter("border_line_color", border_line_color)
+	water_shader_material.set_shader_parameter("border_line_width", border_line_width)
+	water_shader_material.set_shader_parameter("border_line_strength", border_line_strength)
+	water_shader_material.set_shader_parameter("water_flow_speed", water_flow_speed)
+	water_shader_material.set_shader_parameter("water_ripple_scale", water_ripple_scale)
+	water_shader_material.set_shader_parameter("water_foam_width", water_foam_width)
+	water_shader_material.set_shader_parameter("water_shallow_color", water_shallow_color)
+	water_shader_material.set_shader_parameter("water_deep_color", water_deep_color)
+
+	var ripple_tex := NoiseTexture2D.new()
+	ripple_tex.seamless = true
+	ripple_tex.noise = _noise_water
+	water_shader_material.set_shader_parameter("ripple_noise_tex", ripple_tex)
+
+	water_mesh_instance.material_override = water_shader_material
 
 
 ## 5) Optional 3D Wooden Log Bridges (default OFF: show_bridges = false)
@@ -582,108 +926,273 @@ func _build_wooden_log_bridge(center_pos: Vector3, span_length: float = 6.4, dec
 
 	return root
 
+func _lcg_next(state: int) -> int:
+	return (state * 1103515245 + 12345) & 0x7fffffff
 
-## 6) Symbolic Boundary Pine Clusters ("SymbolicBoundaryTrees")
-## - 0 trees inside the 20x20 playable board (0..60m x 0..60m) by default (scatter_inner_trees = false)
-## - Exactly 2 symbolic clusters just outside the board boundary (Cluster 1: West edge, Cluster 2: Northeast edge)
-## - 38 trees per cluster = 76 trees total (<= 40 trees/cluster)
-## - 156 triangles per tree (<= 200 tris/tree) -> 76 * 156 = 11,856 total triangles (<= 16,000 budget)
+
+## Deterministic 2~4 tree layout inside a single 3.0m x 3.0m forest cell:
+## - Every tree is at least 0.48m (>= 0.40m requirement) inside the cell border
+## - Minimum inter-tree distance >= 0.85m (non-overlapping, airy B-style spacing)
+## - Scale 0.85..1.15 (±15% around 3.45m base height -> 2.93m..3.97m <= 4.0m max height)
+func _generate_cell_tree_placements(cell_x: int, cell_y: int) -> Array[Dictionary]:
+	var min_t: int = mini(forest_trees_per_cell_min, forest_trees_per_cell_max)
+	var max_t: int = maxi(forest_trees_per_cell_min, forest_trees_per_cell_max)
+	var span: int = maxi(1, max_t - min_t + 1)
+
+	var st: int = ((cell_x * 73856093) ^ (cell_y * 19349663) ^ FOREST_LAYOUT_SEED) & 0x7fffffff
+	st = _lcg_next(st)
+	var count: int = min_t + ((st >> 11) % span)
+
+	var margin: float = 0.48
+	var min_dist: float = 0.85
+	var placed: Array[Dictionary] = []
+
+	for i in range(count):
+		var chosen_ok: bool = false
+		var chosen_lx: float = 1.5
+		var chosen_lz: float = 1.5
+		for _attempt in range(32):
+			st = _lcg_next(st)
+			var rx: float = float(st) / float(0x7fffffff)
+			st = _lcg_next(st)
+			var rz: float = float(st) / float(0x7fffffff)
+			var lx: float = margin + rx * (TILE_SIZE - 2.0 * margin)
+			var lz: float = margin + rz * (TILE_SIZE - 2.0 * margin)
+			var ok: bool = true
+			for prev in placed:
+				if Vector2(lx - float(prev["lx"]), lz - float(prev["lz"])).length() < min_dist:
+					ok = False
+					break
+			if ok:
+				chosen_lx = lx
+				chosen_lz = lz
+				chosen_ok = True
+				break
+
+		if not chosen_ok:
+			placed.clear()
+			st = _lcg_next(st)
+			var base_ang: float = (float(st) / float(0x7fffffff)) * TAU
+			for j in range(count):
+				st = _lcg_next(st)
+				var r_jit: float = float(st) / float(0x7fffffff)
+				st = _lcg_next(st)
+				var a_jit: float = float(st) / float(0x7fffffff)
+				var ang: float = base_ang + float(j) * (TAU / float(count)) + (a_jit - 0.5) * 0.35
+				var rad: float = 0.68 + r_jit * 0.22
+				var lx_f: float = 1.5 + cos(ang) * rad
+				var lz_f: float = 1.5 + sin(ang) * rad
+				st = _lcg_next(st)
+				var sc_f: float = 0.85 + (float(st) / float(0x7fffffff)) * 0.30
+				st = _lcg_next(st)
+				var yaw_f: float = (float(st) / float(0x7fffffff)) * TAU
+				placed.append({"lx": lx_f, "lz": lz_f, "scale": sc_f, "yaw": yaw_f})
+			break
+
+		st = _lcg_next(st)
+		var sc: float = 0.85 + (float(st) / float(0x7fffffff)) * 0.30
+		st = _lcg_next(st)
+		var yaw: float = (float(st) / float(0x7fffffff)) * TAU
+		placed.append({"lx": chosen_lx, "lz": chosen_lz, "scale": sc, "yaw": yaw})
+
+	return placed
+
+
+## 6) Forest Cell Trees & Optional Symbolic Boundary Trees ("SymbolicBoundaryTrees")
+## - scatter_boundary_trees defaults to FALSE (no trees outside board)
+## - forest_trees_outside_play defaults to FALSE (only places trees on the 24 forest cells inside 18x10 play zone)
+## - Single MultiMeshInstance3D with cast_shadow = ON, no collision, per-instance COLOR alpha for occupation fade
 func _scatter_symbolic_boundary_trees() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 20261026
 	var tree_transforms: Array[Transform3D] = []
-	var board_w: float = float(GRID_W) * TILE_SIZE
-	var board_h: float = float(GRID_H) * TILE_SIZE
+	var tree_colors: Array[Color] = []
+	_forest_cell_to_instances.clear()
 
+	var board_w: float = float(GRID_W) * TILE_SIZE
+	var play_rect_world: Vector4 = _get_play_rect_world()
+
+	# 1) Optional boundary clusters outside the board (default OFF: scatter_boundary_trees = false)
 	if scatter_boundary_trees:
-		# Cluster 1 (West boundary grove outside West forest cells, x in [-9.5, -1.2], z in [12.0, 32.0]): 38 trees
 		var cluster_1_count: int = 38
 		for i in range(cluster_1_count):
 			var row_f: float = float(i) / float(cluster_1_count - 1)
 			var wx: float = -1.4 - rng.randf_range(0.4, 7.8)
 			var wz: float = lerpf(12.0, 33.0, row_f) + rng.randf_range(-0.9, 0.9)
 			var wy: float = sample_smooth_height_at_world(wx, wz)
-			var sc: float = rng.randf_range(0.88, 1.28)
+			var sc: float = rng.randf_range(0.85, 1.15)
 			var basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
 			tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+			tree_colors.append(Color(1.0, 1.0, 1.0, 1.0))
 
-		# Cluster 2 (Northeast boundary grove outside NE forest cells, x in [61.2, 69.5], z in [1.0, 14.0]): 38 trees
 		var cluster_2_count: int = 38
 		for i in range(cluster_2_count):
 			var row_f: float = float(i) / float(cluster_2_count - 1)
 			var wx: float = board_w + 1.4 + rng.randf_range(0.4, 7.8)
 			var wz: float = lerpf(1.0, 14.5, row_f) + rng.randf_range(-0.8, 0.8)
 			var wy: float = sample_smooth_height_at_world(wx, wz)
-			var sc: float = rng.randf_range(0.88, 1.28)
+			var sc: float = rng.randf_range(0.85, 1.15)
 			var basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
 			tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+			tree_colors.append(Color(1.0, 1.0, 1.0, 1.0))
 
-	# Optional inner board donut placement (disabled by default: scatter_inner_trees = false)
+	# 2) Forest cell trees (default ON: scatter_inner_trees = true)
 	if scatter_inner_trees:
 		for y in range(GRID_H):
 			for x in range(GRID_W):
-				if terrain_grid[y][x] == TerrainType.FOREST and overlay_grid[y][x] != OverlayType.CHARRED:
-					for i in range(4):
-						var angle: float = float(i) * (TAU / 4.0) + rng.randf_range(-0.2, 0.2)
-						var radius: float = rng.randf_range(0.35, 0.44) * TILE_SIZE
-						var wx: float = (float(x) + 0.5) * TILE_SIZE + cos(angle) * radius
-						var wz: float = (float(y) + 0.5) * TILE_SIZE + sin(angle) * radius
-						var wy: float = board_ref.height(wx, wz) if board_ref != null else sample_smooth_height_at_world(wx, wz)
-						var sc: float = rng.randf_range(0.80, 1.15)
-						var basis := Basis.from_euler(Vector3(0.0, rng.randf_range(0.0, TAU), 0.0)).scaled(Vector3(sc, sc, sc))
-						tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+				if terrain_grid[y][x] != TerrainType.FOREST or overlay_grid[y][x] == OverlayType.CHARRED:
+					continue
+				var cell_center_x: float = (float(x) + 0.5) * TILE_SIZE
+				var cell_center_z: float = (float(y) + 0.5) * TILE_SIZE
+				var in_play: bool = (
+					cell_center_x >= play_rect_world.x and cell_center_x <= play_rect_world.z
+					and cell_center_z >= play_rect_world.y and cell_center_z <= play_rect_world.w
+				)
+				if not in_play and not forest_trees_outside_play:
+					continue
+
+				var cell_coord := Vector2i(x, y)
+				var is_faded: bool = forest_fade_when_occupied and _faded_forest_cells.get(cell_coord, false)
+				var alpha_val: float = FOREST_OCCUPIED_ALPHA if is_faded else 1.0
+				var inst_indices := PackedInt32Array()
+
+				var placements: Array[Dictionary] = _generate_cell_tree_placements(x, y)
+				for item in placements:
+					var wx: float = float(x) * TILE_SIZE + float(item["lx"])
+					var wz: float = float(y) * TILE_SIZE + float(item["lz"])
+					var wy: float = board_ref.height(wx, wz) if board_ref != null else sample_smooth_height_at_world(wx, wz)
+					var sc: float = float(item["scale"])
+					var yaw: float = float(item["yaw"])
+					var basis := Basis.from_euler(Vector3(0.0, yaw, 0.0)).scaled(Vector3(sc, sc, sc))
+					var idx: int = tree_transforms.size()
+					inst_indices.append(idx)
+					tree_transforms.append(Transform3D(basis, Vector3(wx, wy, wz)))
+					tree_colors.append(Color(1.0, 1.0, 1.0, alpha_val))
+
+				_forest_cell_to_instances[cell_coord] = inst_indices
 
 	if forest_multimesh == null:
 		forest_multimesh = MultiMeshInstance3D.new()
 		forest_multimesh.name = "SymbolicBoundaryTrees"
 		add_child(forest_multimesh)
+	forest_multimesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+
+	var chosen_mesh: Mesh = forest_tree_mesh
+	if chosen_mesh == null:
+		chosen_mesh = tree_mesh
+	if chosen_mesh == null:
+		chosen_mesh = _create_oriental_pine_cluster_mesh()
 
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = tree_mesh if tree_mesh != null else _create_oriental_pine_cluster_mesh()
+	mm.use_colors = true
+	mm.mesh = chosen_mesh
 	mm.instance_count = tree_transforms.size()
 	for idx in range(tree_transforms.size()):
 		mm.set_instance_transform(idx, tree_transforms[idx])
+		mm.set_instance_color(idx, tree_colors[idx])
 	forest_multimesh.multimesh = mm
+	_sync_tree_material_transparency_mode()
 
 
-## Low-poly Oriental Pine Mesh: exactly 156 triangles per tree (<= 200 budget)
-## - Surface 0 (Trunk): 6-sided tapered prism = 12 triangles
-## - Surface 1 (3-tier canopy): 3 octagonal canopy domes x 48 triangles = 144 triangles
-## Total = 12 + 144 = 156 triangles
+## Sets or clears semi-transparency (alpha ~0.35) on all trees belonging to `cell`.
+## When no cells are faded (alpha == 1.0 everywhere), tree materials stay in TRANSPARENCY_DISABLED
+## so they render 100% identically to standard opaque trees.
+func set_forest_cell_fade(cell: Vector2i, fade: bool) -> void:
+	if fade:
+		_faded_forest_cells[cell] = true
+	else:
+		_faded_forest_cells.erase(cell)
+
+	_sync_tree_material_transparency_mode()
+
+	if forest_multimesh == null or forest_multimesh.multimesh == null:
+		return
+	if not _forest_cell_to_instances.has(cell):
+		return
+
+	var effective_fade: bool = fade and forest_fade_when_occupied
+	var target_alpha: float = FOREST_OCCUPIED_ALPHA if effective_fade else 1.0
+	var indices: PackedInt32Array = _forest_cell_to_instances[cell]
+	for idx in indices:
+		if idx >= 0 and idx < forest_multimesh.multimesh.instance_count:
+			forest_multimesh.multimesh.set_instance_color(idx, Color(1.0, 1.0, 1.0, target_alpha))
+
+
+## Helper for preview testing (F key): toggles fade on all active forest cells at once
+func set_all_forest_cells_fade(fade: bool) -> void:
+	if not fade:
+		_faded_forest_cells.clear()
+	else:
+		for cell_key in _forest_cell_to_instances.keys():
+			_faded_forest_cells[cell_key] = true
+
+	_sync_tree_material_transparency_mode()
+
+	if forest_multimesh == null or forest_multimesh.multimesh == null:
+		return
+	var effective_fade: bool = fade and forest_fade_when_occupied
+	var target_alpha: float = FOREST_OCCUPIED_ALPHA if effective_fade else 1.0
+	for cell_key in _forest_cell_to_instances.keys():
+		var indices: PackedInt32Array = _forest_cell_to_instances[cell_key]
+		for idx in indices:
+			if idx >= 0 and idx < forest_multimesh.multimesh.instance_count:
+				forest_multimesh.multimesh.set_instance_color(idx, Color(1.0, 1.0, 1.0, target_alpha))
+
+
+func _sync_tree_material_transparency_mode() -> void:
+	var any_faded: bool = forest_fade_when_occupied and not _faded_forest_cells.is_empty()
+	var mode: BaseMaterial3D.Transparency = (
+		BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS if any_faded else BaseMaterial3D.TRANSPARENCY_DISABLED
+	)
+	if _tree_bark_mat != null:
+		_tree_bark_mat.transparency = mode
+	if _tree_foliage_mat != null:
+		_tree_foliage_mat.transparency = mode
+
+
+## Low-poly Oriental Pine Mesh:
+## - Base height = 3.45m (~3.5m); with ±15% instance scale (0.85..1.15), height is 2.93m..3.97m (strictly <= 4.0m)
+## - Compact canopy radius (<= 0.68m) so trees never overhang into adjacent cells or block adjacent units
+## - 156 triangles per tree (<= 200 budget): Surface 0 trunk (12 tris) + Surface 1 3-tier canopy (144 tris)
 func _create_oriental_pine_cluster_mesh() -> ArrayMesh:
-	var bark_mat := StandardMaterial3D.new()
-	bark_mat.albedo_color = Color(0.52, 0.34, 0.22)
-	bark_mat.roughness = 0.90
+	_tree_bark_mat = StandardMaterial3D.new()
+	_tree_bark_mat.albedo_color = Color(0.45, 0.31, 0.22, 1.0)
+	_tree_bark_mat.roughness = 0.90
+	_tree_bark_mat.vertex_color_use_as_albedo = true
+	_tree_bark_mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 	var bark_alb: String = texture_folder_path.path_join("11_tree_bark_trunk_albedo.png")
 	var bark_nrm: String = texture_folder_path.path_join("11_tree_bark_trunk_normal.png")
 	if ResourceLoader.exists(bark_alb):
-		bark_mat.albedo_texture = load(bark_alb)
+		_tree_bark_mat.albedo_texture = load(bark_alb)
 	if ResourceLoader.exists(bark_nrm):
-		bark_mat.normal_enabled = true
-		bark_mat.normal_texture = load(bark_nrm)
+		_tree_bark_mat.normal_enabled = true
+		_tree_bark_mat.normal_texture = load(bark_nrm)
 
-	var foliage_mat := StandardMaterial3D.new()
-	foliage_mat.albedo_color = Color(0.42, 0.64, 0.32)
-	foliage_mat.roughness = 0.84
+	_tree_foliage_mat = StandardMaterial3D.new()
+	_tree_foliage_mat.albedo_color = Color(0.36, 0.50, 0.29, 1.0)
+	_tree_foliage_mat.roughness = 0.86
+	_tree_foliage_mat.vertex_color_use_as_albedo = true
+	_tree_foliage_mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 	var fol_alb: String = texture_folder_path.path_join("10_pine_foliage_canopy_albedo.png")
 	var fol_nrm: String = texture_folder_path.path_join("10_pine_foliage_canopy_normal.png")
 	if ResourceLoader.exists(fol_alb):
-		foliage_mat.albedo_texture = load(fol_alb)
+		_tree_foliage_mat.albedo_texture = load(fol_alb)
 	if ResourceLoader.exists(fol_nrm):
-		foliage_mat.normal_enabled = true
-		foliage_mat.normal_texture = load(fol_nrm)
+		_tree_foliage_mat.normal_enabled = true
+		_tree_foliage_mat.normal_texture = load(fol_nrm)
 
 	var final_mesh := ArrayMesh.new()
 
-	# Surface 0: 6-sided tapered trunk (6 quads = 12 triangles)
+	# Surface 0: 6-sided tapered trunk (6 quads = 12 triangles, height 1.65m)
 	var st_trunk := SurfaceTool.new()
 	st_trunk.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st_trunk.set_material(bark_mat)
+	st_trunk.set_material(_tree_bark_mat)
+	st_trunk.set_color(Color(1.0, 1.0, 1.0, 1.0))
 	var trunk_seg: int = 6
-	var r_bot: float = 0.18
-	var r_top: float = 0.10
-	var h_trunk: float = 1.35
+	var r_bot: float = 0.15
+	var r_top: float = 0.08
+	var h_trunk: float = 1.65
 	for i in range(trunk_seg):
 		var a0: float = float(i) * TAU / float(trunk_seg)
 		var a1: float = float(i + 1) * TAU / float(trunk_seg)
@@ -707,13 +1216,15 @@ func _create_oriental_pine_cluster_mesh() -> ArrayMesh:
 	st_trunk.commit(final_mesh)
 
 	# Surface 1: 3-tier octagonal pine canopy (3 tiers x 48 triangles = 144 triangles)
+	# Top crown reaches 2.91 + 0.54 = 3.45m (~3.5m base height; max scaled = 3.45 * 1.15 = 3.9675m <= 4.0m)
 	var st_canopy := SurfaceTool.new()
 	st_canopy.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st_canopy.set_material(foliage_mat)
+	st_canopy.set_material(_tree_foliage_mat)
+	st_canopy.set_color(Color(1.0, 1.0, 1.0, 1.0))
 
-	_append_octagonal_canopy_pad(st_canopy, Vector3(-0.22, 1.25, 0.12), 0.82, 0.42)
-	_append_octagonal_canopy_pad(st_canopy, Vector3(0.24, 1.55, -0.10), 0.74, 0.38)
-	_append_octagonal_canopy_pad(st_canopy, Vector3(0.0, 1.92, 0.0), 0.86, 0.46)
+	_append_octagonal_canopy_pad(st_canopy, Vector3(-0.16, 1.72, 0.10), 0.66, 0.46)
+	_append_octagonal_canopy_pad(st_canopy, Vector3(0.18, 2.28, -0.08), 0.58, 0.44)
+	_append_octagonal_canopy_pad(st_canopy, Vector3(0.0, 2.91, 0.0), 0.64, 0.54)
 
 	st_canopy.generate_normals()
 	st_canopy.commit(final_mesh)

@@ -2,6 +2,7 @@ extends Node3D
 ## EASTWAR 20x20 지형 이식 확인용 단독 미리보기 장면 (Godot 4.6, F6 실행용)
 ## - 전투 엔진, HUD, 시나리오 셸을 전혀 사용하지 않는 순수 시각 확인용 스크립트입니다.
 ## - 기존 파일은 한 줄도 수정하지 않고 terrain_board_builder.gd 와 lab_heightfield.gd 만 불러옵니다.
+## - 외형 2차: 배경색 #8d897a 동기화, [O] 선 밖 그림 on/off, [F] 숲 나무 반투명(0.35) on/off 추가.
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
@@ -24,6 +25,8 @@ var soldiers: Dictionary = {}
 var status_label: Label
 var captures := 0
 var trees_enabled := true
+var outer_ground_enabled := true
+var forest_fade_enabled := false
 
 
 func _ready() -> void:
@@ -35,13 +38,14 @@ func _ready() -> void:
 	field.name = "Battlefield"
 	field.setup_from_board(board)
 	add_child(field)
-	trees_enabled = bool(field.scatter_boundary_trees) or bool(field.scatter_inner_trees)
+	trees_enabled = bool(field.scatter_inner_trees) or bool(field.scatter_boundary_trees)
+	outer_ground_enabled = (field.outer_ground_texture != null) or bool(field.use_procedural_outer_ground)
 
-	# 2. 조명·환경·그림자 설정 (lab_presentation.gd와 동일한 값)
+	# 2. 조명·환경·그림자 설정 (배경색 #8d897a 회황색 안개 동기화)
 	var env := WorldEnvironment.new()
 	env.environment = Environment.new()
 	env.environment.background_mode = Environment.BG_COLOR
-	env.environment.background_color = Color("18232e")
+	env.environment.background_color = Color("8d897a")
 	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.environment.ambient_light_color = Color("c7d8e4")
 	env.environment.ambient_light_energy = 0.35
@@ -159,14 +163,14 @@ func _build_overlay_ui() -> void:
 func _refresh_overlay_text(extra_msg: String = "") -> void:
 	if status_label == null or field == null:
 		return
-	var text := "EASTWAR 20x20 지형 미리보기 (F6)\n"
-	text += "mountain_height_scale: %.2f  |  show_bridges: %s  |  scatter_inner_trees: %s  |  나무 켜짐: %s\n" % [
-		float(field.mountain_height_scale),
-		"ON" if field.show_bridges else "OFF",
-		"ON" if field.scatter_inner_trees else "OFF",
-		"ON" if trees_enabled else "OFF"
+	var text := "EASTWAR 20x20 지형 미리보기 (F6) — 외형 2차\n"
+	text += "숲 나무(T): %s  |  숲 반투명(F): %s  |  선 밖 그림(O): %s  |  통나무 다리(B): %s\n" % [
+		"ON" if trees_enabled else "OFF",
+		"ON (0.35)" if forest_fade_enabled else "OFF (1.0)",
+		"ON" if outer_ground_enabled else "OFF",
+		"ON" if field.show_bridges else "OFF"
 	]
-	text += "[WASD/방향키] 이동   [Q/E] 90° 회전   [휠] 확대/축소   [1] 정면  [2] 90°  [3] 강·여울   [T] 나무 켜기/끄기   [B] 다리 켜기/끄기   [F12] 화면 저장"
+	text += "[WASD/방향키] 이동  [Q/E] 90° 회전  [휠] 줌  [1/2/3] 시점  [T] 나무  [F] 나무 반투명  [O] 선 밖 그림  [B] 다리  [F12] 캡처"
 	if not extra_msg.is_empty():
 		text += "\n" + extra_msg
 	status_label.text = text
@@ -208,33 +212,36 @@ func _unhandled_input(event: InputEvent) -> void:
 				yaw -= PI * 0.5
 				_update_camera()
 			KEY_1, KEY_KP_1:
-				# 1번: 정면 기본 시점
 				focus = Vector3(board.SIZE.x * board.CELL * 0.5, 0.0, board.SIZE.y * board.CELL * 0.5)
 				yaw = 0.32
 				zoom = 60.0
 				_update_camera()
 			KEY_2, KEY_KP_2:
-				# 2번: 90도 회전 시점
 				focus = Vector3(board.SIZE.x * board.CELL * 0.5, 0.0, board.SIZE.y * board.CELL * 0.5)
 				yaw = 0.32 + PI * 0.5
 				zoom = 60.0
 				_update_camera()
 			KEY_3, KEY_KP_3:
-				# 3번: 강·여울 및 능선 근처 클로즈업 시점
 				focus = Vector3(board.river_center, 0.0, (board.ford_row + 0.5) * board.CELL)
 				yaw = 0.32
 				zoom = 32.0
 				_update_camera()
 			KEY_T:
-				# T: 나무 켜기/끄기
 				trees_enabled = not trees_enabled
-				field.scatter_boundary_trees = trees_enabled
+				field.scatter_inner_trees = trees_enabled
 				field._scatter_symbolic_boundary_trees()
 				if field.forest_multimesh != null:
 					field.forest_multimesh.visible = trees_enabled
 				_refresh_overlay_text()
+			KEY_F:
+				forest_fade_enabled = not forest_fade_enabled
+				field.set_all_forest_cells_fade(forest_fade_enabled)
+				_refresh_overlay_text()
+			KEY_O:
+				outer_ground_enabled = not outer_ground_enabled
+				field.set_outer_ground_enabled(outer_ground_enabled)
+				_refresh_overlay_text()
 			KEY_B:
-				# B: 통나무 다리 켜기/끄기
 				field.show_bridges = not field.show_bridges
 				field._rebuild_all_wooden_log_bridges()
 				_refresh_overlay_text()
