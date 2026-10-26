@@ -4,12 +4,20 @@ const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const MockPort = preload("res://scripts/battle3d/lab_demo_port.gd")
 const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 const OUTER_GROUND = preload("res://assets/terrain_textures_pack/outer_ground_B20.png")
+const EdgeScroll = preload("res://scripts/battle3d/battle3d_edge_scroll.gd")
+# HUD block 4-4: the orthographic zoom range (wheel); beyond 42 the painted ground ends in an oval and the haze shows.
+const ZOOM_MIN := 20.0
+const ZOOM_MAX := 42.0
+signal edge_scrolled # block 4-4: the camera moved by the edge scroll this frame (the shell treats it as manual camera input)
+static var edge_scroll_enabled := true # block 4-4: the option (this session only; no option is saved yet)
+var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
+var mouse_in_window := true
 var board = Board.new()
 var port = MockPort.new()
 var camera := Camera3D.new()
 var focus := Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5) # block 7: the play area's centre (camera limits are the play area)
 var yaw := 0.32
-var zoom := 60.0
+var zoom := ZOOM_MAX # block 4-4: was 60, now the zoom-out limit
 var selected := ""
 var views: Dictionary = {}
 var soldiers: Dictionary = {}
@@ -218,11 +226,16 @@ func _update_camera() -> void:
 
 func _process(delta: float) -> void:
 	var pan := Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT))-float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)),float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN))-float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)))
+	var edge := Vector2.ZERO
+	if pan.length()==0 and _edge_scroll_allowed(): # block 4-4: the keys win; else the edge scroll, on the same pan path
+		edge = EdgeScroll.direction(edge_mouse,get_viewport().get_visible_rect().size)*EdgeScroll.EDGE_SPEED_SCALE
+		pan = edge
 	if pan.length()>0:
 		focus+=Vector3(pan.x*cos(yaw)+pan.y*sin(yaw),0,-pan.x*sin(yaw)+pan.y*cos(yaw))*delta*zoom*.45
 		focus.x=clampf(focus.x,0,board.PLAY_SIZE.x*board.CELL)
 		focus.z=clampf(focus.z,0,board.PLAY_SIZE.y*board.CELL)
 		yaw+=delta*(float(Input.is_physical_key_pressed(KEY_Q))-float(Input.is_physical_key_pressed(KEY_E)))
+		if edge.length()>0: edge_scrolled.emit()
 	_update_camera()
 	if not moving_id.is_empty():
 		var root: Node3D=views[moving_id]
@@ -245,6 +258,18 @@ func _process(delta: float) -> void:
 				_refresh_info()
 	if selected!="": ring.position=views[selected].position+Vector3(0,.09,0)
 
+func _edge_scroll_allowed() -> bool:
+	# Block 4-4: not over a HUD control, not with the window unfocused or the mouse outside it, not when switched off.
+	# The engine lab adds its input locks.
+	return edge_scroll_enabled and mouse_in_window and get_window().has_focus() and get_viewport().gui_get_hovered_control()==null
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion: edge_mouse=event.position # block 4-4: seen before any HUD control takes it
+
+func _notification(what: int) -> void:
+	if what==NOTIFICATION_WM_MOUSE_EXIT: mouse_in_window=false
+	elif what==NOTIFICATION_WM_MOUSE_ENTER: mouse_in_window=true
+
 func _pick(pos: Vector2,mask: int) -> Dictionary:
 	var origin := camera.project_ray_origin(pos)
 	var query := PhysicsRayQueryParameters3D.create(origin,origin+camera.project_ray_normal(pos)*200,mask)
@@ -253,7 +278,7 @@ func _pick(pos: Vector2,mask: int) -> Dictionary:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index==MOUSE_BUTTON_WHEEL_UP or event.button_index==MOUSE_BUTTON_WHEEL_DOWN:
-			zoom=clampf(zoom+(-3 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 3),20,70)
+			zoom=clampf(zoom+(-3 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 3),ZOOM_MIN,ZOOM_MAX)
 			_update_camera()
 			_event("camera_zoom",{"size":zoom})
 		elif event.button_index==MOUSE_BUTTON_RIGHT and not port.busy:
@@ -273,7 +298,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode==KEY_HOME:
 			focus=Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5)
 			yaw=.32
-			zoom=60
+			zoom=ZOOM_MAX # block 4-4: was 60
 		if event.keycode==KEY_F12: _capture()
 		if event.keycode in [KEY_Q,KEY_E]:
 			yaw+=.12 if event.keycode==KEY_Q else -.12

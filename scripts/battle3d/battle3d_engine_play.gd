@@ -79,6 +79,7 @@ const AI_LEVEL_ORDER := ["low", "mid", "high"]
 const AI_LEVEL_TEXT := {"low":"하", "mid":"중", "high":"상"}
 var option_toggle: Button
 var option_panel: VBoxContainer
+var edge_scroll_check: CheckBox # HUD block 4-4: the edge scroll on/off (presentation only)
 var ai_level_label: Label
 var ai_level_buttons := {}
 var ai_level_texts: Array[String] = []
@@ -688,6 +689,14 @@ func _input_locked() -> bool:
 		_reject("특기 연출 중 · 컷인이 끝날 때까지 기다리세요")
 		return true
 	return false
+
+func _edge_scroll_allowed() -> bool:
+	# HUD block 4-4: also off while input is locked (battle over, auto, the enemy turn, an engine animation, the enemy
+	# replay, a cut-in) and while the shell's option window is open. Reads only, without _input_locked's messages.
+	if not super._edge_scroll_allowed() or not ready_for_input or not battle_result.is_empty(): return false
+	if engine.get("is_full_auto_battle_enabled") or engine.get("current_phase") == "enemy_turn" or engine.get("is_demo_animating"): return false
+	if _enemy_presentation_busy() or hud_cutin_hold: return false
+	return not (option_toggle != null and not option_toggle.visible and option_toggle.get_parent().visible) # the shell's option window
 
 func _enemy_presentation_busy() -> bool:
 	return not enemy_queue.is_empty() or enemy_hold > 0.0
@@ -1556,6 +1565,11 @@ func _build_option_ui() -> void:
 		button.pressed.connect(request_ai_level.bind(level))
 		row.add_child(button)
 		ai_level_buttons[level] = button
+	edge_scroll_check = CheckBox.new()
+	edge_scroll_check.text = "화면 가장자리 스크롤"
+	edge_scroll_check.button_pressed = edge_scroll_enabled
+	edge_scroll_check.toggled.connect(func(on: bool): edge_scroll_enabled = on)
+	option_panel.add_child(edge_scroll_check)
 
 func toggle_option_panel() -> void:
 	# Presentation only (folds the panel); never an engine command.

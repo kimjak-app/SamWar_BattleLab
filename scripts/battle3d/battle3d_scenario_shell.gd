@@ -205,6 +205,7 @@ func start_scenario(id: String) -> void:
 	if not setup.is_empty(): Engine.set_meta(SETUP_KEY, setup) # read and removed by the engine in its _ready
 	lab = create_lab()
 	lab.hud_cutin_enabled = true
+	lab.edge_scrolled.connect(_on_edge_scrolled) # block 4-4
 	add_child(lab)
 	lab_count += 1
 	start_panel.visible = false
@@ -493,6 +494,11 @@ func _input(event: InputEvent) -> void:
 	var manual: bool = (event is InputEventKey and event.pressed and event.keycode in CAMERA_KEYS) \
 		or (event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_MIDDLE])
 	if not manual: return
+	manual_camera_turn = camera_turn_key()
+	if is_instance_valid(camera_tween): camera_tween.kill()
+
+func _on_edge_scrolled() -> void:
+	# Block 4-4: the edge scroll is the player's own camera input too (stops this turn's centring, like WASD).
 	manual_camera_turn = camera_turn_key()
 	if is_instance_valid(camera_tween): camera_tween.kill()
 

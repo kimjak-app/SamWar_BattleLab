@@ -122,10 +122,13 @@ func run() -> void:
 		var at: Vector2 = lab.camera.unproject_position(board.world(c))
 		if view.has_point(at) and first_ground_cell(lab, at) == c: targets.append([c, at])
 	var sky := Vector2(-1, -1)
-	for y in range(4, int(view.size.y * .5), 8):
-		if first_ground_cell(lab, Vector2(view.size.x * .5, y)) == MISS:
-			sky = Vector2(view.size.x * .5, y)
-			break
+	# Block 4-4: the start zoom is 42 (was 60), a narrower view; search the whole screen (24 px grid) for a ground miss.
+	for y in range(4, int(view.size.y), 24):
+		if sky.x >= 0: break
+		for x in range(4, int(view.size.x), 24):
+			if first_ground_cell(lab, Vector2(x, y)) == MISS:
+				sky = Vector2(x, y)
+				break
 	if sky.x >= 0: targets.append([MISS, sky])
 	var cols := targets.filter(func(t): return t[0] != MISS and t[0].x >= PLAY.x).size()
 	var rows := targets.filter(func(t): return t[0] != MISS and t[0].y >= PLAY.y).size()

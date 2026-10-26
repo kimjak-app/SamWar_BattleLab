@@ -275,6 +275,10 @@ jobs:
             tests/scripts/test_battle3d_block7_ford_demo_moves.gd
             tests/scripts/test_battle3d_look12_tree_height.gd
             tests/scripts/test_battle3d_look12_forest_fade.gd
+            tests/scripts/test_battle3d_edge_scroll_direction.gd
+            tests/scripts/test_battle3d_edge_scroll_limits.gd
+            tests/scripts/test_battle3d_edge_scroll_gates.gd
+            tests/scripts/test_battle3d_zoom_limit.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
