@@ -100,6 +100,16 @@ var arrival_cursor := 0
 var toasted_arrival_rounds := {}
 var ending_started := false
 var cutin_log: Array = [] # per cast: {caster, skill_id, route ("video"/"still"), owner}
+# HUD block 4-3: the camera centres the acting ally in the screen area the HUD leaves free, once per ally turn
+# (round + unit), with a short ease. Not during auto, a cut-in, the enemy turn or its replay; the player's own camera
+# input (WASD/arrows, Q/E, Home, wheel, middle drag) stops it for that turn. Enemy turns are not followed.
+const CameraCenter = preload("res://scripts/battle3d/battle3d_camera_center.gd")
+const CAMERA_CENTER_SEC := 0.35
+const CAMERA_KEYS := [KEY_W, KEY_A, KEY_S, KEY_D, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_Q, KEY_E, KEY_HOME]
+var centred_turn := "" # the ally turn ("round:unit") the camera was last centred for
+var manual_camera_turn := "" # the ally turn in which the player moved the camera
+var camera_tween: Tween
+var camera_target := Vector3.INF # the focus the last centring went to (for tests)
 
 func _ready() -> void:
 	layer = CanvasLayer.new()
@@ -217,6 +227,9 @@ func _close_lab() -> void:
 	toasted_arrival_rounds.clear()
 	ending_started = false
 	cutin_log.clear()
+	centred_turn = ""
+	manual_camera_turn = ""
+	if is_instance_valid(camera_tween): camera_tween.kill()
 	if Engine.has_meta(SETUP_KEY): Engine.remove_meta(SETUP_KEY) # never left for the next battle
 	if lab == null or not is_instance_valid(lab): return
 	var grid = lab.queries.grid # the engine's ISO grid projection lives outside the tree
@@ -249,6 +262,7 @@ func _refresh_top_hud() -> void:
 	command_panel.visible = live
 	if live: command_panel.show_state(command_state())
 	_refresh_cutin_toasts()
+	_refresh_camera_center()
 
 func _refresh_top_commands() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input
@@ -336,7 +350,8 @@ func current_actor() -> Dictionary:
 
 static func _stat(stats: Dictionary, key: String) -> Variant:
 	# A registry stat as the 2D int; "-" when the registry has none (the unit-field fallback, N10, is not approved).
-	return int(stats[key]) if stats.has(key) else "-"
+	if stats.has(key): return int(stats[key])
+	return "-" # block 4-3: no int/String ternary (the "not mutually compatible" warning)
 
 func command_state() -> Dictionary:
 	# The command panel's state in one place (see the block 4-2 comment above).
@@ -354,7 +369,8 @@ func command_state() -> Dictionary:
 				buttons.append({"text":pair[0], "disabled":pair[1].disabled, "tooltip":pair[1].tooltip_text})
 			var range_rects := []
 			for world in lab.hud_range_cell_positions(): range_rects.append(cell_screen_rect(world))
-			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects}, true)
+			range_rects.append(cell_screen_rect(lab.board.world(lab.display_values.get(id, {}).get("grid_cell", Vector2i.ZERO)))) # block 4-3: never over the unit's own cell
+			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects, "turn_key":"%d:%s" % [lab.current_round, id]}, true)
 	if lab.facing_ui.visible:
 		var cell: Vector2i = lab.display_values.get(id, {}).get("grid_cell", Vector2i(-1, -1))
 		var arrows := {}
@@ -363,8 +379,24 @@ func command_state() -> Dictionary:
 			var valid: bool = lab.board.valid(target)
 			var rect := cell_screen_rect(lab.board.world(target)) if valid else Rect2()
 			arrows[direction] = {"valid":valid, "text":FACING_TEXT[direction], "center":rect.get_center(), "size":rect.size * FACING_ARROW_SCALE}
+			if valid: # block 4-3: the projected diamond (x0.96 about its centre) and the screen direction unit cell -> neighbour
+				var corners := cell_screen_corners(target)
+				var middle := (corners[0] + corners[1] + corners[2] + corners[3]) * 0.25
+				var shrunk := PackedVector2Array()
+				for corner in corners: shrunk.append(middle + (corner - middle) * FACING_ARROW_SCALE)
+				arrows[direction].merge({"corners":shrunk, "center":middle, "direction":(lab.camera.unproject_position(lab.board.world(target)) - lab.camera.unproject_position(lab.board.world(cell))).normalized()}, true)
 		state.merge({"facing_open":true, "arrows":arrows}, true)
 	return state
+
+func cell_screen_corners(cell: Vector2i) -> PackedVector2Array:
+	# The four ground corners of a cell as the lab camera sees them (in order around the cell).
+	var c: float = lab.board.CELL
+	var out := PackedVector2Array()
+	for corner in [Vector2(cell.x, cell.y), Vector2(cell.x + 1, cell.y), Vector2(cell.x + 1, cell.y + 1), Vector2(cell.x, cell.y + 1)]:
+		var x: float = corner.x * c
+		var z: float = corner.y * c
+		out.append(lab.camera.unproject_position(Vector3(x, lab.board.height(x, z), z)))
+	return out
 
 func cell_screen_rect(world: Vector3) -> Rect2:
 	# The screen box of one grid cell around a world point: the four edge midpoints projected by the lab camera.
@@ -408,12 +440,12 @@ func _start_cutin(cast: Dictionary) -> void:
 	# video when there is one, else the still toast (released at once, like the 2D toast that does not block).
 	var skill: Dictionary = lab.hud_unique_skill(cast.caster_id)
 	var caster_hero: String = CutinReader.canonical_hero(lab.hud_hero_id(cast.caster_id))
-	var owner: String = CutinReader.canonical_hero(str(skill.get("hero_id", lab.hud_hero_id(cast.caster_id))))
-	var entry: Dictionary = CutinReader.entry_for(owner, cast.skill_id) if owner == caster_hero else {}
+	var skill_owner: String = CutinReader.canonical_hero(str(skill.get("hero_id", lab.hud_hero_id(cast.caster_id))))
+	var entry: Dictionary = CutinReader.entry_for(skill_owner, cast.skill_id) if skill_owner == caster_hero else {}
 	var route := "video" if not entry.is_empty() and cutin_hud.play_cutin(entry, 1.0 / Engine.time_scale) else "still"
-	cutin_log.append({"caster":cast.caster_id, "skill_id":cast.skill_id, "route":route, "owner":owner, "caster_hero":caster_hero})
+	cutin_log.append({"caster":cast.caster_id, "skill_id":cast.skill_id, "route":route, "owner":skill_owner, "caster_hero":caster_hero})
 	if route == "video": return
-	var image := CutinReader.fallback_image(owner, cast.skill_id)
+	var image := CutinReader.fallback_image(skill_owner, cast.skill_id)
 	cutin_hud.show_still_toast(load(image) if image != "" else null, str(skill.get("toast_text", "%s!" % str(skill.get("name", "고유특기")))), cast.get("side", "") == "enemy")
 	lab.hud_release_cutin_hold()
 
@@ -428,6 +460,41 @@ func _on_ending_done(state: String) -> void:
 	if lab == null or not is_instance_valid(lab) or result_panel.visible: return
 	_show_result()
 	if state in ["victory", "defeat"]: cutin_hud.toast_end(state == "victory")
+
+func camera_turn_key() -> String:
+	var id: String = lab.hud_ally_actor_id()
+	return "" if id.is_empty() else "%d:%s" % [lab.current_round, id]
+
+func camera_free_rect() -> Rect2:
+	# The screen area the HUD leaves free: the view minus the rosters, the current-actor panel, the log, the top HUD
+	# frame and the top command row (their live rectangles, so a resolution change follows).
+	var obstacles := [ally_roster.roster_rect(), enemy_roster.roster_rect(), actor_hud.panel_rect(),
+		log_hud.get_node("ProductionHudRoot/BattleLogHud").get_global_rect(), top_hud.frame_rect()]
+	for i in range(5): obstacles.append(top_commands.slot_rect(i))
+	return CameraCenter.free_rect(get_viewport().get_visible_rect(), obstacles)
+
+func _refresh_camera_center() -> void:
+	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input or not lab.battle_result.is_empty(): return
+	if lab.engine.get("is_full_auto_battle_enabled") or lab.hud_cutin_hold or lab._enemy_presentation_busy(): return
+	var key := camera_turn_key()
+	if key.is_empty() or key == centred_turn or key == manual_camera_turn: return
+	centred_turn = key
+	var id: String = lab.hud_ally_actor_id()
+	var target := camera_free_rect().get_center()
+	var board_size := Vector2(lab.board.SIZE.x * lab.board.CELL, lab.board.SIZE.y * lab.board.CELL)
+	camera_target = CameraCenter.focus_for(lab.camera, lab.focus, lab.views[id].position, target, board_size)
+	if is_instance_valid(camera_tween): camera_tween.kill()
+	camera_tween = create_tween()
+	camera_tween.tween_property(lab, "focus", camera_target, CAMERA_CENTER_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+func _input(event: InputEvent) -> void:
+	# The player's own camera input stops the centring for the current ally turn (the lab still handles the event).
+	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input: return
+	var manual: bool = (event is InputEventKey and event.pressed and event.keycode in CAMERA_KEYS) \
+		or (event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_MIDDLE])
+	if not manual: return
+	manual_camera_turn = camera_turn_key()
+	if is_instance_valid(camera_tween): camera_tween.kill()
 
 func _place_lab_top_labels() -> void:
 	# Runs after the lab's _process (HUD process_priority), so this frame's text is set.

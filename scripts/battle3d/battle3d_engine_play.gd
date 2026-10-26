@@ -246,7 +246,7 @@ func hud_command_panel_open() -> bool:
 	# The lab's command rule: an ally to act in ally_turn, no presentation, auto, enemy replay or result.
 	var active = engine.get("active_unit_state")
 	return ready_for_input and battle_result.is_empty() and active != null and active.side == "ally" and views.has(active.unit_id) and views[active.unit_id].visible \
-		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy()
+		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy() and not hud_cutin_hold # block 4-3: closed while a cut-in holds
 
 func hud_range_cell_positions() -> Array:
 	# The move-range cells the lab already shows (range_view discs), as world positions.
@@ -599,6 +599,12 @@ func _click_world(pos: Vector2) -> void:
 	if unit != null:
 		if unit.side != "ally":
 			_reject("대상 아님 · 아군을 선택한 뒤 [공격]을 누르세요")
+			return
+		var acting = engine.get("active_unit_state")
+		if unit != acting and Adapter.to_view(unit).has_acted:
+			# Block 4-3: the engine would make an already-acted ally the active unit (C:14536-14540), leaving
+			# no command to give until the right ally is clicked again; the lab keeps the acting ally instead.
+			_reject("이미 행동한 부대 · 지금 행동할 부대는 %s입니다" % ("없음" if acting == null else acting.unit_id))
 			return
 		engine.call("_select_ally_unit",unit,false,false,false)
 		if engine.get("active_unit_state") != unit:

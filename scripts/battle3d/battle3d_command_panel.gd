@@ -11,7 +11,7 @@ extends CanvasLayer
 # and the FLOATING_COMMAND_PANEL_* constants), and the arrow tiles
 # (_place_facing_arrow_button_on_cell, _apply_facing_arrow_button_style). Only
 # the panel, its buttons and the arrows take the mouse.
-const FacingArrowTileButton := preload("res://scripts/battle_facing_arrow_tile_button.gd")
+const FacingTile := preload("res://scripts/battle3d/battle3d_facing_tile.gd") # block 4-3: the 2D tile colours on the projected diamond
 const VIEWPORT_MARGIN := 12.0
 const ANCHOR_GAP := 22.0
 const GRID_AVOID_PADDING := 10.0
@@ -31,6 +31,12 @@ var panel: Panel
 var arrows: Control
 var shown: Dictionary = {"_": true} # last applied state; the nodes change only when it changes
 var apply_count := 0
+# Block 4-3: the panel background can be dragged; the dragged position holds for that ally turn only (turn_key from
+# the shell), then the automatic placement comes back. Buttons keep their own clicks; the drag never reaches the world.
+var dragging := false
+var drag_offset := Vector2.ZERO
+var drag_position := Vector2.INF
+var drag_key := ""
 
 func _ready() -> void:
 	panel = get_node("FloatingAllyCommandPanel")
@@ -43,6 +49,7 @@ func _ready() -> void:
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(8)
 	panel.add_theme_stylebox_override("panel", panel_style)
+	panel.gui_input.connect(_on_panel_input)
 	var calls := [func(): on_attack.call(), func(): on_skill.call(), func(): on_strategy.call(), func(): on_defend.call(), func(): on_wait.call()]
 	for index in BUTTON_NAMES.size():
 		var button := button_at(index)
@@ -52,7 +59,7 @@ func _ready() -> void:
 	arrows.mouse_filter = Control.MOUSE_FILTER_IGNORE # only the four arrow tiles take the mouse
 	for direction in ARROW_NAMES:
 		var arrow := arrow_for(direction)
-		arrow.set_script(FacingArrowTileButton) # the 2D tile look (BattleFacingArrowTileButtonScript)
+		arrow.set_script(FacingTile)
 		arrow = arrow_for(direction)
 		_apply_arrow_style(arrow)
 		arrow.pressed.connect(func(): on_facing.call(direction))
@@ -82,7 +89,9 @@ func show_state(state: Dictionary) -> void:
 			button.disabled = bool(value.get("disabled", true))
 			button.tooltip_text = str(value.get("tooltip", ""))
 		panel.size = PANEL_SIZE
-		panel.position = choose_position(state.get("anchor", Vector2.ZERO), PANEL_SIZE, state.get("range_rects", []))
+		var key := str(state.get("turn_key", ""))
+		if key != drag_key: drag_position = Vector2.INF # another ally turn or selection: back to the automatic placement
+		panel.position = drag_position if drag_position != Vector2.INF else choose_position(state.get("anchor", Vector2.ZERO), PANEL_SIZE, state.get("range_rects", []))
 	arrows.visible = bool(state.get("facing_open", false))
 	if arrows.visible:
 		arrows.position = Vector2.ZERO
@@ -94,10 +103,22 @@ func show_state(state: Dictionary) -> void:
 			arrow.visible = bool(value.get("valid", false))
 			arrow.disabled = not arrow.visible
 			if not arrow.visible: continue
-			var arrow_size: Vector2 = value.get("size", Vector2.ZERO)
-			arrow.text = str(value.get("text", ""))
-			arrow.size = arrow_size # a cell smaller than the 36px glyph grows to the button's minimum size
-			arrow.position = value.get("center", Vector2.ZERO) - arrow.size * 0.5 # centred on the cell with the size it got
+			arrow.text = "" # block 4-3: the tile draws the arrow along the screen direction (no grid glyph)
+			arrow.set_tile(value.get("corners", PackedVector2Array()), value.get("direction", Vector2.RIGHT))
+
+func _on_panel_input(event: InputEvent) -> void:
+	# The panel's own background (between and around the buttons): press, move, release.
+	# Positions are the events' own (local to the panel), so the grab point stays under the pointer.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		dragging = event.pressed
+		drag_offset = event.position
+		panel.accept_event()
+	elif event is InputEventMouseMotion and dragging:
+		var viewport_size := get_viewport().get_visible_rect().size
+		panel.position = clamp_position(panel.position + event.position - drag_offset, PANEL_SIZE, viewport_size)
+		drag_position = panel.position
+		drag_key = str(shown.get("turn_key", ""))
+		panel.accept_event()
 
 func choose_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array) -> Vector2:
 	# _choose_floating_ally_command_panel_position
@@ -176,7 +197,6 @@ func _apply_arrow_style(button: Button) -> void:
 	# _apply_facing_arrow_button_style
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.flat = true
-	button.call("set_tile_style", Color(1.0, 0.86, 0.42, 0.22), Color(1.0, 0.92, 0.65, 0.62), Color(1.0, 0.98, 0.82, 0.28))
 	for style_name in ["normal", "hover", "pressed", "disabled"]:
 		button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
 	button.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 0.9))
@@ -185,4 +205,4 @@ func _apply_arrow_style(button: Button) -> void:
 	button.add_theme_color_override("font_disabled_color", Color(0.92, 0.82, 0.45, 0.6))
 	button.add_theme_color_override("font_outline_color", Color(0.1, 0.07, 0.0, 0.8))
 	button.add_theme_constant_override("outline_size", 3)
-	button.add_theme_font_size_override("font_size", 36)
+	button.add_theme_font_size_override("font_size", 1) # block 4-3: the arrow is drawn (2D glyph size 36); no line height keeps the tile its cell size
