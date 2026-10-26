@@ -39,6 +39,7 @@ func _ready() -> void:
 	port.move_accepted.connect(_move_accepted)
 	var field = TerrainBuilder.new()
 	field.outer_ground_texture = OUTER_GROUND # block 8: the painted ground outside the play area (empty = a grey placeholder)
+	field.play_cells = board.PLAY_SIZE # block 4-4: the builder's border line and outside fade use the one play area definition
 	field.setup_from_board(board)
 	add_child(field)
 	_add_ground_collision(field)
