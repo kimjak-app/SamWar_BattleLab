@@ -22,7 +22,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "0a5028ae67fb147a8421da518e1a36bea65c50ea"  # docs(battle3d): block 8 report (feature/look-pass12-20261026)
-TIP = os.environ.get("EDGE_SCROLL_SCOPE_TIP", "@@TIP@@")
+TIP = os.environ.get("EDGE_SCROLL_SCOPE_TIP", "0e9791dd50b48d8d46b20ae061eddc123287348d")  # test(battle3d): HUD block 4-4 validator and its CI line
 HEIGHTFIELD = "scripts/battle3d/lab_heightfield.gd"
 PRESENTATION = "scripts/battle3d/lab_presentation.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
