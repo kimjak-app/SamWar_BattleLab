@@ -1,13 +1,25 @@
 extends SceneTree
 # HUD block 4-4 test 2: the edge scroll on the scenario shell (a real mouse motion into the edge band, then frames).
-#   - each frame's focus step is the WASD step: screen right = world (cos yaw, 0, -sin yaw), screen down = (sin yaw, 0,
-#     cos yaw), length zoom x 0.45 x the frame's delta (x sqrt 2 in a corner), checked at two yaws;
+#   - each frame's focus step is the WASD step, checked as direction and length separately, with that same frame's delta:
+#     a probe node processed after the lab (process_priority) records the focus and the delta of every frame, so a step
+#     and the delta it was made with come from one frame (frame times may vary). Direction: screen right = world
+#     (cos yaw, 0, -sin yaw), screen down = (sin yaw, 0, cos yaw); length: zoom x 0.45 x delta (x sqrt 2 in a corner);
+#     at two yaws;
 #   - held at each corner long enough to cross the board, the focus stops at the play area's limits (0..54 m, 0..30 m,
 #     the 18x10 play area of 3 m cells written here) and never leaves them;
 #   - the mouse back in the middle: the focus stays.
 const PLAY_W := 18 * 3.0
 const PLAY_H := 10 * 3.0
 var h
+
+class FrameProbe extends Node:
+	# Processed after the lab in the same frame: the focus the lab's _process left and the delta it was given.
+	var lab
+	var frames := []
+	func _ready() -> void:
+		process_priority = 1000
+	func _process(delta: float) -> void:
+		frames.append([lab.focus, delta])
 
 func _initialize() -> void:
 	run.call_deferred()
@@ -37,23 +49,34 @@ func run() -> void:
 	var lab = h.lab
 	await settle(lab, lab.engine)
 	var size := Vector2(root.size)
-	# Per-frame steps at two yaws.
-	var bad := []
+	# Per-frame steps at two yaws, each with its own frame's delta.
+	var probe := FrameProbe.new()
+	probe.lab = lab
+	root.add_child(probe)
+	var bad_direction := []
+	var bad_length := []
+	var deltas := []
 	var steps := 0
 	for yaw in [0.32, 1.9]:
 		lab.yaw = yaw
-		lab.focus = Vector3(PLAY_W * 0.5, 0, PLAY_H * 0.5)
 		for case in [[Vector2(size.x - 4, size.y * 0.5), Vector2(1, 0)], [Vector2(size.x * 0.5, size.y - 4), Vector2(0, 1)], [Vector2(4, 4), Vector2(-1, -1)]]:
 			lab.focus = Vector3(PLAY_W * 0.5, 0, PLAY_H * 0.5)
 			await move(case[0])
-			for i in range(4):
-				var before: Vector3 = lab.focus
-				await process_frame
-				var d: Vector2 = case[1]
-				var want: Vector3 = Vector3(d.x * cos(yaw) + d.y * sin(yaw), 0, -d.x * sin(yaw) + d.y * cos(yaw)) * lab.get_process_delta_time() * lab.zoom * 0.45
+			probe.frames.clear()
+			for i in range(5): await process_frame
+			var d: Vector2 = case[1]
+			var unit: Vector3 = Vector3(d.x * cos(yaw) + d.y * sin(yaw), 0, -d.x * sin(yaw) + d.y * cos(yaw))
+			for i in range(1, probe.frames.size()):
+				var step: Vector3 = probe.frames[i][0] - probe.frames[i - 1][0]
+				var delta: float = probe.frames[i][1]
+				var length: float = unit.length() * lab.zoom * 0.45 * delta
 				steps += 1
-				if (lab.focus - before).distance_to(want) > 0.0005: bad.append([yaw, case[0], lab.focus - before, want])
-	h.expect(bad.is_empty() and steps == 24, "%d frame steps = the WASD step for the edge direction (wrong %s)" % [steps, str(bad.slice(0, 4))])
+				deltas.append(delta)
+				if step.length() < 0.000001 or step.normalized().angle_to(unit.normalized()) > 0.001: bad_direction.append([yaw, d, step])
+				if absf(step.length() - length) > 0.0001 * maxf(1.0, length): bad_length.append([yaw, d, step.length(), length, delta])
+	probe.queue_free()
+	h.expect(steps == 24 and bad_direction.is_empty(), "%d frame steps point the WASD way for the edge direction (wrong %s)" % [steps, str(bad_direction.slice(0, 4))])
+	h.expect(steps == 24 and bad_length.is_empty(), "%d frame steps are zoom x 0.45 x that frame's delta (x sqrt 2 in a corner) (wrong %s; deltas %s..%s)" % [steps, str(bad_length.slice(0, 4)), deltas.min(), deltas.max()])
 	# Corners held: the focus ends at the limits and never leaves them.
 	var ends := []
 	var left := []
