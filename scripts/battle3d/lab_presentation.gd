@@ -2,6 +2,7 @@ extends Node3D
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const MockPort = preload("res://scripts/battle3d/lab_demo_port.gd")
+const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 var board = Board.new()
 var port = MockPort.new()
 var camera := Camera3D.new()
@@ -27,7 +28,8 @@ func _ready() -> void:
 	log_file=FileAccess.open(ProjectSettings.globalize_path("res://").path_join("../EASTWAR_C0C3_Evidence/runtime_events.jsonl").simplify_path(),FileAccess.WRITE)
 	port.board=board
 	port.move_accepted.connect(_move_accepted)
-	var field = load("res://assets/battle3d/battlefield.glb").instantiate()
+	var field = TerrainBuilder.new()
+	field.setup_from_board(board)
 	add_child(field)
 	_add_ground_collision(field)
 	var env := WorldEnvironment.new()
