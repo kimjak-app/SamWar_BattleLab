@@ -5,14 +5,26 @@ on:
     branches:
       - recovery/worldmap-iso-sfx-services-20260912
       - refactor/engine-core-20260918
+      - integration/p1-engine-core-20261019
+      - "feature/**"
 
 permissions:
   contents: read
 
 jobs:
   verify:
+    # The Godot tests are dealt round-robin over 4 shards (one counter across every test list, kept in RUNNER_TEMP);
+    # validators and the scene loads run once (shard 0); every shard imports, runs its tests and checks the tree.
+    name: verify (shard ${{ matrix.shard }} of 4)
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    env:
+      SHARD: ${{ matrix.shard }}
+      SHARD_COUNT: 4
     steps:
       - name: Checkout full history
         uses: actions/checkout@v4
@@ -56,6 +68,7 @@ jobs:
           test -f .godot/global_script_class_cache.cfg
 
       - name: Static validators
+        if: matrix.shard == 0
         shell: bash
         run: |
           set -euo pipefail
@@ -283,10 +296,15 @@ jobs:
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
+          index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do
-            echo "===== $test_script ====="
-            timeout 120s godot --headless --path . --script "res://$test_script"
+            if (( index % SHARD_COUNT == SHARD )); then
+              echo "===== $test_script (shard $SHARD) ====="
+              timeout 120s godot --headless --path . --script "res://$test_script"
+            fi
+            index=$((index + 1))
           done
+          echo "$index" > "$RUNNER_TEMP/ci_test_index"
 
       - name: Tech-tree regression tests
         shell: bash
@@ -300,10 +318,15 @@ jobs:
             tests/scripts/test_worldmap_domestic_tech_tree_presentation_extraction.gd
             tests/scripts/test_worldmap_domestic_tech_completion_presentation_extraction.gd
           )
+          index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do
-            echo "===== $test_script ====="
-            timeout 120s godot --headless --path . --script "res://$test_script"
+            if (( index % SHARD_COUNT == SHARD )); then
+              echo "===== $test_script (shard $SHARD) ====="
+              timeout 120s godot --headless --path . --script "res://$test_script"
+            fi
+            index=$((index + 1))
           done
+          echo "$index" > "$RUNNER_TEMP/ci_test_index"
 
       - name: Military regression tests
         shell: bash
@@ -321,10 +344,15 @@ jobs:
             tests/scripts/test_worldmap_troop_rebalance_service_extraction.gd
             tests/scripts/test_worldmap_wounded_recovery_service_extraction.gd
           )
+          index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do
-            echo "===== $test_script ====="
-            timeout 120s godot --headless --path . --script "res://$test_script"
+            if (( index % SHARD_COUNT == SHARD )); then
+              echo "===== $test_script (shard $SHARD) ====="
+              timeout 120s godot --headless --path . --script "res://$test_script"
+            fi
+            index=$((index + 1))
           done
+          echo "$index" > "$RUNNER_TEMP/ci_test_index"
 
       - name: Diplomacy Trade Spy regression tests
         shell: bash
@@ -344,12 +372,18 @@ jobs:
             tests/scripts/test_worldmap_spy_routing.gd
             tests/scripts/test_worldmap_spy_controller_extraction.gd
           )
+          index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do
-            echo "===== $test_script ====="
-            timeout 120s godot --headless --path . --script "res://$test_script"
+            if (( index % SHARD_COUNT == SHARD )); then
+              echo "===== $test_script (shard $SHARD) ====="
+              timeout 120s godot --headless --path . --script "res://$test_script"
+            fi
+            index=$((index + 1))
           done
+          echo "$index" > "$RUNNER_TEMP/ci_test_index"
 
       - name: Project parse and WorldMap/Battle Main load
+        if: matrix.shard == 0
         shell: bash
         run: |
           set -euo pipefail
