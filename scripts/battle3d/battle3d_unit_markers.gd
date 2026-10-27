@@ -9,11 +9,11 @@ extends CanvasLayer
 # number sit under the unit's ground disc, about as wide as the unit. Sizes follow the unit's on-screen cell width
 # (cell_px, measured by the lab from the camera projection), so they grow when the camera zooms in, within these limits.
 const LAYER := 0
-const CHIP_FRAC := 0.55 # face chip side = clamp(0.55 x cell_px, 34, 80) px
-const CHIP_MIN := 34.0
-const CHIP_MAX := 80.0
-const CHIP_RIGHT := 0.38 # chip centre = body point + (0.38, -0.55) x cell_px (body: 1 m above the unit's ground point)
-const CHIP_UP := 0.55
+const CHIP_FRAC := 0.42 # face chip side = clamp(0.42 x cell_px, 30, 64) px (block 4-6c; 4-6b 0.55, 34, 80)
+const CHIP_MIN := 30.0
+const CHIP_MAX := 64.0
+const CHIP_RIGHT := 0.35 # chip centre = body point + (0.35, -0.33) x cell_px (body: 1 m above the unit's ground point; 4-6b 0.38, 0.55)
+const CHIP_UP := 0.33
 const BAR_FRAC := 0.90 # bar width = clamp(0.90 x cell_px, 60, 150) px, height 0.09 x width (at least 7 px)
 const BAR_MIN := 60.0
 const BAR_MAX := 150.0
