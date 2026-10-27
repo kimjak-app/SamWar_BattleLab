@@ -17,6 +17,8 @@ const ANCHOR_GAP := 22.0
 const GRID_AVOID_PADDING := 10.0
 const DISTANCE_SCORE_WEIGHT := 8.0
 const FAR_FALLBACK_SCORE := 1000000.0
+# HUD block 4-6b: the selected unit's marker (face chip, badges, bar, number) is kept clear: the shell hands its screen
+# rect over with the state ("avoid_rect") and choose_position moves off it to the best clear near candidate (below).
 const NEAR_CANDIDATE_COUNT := 8
 const PANEL_SIZE := Vector2(176.0, 214.0)
 const BUTTON_NAMES := ["FloatingBasicAttackButton", "FloatingUniqueSkillButton", "FloatingTacticsButton", "FloatingMoveButton", "FloatingWaitButton"]
@@ -37,6 +39,7 @@ var dragging := false
 var drag_offset := Vector2.ZERO
 var drag_position := Vector2.INF
 var drag_key := ""
+var avoid_rect := Rect2() # block 4-6b: the selected unit's marker, from the last state
 
 func _ready() -> void:
 	panel = get_node("FloatingAllyCommandPanel")
@@ -91,6 +94,7 @@ func show_state(state: Dictionary) -> void:
 		panel.size = PANEL_SIZE
 		var key := str(state.get("turn_key", ""))
 		if key != drag_key: drag_position = Vector2.INF # another ally turn or selection: back to the automatic placement
+		avoid_rect = state.get("avoid_rect", Rect2())
 		panel.position = drag_position if drag_position != Vector2.INF else choose_position(state.get("anchor", Vector2.ZERO), PANEL_SIZE, state.get("range_rects", []))
 	arrows.visible = bool(state.get("facing_open", false))
 	if arrows.visible:
@@ -126,12 +130,23 @@ func choose_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array) ->
 	var candidates := candidate_positions(anchor, panel_size, viewport_size)
 	var best_position := clamp_position(anchor + Vector2(52.0, -panel_size.y - ANCHOR_GAP), panel_size, viewport_size)
 	var best_score := INF
+	var best_index := -1
+	var clear_position := Vector2.INF # block 4-6b: the best near candidate clear of the selected unit's marker
+	var clear_score := INF
 	for index in range(candidates.size()):
 		var clamped := clamp_position(candidates[index], panel_size, viewport_size)
 		var score := score_position(clamped, panel_size, cell_rects, anchor, index >= NEAR_CANDIDATE_COUNT) + float(index) * 0.01
 		if score < best_score:
 			best_score = score
 			best_position = clamped
+			best_index = index
+		if index < NEAR_CANDIDATE_COUNT and score < clear_score and not Rect2(clamped, panel_size).intersects(avoid_rect):
+			clear_score = score
+			clear_position = clamped
+	# Block 4-6b: the 2D rule's choice stands unless it is a near candidate covering the selected unit's marker; then the
+	# best near candidate clear of it. None clear (a marker grown at close zoom, a screen edge): the 2D choice, overlapping.
+	if avoid_rect.has_area() and best_index < NEAR_CANDIDATE_COUNT and Rect2(best_position, panel_size).intersects(avoid_rect) and clear_position != Vector2.INF:
+		return clear_position
 	return best_position
 
 static func candidate_positions(anchor: Vector2, panel_size: Vector2, viewport_size: Vector2) -> Array:
