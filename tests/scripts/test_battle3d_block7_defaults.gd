@@ -6,7 +6,8 @@ extends SceneTree
 # the board). The ground nodes are named Terrain and Ford (lab_presentation.gd _add_ground_collision and
 # battle3d_grid_projection.gd attach_surface_collisions look them up by those names). Bridges (block 4-4), by the row their
 # centre stands on (3 m cells): defaults -> one on row 5, none on row 14; far bridge on -> rows 5 and 14; bridges off -> none.
-# Tree count: this test counts the forest cells of the 18x10 play area in terrain_types.json itself (expected 24) and
+# Tree count: this test counts the forest cells of the 18x10 play area in terrain_types.json itself (expected 12: T2's
+# two 6-cell groves, 24 before) and
 # expects 1 to 3 trees per cell (김작's density decision), i.e. 24..72; controls: forest trees outside the play area on
 # -> more trees, boundary clusters on -> more trees, both tree kinds off -> none.
 # The game lab also gets the painted outer ground texture (block 8 item 2-2) with mipmaps.
@@ -68,7 +69,7 @@ func run() -> void:
 	for y in range(PLAY.y):
 		for x in range(PLAY.x):
 			if cells[y][x] == "forest": forest_cells += 1
-	h.expect(forest_cells == 24, "terrain_types.json: 24 forest cells in the 18x10 play area (got %d)" % forest_cells)
+	h.expect(forest_cells == 12, "terrain_types.json: 12 forest cells in the 18x10 play area (T2 groves; got %d)" % forest_cells)
 	default_count = tree_count({})
 	var outside := tree_count({"forest_trees_outside_play":true})
 	var clusters := tree_count({"scatter_boundary_trees":true})

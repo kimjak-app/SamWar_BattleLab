@@ -3,9 +3,13 @@ extends SceneTree
 # tests/data/block7_old_play_area_0dd9239.json, computed from 0dd9239's heightfield.json with 0dd9239's height()/terrain()
 # (not from the code under test): the 180 play cells' types, the 180 cell-centre heights and 400 seeded random points
 # over the play area, all within 1e-5 m.
+# T2 (2026-10-28, 김작's grove decision) changes the forest on purpose: the old play area's forest cells become plain and
+# the two groves below become forest. That change is written here (not read from the code under test); every other
+# cell keeps its old type.
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const FIXTURE := "res://tests/data/block7_old_play_area_0dd9239.json"
 const TOLERANCE := 0.00001
+const T2_GROVES := [Rect2i(0, 3, 2, 3), Rect2i(16, 6, 2, 3)] # x0-1 y3-5 and x16-17 y6-8
 var checks := 0
 var failures := 0
 
@@ -27,8 +31,10 @@ func run() -> void:
 	for y in range(play.y):
 		for x in range(play.x):
 			var got: String = board.terrain(Vector2i(x, y))
-			if got != String(old.types[y][x]): type_differences.append([Vector2i(x, y), old.types[y][x], got])
-	expect(type_differences.is_empty(), "the 180 old play cells keep their terrain type (differences %s)" % str(type_differences))
+			var want: String = "plain" if String(old.types[y][x]) == "forest" else String(old.types[y][x])
+			if T2_GROVES.any(func(r): return r.has_point(Vector2i(x, y))): want = "forest"
+			if got != want: type_differences.append([Vector2i(x, y), old.types[y][x], want, got])
+	expect(type_differences.is_empty(), "the 180 old play cells keep their terrain type, the T2 forest change apart (differences %s)" % str(type_differences))
 	var worst := 0.0
 	for set_name in ["centre_heights", "random_heights"]:
 		var differences := []

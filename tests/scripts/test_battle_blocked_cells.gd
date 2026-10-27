@@ -3,7 +3,7 @@ extends SceneTree
 # four directions in the same order, written here, not taken from the service). On an 18 x 10 grid:
 #   1. no blocked cell (the default, and after set_blocked_cells([])): for several starts, ranges and blockers the
 #      reachable cells AND every path are exactly the test's search without blocked cells (the old behaviour);
-#   2. the 24 forest cells of the play area (read here from terrain_types.json) blocked: the reachable cells and paths
+#   2. the 12 forest cells of the play area (T2's two groves; read here from terrain_types.json) blocked: the reachable cells and paths
 #      are the test's search with those cells removed; no path steps on a blocked cell; a blocked target gives no path;
 #   3. a wall (x = 5, y 0-7 blocked): the path round its end is exactly the test's shortest detour (16 steps, not 4);
 #   4. a unit standing on a blocked cell beside the plain can leave it; it cannot step onto the next blocked cell.
@@ -113,7 +113,7 @@ func run() -> void:
 		for cell in forest:
 			if absi(cell.x - c[0].x) + absi(cell.y - c[0].y) <= c[1]:
 				if not service.find_move_path(c[0], cell, mover, c[1], grid, units, false).is_empty(): into.append([c[0], cell])
-	expect(forest.size() == 24 and diffs.is_empty(), "24 forest cells blocked: reachable cells and paths = the search without them (wrong %s)" % str(diffs.slice(0, 3)))
+	expect(forest.size() == 12 and diffs.is_empty(), "12 forest cells blocked: reachable cells and paths = the search without them (wrong %s)" % str(diffs.slice(0, 3)))
 	expect(stepped.is_empty() and into.is_empty(), "no path steps on a forest cell (%s); no path ends on one (%s)" % [str(stepped.slice(0, 3)), str(into.slice(0, 3))])
 	# Control: the same starts without the block reach forest cells.
 	grid.set_blocked_cells([])
@@ -144,7 +144,7 @@ func run() -> void:
 	expect(service.is_cell_walkable(Vector2i(1, 5), Vector2i(1, 5), sitter, grid, alone, false) and leave.has(Vector2i(3, 5)) and leave.keys().size() == want_leave.keys().size()
 		and service.find_move_path(Vector2i(1, 5), Vector2i(3, 5), sitter, 3, grid, alone, false) == want_leave[Vector2i(3, 5)],
 		"a unit on forest (1,5), beside the plain, can leave: %d cells reachable (search %d), path to (3,5) %s" % [leave.size(), want_leave.size(), str(want_leave.get(Vector2i(3, 5)))])
-	expect(not service.is_cell_walkable(Vector2i(1, 6), Vector2i(1, 5), sitter, grid, alone, false), "but it cannot step onto the next forest cell (1,6)")
+	expect(not service.is_cell_walkable(Vector2i(1, 4), Vector2i(1, 5), sitter, grid, alone, false), "but it cannot step onto the next forest cell (1,4)")
 	grid.free()
 	print("[T1_BLOCKED_CELLS] %s: %d checks, %d failures; forest %d" % ["PASS" if failures == 0 else "FAIL", checks, failures, forest.size()])
 	quit(0 if failures == 0 else 1)

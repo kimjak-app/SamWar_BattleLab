@@ -1,6 +1,8 @@
 extends SceneTree
 # T1 test 2: the 3D engine lab hands the engine its forest cells, on the scenario shell (default battle).
-#   - the engine's grid holds exactly the play area's forest cells (read here from terrain_types.json, 24 cells);
+#   - the engine's grid holds exactly the play area's forest cells (read here from terrain_types.json);
+#   - T2: the groves are kept away from the start cells, so the active ally is first put (a fixture write, as the
+#     scenario harnesses do) on the first free plain cell, in row order, two steps from the forest;
 #   - the active ally's move range drawn by the lab (range_view discs, the movement adapter's projection) holds no
 #     blocked cell; control: this test's own search without the block from the same start reaches forest cells;
 #   - a click on a forest cell inside the ally's raw range: the engine's move command refuses (the lab counts a
@@ -55,10 +57,21 @@ func run() -> void:
 	var held: Array = grid.blocked_cells.keys()
 	h.expect(held.size() == forest.size() and forest.all(func(c): return grid.is_blocked(c)), "the engine's grid blocks the %d forest cells (holds %d)" % [forest.size(), held.size()])
 	var ally = b.active_unit_state
-	var start: Vector2i = ally.grid_cell
 	var others := []
 	for u in b.all_battle_unit_states:
 		if u != ally and lab.views[u.unit_id].visible: others.append(u.grid_cell)
+	var start: Vector2i = ally.grid_cell
+	for i in range(180):
+		var c := Vector2i(i % 18, i / 18)
+		var d: int = forest.map(func(f): return absi(f.x - c.x) + absi(f.y - c.y)).min()
+		if d == 2 and lab.board.terrain(c) == "plain" and not others.has(c):
+			start = c
+			break
+	ally.set_grid_cell(start)
+	b.call("_sync_resumed_unit_markers_to_grid", ally)
+	b.call("_sync_demo_positions")
+	lab._sync_views()
+	for i in range(10): await process_frame
 	await click(lab, start) # select the ally: the lab draws its move range
 	var drawn: Array = lab.hud_range_cell_positions().map(func(p): return lab.board.cell_at(p))
 	var raw := reach(start, ally.move_range, others)
