@@ -3,6 +3,8 @@ extends SceneTree
 # command), for that ally: the face chip and the bar are darkened (each colour channel under 0.7), the number and the
 # whole marker are not (white); the units that have not acted: chip, bar and number all bright. Badges on an acted marker
 # (a probe marker with five statuses): bright.
+# Block 4-6d: every part is read as drawn: its own self_modulate x modulate times the modulate of each parent up to and
+# including the marker root (a darkened container or root darkens what is inside it).
 const PROBE_AT := {"foot":Vector2(400, 400), "body":Vector2(400, 370), "disc_bottom":Vector2(400, 420), "cell_px":77.0}
 var h
 
@@ -15,9 +17,17 @@ func dark(c: Color) -> bool:
 func bright(c: Color) -> bool:
 	return c.r == 1.0 and c.g == 1.0 and c.b == 1.0
 
+func drawn(node: CanvasItem, m: Control) -> Color:
+	var c := node.self_modulate * node.modulate
+	var up := node
+	while up != m:
+		up = up.get_parent()
+		c *= (up as CanvasItem).modulate
+	return c
+
 func parts(m: Control) -> Dictionary:
-	return {"chip":(m.get_node("Chip") as CanvasItem).modulate, "bar":(m.get_node("BarBack") as CanvasItem).modulate, "fill":(m.get_node("BarFill") as CanvasItem).modulate,
-		"number":(m.get_node("Troops") as CanvasItem).modulate, "root":m.modulate}
+	return {"chip":drawn(m.get_node("Chip/Face"), m), "bar":drawn(m.get_node("BarBack"), m), "fill":drawn(m.get_node("BarFill"), m),
+		"number":drawn(m.get_node("Troops"), m), "root":m.self_modulate * m.modulate}
 
 func run() -> void:
 	h = load("res://tests/scripts/support/battle3d_scenario_harness.gd").new()
@@ -47,9 +57,9 @@ func run() -> void:
 	var probe := "zz_probe"
 	markers.show_unit(probe, {"side":"ally", "current_troops":5, "max_troops":10, "has_acted":true}, null, false, ["◎2", "⚠1", "▼3", "▲2"], PROBE_AT, true)
 	var pm: Control = markers.markers[probe]
-	var badge_mods: Array = pm.get_node("Badges").get_children().filter(func(l): return l.visible).map(func(l): return l.modulate)
+	var badge_mods: Array = pm.get_node("Badges").get_children().filter(func(l): return l.visible).map(func(l): return drawn(l, pm))
 	var pp := parts(pm)
-	h.expect(badge_mods.size() == 4 and badge_mods.all(func(c): return bright(c)) and bright(pp.root) and dark(pp.chip), "an acted marker's badges stay bright (%s), its chip dark" % str(badge_mods))
+	h.expect(badge_mods.size() == 4 and badge_mods.all(func(c): return bright(c)) and bright(pp.number) and bright(pp.root) and dark(pp.chip) and dark(pp.bar), "an acted marker's badges and number stay bright as drawn (%s, %s), its chip and bar dark" % [str(badge_mods), pp])
 	pm.queue_free()
 	markers.markers.erase(probe)
 	await h.close_shell(self)
