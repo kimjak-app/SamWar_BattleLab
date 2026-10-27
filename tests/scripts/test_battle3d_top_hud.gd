@@ -3,8 +3,9 @@ extends SceneTree
 # scenario shell. Expected values are built here from the engine: filled slots =
 # the engine's momentum, label = "%d / 30" % battle_round. Default battle: start
 # 3/3 1/30, three waits to round 2 (round-end gain), the HUD applies only on a
-# value change and adds no engine write. The lab's round/momentum text labels
-# stay visible, moved by the shell to two lines right under the HUD frame, each
+# value change and adds no engine write. HUD block 4-6: the lab's round/momentum text labels are debug text, hidden by
+# default (checked first); with F3 on (a real key press, kept on for the rest) they are shown, moved by the shell to two
+# lines right under the HUD frame, each
 # as wide as its text and centred on the HUD (game window 1920x1080): never on
 # the HUD and never on another visible lab or shell UI. Win practice played with [자동] to the result: every frame the HUD
 # shows the lab's values and the labels stay clear; once the battle has a
@@ -31,9 +32,10 @@ func expect_engine_values(label: String) -> void:
 
 func other_ui_rects() -> Array:
 	# Top-level visible controls of the lab's and the shell's canvas layers, except
-	# the two moved labels and the lab's full-window result text.
+	# the two moved labels and the lab's full-window result text. HUD block 4-6: the unit markers' layer is left out too:
+	# the markers follow the units over the battlefield (like the 3D units under the labels), they are not UI panels.
 	var out := []
-	var layers: Array = h.lab.get_children().filter(func(n): return n is CanvasLayer)
+	var layers: Array = h.lab.get_children().filter(func(n): return n is CanvasLayer and n != h.lab.unit_markers)
 	layers.append(h.shell.layer)
 	for layer in layers:
 		for c in layer.get_children():
@@ -74,6 +76,18 @@ func expect_labels_placed(tag: String) -> void:
 	var problems := label_problems()
 	h.expect(problems.is_empty(), "%s: labels visible, off the HUD and off other UI %s" % [tag, str(problems)])
 
+func key(code: Key) -> void:
+	var e := InputEventKey.new()
+	e.keycode = code
+	e.physical_keycode = code
+	e.pressed = true
+	root.push_input(e)
+	await process_frame
+	var up := e.duplicate()
+	up.pressed = false
+	root.push_input(up)
+	for i in range(3): await process_frame
+
 func settle(label: String) -> void:
 	var stable := 0
 	for i in range(6000):
@@ -97,6 +111,11 @@ func run() -> void:
 	h.expect(hud.visible and b.battle_momentum.get_value("ally") == 3 and b.battle_momentum.get_value("enemy") == 3 and b.battle_round == 1, "default started: HUD shown, engine 3/3 round 1")
 	expect_engine_values("start")
 	h.expect(b.writes == plain.writes, "before any input: writes == an engine started alone %s" % str(b.writes))
+	# HUD block 4-6: hidden by default (the HUD shows the same); F3 shows them, and the placement checks below run with F3 on.
+	h.expect(not h.lab.debug_text_visible and not h.lab.turn_label.is_visible_in_tree() and not h.lab.momentum_label.is_visible_in_tree() and not h.lab.turn_label.text.is_empty() and not h.lab.momentum_label.text.is_empty(),
+		"default: the turn / momentum lines hidden, texts kept ('%s' / '%s')" % [h.lab.turn_label.text, h.lab.momentum_label.text])
+	await key(KEY_F3)
+	h.expect(h.lab.debug_text_visible and h.lab.turn_label.is_visible_in_tree() and h.lab.momentum_label.is_visible_in_tree(), "F3: the turn / momentum lines shown")
 	expect_labels_placed("start")
 	# Only a value change re-applies; idle frames add no engine write.
 	var applies: int = hud.apply_count
@@ -179,6 +198,7 @@ func run() -> void:
 	await finish()
 
 func finish() -> void:
+	h.lab.debug_text_visible = false # the F3 state is per session; back to the default for the next test
 	await h.close_shell(self)
 	print("[TOP_HUD] checks=", h.checks, " failures=", h.failures)
 	var code := 0 if h.failures.is_empty() else 1

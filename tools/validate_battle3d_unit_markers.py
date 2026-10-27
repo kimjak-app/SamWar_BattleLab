@@ -4,7 +4,9 @@
 Pinned scope (on top of 886426a, block 4-4 pushed): the lab (debug text, F3), the engine lab (markers, arrows, turn side,
 debug lines), the shell (the side to the top HUD), the top HUD script (the side in the TurnHud title), the new marker
 script, four new tests, this validator, its report and the CI list. Engine, services, adapter (VIEW_FIELDS), host, 2D,
-scenes, other HUD files, goldens, data and assets unchanged (no new image); existing tests unchanged.
+scenes, other HUD files, goldens, data and assets unchanged (no new image); existing tests unchanged except
+test_battle3d_top_hud.gd (approved: its top-line checks run with F3 on after a default-hidden check; none removed; the
+unit markers' layer is not counted as other UI there, the markers follow the units over the battlefield).
 
 No new engine read and no command: the lab's engine.call / engine.get name sets are the base's (the markers use the
 display values, N2 hud_portrait and N5 hud_status_entries already there) and the 15 writes are counted as before.
@@ -28,7 +30,8 @@ WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_battle3d_unit_markers.py"
 REPORT = "agent/HUD_BLOCK46_UNIT_MARKER_RESULT_20261027.md"
 NEW = {MARKERS, MARKERS + ".uid", VALIDATOR, REPORT, *NEW_TESTS, *(p + ".uid" for p in NEW_TESTS)}
-MODIFIED = {PRESENTATION, LAB, SHELL, TOP_HUD, WORKFLOW}
+TOP_HUD_TEST = "tests/scripts/test_battle3d_top_hud.gd"
+MODIFIED = {PRESENTATION, LAB, SHELL, TOP_HUD, WORKFLOW, TOP_HUD_TEST}
 PROTECTED_PREFIXES = ["scripts/battle_web_import_test.gd", "scripts/battle/", "scripts/battle_unit_state.gd", "scripts/ui/", "scripts/worldmap/",
                       "scripts/battle3d/battle3d_unit_adapter.gd", "scripts/battle3d/battle3d_engine_host.gd", "scripts/battle3d/battle3d_movement_adapter.gd",
                       "scenes/", "tests/golden/", "tests/scripts/support/", "data/", "assets/"]
@@ -68,7 +71,11 @@ def main():
     for p, status in changes.items():
         assert (p in MODIFIED and status == "M") or (p in NEW and status == "A"), ("out of scope", status, p)
         assert not any(p.startswith(x) for x in PROTECTED_PREFIXES), "engine/service/adapter/2D/scene/golden/data/asset diff must be 0: " + p
-    assert not [p for p in changes if p.startswith("tests/") and p not in NEW], "existing tests unchanged"
+    assert not [p for p in changes if p.startswith("tests/") and p not in NEW and p != TOP_HUD_TEST], "existing tests unchanged (but the top HUD test)"
+    removed, added = diff(TOP_HUD_TEST)
+    assert strip_comments(text(TOP_HUD_TEST)).count("expect(") >= strip_comments(text(TOP_HUD_TEST, base=True)).count("expect(") + 2 \
+        and [x.strip() for x in removed if x.strip() and not x.lstrip().startswith("#")] == ["var layers: Array = h.lab.get_children().filter(func(n): return n is CanvasLayer)"] \
+        and "await key(KEY_F3)" in "\n".join(added) and "n != h.lab.unit_markers" in "\n".join(added), ("top HUD test: F3 and two checks added; only the layer list line changed (markers left out)", removed)
     assert not [p for p in changes if p.startswith("tools/") and p != VALIDATOR], "existing validators unchanged"
     removed, added = diff(WORKFLOW)
     assert not removed and sorted(x.strip() for x in added) == sorted([VALIDATOR, *NEW_TESTS]), "workflow: the four tests and this validator added"
@@ -90,7 +97,7 @@ def main():
     removed, added = diff(PRESENTATION)
     assert not [x for x in removed if x.strip()], ("the lab: nothing removed", removed)
     lab = text(LAB)
-    assert "action_badges.visible = debug_text_visible" in lab and "const HIDE_TOP_LINES := false" in lab, "the state lines through their parent; the top lines kept shown"
+    assert "action_badges.visible = debug_text_visible" in lab and "const HIDE_TOP_LINES := true" in lab, "the state lines through their parent; the top lines hidden too"
     assert not [x for x in diff(LAB)[0] if x.strip()], ("the engine lab: nothing removed", diff(LAB)[0])
     assert 'return "적군 턴" if engine.get("current_phase") == "enemy_turn" or _enemy_presentation_busy() else "아군 턴"' in lab, "the acting side"
     assert "top_hud.show_side(lab.hud_turn_side())" in text(SHELL) and 'get_node("ProductionHudRoot/TopHudRoot/TurnHud/Frame")' in text(TOP_HUD), "the side in the TurnHud title"

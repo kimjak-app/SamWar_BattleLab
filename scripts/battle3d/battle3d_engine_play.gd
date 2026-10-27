@@ -718,7 +718,7 @@ func _refresh_unit_markers() -> void:
 		var status_badges: Array = hud_status_entries(id).map(func(entry): return str(entry.get("badge", ""))) if on else []
 		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), screen, on)
 
-const HIDE_TOP_LINES := false # block 4-6: true hides the top two lines too (waits for the top HUD test decision)
+const HIDE_TOP_LINES := true # block 4-6: the top two lines are debug text too (F3); the HUD shows round, side and momentum
 
 func hud_turn_side() -> String:
 	# HUD block 4-6: the acting side for the top HUD (the 2D adapter's "아군 턴" / "적군 턴" words), from the phase the lab
@@ -728,8 +728,8 @@ func hud_turn_side() -> String:
 func _apply_debug_text() -> void:
 	# HUD block 4-6: the per-unit state lines (action, defend, status) are debug text too; the markers and the HUD show
 	# the same. The badges are hidden through their parent, so each badge's own visible flag still says whether its unit
-	# is shown. The top turn / momentum lines stay shown while HIDE_TOP_LINES is false: test_battle3d_top_hud.gd (block
-	# HUD spike) requires them visible and clear of other UI, and the order keeps existing tests unchanged.
+	# is shown. The top turn / momentum lines too while HIDE_TOP_LINES is true (approved; test_battle3d_top_hud.gd checks
+	# them hidden by default and placed clear of the HUD with F3 on).
 	super._apply_debug_text()
 	if turn_label: turn_label.visible = debug_text_visible or not HIDE_TOP_LINES
 	if momentum_label: momentum_label.visible = debug_text_visible or not HIDE_TOP_LINES

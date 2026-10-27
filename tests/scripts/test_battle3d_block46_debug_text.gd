@@ -3,7 +3,7 @@ extends SceneTree
 #   - default: the unit info labels (id | type | troops), the per-unit state lines (their parent node) and the control
 #     help are hidden; their nodes and texts are still there and still updated;
 #   - F3: all of them shown; F3 again: hidden again;
-#   - the top turn / momentum lines stay shown (HIDE_TOP_LINES false, see the report);
+#   - the top turn / momentum lines follow the same toggle (HIDE_TOP_LINES true);
 #   - the TurnHud title shows the acting side: "아군 턴" on the ally turn, "적군 턴" once the enemy turn plays.
 var h
 
@@ -50,13 +50,13 @@ func run() -> void:
 	h.expect(s0.info.all(func(v): return not v) and not s0.badges and not s0.help, "default: info labels, state lines and help hidden %s" % str(s0))
 	var shown_badges: int = lab.action_badges.get_children().filter(func(x): return x.visible and not x.text.is_empty()).size()
 	h.expect(shown_badges > 0, "the state lines still update (%d with text and their own visible flag on)" % shown_badges)
-	h.expect(lab.turn_label.is_visible_in_tree() and lab.momentum_label.is_visible_in_tree(), "the top turn / momentum lines stay shown (HIDE_TOP_LINES %s)" % lab.HIDE_TOP_LINES)
+	h.expect(lab.HIDE_TOP_LINES and not lab.turn_label.is_visible_in_tree() and not lab.momentum_label.is_visible_in_tree(), "default: the top turn / momentum lines hidden too")
 	await key(KEY_F3)
 	var s1 := state(lab)
-	h.expect(lab.debug_text_visible and s1.info.all(func(v): return v) and s1.badges and s1.help, "F3: everything shown %s" % str(s1))
+	h.expect(lab.debug_text_visible and s1.info.all(func(v): return v) and s1.badges and s1.help and lab.turn_label.is_visible_in_tree() and lab.momentum_label.is_visible_in_tree(), "F3: everything shown, the top lines too %s" % str(s1))
 	await key(KEY_F3)
 	var s2 := state(lab)
-	h.expect(not lab.debug_text_visible and s2.info.all(func(v): return not v) and not s2.badges and not s2.help, "F3 again: hidden %s" % str(s2))
+	h.expect(not lab.debug_text_visible and s2.info.all(func(v): return not v) and not s2.badges and not s2.help and not lab.turn_label.is_visible_in_tree(), "F3 again: hidden %s" % str(s2))
 	# The acting side in the TurnHud title.
 	var title: Label = h.shell.top_hud.get_node("ProductionHudRoot/TopHudRoot/TurnHud/Frame")
 	h.expect(title.text == "아군 턴" and b.current_phase != "enemy_turn", "ally turn: TurnHud says 아군 턴 ('%s', phase %s)" % [title.text, b.current_phase])
