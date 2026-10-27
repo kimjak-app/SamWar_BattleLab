@@ -16,7 +16,7 @@ from pathlib import Path
 import argparse, json, os, re, subprocess
 
 BASE = "1050ff73b1ecfc64aaf194e537f066dd620157ae"  # docs(battle): T1 report: causes of the last two failures (forest overlap)
-TIP = os.environ.get("T2_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("T2_SCOPE_TIP", "1e13012b2de8db46513924334b2357843e767482")  # test(battle3d): T2 grove test reads C1 from terrain_types.json itself
 BUILDER = "scripts/battle3d/terrain_board_builder.gd"
 TERRAIN = "assets/battle3d/terrain_types.json"
 BUDGET = "tests/scripts/test_battle3d_block7_triangle_budget.gd"
