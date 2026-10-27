@@ -707,14 +707,16 @@ func _edge_scroll_allowed() -> bool:
 
 func _refresh_unit_markers() -> void:
 	# HUD block 4-6: each shown unit's marker above its head; off-screen, behind the camera, retreated or routed: none.
-	# Values: the display value of this sync, the roster's portrait (N2, cached) and the selection.
+	# Values: the display value of this sync, the roster's portrait (N2, cached), the selection and the engine's own status
+	# badge glyphs (N5, the HUD's status rows; held during an enemy replay like the HUD).
 	var view_rect := get_viewport().get_visible_rect()
 	for id in views:
 		var root: Node3D = views[id]
 		var point: Vector3 = root.position + Vector3(0, UnitMarkers.HEAD, 0)
 		var screen := camera.unproject_position(point)
 		var on: bool = root.visible and not camera.is_position_behind(point) and view_rect.has_point(screen)
-		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, screen, on)
+		var status_badges: Array = hud_status_entries(id).map(func(entry): return str(entry.get("badge", ""))) if on else []
+		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), screen, on)
 
 const HIDE_TOP_LINES := false # block 4-6: true hides the top two lines too (waits for the top HUD test decision)
 

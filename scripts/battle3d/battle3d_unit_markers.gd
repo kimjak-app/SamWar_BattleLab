@@ -1,7 +1,7 @@
 extends CanvasLayer
 # HUD block 4-6: one marker per unit, a screen overlay that follows the unit (the 2D battle's unit marker carried over):
 # the general's face chip (the roster's portrait, ally blue / enemy red frame, gold when selected), the troop bar with
-# "current / max" always shown, darkened once the unit has acted. Fixed pixel
+# "current / max" always shown, darkened once the unit has acted, and up to three status badges (block 4-6 C). Fixed pixel
 # size (no zoom scaling). Every Control ignores the mouse, so clicks, the edge scroll and the camera pass through. Drawn
 # on layer 0, under the lab's UI (1) and the shell's HUD (5 and up). Values only, handed over by the lab each sync (its
 # display values and its approved portrait / status reads); no engine access here.
@@ -21,6 +21,10 @@ const NUMBER_COLOR := Color(0.953, 0.918, 0.851)
 const NUMBER_OUTLINE := Color(0.031, 0.063, 0.094)
 const ACTED := Color(0.5, 0.5, 0.5, 1.0) # modulate of an acted unit's marker
 const READY := Color(1, 1, 1, 1)
+const MAX_BADGES := 3
+const BADGE_FONT := 16
+const BADGE_COLORS := {"◎":Color(0.48, 0.92, 1.0), "⚠":Color(1.0, 0.76, 0.28), "◆":Color(0.52, 0.70, 0.90), "▲":Color(1.0, 0.70, 0.28), "▼":Color(0.92, 0.36, 0.26)}
+const BADGE_DEFAULT := Color(0.62, 0.82, 0.96)
 var markers := {} # unit_id -> Control
 
 func _init() -> void:
@@ -72,12 +76,17 @@ func marker(unit_id: String) -> Control:
 		number.add_theme_color_override("font_outline_color", NUMBER_OUTLINE)
 		number.add_theme_constant_override("outline_size", 3)
 		root.add_child(number)
-		for node in [root, frame, face, back, fill, number]: (node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var badges := HBoxContainer.new()
+		badges.name = "Badges"
+		badges.position = Vector2(frame.position.x + CHIP + 3, 0)
+		badges.add_theme_constant_override("separation", 2)
+		root.add_child(badges)
+		for node in [root, frame, face, back, fill, number, badges]: (node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(root)
 		markers[unit_id] = root
 	return markers[unit_id]
 
-func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected: bool, anchor: Vector2, on_screen: bool) -> void:
+func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected: bool, status_badges: Array, anchor: Vector2, on_screen: bool) -> void:
 	# value: the lab's 14-field display value; anchor: the screen point under the marker's bottom centre.
 	var root := marker(unit_id)
 	root.visible = on_screen and not value.is_empty() and int(value.get("current_troops", 0)) > 0
@@ -97,4 +106,23 @@ func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected
 	fill.modulate.a = BAR_ALPHA
 	(root.get_node("Troops") as Label).text = "%d / %d" % [current, int(value.get("max_troops", 0))]
 	root.modulate = ACTED if bool(value.get("has_acted", false)) else READY
+	_show_badges(root.get_node("Badges"), status_badges)
 	root.position = (anchor - Vector2(root.size.x * 0.5, root.size.y)).round()
+
+func _show_badges(row: HBoxContainer, status_badges: Array) -> void:
+	# Commit C: the engine's own badge glyphs (◎2, ⚠1, ◆, ▲, ▼3 ...), at most three, then "+n".
+	var texts: Array = status_badges.slice(0, MAX_BADGES)
+	if status_badges.size() > MAX_BADGES: texts.append("+%d" % (status_badges.size() - MAX_BADGES))
+	while row.get_child_count() < texts.size():
+		var label := Label.new()
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.add_theme_font_size_override("font_size", BADGE_FONT)
+		label.add_theme_color_override("font_outline_color", NUMBER_OUTLINE)
+		label.add_theme_constant_override("outline_size", 4)
+		row.add_child(label)
+	for i in range(row.get_child_count()):
+		var label: Label = row.get_child(i)
+		label.visible = i < texts.size()
+		if not label.visible: continue
+		label.text = str(texts[i])
+		label.add_theme_color_override("font_color", BADGE_COLORS.get(label.text.left(1), BADGE_DEFAULT))
