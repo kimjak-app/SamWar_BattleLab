@@ -20,15 +20,19 @@ const RETREAT_TINT := Color(0.62, 0.62, 0.62, 0.72)
 const RETREAT_TEXT := "퇴각"
 const RETREAT_FONT := 30
 var shown: Array = [] # last applied cards; the nodes change only when these change
+var fold # block 6a: the side banner and the fold (battle3d_roster_fold.gd)
 var apply_count := 0
 
 func _ready() -> void:
+	fold = preload("res://scripts/battle3d/battle3d_roster_fold.gd").new()
+	add_child(fold)
 	_ignore_mouse(get_node("ProductionHudRoot"))
 	for index in SLOT_NAMES.size():
 		for part in HIDDEN_PARTS:
 			var node := slot(index).get_node_or_null(part) as Control
 			if node != null: node.visible = false
 		(slot(index).get_node("UniqueSkillReadyIcon") as Control).visible = false
+	fold.setup("ally", get_node("ProductionHudRoot"), get_node("ProductionHudRoot/AllyRosterHud"), SLOT_NAMES.size())
 
 func _ignore_mouse(node: Node) -> void:
 	if node is Control: (node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -38,6 +42,8 @@ func slot(index: int) -> Control:
 	return get_node("ProductionHudRoot/AllyRosterHud/%s" % SLOT_NAMES[index])
 
 func roster_rect() -> Rect2:
+	# Block 6a: folded, the portrait column and the banner.
+	if fold.collapsed: return fold.folded_rect()
 	return get_node("ProductionHudRoot/AllyRosterHud").get_global_rect()
 
 func show_cards(cards: Array) -> void:
@@ -65,6 +71,7 @@ func show_cards(cards: Array) -> void:
 	for index in SLOT_NAMES.size():
 		var card: Dictionary = cards[index] if index < cards.size() else {}
 		retreat_label(index).visible = slot(index).visible and bool(card.get("retreated", false))
+	fold.show_cards(cards, range(SLOT_NAMES.size()).map(func(i): return slot(i)))
 
 func retreat_label(index: int) -> Label:
 	# Block 6a: the "퇴각" text over card index (made once, mouse ignored).

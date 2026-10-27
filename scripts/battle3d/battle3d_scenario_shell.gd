@@ -101,6 +101,7 @@ var cast_cursor := 0
 var toasted_round := 0
 var arrival_cursor := 0
 var toasted_arrival_rounds := {}
+var pulsed_side := "" # block 6a: the turn side the roster banner last pulsed for
 var ending_started := false
 var cutin_log: Array = [] # per cast: {caster, skill_id, route ("video"/"still"), owner}
 # HUD block 4-3: the camera centres the acting ally in the screen area the HUD leaves free, once per ally turn
@@ -254,6 +255,9 @@ func _refresh_top_hud() -> void:
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
 	if live: top_hud.show_side(lab.hud_turn_side()) # block 4-6
+	if live and lab.hud_turn_side() != pulsed_side: # block 6a: the 2D banner pulse on each turn change
+		pulsed_side = lab.hud_turn_side()
+		(ally_roster if pulsed_side == "아군 턴" else enemy_roster).fold.pulse()
 	log_hud.visible = live
 	if live: log_hud.show_lines(log_lines())
 	enemy_roster.visible = live
