@@ -24,6 +24,11 @@ func show_values(ally: int, enemy: int, round_value: int) -> void:
 	for side in SIDES: _fill_slots(side, values[side])
 	turn_label().text = "%d / %d" % [round_value, MAX_TURN]
 
+func show_side(text: String) -> void:
+	# HUD block 4-6: the acting side in the TurnHud title (it said "전투"); the lab's top turn line is debug text now.
+	var title: Label = get_node("ProductionHudRoot/TopHudRoot/TurnHud/Frame")
+	if title.text != text: title.text = text
+
 func frame_rect() -> Rect2:
 	return get_node("ProductionHudRoot/TopHudRoot").get_global_rect()
 

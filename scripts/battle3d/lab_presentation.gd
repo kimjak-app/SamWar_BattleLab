@@ -10,6 +10,10 @@ const ZOOM_MIN := 20.0
 const ZOOM_MAX := 42.0
 signal edge_scrolled # block 4-4: the camera moved by the edge scroll this frame (the shell treats it as manual camera input)
 static var edge_scroll_enabled := true # block 4-4: the option (this session only; no option is saved yet)
+# HUD block 4-6: the debug text (unit info labels, the control help; the engine lab adds its turn, momentum and unit state
+# lines) is hidden by default, F3 shows it again (this session only). Hidden, never removed: nodes and texts stay.
+static var debug_text_visible := false
+var help_label: Label
 var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
 var mouse_in_window := true
 var board = Board.new()
@@ -131,6 +135,8 @@ func _spawn_unit(u: Dictionary) -> void:
 	label.position=Vector3(0,2.5,0)
 	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test=true
+	label.set_meta("unit_info",true) # block 4-6: debug text
+	label.visible=debug_text_visible
 	root.add_child(label)
 	var pick := StaticBody3D.new()
 	pick.collision_layer=2
@@ -215,6 +221,8 @@ func _build_ui() -> void:
 	help.text="LMB  Select / move     RMB  Clear selection     Wheel  Zoom\nWASD / Arrows  Pan     Q / E  Orbit     Middle drag  Orbit\nG  Grid     Home  Reset camera     F12  Save screenshot\nRiver crossing: stone ford in row 5. Terrain rules are LAB ONLY."
 	help.add_theme_font_size_override("font_size",16)
 	layer.add_child(help)
+	help_label=help
+	help.visible=debug_text_visible # block 4-6: debug text
 	hover=Label.new()
 	hover.position=Vector2(24,680)
 	hover.modulate=Color("efca80")
@@ -259,6 +267,13 @@ func _process(delta: float) -> void:
 				_refresh_info()
 	if selected!="": ring.position=views[selected].position+Vector3(0,.09,0)
 
+func _apply_debug_text() -> void:
+	# Block 4-6: show or hide the debug text (visibility only; the texts keep updating).
+	if help_label: help_label.visible=debug_text_visible
+	for id in views:
+		for child in views[id].get_children():
+			if child is Label3D and child.has_meta("unit_info"): child.visible=debug_text_visible
+
 func _edge_scroll_allowed() -> bool:
 	# Block 4-4: not over a HUD control, not with the window unfocused or the mouse outside it, not when switched off.
 	# The engine lab adds its input locks.
@@ -296,6 +311,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if board.valid(c): hover.text="CELL (%d, %d)   /   %s   /   elevation %.2f m" % [c.x,c.y,board.terrain(c).to_upper(),board.world(c).y]
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_G: grid_view.visible=not grid_view.visible
+		if event.keycode==KEY_F3: # block 4-6: the debug text on/off
+			debug_text_visible=not debug_text_visible
+			_apply_debug_text()
 		if event.keycode==KEY_HOME:
 			focus=Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5)
 			yaw=.32

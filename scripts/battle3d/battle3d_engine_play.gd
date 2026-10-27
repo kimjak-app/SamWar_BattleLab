@@ -307,6 +307,7 @@ func _ready() -> void:
 	_build_turn_ui()
 	_build_auto_ui()
 	_build_option_ui()
+	_apply_debug_text() # block 4-6: the debug text starts hidden (F3)
 	camera.make_current()
 	DisplayServer.window_set_title("EASTWAR | M3 3D Enemy Turn 18x10")
 	await host.initialized
@@ -697,6 +698,23 @@ func _edge_scroll_allowed() -> bool:
 	if engine.get("is_full_auto_battle_enabled") or engine.get("current_phase") == "enemy_turn" or engine.get("is_demo_animating"): return false
 	if _enemy_presentation_busy() or hud_cutin_hold: return false
 	return not (option_toggle != null and not option_toggle.visible and option_toggle.get_parent().visible) # the shell's option window
+
+const HIDE_TOP_LINES := false # block 4-6: true hides the top two lines too (waits for the top HUD test decision)
+
+func hud_turn_side() -> String:
+	# HUD block 4-6: the acting side for the top HUD (the 2D adapter's "아군 턴" / "적군 턴" words), from the phase the lab
+	# already reads and its own enemy replay (the replay still shows the enemy turn after the engine moved on).
+	return "적군 턴" if engine.get("current_phase") == "enemy_turn" or _enemy_presentation_busy() else "아군 턴"
+
+func _apply_debug_text() -> void:
+	# HUD block 4-6: the per-unit state lines (action, defend, status) are debug text too; the markers and the HUD show
+	# the same. The badges are hidden through their parent, so each badge's own visible flag still says whether its unit
+	# is shown. The top turn / momentum lines stay shown while HIDE_TOP_LINES is false: test_battle3d_top_hud.gd (block
+	# HUD spike) requires them visible and clear of other UI, and the order keeps existing tests unchanged.
+	super._apply_debug_text()
+	if turn_label: turn_label.visible = debug_text_visible or not HIDE_TOP_LINES
+	if momentum_label: momentum_label.visible = debug_text_visible or not HIDE_TOP_LINES
+	action_badges.visible = debug_text_visible
 
 func _enemy_presentation_busy() -> bool:
 	return not enemy_queue.is_empty() or enemy_hold > 0.0

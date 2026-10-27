@@ -250,6 +250,7 @@ func _refresh_top_hud() -> void:
 	var live: bool = lab != null and is_instance_valid(lab) and lab.ready_for_input and lab.battle_result.is_empty() and not lab.momentum_display.is_empty()
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
+	if live: top_hud.show_side(lab.hud_turn_side()) # block 4-6
 	log_hud.visible = live
 	if live: log_hud.show_lines(log_lines())
 	enemy_roster.visible = live
