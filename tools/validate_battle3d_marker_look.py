@@ -17,7 +17,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "7138f883136516b929fada1e4f65561e4bb9699d"  # docs(battle3d): HUD block 4-6 unit marker report
-TIP = os.environ.get("MARKER_LOOK_SCOPE_TIP", "@@TIP@@")
+TIP = os.environ.get("MARKER_LOOK_SCOPE_TIP", "1ea534bf7bafe86008a6795341cf6ecb616e289d")  # test(battle3d): HUD block 4-6b tests, validator and CI lines
 MARKERS = "scripts/battle3d/battle3d_unit_markers.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 PANEL = "scripts/battle3d/battle3d_command_panel.gd"
