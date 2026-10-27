@@ -43,6 +43,9 @@ var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
 const TopCommands = preload("res://scripts/battle3d/battle3d_top_commands.gd")
 const LAB_OFFSCREEN_X := 4000.0
 const OPTION_BOX_GAP := 6.0 # below the command row
+# HUD block 6a: the option box opens clear of the HUD (rosters, current-actor panel, log, top HUD, top commands): under
+# the option button, moved left past what it would cover; it is drawn above every HUD layer in any case.
+const OPTION_LAYER := 20 # the HUD uses 5-10
 var top_commands: CanvasLayer
 var commands_lab: Node = null # the lab whose controls were last moved
 # HUD block 2: the 2D battle log panel (layer 5). Its lines come from one place,
@@ -282,6 +285,7 @@ func _place_lab_commands() -> void:
 	var box: Control = lab.option_toggle.get_parent()
 	box.position = Vector2(top_commands.slot_rect(0).position.x, top_commands.slot_rect(0).end.y + OPTION_BOX_GAP)
 	box.visible = false
+	(box.get_parent() as CanvasLayer).layer = OPTION_LAYER # block 6a: above the HUD
 	lab.option_toggle.visible = false # the option button replaces it
 	lab.roster_label.position.x = LAB_OFFSCREEN_X # debug unit list off-screen (kept, still updated)
 	for button in [lab.attack_button, lab.wait_button, lab.defend_button, lab.strategy_button, lab.skill_button]:
@@ -295,6 +299,30 @@ func toggle_option_box() -> void:
 	var box: Control = lab.option_toggle.get_parent()
 	box.visible = not box.visible
 	if box.visible and not lab.option_panel.visible: lab.toggle_option_panel()
+	if box.visible: box.position = option_box_position(box.get_combined_minimum_size().max(box.size)) # block 6a (the label wraps: the laid-out size)
+
+func option_box_position(size: Vector2) -> Vector2:
+	# Block 6a: the clear place nearest to under the option button: x under the button or just left of a HUD rect, y under
+	# the button row or just under a HUD rect, kept on screen; none clear: under the button (still drawn above the HUD).
+	var slot: Rect2 = top_commands.slot_rect(0)
+	var under := Vector2(slot.position.x, slot.end.y + OPTION_BOX_GAP)
+	var view := get_viewport().get_visible_rect()
+	var rects := hud_rects()
+	var xs := [under.x, slot.end.x - size.x]
+	var ys := [under.y]
+	for r in rects:
+		xs.append(r.position.x - size.x - OPTION_BOX_GAP)
+		ys.append(r.end.y + OPTION_BOX_GAP)
+	var best := under
+	var best_distance := INF
+	for x in xs:
+		for y in ys:
+			var place := Rect2(Vector2(clampf(x, view.position.x, view.end.x - size.x), clampf(y, view.position.y, view.end.y - size.y)), size)
+			if rects.any(func(r): return place.intersects(r)): continue
+			if place.position.distance_to(under) < best_distance:
+				best_distance = place.position.distance_to(under)
+				best = place.position
+	return best
 
 func log_lines() -> Array:
 	# The single source of the log panel's text.
