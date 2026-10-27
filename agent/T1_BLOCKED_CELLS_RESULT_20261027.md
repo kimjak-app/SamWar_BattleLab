@@ -138,3 +138,44 @@
 1. 동등성 시험 17개를 어떻게 맞출지(위 4의 후보 1 또는 2)
 2. 이동 탐색을 거치지 않는 길 3곳(전진, 후퇴, 재배치)도 막을지. 엔진 변경 범위가 넓어진다.
 3. 숲에서 시작하는 관우와 숲에 도착하는 증원 둘을 어떻게 할지. T2에서 숲 군락을 옮기면 사라질 수 있다.
+
+
+## 9) 동등성 시험 17개 처리 (김작 지시 10-28, 1~6단계) — **3단계에서 멈춤**
+
+**1단계 (증거)** [사실, `evidence/step1_no_list/`]: 3D 랩이 목록을 넘기지 않게 잠깐 바꾸고(`set_blocked_cells` 줄을 뺌) 17개를 다시 돌렸다. **17개 모두 통과**(0/17 실패)했다. 이 17개의 실패 원인은 막힌 칸 목록 하나뿐이다. 확인 뒤 랩 코드는 되돌렸다.
+
+**2단계 (17개와 실패 내용)** [사실, 전체 검사 원문 `evidence/ci_full/*.log`]:
+- 부대 번호는 엔진 목록 순서다: 0 이순신, 1 정도전, 2 권율, 3 아군 증원 1, 4 아군 증원 2, 5 관우, 6 장비, 7 하후돈, 8 적 증원 1, 9 적 증원 2. 고정 장면(fixture) 시험에서는 같은 번호의 부대 상태를 시험이 바꾸어 둔다.
+- 로그에는 다른 필드 이름만 남고, 칸 값은 남지 않는다.
+
+| 시험 | 달랐던 것 |
+|---|---|
+| `scenario_victory_seed_1/2/3` | 아군 이동 기록(`ally_move_event_log`)이 엔진만과 다름 |
+| `auto_equivalence_seed_1/2/3`, `auto_hold_seed_1/2/3` | 최종 부대 상태, 아군 이동 기록, `acted_enemy_ids.enemy_reinforce_01_demo`(적 증원 1은 숲 (14,1)에 도착), `ally_momentum` |
+| `option_ai_level_auto` | 쓰기 순서(43), 최종 부대, 아군 이동 기록 |
+| `enemy_turn_equivalence_shard_2`(M10) | `units[7].grid_cell`(하후돈의 도착 칸), 적 행동 기록 |
+| `strategy_equivalence`(G9) | 같음: `units[7].grid_cell` |
+| `defend_equivalence`(D5) | 같음: `units[7].grid_cell` |
+| `wait_equivalence`(W5) | 같음: `units[7].grid_cell` |
+| `scenario_defeat` | 최종 부대와 컨트롤러, 적 행동 기록, 책략 기록과 쓰기 순서(40) |
+| `reinforce_default_rounds` | `facing_select` 시간 초과, 쓰기 순서, `units[3].grid_cell`, `units[4].grid_cell / facing / last_action`(아군 증원 1·2) |
+| `strategy_rejections` | "잠금 구간 둘 다 봄"에서 `queue`만 못 봄 |
+
+**3단계 (비교 기준에도 같은 목록)** [사실, `evidence/step3_with_ref/`]:
+- 새 보조 파일 `tests/scripts/support/battle3d_blocked_reference.gd`를 만들었다. 랩의 `forest_cells()`와 같은 출처(랩 보드의 지형, 놀이 구역 숲)로 목록을 만들어, 같은 API(`battle_grid_controller.set_blocked_cells`)로 넣는다.
+- "엔진만" 전투를 여는 보조 파일 7곳(`auto`, `enemy_turn`, `option`, `reinforce`, `skill`, `strategy`, `wait` 하네스의 `open_bare` 등)에 `await host.initialized` 바로 뒤 한 줄씩 넣었다. 기대값·허용 오차·시험 내용은 그대로다. `battle_setup_s43_harness`는 3D와 비교하지 않으므로 넣지 않았다.
+- **결과: 17개 중 15개 통과, 2개 실패.**
+  1. `test_battle3d_reinforce_default_rounds.gd`: `timeout phase facing_select`.
+     - [사실] 시험의 칸 고르기 `first_free_cell`(17–24줄)은 "이동 가능 칸 중 x·y 순 첫 칸"이고, 이동 가능 목록에는 출발 칸도 들어 있다.
+     - 아군 증원 2는 숲 (1,7)에 도착한다. 숲을 막으면 (0,7),(1,6),(1,8)이 빠지고 첫 칸이 **자기 자리 (1,7)**이 된다.
+     - [추정] 제자리 이동이라 방향 선택 단계가 오지 않는다.
+     - 고치려면 시험의 칸 고르는 규칙(출발 칸 제외 등)을 바꿔야 한다. 비교 조건이 아니라 시험 내용 변경이라 하지 않았다.
+  2. `test_battle3d_strategy_rejections.gd`: `both lock windows observed ["queue"]`.
+     - [사실] 이 시험은 "흔들린 적이 움직여 공격하는 재생 대기열" 동안 버튼이 거부되는지 본다(52–72줄).
+     - [추정] 숲이 막히자 그 적의 이동·공격이 바뀌어 대기열 구간이 생기지 않는다. 비교 기준과 무관하게 장면에 기댄 시험이다.
+- **멈춘 지점**: 3단계("17개가 목록을 넣은 상태에서 통과해야 함")를 채우지 못했다. 4단계(목록 빔 = T1 이전 비교 새 시험), 5단계(변이), 6단계(전체 검사, 푸시, T2)는 하지 않았다.
+- 3단계의 보조 파일 변경 8개는 커밋했지만 **푸시하지 않았다**(6단계 조건 미충족). 원격 T1 가지는 그대로 `a143b5e`다.
+
+**정할 것**:
+1. `reinforce_default_rounds`의 칸 고르기에서 출발 칸을 뺄지(시험 내용 변경), 아니면 증원 도착 칸을 숲 밖으로 옮길지(T2의 숲 군락 이동으로 풀릴 수 있음)
+2. `strategy_rejections`의 장면을 숲과 무관하게 바꿀지, 아니면 숲 군락 이동(T2) 뒤 다시 볼지

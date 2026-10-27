@@ -41,6 +41,7 @@ func open_bare(tree: SceneTree, spy := true) -> Node:
 	var host = WaitHost.new() if spy else Host.new()
 	tree.root.add_child(host)
 	await host.initialized
+	preload("res://tests/scripts/support/battle3d_blocked_reference.gd").apply(host.battle) # T1: the same blocked cells as the 3D lab
 	await tree.process_frame
 	return host
 
