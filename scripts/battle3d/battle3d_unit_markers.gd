@@ -34,7 +34,7 @@ const BAR_ENEMY := Color(1.0, 0.2471, 0.3608, 0.5882)
 const BAR_ALPHA := 0.8
 const NUMBER_COLOR := Color(0.953, 0.918, 0.851)
 const NUMBER_OUTLINE := Color(0.031, 0.063, 0.094)
-const ACTED := Color(0.5, 0.5, 0.5, 1.0) # modulate of an acted unit's marker
+const ACTED := Color(0.5, 0.5, 0.5, 1.0) # modulate of an acted unit's face chip and bar (block 4-6c: not the number or badges)
 const READY := Color(1, 1, 1, 1)
 const MAX_BADGES := 3
 const BADGE_COLORS := {"◎":Color(0.48, 0.92, 1.0), "⚠":Color(1.0, 0.76, 0.28), "◆":Color(0.52, 0.70, 0.90), "▲":Color(1.0, 0.70, 0.28), "▼":Color(0.92, 0.36, 0.26)}
@@ -150,8 +150,6 @@ func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected
 	fill.position = back.position
 	fill.size = Vector2(back.size.x * clampf(float(current) / float(most), 0.0, 1.0), back.size.y)
 	fill.color = BAR_ALLY if ally else BAR_ENEMY
-	back.modulate.a = BAR_ALPHA
-	fill.modulate.a = BAR_ALPHA
 	var number: Label = root.get_node("Troops")
 	number.text = "%d / %d" % [current, int(value.get("max_troops", 0))]
 	number.add_theme_font_size_override("font_size", place.font)
@@ -163,7 +161,11 @@ func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected
 	var lift := Z_SELECTED if selected else 0
 	for node in [back, fill, number]: node.z_index = Z_BAR + lift
 	for node in [frame, badges]: node.z_index = Z_CHIP + lift
-	root.modulate = ACTED if bool(value.get("has_acted", false)) else READY
+	# Block 4-6c: an acted unit darkens its face chip and bar only; the number and the badges stay bright (readable).
+	var shade := ACTED if bool(value.get("has_acted", false)) else READY
+	frame.modulate = shade
+	for node in [back, fill]: node.modulate = Color(shade.r, shade.g, shade.b, BAR_ALPHA)
+	root.modulate = READY
 
 func _show_badges(row: HBoxContainer, status_badges: Array, font: int) -> void:
 	# Block 4-6 C: the engine's own badge glyphs (◎2, ⚠1, ◆, ▲, ▼3 ...), at most three, then "+n"; block 4-6b: in the

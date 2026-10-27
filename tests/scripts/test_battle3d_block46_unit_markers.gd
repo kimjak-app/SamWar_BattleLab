@@ -86,7 +86,7 @@ func run() -> void:
 	var bright := []
 	for unit in b.all_battle_unit_states:
 		if not markers.markers.has(unit.unit_id) or not markers.markers[unit.unit_id].visible: continue
-		var mod: Color = markers.markers[unit.unit_id].modulate
+		var mod: Color = markers.markers[unit.unit_id].get_node("Chip").modulate # block 4-6c: the darkening is on the chip and bar, not the whole marker
 		if unit.has_acted: dark.append([unit.unit_id, mod.r < 0.7 and mod.g < 0.7 and mod.b < 0.7])
 		else: bright.append([unit.unit_id, mod == Color(1, 1, 1, 1)])
 	h.expect(not dark.is_empty() and dark.all(func(x): return x[1]), "acted units darkened %s" % str(dark))
