@@ -2,7 +2,7 @@ extends SceneTree
 # HUD block 4-6b tests 1-2: the unit markers' size and place on the scenario shell, against values this test measures
 # itself from the lab camera's projection, for zoom 42 / 30 / 20 at the start yaw and after a 90 degree turn:
 #   cell_px = the on-screen distance between a unit's ground point and the point one 3 m cell along the camera's right;
-#   1. chip side = clamp(0.55 x cell_px, 34, 80), bar = clamp(0.90 x cell_px, 60, 150) x max(7, round(0.09 x width)),
+#   1. chip side = clamp(0.42 x cell_px, 30, 64) (block 4-6c), bar = clamp(0.90 x cell_px, 60, 150) x max(7, round(0.09 x width)),
 #      number font = clamp(round(0.17 x cell_px), 13, 22) (badges the same); the chip at zoom 20 bigger than at zoom 42;
 #   2. the chip's centre is right of and above the body point (1 m up); the chip overlaps the unit's screen box (1 m either
 #      side along the camera's right, 0 to 2.4 m up); the bar's top is under the ground disc's lower screen edge (1.27 m
@@ -49,7 +49,7 @@ func run() -> void:
 				var foot := project(lab, ground)
 				var cell := foot.distance_to(project(lab, ground + right * CELL))
 				cell_seen[key] = cell
-				var chip_side := clampf(0.55 * cell, 34.0, 80.0)
+				var chip_side := clampf(0.42 * cell, 30.0, 64.0) # block 4-6c: the smaller chip (was 0.55, 34, 80)
 				var bar_w := clampf(0.90 * cell, 60.0, 150.0)
 				var bar_h := maxf(7.0, roundf(0.09 * bar_w))
 				var font := clampi(roundi(0.17 * cell), 13, 22)
@@ -71,7 +71,7 @@ func run() -> void:
 				if bar.position.y < disc_bottom.y: problems.append("bar top %.1f above the disc edge %.1f" % [bar.position.y, disc_bottom.y])
 				if absf(bar.get_center().x - foot.x) > 1.0: problems.append("bar centre %.1f vs unit x %.1f" % [bar.get_center().x, foot.x])
 				if not problems.is_empty(): place_bad.append([key, unit.unit_id, problems])
-	h.expect(checked >= 30 and size_bad.is_empty(), "%d marker views: chip / bar / font = the formulas from the measured cell_px (wrong %s)" % [checked, str(size_bad.slice(0, 4))])
+	h.expect(checked >= 24 and size_bad.is_empty(), "%d marker views (at least 4 units in each of the 6 views; block 4-6c: was 30, the chip position decides which edge units are on screen): chip / bar / font = the formulas from the measured cell_px (wrong %s)" % [checked, str(size_bad.slice(0, 4))])
 	h.expect(place_bad.is_empty(), "chip upper right on the unit, bar under the disc and centred (wrong %s)" % str(place_bad.slice(0, 4)))
 	var grown := []
 	for id in chips.get("42/0", {}):
