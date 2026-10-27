@@ -373,7 +373,8 @@ func command_state() -> Dictionary:
 			for world in lab.hud_range_cell_positions(): range_rects.append(cell_screen_rect(world))
 			range_rects.append(cell_screen_rect(lab.board.world(lab.display_values.get(id, {}).get("grid_cell", Vector2i.ZERO)))) # block 4-3: never over the unit's own cell
 			var avoid_rects: Array = lab.unit_markers.rects_of(id) # block 4-6b: the selected unit's marker parts
-			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects, "avoid_rects":avoid_rects, "hud_rects":hud_rects(), "turn_key":"%d:%s" % [lab.current_round, id]}, true) # block 4-6c: hud_rects
+			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects, "avoid_rects":avoid_rects, "hud_rects":hud_rects(), "turn_key":"%d:%s" % [lab.current_round, id],
+				"reach_rect":lab.unit_markers.reach_rect(id)}, true) # block 4-6c: hud_rects; block 4-6d: reach_rect
 	if lab.facing_ui.visible:
 		var cell: Vector2i = lab.display_values.get(id, {}).get("grid_cell", Vector2i(-1, -1))
 		var arrows := {}

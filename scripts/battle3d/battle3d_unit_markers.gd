@@ -25,6 +25,9 @@ const FONT_MIN := 13
 const FONT_MAX := 22
 const BODY_HEIGHT := 1.0 # m above the unit's ground point: the body point the chip is placed from
 const DISC_RADIUS := 1.27 # m (the selection ring): the disc's lower screen edge is measured this far toward the camera
+const CELL_METRES := 3.0 # one board cell (cell_px is its on-screen width)
+const UNIT_HALF_WIDTH := 1.0 # m either side of the unit (block 4-6d: the unit's screen box, as the block 4-6b tests measure it)
+const UNIT_HEIGHT := 2.4 # m from the ground point up
 const ALLY := Color("286496") # the unit's ground disc colours
 const ENEMY := Color("a3402a")
 const SELECTED := Color("ffd575") # the selection ring's gold
@@ -43,6 +46,7 @@ const Z_BAR := 0 # drawing order: bars and numbers < chips and badges < the sele
 const Z_CHIP := 1
 const Z_SELECTED := 2
 var markers := {} # unit_id -> Control
+var geometries := {} # unit_id -> the last geometry handed to show_unit (block 4-6d)
 
 func _init() -> void:
 	layer = LAYER
@@ -121,10 +125,25 @@ func rects_of(unit_id: String) -> Array:
 		if badge.visible: top = top.merge(badge.get_global_rect())
 	return [top, root.get_node("BarBack").get_global_rect().merge(root.get_node("Troops").get_global_rect())]
 
+func reach_rect(unit_id: String) -> Rect2:
+	# HUD block 4-6d: the unit and its marker together on screen: the unit's box (UNIT_HALF_WIDTH either side of the foot
+	# point, from the ground up to UNIT_HEIGHT, scaled from the body point and cell_px) merged with the marker's two parts.
+	# The command panel places extra candidates around it. Empty when the marker is hidden.
+	var parts := rects_of(unit_id)
+	if parts.is_empty(): return Rect2()
+	var geometry: Dictionary = geometries[unit_id]
+	var foot: Vector2 = geometry.foot
+	var half: float = geometry.cell_px * UNIT_HALF_WIDTH / CELL_METRES
+	var top: Vector2 = foot + (geometry.body - foot) * (UNIT_HEIGHT / BODY_HEIGHT)
+	var area := Rect2(Vector2(foot.x - half, minf(top.y, foot.y)), Vector2(half * 2.0, absf(foot.y - top.y)))
+	for part in parts: area = area.merge(part)
+	return area
+
 func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected: bool, status_badges: Array, geometry: Dictionary, on_screen: bool) -> void:
 	# value: the lab's 14-field display value; geometry: {foot, body, disc_bottom, cell_px} (see layout()); on_screen: the
 	# unit is in front of the camera and its chip centre is inside the window.
 	var root := marker(unit_id)
+	geometries[unit_id] = geometry
 	root.visible = on_screen and not value.is_empty() and int(value.get("current_troops", 0)) > 0
 	if not root.visible: return
 	var place := layout(geometry.foot, geometry.body, geometry.disc_bottom, geometry.cell_px)

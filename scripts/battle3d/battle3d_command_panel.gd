@@ -42,6 +42,10 @@ var drag_position := Vector2.INF
 var drag_key := ""
 var avoid_rects := [] # block 4-6b: the selected unit's marker parts, from the last state
 var hud_rects := [] # block 4-6c: the HUD's rects (rosters, actor panel, log, top HUD, top commands), from the last state
+var reach_rect := Rect2() # block 4-6d: the selected unit and its marker together on screen, from the last state
+var reach_enabled := true # block 4-6d: the candidates around reach_rect (off only in the tests' controls)
+var chosen_step := 0 # block 4-6d: which step of choose_position placed the panel last (1-5, see there), for reports
+var round_hud := false # block 4-6d: step 3 went round a HUD panel (reach_position), for reports
 
 func _ready() -> void:
 	panel = get_node("FloatingAllyCommandPanel")
@@ -98,6 +102,7 @@ func show_state(state: Dictionary) -> void:
 		if key != drag_key: drag_position = Vector2.INF # another ally turn or selection: back to the automatic placement
 		avoid_rects = state.get("avoid_rects", [])
 		hud_rects = state.get("hud_rects", [])
+		reach_rect = state.get("reach_rect", Rect2())
 		panel.position = drag_position if drag_position != Vector2.INF else choose_position(state.get("anchor", Vector2.ZERO), PANEL_SIZE, state.get("range_rects", []))
 	arrows.visible = bool(state.get("facing_open", false))
 	if arrows.visible:
@@ -160,15 +165,81 @@ func choose_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array) ->
 			free_corner_score = score
 			free_corner = clamped
 	# Block 4-6c, in order (the 2D score unchanged, filters on top): 1. the 2D rule's choice when it is clear of the
-	# selected unit's marker and the HUD; 2. the best near candidate clear of both; 3. the best corner clear of both (the
-	# panel may go far from the unit); 4. block 4-6b: the best near candidate clear of the marker alone, else the 2D choice.
+	# selected unit's marker and the HUD; 2. the best near candidate clear of both; 3. block 4-6d: the best candidate
+	# around the unit and its marker together (reach_rect) clear of both, worked out only here; 4. the best corner clear
+	# of both (the panel may go far from the unit); 5. block 4-6b: the best near candidate clear of the marker alone, else
+	# the 2D choice.
 	var best_rect := Rect2(best_position, panel_size)
+	chosen_step = 1
 	if not covers(best_rect, avoid_rects) and not covers(best_rect, hud_rects): return best_position
+	chosen_step = 2
 	if free_near != Vector2.INF: return free_near
+	chosen_step = 3
+	var free_reach := reach_position(anchor, panel_size, cell_rects, viewport_size)
+	if free_reach != Vector2.INF: return free_reach
+	chosen_step = 4
 	if free_corner != Vector2.INF: return free_corner
+	chosen_step = 5
 	if best_index < NEAR_CANDIDATE_COUNT and covers(best_rect, avoid_rects) and clear_position != Vector2.INF:
 		return clear_position
 	return best_position
+
+func reach_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array, viewport_size: Vector2) -> Vector2:
+	# Block 4-6d: the best (2D score) candidate around reach_rect, kept on screen, clear of the marker and the HUD. When
+	# none is clear (the unit stands under or beside a HUD panel), the same around reach_rect merged with each HUD rect in
+	# the way (overlapping reach_rect or one of its candidates): the panel goes round that HUD panel, beside the unit.
+	# INF when there is none.
+	round_hud = false
+	if not reach_enabled or not reach_rect.has_area(): return Vector2.INF
+	var best := _best_around(reach_rect, anchor, panel_size, cell_rects, viewport_size)
+	if best != Vector2.INF: return best
+	var tried := reach_candidates(reach_rect, panel_size).map(func(p): return Rect2(clamp_position(p, panel_size, viewport_size), panel_size))
+	tried.append(reach_rect)
+	var best_score := INF
+	for r in hud_rects:
+		if not tried.any(func(t): return t.intersects(r)): continue
+		var around := _best_around(reach_rect.merge(r), anchor, panel_size, cell_rects, viewport_size)
+		if around == Vector2.INF: continue
+		var score := score_position(around, panel_size, cell_rects, anchor, false)
+		if score < best_score:
+			best_score = score
+			best = around
+	round_hud = best != Vector2.INF
+	return best
+
+func _best_around(area: Rect2, anchor: Vector2, panel_size: Vector2, cell_rects: Array, viewport_size: Vector2) -> Vector2:
+	var best := Vector2.INF
+	var best_score := INF
+	var candidates := reach_candidates(area, panel_size)
+	for index in range(candidates.size()):
+		var clamped := clamp_position(candidates[index], panel_size, viewport_size)
+		var rect := Rect2(clamped, panel_size)
+		if covers(rect, avoid_rects) or covers(rect, hud_rects): continue
+		var score := score_position(clamped, panel_size, cell_rects, anchor, false) + float(index) * 0.01
+		if score < best_score:
+			best_score = score
+			best = clamped
+	return best
+
+static func reach_candidates(area: Rect2, panel_size: Vector2) -> Array:
+	# Block 4-6d: right and left (centred vertically), above and below (centred horizontally), then the four diagonals,
+	# ANCHOR_GAP off the outer edge of the unit and its marker.
+	var gap := ANCHOR_GAP
+	var middle := area.get_center()
+	var left := area.position.x - panel_size.x - gap
+	var right := area.end.x + gap
+	var above := area.position.y - panel_size.y - gap
+	var below := area.end.y + gap
+	return [
+		Vector2(right, middle.y - panel_size.y * 0.5),
+		Vector2(left, middle.y - panel_size.y * 0.5),
+		Vector2(middle.x - panel_size.x * 0.5, above),
+		Vector2(middle.x - panel_size.x * 0.5, below),
+		Vector2(right, above),
+		Vector2(left, above),
+		Vector2(right, below),
+		Vector2(left, below),
+	]
 
 static func covers(panel_rect: Rect2, rects: Array) -> bool:
 	# Block 4-6b: the panel rect overlaps any of these rects.
