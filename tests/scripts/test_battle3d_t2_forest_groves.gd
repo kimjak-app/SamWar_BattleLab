@@ -1,6 +1,7 @@
 extends SceneTree
-# T2: two 6-cell forest groves and 32 pines. For each grove combination of the report (C1 = terrain_types.json, C2, C3;
-# tests/scripts/support/battle3d_t2_groves.gd) on a board built with the default settings:
+# T2: two 6-cell forest groves and 32 pines. For each grove combination of the report (C1 = terrain_types.json read as
+# it is, C2 and C3 written over it by tests/scripts/support/battle3d_t2_groves.gd) on a board built with the default
+# settings, the grove being the board's own play-area forest cells:
 #   - the cells the lab would hand the engine (the play area's forest cells, as the lab reads them) = the combination's
 #     12 cells, and an engine grid given them blocks 12;
 #   - 32 trees (16 a grove, 2-3 a cell), triangles <= 16,000 in all (counted from the mesh's own arrays);
@@ -46,7 +47,7 @@ func crown(mesh: Mesh) -> float:
 
 func build(combo: String) -> Dictionary:
 	var board = Board.new()
-	Groves.apply(board, combo)
+	if combo != "C1": Groves.apply(board, combo) # C1 is the file itself
 	var field = Builder.new()
 	field.play_cells = board.PLAY_SIZE
 	field.setup_from_board(board)
@@ -83,17 +84,17 @@ func run() -> void:
 	var units := await unit_cells()
 	var summary := {}
 	for combo in Groves.COMBOS:
-		var grove: Array = Groves.cells(combo)
-		var in_grove := {}
-		for c in grove: in_grove[c] = true
 		var b: Dictionary = await build(combo)
 		var board = b.board
 		var handed := lab_forest(board)
+		var grove: Array = handed
+		var in_grove := {}
+		for c in grove: in_grove[c] = true
 		var grid := BattleGridController.new()
 		grid.grid_width = board.PLAY_SIZE.x
 		grid.grid_height = board.PLAY_SIZE.y
 		grid.set_blocked_cells(handed)
-		expect(handed.size() == 12 and grove.all(func(c): return handed.has(c)) and grid.blocked_cells.size() == 12, "%s: the lab hands the engine the 12 grove cells (handed %s, blocked %d)" % [combo, str(handed), grid.blocked_cells.size()])
+		expect(handed.size() == 12 and Groves.cells(combo).all(func(c): return handed.has(c)) and grid.blocked_cells.size() == 12, "%s: the lab hands the engine the 12 grove cells (handed %s, blocked %d)" % [combo, str(handed), grid.blocked_cells.size()])
 		grid.free()
 		var mesh: Mesh = b.mesh
 		var per_tree := triangles(mesh)
