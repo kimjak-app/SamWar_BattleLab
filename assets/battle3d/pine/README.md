@@ -1,0 +1,1 @@
+pine_typeA_500tris_slim050.glb — Tripo AI pine (Type-A), reduced by 록코치 to 495 triangles (EASTWAR_Tripo_Pine_LOD_Pack.zip), generated after a paid Tripo plan (김작 confirmed, 2026-10-27). The two .jpg files next to it are its embedded textures, written out by Godot's import.
