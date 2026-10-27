@@ -709,14 +709,25 @@ func _refresh_unit_markers() -> void:
 	# HUD block 4-6: each shown unit's marker above its head; off-screen, behind the camera, retreated or routed: none.
 	# Values: the display value of this sync, the roster's portrait (N2, cached), the selection and the engine's own status
 	# badge glyphs (N5, the HUD's status rows; held during an enemy replay like the HUD).
+	# Block 4-6b: placed from the unit's projected ground point, body point and ground disc edge, sized by cell_px.
 	var view_rect := get_viewport().get_visible_rect()
 	for id in views:
 		var root: Node3D = views[id]
-		var point: Vector3 = root.position + Vector3(0, UnitMarkers.HEAD, 0)
-		var screen := camera.unproject_position(point)
-		var on: bool = root.visible and not camera.is_position_behind(point) and view_rect.has_point(screen)
+		var geometry := marker_geometry(root.position)
+		var chip_centre: Vector2 = UnitMarkers.layout(geometry.foot, geometry.body, geometry.disc_bottom, geometry.cell_px).chip_centre
+		var on: bool = root.visible and not camera.is_position_behind(root.position) and view_rect.has_point(chip_centre)
 		var status_badges: Array = hud_status_entries(id).map(func(entry): return str(entry.get("badge", ""))) if on else []
-		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), screen, on)
+		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), geometry, on)
+
+func marker_geometry(ground: Vector3) -> Dictionary:
+	# HUD block 4-6b: the unit's screen points for its marker. cell_px: one cell (board.CELL) along the camera's right on
+	# the ground, projected; disc_bottom: DISC_RADIUS toward the camera on the ground (the disc's lower screen edge).
+	var right := Vector3(camera.global_basis.x.x, 0, camera.global_basis.x.z).normalized()
+	var toward := Vector3(camera.global_basis.z.x, 0, camera.global_basis.z.z).normalized()
+	var foot := camera.unproject_position(ground)
+	return {"foot":foot, "body":camera.unproject_position(ground + Vector3(0, UnitMarkers.BODY_HEIGHT, 0)),
+		"disc_bottom":camera.unproject_position(ground + toward * UnitMarkers.DISC_RADIUS),
+		"cell_px":foot.distance_to(camera.unproject_position(ground + right * board.CELL))}
 
 const HIDE_TOP_LINES := true # block 4-6: the top two lines are debug text too (F3); the HUD shows round, side and momentum
 
