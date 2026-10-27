@@ -138,6 +138,7 @@ jobs:
             tools/validate_battle3d_marker_look.py
             tools/validate_battle3d_panel_hud.py
             tools/validate_battle3d_panel_reach.py
+            tools/validate_battle3d_roster_option.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -308,6 +309,10 @@ jobs:
             tests/scripts/test_battle3d_block46c_chip.gd
             tests/scripts/test_battle3d_block46c_acted.gd
             tests/scripts/test_battle3d_block46d_panel_sweep.gd
+            tests/scripts/test_battle3d_block6a_option_box.gd
+            tests/scripts/test_battle3d_block6a_roster_retreat.gd
+            tests/scripts/test_battle3d_block6a_roster_fold.gd
+            tests/scripts/test_battle3d_block6a_panel_body_gap.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
