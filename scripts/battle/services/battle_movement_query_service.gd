@@ -60,6 +60,8 @@ func is_cell_walkable(cell: Vector2i, start_cell: Vector2i, mover_state: BattleU
 		return false
 	if cell == start_cell:
 		return true
+	if grid_controller.is_blocked(cell):
+		return false
 	return not is_cell_occupied_except(cell, alive_unit_states, mover_state, allow_breakthrough)
 
 

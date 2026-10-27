@@ -9,6 +9,9 @@ extends Node
 @onready var board_top_left_marker: Marker2D = get_node_or_null(board_top_left_marker_path) as Marker2D
 @onready var board_bottom_right_marker: Marker2D = get_node_or_null(board_bottom_right_marker_path) as Marker2D
 
+# T1: cells no unit may enter (a unit already standing on one may leave it); empty unless a caller sets them.
+var blocked_cells: Dictionary = {} # Vector2i -> true
+
 
 func get_board_top_left() -> Vector2:
 	if board_top_left_marker == null:
@@ -32,6 +35,16 @@ func get_cell_size() -> Vector2:
 
 func is_in_bounds(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < grid_width and cell.y >= 0 and cell.y < grid_height
+
+
+func set_blocked_cells(cells: Array) -> void:
+	blocked_cells.clear()
+	for cell in cells:
+		blocked_cells[Vector2i(cell)] = true
+
+
+func is_blocked(cell: Vector2i) -> bool:
+	return blocked_cells.has(cell)
 
 
 func grid_to_world(cell: Vector2i) -> Vector2:
