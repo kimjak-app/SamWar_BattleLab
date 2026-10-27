@@ -90,6 +90,9 @@ var mountain_visual_style: int = 0
 
 ## Slot for future Tripo forest tree mesh (if null, falls back to tree_mesh or built-in 156-tri oriental pine)
 @export var forest_tree_mesh: Mesh
+## Experiment pine500 (2026-10-27): the Tripo pine (495 tris, one material) taken from its imported GLB when no forest
+## mesh is set; empty string = the old fallbacks.
+const FOREST_TREE_GLB := "res://assets/battle3d/pine/pine_typeA_500tris_slim050.glb"
 
 ## Toggle symbolic boundary pine clusters outside playable board (default false per Visual Pass 2)
 @export var scatter_boundary_trees: bool = false
@@ -1079,6 +1082,8 @@ func _scatter_symbolic_boundary_trees() -> void:
 		add_child(forest_multimesh)
 	forest_multimesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
+	if forest_tree_mesh == null and not FOREST_TREE_GLB.is_empty():
+		forest_tree_mesh = _mesh_from_glb(FOREST_TREE_GLB)
 	var chosen_mesh: Mesh = forest_tree_mesh
 	if chosen_mesh == null:
 		chosen_mesh = tree_mesh
@@ -1095,6 +1100,18 @@ func _scatter_symbolic_boundary_trees() -> void:
 		mm.set_instance_color(idx, tree_colors[idx])
 	forest_multimesh.multimesh = mm
 	_sync_tree_material_transparency_mode()
+
+
+## Experiment pine500: the first MeshInstance3D's mesh of an imported GLB scene (its own surface material kept).
+static func _mesh_from_glb(path: String) -> Mesh:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return null
+	var root := scene.instantiate()
+	var found := root.find_children("*", "MeshInstance3D", true, false)
+	var mesh: Mesh = (found[0] as MeshInstance3D).mesh if not found.is_empty() else null
+	root.free()
+	return mesh
 
 
 ## Sets or clears semi-transparency (alpha ~0.35) on all trees belonging to `cell`.

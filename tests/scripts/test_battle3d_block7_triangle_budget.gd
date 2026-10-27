@@ -1,13 +1,13 @@
 extends SceneTree
 # Block 7 test 5: triangle budgets of the built board (default settings), counted from the meshes' own arrays:
 # Terrain <= 28,800; the out-of-bounds background (OutOfBoundsVista) <= 12,000 (block 8; 7,488 in block 7); trees <= 16,000 in all
-# and <= 200 each.
+# and <= 500 each (experiment pine500; 200 before).
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const Builder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 const TERRAIN_MAX := 28800
 const BACKGROUND_MAX := 12000 # block 8: Grok's ceiling for the look pass 1+2 background (was 7,488 in block 7)
 const TREES_MAX := 16000
-const TREE_MAX := 200
+const TREE_MAX := 500 # experiment pine500 (김작 10-27): one tree 200 -> 500; TREES_MAX and BACKGROUND_MAX unchanged
 var checks := 0
 var failures := 0
 
