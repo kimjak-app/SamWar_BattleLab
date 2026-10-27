@@ -186,7 +186,7 @@ func run() -> void:
 		var highlighted := []
 		for k in range(5):
 			var u: BattleUnitState = units[k]
-			var shown: bool = lab.views[u.unit_id].visible
+			var shown: bool = lab.views[u.unit_id].visible or u.current_troops <= 0 # block 6a: a retreated card stays (dimmed, "퇴각")
 			if card(k).visible != shown: bad.append([frames, u.unit_id, "visible"])
 			var twod_visible: bool = b.get_node("BattleUI/ProductionHudRoot/EnemyRosterHud/%s" % SLOT_NAMES[k]).visible
 			if card(k).visible != twod_visible:

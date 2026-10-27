@@ -329,23 +329,25 @@ func log_lines() -> Array:
 	return lab.read_battle_log_lines()
 
 func enemy_cards() -> Array:
-	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown.
+	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown, or the unit retreated (block 6a).
 	var cards := []
 	for id in lab.hud_enemy_unit_ids():
 		var value: Dictionary = lab.display_values.get(id, {})
-		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+		var retreated: bool = not value.is_empty() and int(value.current_troops) <= 0 # block 6a: the card stays, dimmed, "퇴각"
+		cards.append({"unit_id":id, "visible":(lab.views.has(id) and lab.views[id].visible) or retreated, "retreated":retreated, "name":lab.hud_display_name(id),
 			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
 			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
 			"status":lab.hud_status_summary(id), "actor":id == lab.enemy_actor_id})
 	return cards
 
 func ally_cards() -> Array:
-	# Card order = the engine's ally slot order; shown = the lab's own unit view is shown.
+	# Card order = the engine's ally slot order; shown = the lab's own unit view is shown, or the unit retreated (block 6a).
 	var cards := []
 	var actor: String = lab.hud_ally_actor_id()
 	for id in lab.hud_ally_unit_ids():
 		var value: Dictionary = lab.display_values.get(id, {})
-		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+		var retreated: bool = not value.is_empty() and int(value.current_troops) <= 0 # block 6a: the card stays, dimmed, "퇴각"
+		cards.append({"unit_id":id, "visible":(lab.views.has(id) and lab.views[id].visible) or retreated, "retreated":retreated, "name":lab.hud_display_name(id),
 			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
 			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
 			"status":lab.hud_status_summary(id), "ready":lab.hud_skill_ready(id), "actor":id == actor})
