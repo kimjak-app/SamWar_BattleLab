@@ -297,7 +297,7 @@ func _ready() -> void:
 		var model_value := value.duplicate(true)
 		if model_value.unit_type not in ["infantry","cavalry"]: model_value.unit_type = "infantry"
 		_spawn_unit(model_value)
-		views[value.unit_id].add_child(_facing_arrow()) # HUD block 4-6
+		views[value.unit_id].add_child(_facing_arrow(value.side)) # HUD block 4-6
 		var badge := Label3D.new()
 		badge.font_size = 40
 		badge.pixel_size = .012
@@ -901,26 +901,54 @@ func _refresh_target_info(target: BattleUnitState) -> void:
 # HUD block 4-6: the unit's facing as a flat arrow on the ground at the front of its cell (a world object, so it stays
 # right when the camera turns), between the soldiers and the selection ring (r 1.27). The engine's facing (14-field view).
 const FACING_DIRECTION := {"up":Vector3(0, 0, -1), "down":Vector3(0, 0, 1), "left":Vector3(-1, 0, 0), "right":Vector3(1, 0, 0)}
-const FACING_ARROW_DISTANCE := 0.95 # m from the unit's centre to the arrow's centre (tip at 1.22)
-const FACING_ARROW_LIFT := 0.08 # m above the ground under the arrow
+const FACING_ARROW_DISTANCE := 1.0 # m from the unit's centre to the arrow's centre (block 4-6b; tip at 1.43, the cell edge 1.5)
+const FACING_ARROW_LIFT := 0.08 # m above the ground under the arrow (the fill; outlines sit 0.01 m lower)
+# HUD block 4-6b: a bigger arrow (1.02 m wide, 0.8 m long, 1.6 x the block 4-6 one) with a dark outline, so it shows on
+# the gold selected disc too. ARROW_STYLE picks one of three looks for 김작 to compare in F6:
+# 0 cream fill + dark outline (recommended), 1 side colour fill + white outline + outer dark outline, 2 the old cream
+# fill at the new size, no outline (for comparison).
+const ARROW_STYLE := 0
+const ARROW_FILL := Color("f4e7c4")
+const ARROW_OUTLINE := Color("241c14")
+const ARROW_ALLY := Color("5aa8ff") # style 1 fills
+const ARROW_ENEMY := Color("ff6a50")
+const ARROW_OUTLINE_SCALE := 1.3 # the outline: the same chevron 1.3 x bigger, just under the fill
+# Seen from the battle camera (about 43 degrees down), soldiers about 1.8 m tall hide the ground up to about 1.9 m behind
+# them, so an arrow facing away from the camera falls under them. With ARROW_ON_TOP the arrow is drawn after the opaque
+# scene without a depth test (on top of soldiers, and also of trees or units standing in front of it).
+const ARROW_ON_TOP := true
+const ARROW_POINTS := [Vector3(0, 0, -0.43), Vector3(0.51, 0, 0.37), Vector3(0, 0, 0.05), Vector3(0, 0, -0.43), Vector3(0, 0, 0.05), Vector3(-0.51, 0, 0.37)]
 
-func _facing_arrow() -> MeshInstance3D:
-	# A flat chevron pointing -z (the "up" facing), 0.64 m wide and 0.5 m long.
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for p in [Vector3(0, 0, -0.27), Vector3(0.32, 0, 0.23), Vector3(0, 0, 0.03), Vector3(0, 0, -0.27), Vector3(0, 0, 0.03), Vector3(-0.32, 0, 0.23)]:
-		st.set_normal(Vector3.UP)
-		st.add_vertex(p)
-	var arrow := MeshInstance3D.new()
+func _facing_arrow(side: String, style: int = ARROW_STYLE) -> Node3D:
+	# A flat chevron pointing -z (the "up" facing) and its outline layers, under one node turned by _place_facing_arrow.
+	var arrow := Node3D.new()
 	arrow.name = "FacingArrow"
-	arrow.mesh = st.commit()
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.albedo_color = Color("f4e7c4")
-	arrow.material_override = material
-	arrow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	arrow.set_meta("facing_arrow", true)
+	var layers := [] # [name, scale, colour, height offset, draw order]
+	match style:
+		0: layers = [["Outline", ARROW_OUTLINE_SCALE, ARROW_OUTLINE, -0.01, 1], ["Fill", 1.0, ARROW_FILL, 0.0, 3]]
+		1: layers = [["OuterOutline", ARROW_OUTLINE_SCALE * 1.12, ARROW_OUTLINE, -0.02, 1], ["Outline", ARROW_OUTLINE_SCALE, Color.WHITE, -0.01, 2], ["Fill", 1.0, ARROW_ALLY if side == "ally" else ARROW_ENEMY, 0.0, 3]]
+		_: layers = [["Fill", 1.0, ARROW_FILL, 0.0, 3]]
+	for layer in layers:
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for p in ARROW_POINTS:
+			st.set_normal(Vector3.UP)
+			st.add_vertex(p * float(layer[1]) + Vector3(0, float(layer[3]), 0))
+		var mesh := MeshInstance3D.new()
+		mesh.name = layer[0]
+		mesh.mesh = st.commit()
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		material.albedo_color = layer[2]
+		if ARROW_ON_TOP:
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA # drawn after the opaque scene
+			material.no_depth_test = true
+			material.render_priority = layer[4] # outline under fill
+		mesh.material_override = material
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		arrow.add_child(mesh)
 	return arrow
 
 func _place_facing_arrow(arrow: Node3D, root: Node3D, facing: String) -> void:
