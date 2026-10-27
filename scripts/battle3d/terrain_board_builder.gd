@@ -93,6 +93,12 @@ var mountain_visual_style: int = 0
 ## Experiment pine500 (2026-10-27): the Tripo pine (495 tris, one material) taken from its imported GLB when no forest
 ## mesh is set; empty string = the old fallbacks.
 const FOREST_TREE_GLB := "res://assets/battle3d/pine/pine_typeA_500tris_slim050.glb"
+## T2 (2026-10-28): trees in the play area's forest groves (a grove = 4-neighbour forest cells), shared evenly between
+## the groves: 32 = two groves of 16 (2-3 per cell, 32 x 495 = 15,840 triangles <= 16,000).
+@export var forest_tree_count: int = 32
+const GROVE_SEED := 20261028
+const GROVE_MIN_SPACING := 1.2 # m between trees of one grove
+const GROVE_MAX_OVERHANG := 0.5 # m a crown may reach past the grove's edge
 
 ## Toggle symbolic boundary pine clusters outside playable board (default false per Visual Pass 2)
 @export var scatter_boundary_trees: bool = false
@@ -129,6 +135,7 @@ var _tree_bark_mat: StandardMaterial3D
 var _tree_foliage_mat: StandardMaterial3D
 var _forest_cell_to_instances: Dictionary = {} # Vector2i(x, y) -> PackedInt32Array
 var _faded_forest_cells: Dictionary = {}       # Vector2i(x, y) -> bool
+var forest_tree_transforms: Array[Transform3D] = [] # T2: the transforms last given to the forest MultiMesh (a headless renderer does not keep them)
 
 
 ## Single point of truth reading `play_cells` to compute world xz play_rect (min_x, min_z, max_x, max_z)
@@ -1041,18 +1048,33 @@ func _scatter_symbolic_boundary_trees() -> void:
 			tree_transforms.append(Transform3D(tree_basis, Vector3(wx, wy, wz)))
 			tree_colors.append(Color(1.0, 1.0, 1.0, 1.0))
 
-	# 2) Forest cell trees (default ON: scatter_inner_trees = true)
+	if forest_tree_mesh == null and not FOREST_TREE_GLB.is_empty():
+		forest_tree_mesh = _mesh_from_glb(FOREST_TREE_GLB)
+	var chosen_mesh: Mesh = forest_tree_mesh
+	if chosen_mesh == null:
+		chosen_mesh = tree_mesh
+	if chosen_mesh == null:
+		chosen_mesh = _create_oriental_pine_cluster_mesh()
+
+	# 2) Forest trees (default ON: scatter_inner_trees = true). T2: the play area's forest cells are planted as groves
+	# (_grove_tree_placements); forest cells outside the play area keep the per-cell placement, only with
+	# forest_trees_outside_play.
 	if scatter_inner_trees:
+		var play_forest: Array[Vector2i] = []
+		for y in range(GRID_H):
+			for x in range(GRID_W):
+				if terrain_grid[y][x] == TerrainType.FOREST and overlay_grid[y][x] != OverlayType.CHARRED and _cell_in_play(x, y, play_rect_world):
+					play_forest.append(Vector2i(x, y))
+		var groves := _forest_groves(play_forest)
+		var grove_placements: Dictionary = {}
+		for g in range(groves.size()):
+			var share: int = forest_tree_count / groves.size() + (1 if g < forest_tree_count % groves.size() else 0)
+			grove_placements.merge(_grove_tree_placements(groves[g], share, mesh_crown_radius(chosen_mesh)))
 		for y in range(GRID_H):
 			for x in range(GRID_W):
 				if terrain_grid[y][x] != TerrainType.FOREST or overlay_grid[y][x] == OverlayType.CHARRED:
 					continue
-				var cell_center_x: float = (float(x) + 0.5) * TILE_SIZE
-				var cell_center_z: float = (float(y) + 0.5) * TILE_SIZE
-				var in_play: bool = (
-					cell_center_x >= play_rect_world.x and cell_center_x <= play_rect_world.z
-					and cell_center_z >= play_rect_world.y and cell_center_z <= play_rect_world.w
-				)
+				var in_play: bool = _cell_in_play(x, y, play_rect_world)
 				if not in_play and not forest_trees_outside_play:
 					continue
 
@@ -1061,7 +1083,7 @@ func _scatter_symbolic_boundary_trees() -> void:
 				var alpha_val: float = FOREST_OCCUPIED_ALPHA if is_faded else 1.0
 				var inst_indices := PackedInt32Array()
 
-				var placements: Array[Dictionary] = _generate_cell_tree_placements(x, y)
+				var placements: Array = grove_placements.get(cell_coord, []) if in_play else _generate_cell_tree_placements(x, y)
 				for item in placements:
 					var wx: float = float(x) * TILE_SIZE + float(item["lx"])
 					var wz: float = float(y) * TILE_SIZE + float(item["lz"])
@@ -1082,14 +1104,6 @@ func _scatter_symbolic_boundary_trees() -> void:
 		add_child(forest_multimesh)
 	forest_multimesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
-	if forest_tree_mesh == null and not FOREST_TREE_GLB.is_empty():
-		forest_tree_mesh = _mesh_from_glb(FOREST_TREE_GLB)
-	var chosen_mesh: Mesh = forest_tree_mesh
-	if chosen_mesh == null:
-		chosen_mesh = tree_mesh
-	if chosen_mesh == null:
-		chosen_mesh = _create_oriental_pine_cluster_mesh()
-
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
@@ -1099,7 +1113,99 @@ func _scatter_symbolic_boundary_trees() -> void:
 		mm.set_instance_transform(idx, tree_transforms[idx])
 		mm.set_instance_color(idx, tree_colors[idx])
 	forest_multimesh.multimesh = mm
+	forest_tree_transforms = tree_transforms.duplicate()
 	_sync_tree_material_transparency_mode()
+
+
+func _cell_in_play(x: int, y: int, play_rect_world: Vector4) -> bool:
+	var cx: float = (float(x) + 0.5) * TILE_SIZE
+	var cz: float = (float(y) + 0.5) * TILE_SIZE
+	return cx >= play_rect_world.x and cx <= play_rect_world.z and cz >= play_rect_world.y and cz <= play_rect_world.w
+
+
+## T2: the furthest any vertex of `mesh` reaches from its vertical axis (the crown radius at scale 1, any yaw).
+static func mesh_crown_radius(mesh: Mesh) -> float:
+	var r := 0.0
+	for s in range(mesh.get_surface_count()):
+		for v in (mesh.surface_get_arrays(s)[Mesh.ARRAY_VERTEX] as PackedVector3Array):
+			r = maxf(r, Vector2(v.x, v.z).length())
+	return r
+
+
+## T2: `cells` split into groves (4-neighbour groups), each sorted by row then column; groves in the order of their
+## first cell.
+static func _forest_groves(cells: Array[Vector2i]) -> Array:
+	var left := {}
+	for c in cells:
+		left[c] = true
+	var order := cells.duplicate()
+	order.sort_custom(func(a, b): return a.y < b.y or (a.y == b.y and a.x < b.x))
+	var groves := []
+	for start in order:
+		if not left.has(start):
+			continue
+		var grove: Array[Vector2i] = []
+		var todo: Array[Vector2i] = [start]
+		left.erase(start)
+		while not todo.is_empty():
+			var c: Vector2i = todo.pop_back()
+			grove.append(c)
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				if left.has(c + d):
+					left.erase(c + d)
+					todo.append(c + d)
+		grove.sort_custom(func(a, b): return a.y < b.y or (a.y == b.y and a.x < b.x))
+		groves.append(grove)
+	return groves
+
+
+## T2: `count` trees for one grove, cell -> [{lx, lz, scale, yaw}] in cell-local metres (fixed seed from the grove's
+## first cell: the same grove always gets the same trees). Every cell gets count / cells trees, the first
+## count % cells cells of a seeded shuffle one more. A tree stands inside its cell; where the cell's side is the grove's
+## edge its crown (crown_radius x scale) reaches at most GROVE_MAX_OVERHANG past it. Trees of the grove are
+## GROVE_MIN_SPACING apart (the best of 64 tries when no try fits).
+static func _grove_tree_placements(grove: Array[Vector2i], count: int, crown_radius: float) -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = GROVE_SEED ^ (grove[0].x * 73856093) ^ (grove[0].y * 19349663)
+	var in_grove := {}
+	for c in grove:
+		in_grove[c] = true
+	var order: Array = range(grove.size())
+	for i in range(order.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var t: int = order[i]
+		order[i] = order[j]
+		order[j] = t
+	var per_cell := {}
+	for k in range(order.size()):
+		per_cell[grove[order[k]]] = count / grove.size() + (1 if k < count % grove.size() else 0)
+	var out := {}
+	var placed: Array[Vector2] = []
+	for c in grove:
+		var items: Array[Dictionary] = []
+		for n in range(per_cell[c]):
+			var sc := rng.randf_range(0.85, 1.15)
+			var yaw := rng.randf_range(0.0, TAU)
+			var edge := maxf(0.05, crown_radius * sc - GROVE_MAX_OVERHANG)
+			var lo := Vector2(0.05 if in_grove.has(c + Vector2i(-1, 0)) else edge, 0.05 if in_grove.has(c + Vector2i(0, -1)) else edge)
+			var hi := Vector2(TILE_SIZE - (0.05 if in_grove.has(c + Vector2i(1, 0)) else edge), TILE_SIZE - (0.05 if in_grove.has(c + Vector2i(0, 1)) else edge))
+			var best := Vector2.ZERO
+			var best_gap := -1.0
+			for attempt in range(64):
+				var local := Vector2(rng.randf_range(lo.x, hi.x), rng.randf_range(lo.y, hi.y))
+				var world := Vector2(c) * TILE_SIZE + local
+				var gap := INF
+				for p in placed:
+					gap = minf(gap, world.distance_to(p))
+				if gap > best_gap:
+					best = local
+					best_gap = gap
+				if gap >= GROVE_MIN_SPACING:
+					break
+			placed.append(Vector2(c) * TILE_SIZE + best)
+			items.append({"lx": best.x, "lz": best.y, "scale": sc, "yaw": yaw})
+		out[c] = items
+	return out
 
 
 ## Experiment pine500: the first MeshInstance3D's mesh of an imported GLB scene (its own surface material kept).
