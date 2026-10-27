@@ -1,4 +1,8 @@
 extends SceneTree
+# SKIPPED (T2, 2026-10-28; 김작 approved 10-27 22:14): a later feature, skipped for now. Why: the forest cannot be
+# entered (T1), so no unit stands in a grove to fade, and the Tripo pine has one material, which the fade code does not
+# switch. Turn it back on (delete the SKIP lines at the top of run()) at the step where forest cells can be entered.
+# The checks below are kept as they were.
 # Block 8 (look pass 1+2): set_forest_cell_fade. With no faded cell the tree materials are TRANSPARENCY_DISABLED (as
 # opaque as look pass 1); fading one forest cell switches them to a transparent mode and gives that cell's trees alpha
 # 0.35 and no other tree; clearing it brings TRANSPARENCY_DISABLED back. The cell is the first forest cell of the play
@@ -39,6 +43,10 @@ func alphas(mm: MultiMesh, cell: Vector2i) -> Dictionary:
 	return {"inside":inside, "others":others}
 
 func run() -> void:
+	if true: # SKIP (T2): see the file head; nothing below runs until the forest can be entered
+		print("[LOOK12_FOREST_FADE] SKIP: later feature (forest cannot be entered; one tree material)")
+		quit(0)
+		return
 	var cells: Array = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/terrain_types.json")).cells
 	var cell := Vector2i(-1, -1)
 	for y in range(PLAY.y):
