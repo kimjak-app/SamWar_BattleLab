@@ -18,7 +18,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "8f901b137b10d36ffaafa6a6a0bfe75232df1e5e"  # docs(battle3d): HUD block 4-6c panel HUD avoidance and chip report
-TIP = os.environ.get("PANEL_REACH_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("PANEL_REACH_SCOPE_TIP", "f59e4deaa74a48339b5a72c3d22a2ac2177650cf")  # test(battle3d): HUD block 4-6d panel sweep test, validator and CI lines
 MARKERS = "scripts/battle3d/battle3d_unit_markers.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 PANEL = "scripts/battle3d/battle3d_command_panel.gd"
