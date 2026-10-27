@@ -3,6 +3,7 @@ const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const GridProjection = preload("res://scripts/battle3d/battle3d_grid_projection.gd")
 const Queries = preload("res://scripts/battle3d/battle3d_movement_adapter.gd")
 const Host = preload("res://scripts/battle3d/battle3d_engine_host.gd")
+const UnitMarkers = preload("res://scripts/battle3d/battle3d_unit_markers.gd")
 var host = Host.new()
 var engine: Node
 var projection = GridProjection.new()
@@ -120,6 +121,7 @@ var roster_label: Label
 var result_overlay: Label
 var actor_ring: MeshInstance3D
 var action_badges := Node3D.new()
+var unit_markers := UnitMarkers.new() # HUD block 4-6
 
 func read_battle_log_lines() -> Array:
 	# NIGHT7 HUD block 2: the one approved new engine read (2D log text, engine
@@ -295,6 +297,7 @@ func _ready() -> void:
 		var model_value := value.duplicate(true)
 		if model_value.unit_type not in ["infantry","cavalry"]: model_value.unit_type = "infantry"
 		_spawn_unit(model_value)
+		views[value.unit_id].add_child(_facing_arrow()) # HUD block 4-6
 		var badge := Label3D.new()
 		badge.font_size = 40
 		badge.pixel_size = .012
@@ -308,6 +311,7 @@ func _ready() -> void:
 	_build_auto_ui()
 	_build_option_ui()
 	_apply_debug_text() # block 4-6: the debug text starts hidden (F3)
+	add_child(unit_markers)
 	camera.make_current()
 	DisplayServer.window_set_title("EASTWAR | M3 3D Enemy Turn 18x10")
 	await host.initialized
@@ -499,11 +503,13 @@ func _sync_views() -> void:
 			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0)
 		for child in root.get_children():
 			if child is Label3D: child.text = "%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops]
+			if child.has_meta("facing_arrow"): _place_facing_arrow(child, root, value.facing)
 	_consume_enemy_events()
 	var ended := not battle_result.is_empty()
 	facing_ui.visible = engine.get("current_phase") == "facing_select" and not ended
 	var active = engine.get("active_unit_state")
 	selected = active.unit_id if active != null else ""
+	_refresh_unit_markers()
 	ring.visible = views.has(selected) and views[selected].visible and not ended
 	if ring.visible: ring.position=views[selected].position+Vector3(0,.09,0)
 	actor_ring.visible = views.has(enemy_actor_id) and views[enemy_actor_id].visible
@@ -699,6 +705,17 @@ func _edge_scroll_allowed() -> bool:
 	if _enemy_presentation_busy() or hud_cutin_hold: return false
 	return not (option_toggle != null and not option_toggle.visible and option_toggle.get_parent().visible) # the shell's option window
 
+func _refresh_unit_markers() -> void:
+	# HUD block 4-6: each shown unit's marker above its head; off-screen, behind the camera, retreated or routed: none.
+	# Values: the display value of this sync, the roster's portrait (N2, cached) and the selection.
+	var view_rect := get_viewport().get_visible_rect()
+	for id in views:
+		var root: Node3D = views[id]
+		var point: Vector3 = root.position + Vector3(0, UnitMarkers.HEAD, 0)
+		var screen := camera.unproject_position(point)
+		var on: bool = root.visible and not camera.is_position_behind(point) and view_rect.has_point(screen)
+		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, screen, on)
+
 const HIDE_TOP_LINES := false # block 4-6: true hides the top two lines too (waits for the top HUD test decision)
 
 func hud_turn_side() -> String:
@@ -867,6 +884,37 @@ func _refresh_target_info(target: BattleUnitState) -> void:
 	# Additional approval: this field is read ONLY for the target information panel.
 	target_defending=target.is_defending
 	target_info.text="대상 %s / %s\n병력 %s · 방어 %s · 셀 %s" % [value.unit_id,value.unit_type,value.current_troops,"중" if target_defending else "아님",value.grid_cell]
+
+# HUD block 4-6: the unit's facing as a flat arrow on the ground at the front of its cell (a world object, so it stays
+# right when the camera turns), between the soldiers and the selection ring (r 1.27). The engine's facing (14-field view).
+const FACING_DIRECTION := {"up":Vector3(0, 0, -1), "down":Vector3(0, 0, 1), "left":Vector3(-1, 0, 0), "right":Vector3(1, 0, 0)}
+const FACING_ARROW_DISTANCE := 0.95 # m from the unit's centre to the arrow's centre (tip at 1.22)
+const FACING_ARROW_LIFT := 0.08 # m above the ground under the arrow
+
+func _facing_arrow() -> MeshInstance3D:
+	# A flat chevron pointing -z (the "up" facing), 0.64 m wide and 0.5 m long.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for p in [Vector3(0, 0, -0.27), Vector3(0.32, 0, 0.23), Vector3(0, 0, 0.03), Vector3(0, 0, -0.27), Vector3(0, 0, 0.03), Vector3(-0.32, 0, 0.23)]:
+		st.set_normal(Vector3.UP)
+		st.add_vertex(p)
+	var arrow := MeshInstance3D.new()
+	arrow.name = "FacingArrow"
+	arrow.mesh = st.commit()
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.albedo_color = Color("f4e7c4")
+	arrow.material_override = material
+	arrow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	arrow.set_meta("facing_arrow", true)
+	return arrow
+
+func _place_facing_arrow(arrow: Node3D, root: Node3D, facing: String) -> void:
+	var direction: Vector3 = FACING_DIRECTION.get(facing, Vector3(0, 0, -1))
+	arrow.rotation = Vector3(0, atan2(-direction.x, -direction.z), 0) # -z turned toward the facing
+	var at := root.position + direction * FACING_ARROW_DISTANCE
+	arrow.position = direction * FACING_ARROW_DISTANCE + Vector3(0, board.height(at.x, at.z) - root.position.y + FACING_ARROW_LIFT, 0)
 
 func visual_soldier_count(value: Dictionary) -> int:
 	# Visual density only, unrelated to battle rules or damage computation.
