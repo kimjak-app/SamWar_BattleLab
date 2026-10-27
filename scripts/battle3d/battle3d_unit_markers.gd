@@ -111,6 +111,16 @@ func rect_of(unit_id: String) -> Rect2:
 		if badge.visible: area = area.merge(badge.get_global_rect())
 	return area
 
+func rects_of(unit_id: String) -> Array:
+	# HUD block 4-6b: the marker's two parts on screen, [face chip + badges, bar + number]; empty when hidden. The command
+	# panel keeps clear of these: their merged box would also cover the empty space around the unit between them.
+	if not markers.has(unit_id) or not markers[unit_id].visible: return []
+	var root: Control = markers[unit_id]
+	var top: Rect2 = root.get_node("Chip").get_global_rect()
+	for badge in root.get_node("Badges").get_children():
+		if badge.visible: top = top.merge(badge.get_global_rect())
+	return [top, root.get_node("BarBack").get_global_rect().merge(root.get_node("Troops").get_global_rect())]
+
 func show_unit(unit_id: String, value: Dictionary, portrait: Texture2D, selected: bool, status_badges: Array, geometry: Dictionary, on_screen: bool) -> void:
 	# value: the lab's 14-field display value; geometry: {foot, body, disc_bottom, cell_px} (see layout()); on_screen: the
 	# unit is in front of the camera and its chip centre is inside the window.
