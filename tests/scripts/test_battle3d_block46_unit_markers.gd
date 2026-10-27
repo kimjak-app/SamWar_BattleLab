@@ -3,12 +3,12 @@ extends SceneTree
 # unit states (BattleUnitState) and computes itself.
 #   2. markers shown = units on the battlefield (engine slot available, troops > 0), ally + enemy, with the whole play area
 #      on screen; undeployed reinforcements and a unit with 0 troops: no marker;
-#   3. bar fill = current_troops / max_troops of the unit (x the 60 px bar), number "current / max" ("94 / 94");
+#   3. bar fill = current_troops / max_troops of the unit (x the bar's width; block 4-6b: sized by zoom), number "current / max" ("94 / 94");
 #      a 30 / 120 unit: a quarter bar, "30 / 120";
 #   4. after an ally waits (the lab's wait command), that ally's marker is darkened and every unit that has not acted
 #      is bright; the selected ally's chip frame is gold.
 # Also: no marker for a unit off the screen; the badges row shows at most three badges then "+n".
-const BAR_W := 60.0
+const PROBE_AT := {"foot":Vector2(400, 400), "body":Vector2(400, 370), "disc_bottom":Vector2(400, 420), "cell_px":77.0} # block 4-6b: markers take projected points
 const GOLD := Color("ffd575")
 var h
 
@@ -57,20 +57,20 @@ func run() -> void:
 	for unit in b.all_battle_unit_states:
 		if not unit.unit_id in on_field: continue
 		var m: Control = markers.markers[unit.unit_id]
-		var want_w := BAR_W * float(unit.current_troops) / float(unit.max_troops)
+		var want_w: float = m.get_node("BarBack").size.x * float(unit.current_troops) / float(unit.max_troops) # block 4-6b: the bar's own width (sized by zoom)
 		var text: String = m.get_node("Troops").text
 		if absf(m.get_node("BarFill").size.x - want_w) > 0.01 or text != "%d / %d" % [unit.current_troops, unit.max_troops]: bad.append([unit.unit_id, m.get_node("BarFill").size.x, want_w, text])
-	h.expect(bad.is_empty(), "bars = current / max x 60 px and numbers 'current / max' (wrong %s)" % str(bad))
+	h.expect(bad.is_empty(), "bars = current / max x the bar's width and numbers 'current / max' (wrong %s)" % str(bad))
 	var probe := "zz_probe"
-	markers.show_unit(probe, {"side":"enemy", "current_troops":30, "max_troops":120, "has_acted":false}, null, false, [], Vector2(400, 400), true)
+	markers.show_unit(probe, {"side":"enemy", "current_troops":30, "max_troops":120, "has_acted":false}, null, false, [], PROBE_AT, true)
 	var pm: Control = markers.markers[probe]
-	h.expect(is_equal_approx(pm.get_node("BarFill").size.x, BAR_W * 0.25) and pm.get_node("Troops").text == "30 / 120", "30 / 120: a quarter bar (%s px), '%s'" % [pm.get_node("BarFill").size.x, pm.get_node("Troops").text])
-	markers.show_unit(probe, {"side":"enemy", "current_troops":0, "max_troops":120, "has_acted":false}, null, false, [], Vector2(400, 400), true)
+	h.expect(is_equal_approx(pm.get_node("BarFill").size.x, pm.get_node("BarBack").size.x * 0.25) and pm.get_node("Troops").text == "30 / 120", "30 / 120: a quarter bar (%s px), '%s'" % [pm.get_node("BarFill").size.x, pm.get_node("Troops").text])
+	markers.show_unit(probe, {"side":"enemy", "current_troops":0, "max_troops":120, "has_acted":false}, null, false, [], PROBE_AT, true)
 	h.expect(not pm.visible, "0 troops: no marker")
-	markers.show_unit(probe, {"side":"ally", "current_troops":10, "max_troops":10, "has_acted":false}, null, false, ["◎2", "⚠1", "▼3", "▲2", "◆"], Vector2(400, 400), true)
+	markers.show_unit(probe, {"side":"ally", "current_troops":10, "max_troops":10, "has_acted":false}, null, false, ["◎2", "⚠1", "▼3", "▲2", "◆"], PROBE_AT, true)
 	var row: Array = pm.get_node("Badges").get_children().filter(func(l): return l.visible).map(func(l): return l.text)
 	h.expect(row == ["◎2", "⚠1", "▼3", "+2"], "five statuses: three badges then +2 (%s)" % str(row))
-	markers.show_unit(probe, {"side":"ally", "current_troops":10, "max_troops":10, "has_acted":false}, null, false, [], Vector2(-500, 400), false)
+	markers.show_unit(probe, {"side":"ally", "current_troops":10, "max_troops":10, "has_acted":false}, null, false, [], PROBE_AT, false)
 	h.expect(not pm.visible, "off screen: no marker")
 	pm.queue_free()
 	markers.markers.erase(probe)

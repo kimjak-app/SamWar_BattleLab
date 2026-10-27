@@ -23,7 +23,7 @@ func key(code: Key, frames := 20) -> void:
 	root.push_input(up)
 	for i in range(3): await process_frame
 
-func arrow_of(lab, id: String) -> MeshInstance3D:
+func arrow_of(lab, id: String) -> Node3D: # block 4-6b: the arrow is a node holding its fill and outline meshes
 	for child in lab.views[id].get_children():
 		if child.has_meta("facing_arrow"): return child
 	return null

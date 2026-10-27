@@ -135,6 +135,7 @@ jobs:
             tools/validate_battle3d_terrain_port.py
             tools/validate_battle3d_edge_scroll.py
             tools/validate_battle3d_unit_markers.py
+            tools/validate_battle3d_marker_look.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -298,6 +299,9 @@ jobs:
             tests/scripts/test_battle3d_block46_unit_markers.gd
             tests/scripts/test_battle3d_block46_facing_ground.gd
             tests/scripts/test_battle3d_block46_marker_mouse.gd
+            tests/scripts/test_battle3d_block46b_marker_layout.gd
+            tests/scripts/test_battle3d_block46b_arrow_look.gd
+            tests/scripts/test_battle3d_block46b_panel_avoid.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
