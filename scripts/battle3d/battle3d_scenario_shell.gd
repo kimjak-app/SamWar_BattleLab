@@ -373,7 +373,7 @@ func command_state() -> Dictionary:
 			for world in lab.hud_range_cell_positions(): range_rects.append(cell_screen_rect(world))
 			range_rects.append(cell_screen_rect(lab.board.world(lab.display_values.get(id, {}).get("grid_cell", Vector2i.ZERO)))) # block 4-3: never over the unit's own cell
 			var avoid_rects: Array = lab.unit_markers.rects_of(id) # block 4-6b: the selected unit's marker parts
-			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects, "avoid_rects":avoid_rects, "turn_key":"%d:%s" % [lab.current_round, id]}, true)
+			state.merge({"open":true, "anchor":anchor, "buttons":buttons, "range_rects":range_rects, "avoid_rects":avoid_rects, "hud_rects":hud_rects(), "turn_key":"%d:%s" % [lab.current_round, id]}, true) # block 4-6c: hud_rects
 	if lab.facing_ui.visible:
 		var cell: Vector2i = lab.display_values.get(id, {}).get("grid_cell", Vector2i(-1, -1))
 		var arrows := {}
@@ -468,13 +468,17 @@ func camera_turn_key() -> String:
 	var id: String = lab.hud_ally_actor_id()
 	return "" if id.is_empty() else "%d:%s" % [lab.current_round, id]
 
-func camera_free_rect() -> Rect2:
-	# The screen area the HUD leaves free: the view minus the rosters, the current-actor panel, the log, the top HUD
-	# frame and the top command row (their live rectangles, so a resolution change follows).
-	var obstacles := [ally_roster.roster_rect(), enemy_roster.roster_rect(), actor_hud.panel_rect(),
+func hud_rects() -> Array:
+	# The HUD's live rectangles: the rosters, the current-actor panel, the log, the top HUD frame and the top command row.
+	# Block 4-6c: shared by the camera centring and the command panel's placement.
+	var rects := [ally_roster.roster_rect(), enemy_roster.roster_rect(), actor_hud.panel_rect(),
 		log_hud.get_node("ProductionHudRoot/BattleLogHud").get_global_rect(), top_hud.frame_rect()]
-	for i in range(5): obstacles.append(top_commands.slot_rect(i))
-	return CameraCenter.free_rect(get_viewport().get_visible_rect(), obstacles)
+	for i in range(5): rects.append(top_commands.slot_rect(i))
+	return rects
+
+func camera_free_rect() -> Rect2:
+	# The screen area the HUD leaves free: the view minus the HUD's rectangles (live, so a resolution change follows).
+	return CameraCenter.free_rect(get_viewport().get_visible_rect(), hud_rects())
 
 func _refresh_camera_center() -> void:
 	if lab == null or not is_instance_valid(lab) or not lab.ready_for_input or not lab.battle_result.is_empty(): return

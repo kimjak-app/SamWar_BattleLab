@@ -41,6 +41,7 @@ var drag_offset := Vector2.ZERO
 var drag_position := Vector2.INF
 var drag_key := ""
 var avoid_rects := [] # block 4-6b: the selected unit's marker parts, from the last state
+var hud_rects := [] # block 4-6c: the HUD's rects (rosters, actor panel, log, top HUD, top commands), from the last state
 
 func _ready() -> void:
 	panel = get_node("FloatingAllyCommandPanel")
@@ -96,6 +97,7 @@ func show_state(state: Dictionary) -> void:
 		var key := str(state.get("turn_key", ""))
 		if key != drag_key: drag_position = Vector2.INF # another ally turn or selection: back to the automatic placement
 		avoid_rects = state.get("avoid_rects", [])
+		hud_rects = state.get("hud_rects", [])
 		panel.position = drag_position if drag_position != Vector2.INF else choose_position(state.get("anchor", Vector2.ZERO), PANEL_SIZE, state.get("range_rects", []))
 	arrows.visible = bool(state.get("facing_open", false))
 	if arrows.visible:
@@ -134,6 +136,10 @@ func choose_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array) ->
 	var best_index := -1
 	var clear_position := Vector2.INF # block 4-6b: the best near candidate clear of the selected unit's marker
 	var clear_score := INF
+	var free_near := Vector2.INF # block 4-6c: the best near candidate clear of the marker and the HUD
+	var free_near_score := INF
+	var free_corner := Vector2.INF # block 4-6c: the best corner candidate clear of both
+	var free_corner_score := INF
 	for index in range(candidates.size()):
 		var clamped := clamp_position(candidates[index], panel_size, viewport_size)
 		var score := score_position(clamped, panel_size, cell_rects, anchor, index >= NEAR_CANDIDATE_COUNT) + float(index) * 0.01
@@ -141,12 +147,26 @@ func choose_position(anchor: Vector2, panel_size: Vector2, cell_rects: Array) ->
 			best_score = score
 			best_position = clamped
 			best_index = index
-		if index < NEAR_CANDIDATE_COUNT and score < clear_score and not covers(Rect2(clamped, panel_size), avoid_rects):
+		var rect := Rect2(clamped, panel_size)
+		var marker_free := not covers(rect, avoid_rects)
+		var both_free := marker_free and not covers(rect, hud_rects)
+		if index < NEAR_CANDIDATE_COUNT and score < clear_score and marker_free:
 			clear_score = score
 			clear_position = clamped
-	# Block 4-6b: the 2D rule's choice stands unless it is a near candidate covering the selected unit's marker; then the
-	# best near candidate clear of it. None clear (a marker grown at close zoom, a screen edge): the 2D choice, overlapping.
-	if best_index < NEAR_CANDIDATE_COUNT and covers(Rect2(best_position, panel_size), avoid_rects) and clear_position != Vector2.INF:
+		if both_free and index < NEAR_CANDIDATE_COUNT and score < free_near_score:
+			free_near_score = score
+			free_near = clamped
+		if both_free and index >= NEAR_CANDIDATE_COUNT and score < free_corner_score:
+			free_corner_score = score
+			free_corner = clamped
+	# Block 4-6c, in order (the 2D score unchanged, filters on top): 1. the 2D rule's choice when it is clear of the
+	# selected unit's marker and the HUD; 2. the best near candidate clear of both; 3. the best corner clear of both (the
+	# panel may go far from the unit); 4. block 4-6b: the best near candidate clear of the marker alone, else the 2D choice.
+	var best_rect := Rect2(best_position, panel_size)
+	if not covers(best_rect, avoid_rects) and not covers(best_rect, hud_rects): return best_position
+	if free_near != Vector2.INF: return free_near
+	if free_corner != Vector2.INF: return free_corner
+	if best_index < NEAR_CANDIDATE_COUNT and covers(best_rect, avoid_rects) and clear_position != Vector2.INF:
 		return clear_position
 	return best_position
 
