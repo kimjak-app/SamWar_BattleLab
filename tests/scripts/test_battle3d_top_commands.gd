@@ -92,7 +92,7 @@ func run() -> void:
 		h.expect(not cmd.slot_rect(i).intersects(h.shell.top_hud.frame_rect()), "button %d clear of the top HUD frame" % i)
 	# Option: open, choose 중 with a click, close.
 	await click(cmd.option_button)
-	h.expect(box.is_visible_in_tree() and lab.option_panel.is_visible_in_tree() and box.get_global_rect().position.y >= 100.0 and is_equal_approx(box.get_global_rect().position.x, 1435.0), "option opens the AI level box under the row %s" % box.get_global_rect())
+	h.expect(box.is_visible_in_tree() and lab.option_panel.is_visible_in_tree() and box.get_global_rect().position.y >= 100.0 and box.get_global_rect().position.x <= 1435.0 and box.get_global_rect().end.x <= h.shell.enemy_roster.roster_rect().position.x, "option opens the AI level box under the row, left of the enemy roster (block 6a: was x 1435) %s" % box.get_global_rect())
 	await click(lab.ai_level_buttons.mid)
 	h.expect(b.call("get_pending_enemy_ai_level") == "mid" or b.call("get_enemy_ai_level") == "mid", "click 중: engine level pending 'mid' (%s / %s)" % [b.call("get_enemy_ai_level"), b.call("get_pending_enemy_ai_level")])
 	await click(cmd.option_button)

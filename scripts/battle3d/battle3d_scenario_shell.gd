@@ -43,6 +43,9 @@ var top_hud # Battle3D_TopHud.tscn (CanvasLayer with battle3d_top_hud.gd)
 const TopCommands = preload("res://scripts/battle3d/battle3d_top_commands.gd")
 const LAB_OFFSCREEN_X := 4000.0
 const OPTION_BOX_GAP := 6.0 # below the command row
+# HUD block 6a: the option box opens clear of the HUD (rosters, current-actor panel, log, top HUD, top commands): under
+# the option button, moved left past what it would cover; it is drawn above every HUD layer in any case.
+const OPTION_LAYER := 20 # the HUD uses 5-10
 var top_commands: CanvasLayer
 var commands_lab: Node = null # the lab whose controls were last moved
 # HUD block 2: the 2D battle log panel (layer 5). Its lines come from one place,
@@ -98,6 +101,7 @@ var cast_cursor := 0
 var toasted_round := 0
 var arrival_cursor := 0
 var toasted_arrival_rounds := {}
+var pulsed_side := "" # block 6a: the turn side the roster banner last pulsed for
 var ending_started := false
 var cutin_log: Array = [] # per cast: {caster, skill_id, route ("video"/"still"), owner}
 # HUD block 4-3: the camera centres the acting ally in the screen area the HUD leaves free, once per ally turn
@@ -251,6 +255,9 @@ func _refresh_top_hud() -> void:
 	top_hud.visible = live
 	if live: top_hud.show_values(lab.momentum_display.ally, lab.momentum_display.enemy, lab.current_round)
 	if live: top_hud.show_side(lab.hud_turn_side()) # block 4-6
+	if live and lab.hud_turn_side() != pulsed_side: # block 6a: the 2D banner pulse on each turn change
+		pulsed_side = lab.hud_turn_side()
+		(ally_roster if pulsed_side == "아군 턴" else enemy_roster).fold.pulse()
 	log_hud.visible = live
 	if live: log_hud.show_lines(log_lines())
 	enemy_roster.visible = live
@@ -282,6 +289,7 @@ func _place_lab_commands() -> void:
 	var box: Control = lab.option_toggle.get_parent()
 	box.position = Vector2(top_commands.slot_rect(0).position.x, top_commands.slot_rect(0).end.y + OPTION_BOX_GAP)
 	box.visible = false
+	(box.get_parent() as CanvasLayer).layer = OPTION_LAYER # block 6a: above the HUD
 	lab.option_toggle.visible = false # the option button replaces it
 	lab.roster_label.position.x = LAB_OFFSCREEN_X # debug unit list off-screen (kept, still updated)
 	for button in [lab.attack_button, lab.wait_button, lab.defend_button, lab.strategy_button, lab.skill_button]:
@@ -295,29 +303,55 @@ func toggle_option_box() -> void:
 	var box: Control = lab.option_toggle.get_parent()
 	box.visible = not box.visible
 	if box.visible and not lab.option_panel.visible: lab.toggle_option_panel()
+	if box.visible: box.position = option_box_position(box.get_combined_minimum_size().max(box.size)) # block 6a (the label wraps: the laid-out size)
+
+func option_box_position(size: Vector2) -> Vector2:
+	# Block 6a: the clear place nearest to under the option button: x under the button or just left of a HUD rect, y under
+	# the button row or just under a HUD rect, kept on screen; none clear: under the button (still drawn above the HUD).
+	var slot: Rect2 = top_commands.slot_rect(0)
+	var under := Vector2(slot.position.x, slot.end.y + OPTION_BOX_GAP)
+	var view := get_viewport().get_visible_rect()
+	var rects := hud_rects()
+	var xs := [under.x, slot.end.x - size.x]
+	var ys := [under.y]
+	for r in rects:
+		xs.append(r.position.x - size.x - OPTION_BOX_GAP)
+		ys.append(r.end.y + OPTION_BOX_GAP)
+	var best := under
+	var best_distance := INF
+	for x in xs:
+		for y in ys:
+			var place := Rect2(Vector2(clampf(x, view.position.x, view.end.x - size.x), clampf(y, view.position.y, view.end.y - size.y)), size)
+			if rects.any(func(r): return place.intersects(r)): continue
+			if place.position.distance_to(under) < best_distance:
+				best_distance = place.position.distance_to(under)
+				best = place.position
+	return best
 
 func log_lines() -> Array:
 	# The single source of the log panel's text.
 	return lab.read_battle_log_lines()
 
 func enemy_cards() -> Array:
-	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown.
+	# Card order = the engine's enemy slot order; shown = the lab's own unit view is shown, or the unit retreated (block 6a).
 	var cards := []
 	for id in lab.hud_enemy_unit_ids():
 		var value: Dictionary = lab.display_values.get(id, {})
-		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+		var retreated: bool = not value.is_empty() and int(value.current_troops) <= 0 # block 6a: the card stays, dimmed, "퇴각"
+		cards.append({"unit_id":id, "visible":(lab.views.has(id) and lab.views[id].visible) or retreated, "retreated":retreated, "name":lab.hud_display_name(id),
 			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
 			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
 			"status":lab.hud_status_summary(id), "actor":id == lab.enemy_actor_id})
 	return cards
 
 func ally_cards() -> Array:
-	# Card order = the engine's ally slot order; shown = the lab's own unit view is shown.
+	# Card order = the engine's ally slot order; shown = the lab's own unit view is shown, or the unit retreated (block 6a).
 	var cards := []
 	var actor: String = lab.hud_ally_actor_id()
 	for id in lab.hud_ally_unit_ids():
 		var value: Dictionary = lab.display_values.get(id, {})
-		cards.append({"unit_id":id, "visible":lab.views.has(id) and lab.views[id].visible, "name":lab.hud_display_name(id),
+		var retreated: bool = not value.is_empty() and int(value.current_troops) <= 0 # block 6a: the card stays, dimmed, "퇴각"
+		cards.append({"unit_id":id, "visible":(lab.views.has(id) and lab.views[id].visible) or retreated, "retreated":retreated, "name":lab.hud_display_name(id),
 			"troops_text":"" if value.is_empty() else "병력 %d / %d" % [value.current_troops, value.max_troops],
 			"portrait":lab.hud_portrait(id), "troop_icon":lab.hud_troop_icon(id), "type_name":lab.hud_unit_type_name(str(value.get("unit_type", ""))),
 			"status":lab.hud_status_summary(id), "ready":lab.hud_skill_ready(id), "actor":id == actor})
