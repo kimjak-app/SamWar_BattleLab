@@ -18,7 +18,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "886426a00b854fcdca59f106c96806e25c69bed2"  # ci: per-test timeout 120s -> 300s (feature/hud-block44-edge-scroll-20261026, pushed)
-TIP = os.environ.get("UNIT_MARKERS_SCOPE_TIP", "65f392cb7012d029df3e38e29ad3fdf045072025")  # test(battle3d): HUD block 4-6 tests, validator and CI lines
+TIP = os.environ.get("UNIT_MARKERS_SCOPE_TIP", "822de612fb4bd745718d2f332bca0a291a54df15")  # feat(battle3d): hide the top turn / momentum lines too (was 65f392c)
 PRESENTATION = "scripts/battle3d/lab_presentation.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
 SHELL = "scripts/battle3d/battle3d_scenario_shell.gd"
