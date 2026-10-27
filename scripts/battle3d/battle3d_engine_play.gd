@@ -285,6 +285,7 @@ func _ready() -> void:
 	add_child(projection)
 	projection.world_3d = get_world_3d()
 	queries.grid = engine.get("battle_grid_controller")
+	queries.grid.set_blocked_cells(forest_cells()) # T1: the one write that hands the engine its blocked cells (the forest)
 	add_child(range_view)
 	add_child(target_marks)
 	add_child(action_badges)
@@ -718,6 +719,15 @@ func _refresh_unit_markers() -> void:
 		var on: bool = root.visible and not camera.is_position_behind(root.position) and view_rect.has_point(chip_centre)
 		var status_badges: Array = hud_status_entries(id).map(func(entry): return str(entry.get("badge", ""))) if on else []
 		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), geometry, on)
+
+func forest_cells() -> Array:
+	# T1: the play area's forest cells, from the terrain types (terrain_types.json) the lab already reads; the engine
+	# treats them as cells no unit may enter.
+	var cells := []
+	for y in range(board.PLAY_SIZE.y):
+		for x in range(board.PLAY_SIZE.x):
+			if board.terrain(Vector2i(x, y)) == "forest": cells.append(Vector2i(x, y))
+	return cells
 
 func marker_geometry(ground: Vector3) -> Dictionary:
 	# HUD block 4-6b: the unit's screen points for its marker. cell_px: one cell (board.CELL) along the camera's right on
