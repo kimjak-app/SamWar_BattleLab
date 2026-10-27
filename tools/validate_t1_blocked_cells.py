@@ -18,7 +18,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "0947281bc9b1c6f964fe6ed63da5ce835d4b9309"  # Merge branch 'feature/hud-block6a-roster-option-20261027' into integration
-TIP = os.environ.get("T1_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("T1_SCOPE_TIP", "631973846c80ac8972210313ab0782e417113c4f")  # test(battle): T1 blocked-cell tests, validator and CI lines
 GRID = "scripts/battle_grid_controller.gd"
 SERVICE = "scripts/battle/services/battle_movement_query_service.gd"
 LAB = "scripts/battle3d/battle3d_engine_play.gd"
