@@ -100,6 +100,7 @@ func panel_matches(lab) -> String:
 	var anchor: Vector2 = lab.camera.unproject_position(lab.views[id].position + Vector3(0, h.shell.PANEL_ANCHOR_HEIGHT, 0))
 	var rects := []
 	for world in lab.hud_range_cell_positions(): rects.append(h.shell.cell_screen_rect(world))
+	rects.append(h.shell.cell_screen_rect(lab.board.world(lab.display_values[id].grid_cell))) # block 4-3: the unit's own cell is avoided too
 	var want: Vector2 = panel.choose_position(anchor, panel.PANEL_SIZE, rects)
 	if panel.panel.position != want: return "position %s vs %s" % [panel.panel.position, want]
 	return ""
@@ -277,15 +278,22 @@ func run() -> void:
 		for d in DIRS:
 			var arrow: Button = panel.arrow_for(d)
 			var cell: Vector2i = unit.grid_cell + OFFSETS[d]
-			var want: Rect2 = h.shell.cell_screen_rect(lab.board.world(cell))
-			if lab.board.valid(cell) != arrow.visible or (arrow.visible and (arrow.text != TEXT[d] or not arrow.get_global_rect().get_center().is_equal_approx(want.get_center()) or not arrow.size.is_equal_approx((want.size * 0.96).max(arrow.get_combined_minimum_size())))): bad.append([d, cell, arrow.get_global_rect(), want])
-			arrow_sizes[d] = [arrow.size, want.size * 0.96]
-		h.expect(bad.is_empty(), "%s: arrows centred on the neighbour cells' screen boxes, size = box x 0.96 (at least the button's minimum), grid texts %s" % [direction, bad])
+			# Block 4-3: the arrow is the neighbour cell's projected diamond with an arrow along unit -> neighbour on the screen.
+			var want: Vector2 = lab.camera.unproject_position(lab.board.world(cell))
+			var want_dir: Vector2 = (want - lab.camera.unproject_position(lab.board.world(unit.grid_cell))).normalized()
+			var tile_centre: Vector2 = arrow.position + (arrow.corners[0] + arrow.corners[1] + arrow.corners[2] + arrow.corners[3]) * 0.25 if arrow.corners.size() == 4 else Vector2.INF
+			if lab.board.valid(cell) != arrow.visible or (arrow.visible and (tile_centre.distance_to(want) > 3.0 or rad_to_deg(absf(arrow.direction.angle_to(want_dir))) > 5.0)): bad.append([d, cell, tile_centre, want])
+			arrow_sizes[d] = [arrow.size, arrow.corners]
+		h.expect(bad.is_empty(), "%s: arrows on the neighbour cells' projected centres (3 px), pointing along unit -> neighbour (5 deg) %s" % [direction, bad])
 		if direction == "up": print("[COMMAND_PANEL] arrow size (shown, cell box x 0.96) at zoom 60: ", arrow_sizes)
 		lab.yaw = 1.4
 		for k in range(2): await process_frame
-		h.expect(DIRS.all(func(d): return not panel.arrow_for(d).visible or panel.arrow_for(d).text == TEXT[d]) and panel.arrow_for(direction).get_global_rect().get_center().is_equal_approx(h.shell.cell_screen_rect(lab.board.world(unit.grid_cell + OFFSETS[direction])).get_center()),
-			"%s: camera yaw 1.4 moves the arrows but keeps the grid texts" % direction)
+		var turned := DIRS.filter(func(d): return panel.arrow_for(d).visible).map(func(d):
+			var a: Button = panel.arrow_for(d)
+			var to: Vector2 = lab.camera.unproject_position(lab.board.world(unit.grid_cell + OFFSETS[d]))
+			return a.direction.angle_to((to - lab.camera.unproject_position(lab.board.world(unit.grid_cell))).normalized()))
+		h.expect(turned.all(func(angle): return rad_to_deg(absf(angle)) <= 5.0),
+			"%s: camera yaw 1.4 turns the arrows with the screen (block 4-3; angles %s)" % [direction, turned])
 		var writes_before: Array = b.writes.duplicate()
 		var hovered: Control = await real_click(panel.arrow_for(direction))
 		h.expect(hovered == panel.arrow_for(direction) and b.writes.slice(writes_before.size()) == ["_select_post_move_facing"] and unit.facing == direction and b.current_phase == "ally_turn" and not panel.arrows.visible,

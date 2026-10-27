@@ -3,6 +3,7 @@ const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const GridProjection = preload("res://scripts/battle3d/battle3d_grid_projection.gd")
 const Queries = preload("res://scripts/battle3d/battle3d_movement_adapter.gd")
 const Host = preload("res://scripts/battle3d/battle3d_engine_host.gd")
+const UnitMarkers = preload("res://scripts/battle3d/battle3d_unit_markers.gd")
 var host = Host.new()
 var engine: Node
 var projection = GridProjection.new()
@@ -79,6 +80,7 @@ const AI_LEVEL_ORDER := ["low", "mid", "high"]
 const AI_LEVEL_TEXT := {"low":"하", "mid":"중", "high":"상"}
 var option_toggle: Button
 var option_panel: VBoxContainer
+var edge_scroll_check: CheckBox # HUD block 4-4: the edge scroll on/off (presentation only)
 var ai_level_label: Label
 var ai_level_buttons := {}
 var ai_level_texts: Array[String] = []
@@ -119,6 +121,7 @@ var roster_label: Label
 var result_overlay: Label
 var actor_ring: MeshInstance3D
 var action_badges := Node3D.new()
+var unit_markers := UnitMarkers.new() # HUD block 4-6
 
 func read_battle_log_lines() -> Array:
 	# NIGHT7 HUD block 2: the one approved new engine read (2D log text, engine
@@ -246,7 +249,7 @@ func hud_command_panel_open() -> bool:
 	# The lab's command rule: an ally to act in ally_turn, no presentation, auto, enemy replay or result.
 	var active = engine.get("active_unit_state")
 	return ready_for_input and battle_result.is_empty() and active != null and active.side == "ally" and views.has(active.unit_id) and views[active.unit_id].visible \
-		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy()
+		and engine.get("current_phase") == "ally_turn" and not engine.get("is_demo_animating") and not engine.get("is_full_auto_battle_enabled") and not _enemy_presentation_busy() and not hud_cutin_hold # block 4-3: closed while a cut-in holds
 
 func hud_range_cell_positions() -> Array:
 	# The move-range cells the lab already shows (range_view discs), as world positions.
@@ -294,6 +297,7 @@ func _ready() -> void:
 		var model_value := value.duplicate(true)
 		if model_value.unit_type not in ["infantry","cavalry"]: model_value.unit_type = "infantry"
 		_spawn_unit(model_value)
+		views[value.unit_id].add_child(_facing_arrow(value.side)) # HUD block 4-6
 		var badge := Label3D.new()
 		badge.font_size = 40
 		badge.pixel_size = .012
@@ -306,6 +310,8 @@ func _ready() -> void:
 	_build_turn_ui()
 	_build_auto_ui()
 	_build_option_ui()
+	_apply_debug_text() # block 4-6: the debug text starts hidden (F3)
+	add_child(unit_markers)
 	camera.make_current()
 	DisplayServer.window_set_title("EASTWAR | M3 3D Enemy Turn 18x10")
 	await host.initialized
@@ -497,11 +503,13 @@ func _sync_views() -> void:
 			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0)
 		for child in root.get_children():
 			if child is Label3D: child.text = "%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops]
+			if child.has_meta("facing_arrow"): _place_facing_arrow(child, root, value.facing)
 	_consume_enemy_events()
 	var ended := not battle_result.is_empty()
 	facing_ui.visible = engine.get("current_phase") == "facing_select" and not ended
 	var active = engine.get("active_unit_state")
 	selected = active.unit_id if active != null else ""
+	_refresh_unit_markers()
 	ring.visible = views.has(selected) and views[selected].visible and not ended
 	if ring.visible: ring.position=views[selected].position+Vector3(0,.09,0)
 	actor_ring.visible = views.has(enemy_actor_id) and views[enemy_actor_id].visible
@@ -580,6 +588,9 @@ func _click_world(pos: Vector2) -> void:
 	if _input_locked():
 		return
 	var cell: Vector2i = projection.world_to_grid_from_ray(camera.project_ray_origin(pos),camera.project_ray_normal(pos))
+	if not board.valid(cell): # block 7: outside the play area (scenery or off the board): no cell, no engine query
+		_reject("칸 없음 · 플레이 구역 밖입니다")
+		return
 	if engine.get("current_phase") == "attack_select":
 		_click_attack_cell(cell)
 		return
@@ -599,6 +610,12 @@ func _click_world(pos: Vector2) -> void:
 	if unit != null:
 		if unit.side != "ally":
 			_reject("대상 아님 · 아군을 선택한 뒤 [공격]을 누르세요")
+			return
+		var acting = engine.get("active_unit_state")
+		if unit != acting and Adapter.to_view(unit).has_acted:
+			# Block 4-3: the engine would make an already-acted ally the active unit (C:14536-14540), leaving
+			# no command to give until the right ally is clicked again; the lab keeps the acting ally instead.
+			_reject("이미 행동한 부대 · 지금 행동할 부대는 %s입니다" % ("없음" if acting == null else acting.unit_id))
 			return
 		engine.call("_select_ally_unit",unit,false,false,false)
 		if engine.get("active_unit_state") != unit:
@@ -679,6 +696,55 @@ func _input_locked() -> bool:
 		_reject("특기 연출 중 · 컷인이 끝날 때까지 기다리세요")
 		return true
 	return false
+
+func _edge_scroll_allowed() -> bool:
+	# HUD block 4-4: also off while input is locked (battle over, auto, the enemy turn, an engine animation, the enemy
+	# replay, a cut-in) and while the shell's option window is open. Reads only, without _input_locked's messages.
+	if not super._edge_scroll_allowed() or not ready_for_input or not battle_result.is_empty(): return false
+	if engine.get("is_full_auto_battle_enabled") or engine.get("current_phase") == "enemy_turn" or engine.get("is_demo_animating"): return false
+	if _enemy_presentation_busy() or hud_cutin_hold: return false
+	return not (option_toggle != null and not option_toggle.visible and option_toggle.get_parent().visible) # the shell's option window
+
+func _refresh_unit_markers() -> void:
+	# HUD block 4-6: each shown unit's marker above its head; off-screen, behind the camera, retreated or routed: none.
+	# Values: the display value of this sync, the roster's portrait (N2, cached), the selection and the engine's own status
+	# badge glyphs (N5, the HUD's status rows; held during an enemy replay like the HUD).
+	# Block 4-6b: placed from the unit's projected ground point, body point and ground disc edge, sized by cell_px.
+	var view_rect := get_viewport().get_visible_rect()
+	for id in views:
+		var root: Node3D = views[id]
+		var geometry := marker_geometry(root.position)
+		var chip_centre: Vector2 = UnitMarkers.layout(geometry.foot, geometry.body, geometry.disc_bottom, geometry.cell_px).chip_centre
+		var on: bool = root.visible and not camera.is_position_behind(root.position) and view_rect.has_point(chip_centre)
+		var status_badges: Array = hud_status_entries(id).map(func(entry): return str(entry.get("badge", ""))) if on else []
+		unit_markers.show_unit(id, display_values.get(id, {}), hud_portrait(id) if on else null, id == selected, status_badges.filter(func(b): return not b.is_empty()), geometry, on)
+
+func marker_geometry(ground: Vector3) -> Dictionary:
+	# HUD block 4-6b: the unit's screen points for its marker. cell_px: one cell (board.CELL) along the camera's right on
+	# the ground, projected; disc_bottom: DISC_RADIUS toward the camera on the ground (the disc's lower screen edge).
+	var right := Vector3(camera.global_basis.x.x, 0, camera.global_basis.x.z).normalized()
+	var toward := Vector3(camera.global_basis.z.x, 0, camera.global_basis.z.z).normalized()
+	var foot := camera.unproject_position(ground)
+	return {"foot":foot, "body":camera.unproject_position(ground + Vector3(0, UnitMarkers.BODY_HEIGHT, 0)),
+		"disc_bottom":camera.unproject_position(ground + toward * UnitMarkers.DISC_RADIUS),
+		"cell_px":foot.distance_to(camera.unproject_position(ground + right * board.CELL))}
+
+const HIDE_TOP_LINES := true # block 4-6: the top two lines are debug text too (F3); the HUD shows round, side and momentum
+
+func hud_turn_side() -> String:
+	# HUD block 4-6: the acting side for the top HUD (the 2D adapter's "아군 턴" / "적군 턴" words), from the phase the lab
+	# already reads and its own enemy replay (the replay still shows the enemy turn after the engine moved on).
+	return "적군 턴" if engine.get("current_phase") == "enemy_turn" or _enemy_presentation_busy() else "아군 턴"
+
+func _apply_debug_text() -> void:
+	# HUD block 4-6: the per-unit state lines (action, defend, status) are debug text too; the markers and the HUD show
+	# the same. The badges are hidden through their parent, so each badge's own visible flag still says whether its unit
+	# is shown. The top turn / momentum lines too while HIDE_TOP_LINES is true (approved; test_battle3d_top_hud.gd checks
+	# them hidden by default and placed clear of the HUD with F3 on).
+	super._apply_debug_text()
+	if turn_label: turn_label.visible = debug_text_visible or not HIDE_TOP_LINES
+	if momentum_label: momentum_label.visible = debug_text_visible or not HIDE_TOP_LINES
+	action_badges.visible = debug_text_visible
 
 func _enemy_presentation_busy() -> bool:
 	return not enemy_queue.is_empty() or enemy_hold > 0.0
@@ -831,6 +897,65 @@ func _refresh_target_info(target: BattleUnitState) -> void:
 	# Additional approval: this field is read ONLY for the target information panel.
 	target_defending=target.is_defending
 	target_info.text="대상 %s / %s\n병력 %s · 방어 %s · 셀 %s" % [value.unit_id,value.unit_type,value.current_troops,"중" if target_defending else "아님",value.grid_cell]
+
+# HUD block 4-6: the unit's facing as a flat arrow on the ground at the front of its cell (a world object, so it stays
+# right when the camera turns), between the soldiers and the selection ring (r 1.27). The engine's facing (14-field view).
+const FACING_DIRECTION := {"up":Vector3(0, 0, -1), "down":Vector3(0, 0, 1), "left":Vector3(-1, 0, 0), "right":Vector3(1, 0, 0)}
+const FACING_ARROW_DISTANCE := 1.0 # m from the unit's centre to the arrow's centre (block 4-6b; tip at 1.43, the cell edge 1.5)
+const FACING_ARROW_LIFT := 0.08 # m above the ground under the arrow (the fill; outlines sit 0.01 m lower)
+# HUD block 4-6b: a bigger arrow (1.02 m wide, 0.8 m long, 1.6 x the block 4-6 one) with a dark outline, so it shows on
+# the gold selected disc too. ARROW_STYLE picks one of three looks for 김작 to compare in F6:
+# 0 cream fill + dark outline (recommended), 1 side colour fill + white outline + outer dark outline, 2 the old cream
+# fill at the new size, no outline (for comparison).
+const ARROW_STYLE := 0
+const ARROW_FILL := Color("f4e7c4")
+const ARROW_OUTLINE := Color("241c14")
+const ARROW_ALLY := Color("5aa8ff") # style 1 fills
+const ARROW_ENEMY := Color("ff6a50")
+const ARROW_OUTLINE_SCALE := 1.3 # the outline: the same chevron 1.3 x bigger, just under the fill
+# Seen from the battle camera (about 43 degrees down), soldiers about 1.8 m tall hide the ground up to about 1.9 m behind
+# them, so an arrow facing away from the camera falls under them. With ARROW_ON_TOP the arrow is drawn after the opaque
+# scene without a depth test (on top of soldiers, and also of trees or units standing in front of it).
+const ARROW_ON_TOP := true
+const ARROW_POINTS := [Vector3(0, 0, -0.43), Vector3(0.51, 0, 0.37), Vector3(0, 0, 0.05), Vector3(0, 0, -0.43), Vector3(0, 0, 0.05), Vector3(-0.51, 0, 0.37)]
+
+func _facing_arrow(side: String, style: int = ARROW_STYLE) -> Node3D:
+	# A flat chevron pointing -z (the "up" facing) and its outline layers, under one node turned by _place_facing_arrow.
+	var arrow := Node3D.new()
+	arrow.name = "FacingArrow"
+	arrow.set_meta("facing_arrow", true)
+	var layers := [] # [name, scale, colour, height offset, draw order]
+	match style:
+		0: layers = [["Outline", ARROW_OUTLINE_SCALE, ARROW_OUTLINE, -0.01, 1], ["Fill", 1.0, ARROW_FILL, 0.0, 3]]
+		1: layers = [["OuterOutline", ARROW_OUTLINE_SCALE * 1.12, ARROW_OUTLINE, -0.02, 1], ["Outline", ARROW_OUTLINE_SCALE, Color.WHITE, -0.01, 2], ["Fill", 1.0, ARROW_ALLY if side == "ally" else ARROW_ENEMY, 0.0, 3]]
+		_: layers = [["Fill", 1.0, ARROW_FILL, 0.0, 3]]
+	for layer in layers:
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for p in ARROW_POINTS:
+			st.set_normal(Vector3.UP)
+			st.add_vertex(p * float(layer[1]) + Vector3(0, float(layer[3]), 0))
+		var mesh := MeshInstance3D.new()
+		mesh.name = layer[0]
+		mesh.mesh = st.commit()
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		material.albedo_color = layer[2]
+		if ARROW_ON_TOP:
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA # drawn after the opaque scene
+			material.no_depth_test = true
+			material.render_priority = layer[4] # outline under fill
+		mesh.material_override = material
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		arrow.add_child(mesh)
+	return arrow
+
+func _place_facing_arrow(arrow: Node3D, root: Node3D, facing: String) -> void:
+	var direction: Vector3 = FACING_DIRECTION.get(facing, Vector3(0, 0, -1))
+	arrow.rotation = Vector3(0, atan2(-direction.x, -direction.z), 0) # -z turned toward the facing
+	var at := root.position + direction * FACING_ARROW_DISTANCE
+	arrow.position = direction * FACING_ARROW_DISTANCE + Vector3(0, board.height(at.x, at.z) - root.position.y + FACING_ARROW_LIFT, 0)
 
 func visual_soldier_count(value: Dictionary) -> int:
 	# Visual density only, unrelated to battle rules or damage computation.
@@ -1547,6 +1672,11 @@ func _build_option_ui() -> void:
 		button.pressed.connect(request_ai_level.bind(level))
 		row.add_child(button)
 		ai_level_buttons[level] = button
+	edge_scroll_check = CheckBox.new()
+	edge_scroll_check.text = "화면 가장자리 스크롤"
+	edge_scroll_check.button_pressed = edge_scroll_enabled
+	edge_scroll_check.toggled.connect(func(on: bool): edge_scroll_enabled = on)
+	option_panel.add_child(edge_scroll_check)
 
 func toggle_option_panel() -> void:
 	# Presentation only (folds the panel); never an engine command.

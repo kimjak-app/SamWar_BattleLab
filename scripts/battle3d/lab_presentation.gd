@@ -2,12 +2,26 @@ extends Node3D
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const MockPort = preload("res://scripts/battle3d/lab_demo_port.gd")
+const TerrainBuilder = preload("res://scripts/battle3d/terrain_board_builder.gd")
+const OUTER_GROUND = preload("res://assets/terrain_textures_pack/outer_ground_B20.png")
+const EdgeScroll = preload("res://scripts/battle3d/battle3d_edge_scroll.gd")
+# HUD block 4-4: the orthographic zoom range (wheel); beyond 42 the painted ground ends in an oval and the haze shows.
+const ZOOM_MIN := 20.0
+const ZOOM_MAX := 42.0
+signal edge_scrolled # block 4-4: the camera moved by the edge scroll this frame (the shell treats it as manual camera input)
+static var edge_scroll_enabled := true # block 4-4: the option (this session only; no option is saved yet)
+# HUD block 4-6: the debug text (unit info labels, the control help; the engine lab adds its turn, momentum and unit state
+# lines) is hidden by default, F3 shows it again (this session only). Hidden, never removed: nodes and texts stay.
+static var debug_text_visible := false
+var help_label: Label
+var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
+var mouse_in_window := true
 var board = Board.new()
 var port = MockPort.new()
 var camera := Camera3D.new()
-var focus := Vector3(board.SIZE.x*board.CELL*.5,0,board.SIZE.y*board.CELL*.5)
+var focus := Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5) # block 7: the play area's centre (camera limits are the play area)
 var yaw := 0.32
-var zoom := 60.0
+var zoom := ZOOM_MAX # block 4-4: was 60, now the zoom-out limit
 var selected := ""
 var views: Dictionary = {}
 var soldiers: Dictionary = {}
@@ -27,13 +41,16 @@ func _ready() -> void:
 	log_file=FileAccess.open(ProjectSettings.globalize_path("res://").path_join("../EASTWAR_C0C3_Evidence/runtime_events.jsonl").simplify_path(),FileAccess.WRITE)
 	port.board=board
 	port.move_accepted.connect(_move_accepted)
-	var field = load("res://assets/battle3d/battlefield.glb").instantiate()
+	var field = TerrainBuilder.new()
+	field.outer_ground_texture = OUTER_GROUND # block 8: the painted ground outside the play area (empty = a grey placeholder)
+	field.play_cells = board.PLAY_SIZE # block 4-4: the builder's border line and outside fade use the one play area definition
+	field.setup_from_board(board)
 	add_child(field)
 	_add_ground_collision(field)
 	var env := WorldEnvironment.new()
 	env.environment=Environment.new()
 	env.environment.background_mode=Environment.BG_COLOR
-	env.environment.background_color=Color("18232e")
+	env.environment.background_color=Color("8d897a") # block 8: = the builder's haze_color, so the ground fades into the sky
 	env.environment.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
 	env.environment.ambient_light_color=Color("c7d8e4")
 	env.environment.ambient_light_energy=.35
@@ -59,7 +76,7 @@ func _ready() -> void:
 	ring.visible=false
 	_build_grid()
 	_build_ui()
-	_event("ready",{"units":views.size(),"grid":"%dx%d square" % [board.SIZE.x,board.SIZE.y],"renderer":"gl_compatibility"})
+	_event("ready",{"units":views.size(),"grid":"%dx%d square" % [board.PLAY_SIZE.x,board.PLAY_SIZE.y],"renderer":"gl_compatibility"})
 
 func _event(kind: String, data: Dictionary) -> void:
 	data["event"]=kind
@@ -118,6 +135,8 @@ func _spawn_unit(u: Dictionary) -> void:
 	label.position=Vector3(0,2.5,0)
 	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test=true
+	label.set_meta("unit_info",true) # block 4-6: debug text
+	label.visible=debug_text_visible
 	root.add_child(label)
 	var pick := StaticBody3D.new()
 	pick.collision_layer=2
@@ -149,11 +168,11 @@ func _line(points: PackedVector3Array, color: Color, parent: Node3D) -> void:
 	parent.add_child(n)
 
 func data_extent(axis: int) -> float:
-	return board.SIZE.y*board.CELL if axis==0 else board.SIZE.x*board.CELL
+	return board.PLAY_SIZE.y*board.CELL if axis==0 else board.PLAY_SIZE.x*board.CELL # block 7: grid lines over the play area only
 
 func _build_grid() -> void:
 	for axis in range(2):
-		for k in range(board.SIZE.x+1 if axis==0 else board.SIZE.y+1):
+		for k in range(board.PLAY_SIZE.x+1 if axis==0 else board.PLAY_SIZE.y+1):
 			var points := PackedVector3Array()
 			for t in range(int(data_extent(axis)/.5)+1):
 				var x: float=k*board.CELL if axis==0 else t*.5
@@ -187,7 +206,7 @@ func _build_ui() -> void:
 	title.modulate=Color("efca80")
 	box.add_child(title)
 	var sub := Label.new()
-	sub.text="3D PRESENTATION PROTOTYPE   ·   %d × %d" % [board.SIZE.x,board.SIZE.y]
+	sub.text="3D PRESENTATION PROTOTYPE   ·   %d × %d" % [board.PLAY_SIZE.x,board.PLAY_SIZE.y]
 	sub.add_theme_font_size_override("font_size",13)
 	box.add_child(sub)
 	info=Label.new()
@@ -202,6 +221,8 @@ func _build_ui() -> void:
 	help.text="LMB  Select / move     RMB  Clear selection     Wheel  Zoom\nWASD / Arrows  Pan     Q / E  Orbit     Middle drag  Orbit\nG  Grid     Home  Reset camera     F12  Save screenshot\nRiver crossing: stone ford in row 5. Terrain rules are LAB ONLY."
 	help.add_theme_font_size_override("font_size",16)
 	layer.add_child(help)
+	help_label=help
+	help.visible=debug_text_visible # block 4-6: debug text
 	hover=Label.new()
 	hover.position=Vector2(24,680)
 	hover.modulate=Color("efca80")
@@ -214,11 +235,16 @@ func _update_camera() -> void:
 
 func _process(delta: float) -> void:
 	var pan := Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT))-float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)),float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN))-float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)))
+	var edge := Vector2.ZERO
+	if pan.length()==0 and _edge_scroll_allowed(): # block 4-4: the keys win; else the edge scroll, on the same pan path
+		edge = EdgeScroll.direction(edge_mouse,get_viewport().get_visible_rect().size)*EdgeScroll.EDGE_SPEED_SCALE
+		pan = edge
 	if pan.length()>0:
 		focus+=Vector3(pan.x*cos(yaw)+pan.y*sin(yaw),0,-pan.x*sin(yaw)+pan.y*cos(yaw))*delta*zoom*.45
-		focus.x=clampf(focus.x,0,board.SIZE.x*board.CELL)
-		focus.z=clampf(focus.z,0,board.SIZE.y*board.CELL)
+		focus.x=clampf(focus.x,0,board.PLAY_SIZE.x*board.CELL)
+		focus.z=clampf(focus.z,0,board.PLAY_SIZE.y*board.CELL)
 		yaw+=delta*(float(Input.is_physical_key_pressed(KEY_Q))-float(Input.is_physical_key_pressed(KEY_E)))
+		if edge.length()>0: edge_scrolled.emit()
 	_update_camera()
 	if not moving_id.is_empty():
 		var root: Node3D=views[moving_id]
@@ -241,6 +267,25 @@ func _process(delta: float) -> void:
 				_refresh_info()
 	if selected!="": ring.position=views[selected].position+Vector3(0,.09,0)
 
+func _apply_debug_text() -> void:
+	# Block 4-6: show or hide the debug text (visibility only; the texts keep updating).
+	if help_label: help_label.visible=debug_text_visible
+	for id in views:
+		for child in views[id].get_children():
+			if child is Label3D and child.has_meta("unit_info"): child.visible=debug_text_visible
+
+func _edge_scroll_allowed() -> bool:
+	# Block 4-4: not over a HUD control, not with the window unfocused or the mouse outside it, not when switched off.
+	# The engine lab adds its input locks.
+	return edge_scroll_enabled and mouse_in_window and get_window().has_focus() and get_viewport().gui_get_hovered_control()==null
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion: edge_mouse=event.position # block 4-4: seen before any HUD control takes it
+
+func _notification(what: int) -> void:
+	if what==NOTIFICATION_WM_MOUSE_EXIT: mouse_in_window=false
+	elif what==NOTIFICATION_WM_MOUSE_ENTER: mouse_in_window=true
+
 func _pick(pos: Vector2,mask: int) -> Dictionary:
 	var origin := camera.project_ray_origin(pos)
 	var query := PhysicsRayQueryParameters3D.create(origin,origin+camera.project_ray_normal(pos)*200,mask)
@@ -249,7 +294,7 @@ func _pick(pos: Vector2,mask: int) -> Dictionary:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index==MOUSE_BUTTON_WHEEL_UP or event.button_index==MOUSE_BUTTON_WHEEL_DOWN:
-			zoom=clampf(zoom+(-3 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 3),20,70)
+			zoom=clampf(zoom+(-3 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 3),ZOOM_MIN,ZOOM_MAX)
 			_update_camera()
 			_event("camera_zoom",{"size":zoom})
 		elif event.button_index==MOUSE_BUTTON_RIGHT and not port.busy:
@@ -266,10 +311,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			if board.valid(c): hover.text="CELL (%d, %d)   /   %s   /   elevation %.2f m" % [c.x,c.y,board.terrain(c).to_upper(),board.world(c).y]
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_G: grid_view.visible=not grid_view.visible
+		if event.keycode==KEY_F3: # block 4-6: the debug text on/off
+			debug_text_visible=not debug_text_visible
+			_apply_debug_text()
 		if event.keycode==KEY_HOME:
-			focus=Vector3(board.SIZE.x*board.CELL*.5,0,board.SIZE.y*board.CELL*.5)
+			focus=Vector3(board.PLAY_SIZE.x*board.CELL*.5,0,board.PLAY_SIZE.y*board.CELL*.5)
 			yaw=.32
-			zoom=60
+			zoom=ZOOM_MAX # block 4-4: was 60
 		if event.keycode==KEY_F12: _capture()
 		if event.keycode in [KEY_Q,KEY_E]:
 			yaw+=.12 if event.keycode==KEY_Q else -.12
@@ -277,8 +325,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			var dx := -1.0 if event.keycode in [KEY_A,KEY_LEFT] else (1.0 if event.keycode in [KEY_D,KEY_RIGHT] else 0.0)
 			var dz := -1.0 if event.keycode in [KEY_W,KEY_UP] else (1.0 if event.keycode in [KEY_S,KEY_DOWN] else 0.0)
 			focus+=Vector3(dx*cos(yaw)+dz*sin(yaw),0,-dx*sin(yaw)+dz*cos(yaw))*.5
-			focus.x=clampf(focus.x,0,board.SIZE.x*board.CELL)
-			focus.z=clampf(focus.z,0,board.SIZE.y*board.CELL)
+			focus.x=clampf(focus.x,0,board.PLAY_SIZE.x*board.CELL)
+			focus.z=clampf(focus.z,0,board.PLAY_SIZE.y*board.CELL)
 		_update_camera()
 		if event.keycode in [KEY_Q,KEY_E,KEY_W,KEY_A,KEY_S,KEY_D]: _event("camera_key",{"key":event.as_text(),"yaw":yaw,"focus":[focus.x,focus.z]})
 
