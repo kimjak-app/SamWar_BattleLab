@@ -137,14 +137,14 @@ func run() -> void:
 	expect(service.find_move_path(Vector2i(3, 2), Vector2i(7, 2), walker, 15, grid, only, false).is_empty(), "wall: 15 steps are not enough")
 	# 4. Standing on a blocked cell: leaving is allowed.
 	grid.set_blocked_cells(forest)
-	var sitter := unit(Vector2i(1, 5), 3)
+	var sitter := unit(Vector2i(4, 2), 3)
 	var alone: Array[BattleUnitState] = [sitter]
-	var leave: Dictionary = service.get_reachable_paths(Vector2i(1, 5), sitter, 3, grid, alone, false)
-	var want_leave := search(Vector2i(1, 5), 3, blocked, [])
-	expect(service.is_cell_walkable(Vector2i(1, 5), Vector2i(1, 5), sitter, grid, alone, false) and leave.has(Vector2i(3, 5)) and leave.keys().size() == want_leave.keys().size()
-		and service.find_move_path(Vector2i(1, 5), Vector2i(3, 5), sitter, 3, grid, alone, false) == want_leave[Vector2i(3, 5)],
-		"a unit on forest (1,5), beside the plain, can leave: %d cells reachable (search %d), path to (3,5) %s" % [leave.size(), want_leave.size(), str(want_leave.get(Vector2i(3, 5)))])
-	expect(not service.is_cell_walkable(Vector2i(1, 4), Vector2i(1, 5), sitter, grid, alone, false), "but it cannot step onto the next forest cell (1,4)")
+	var leave: Dictionary = service.get_reachable_paths(Vector2i(4, 2), sitter, 3, grid, alone, false)
+	var want_leave := search(Vector2i(4, 2), 3, blocked, [])
+	expect(service.is_cell_walkable(Vector2i(4, 2), Vector2i(4, 2), sitter, grid, alone, false) and leave.has(Vector2i(4, 4)) and leave.keys().size() == want_leave.keys().size()
+		and service.find_move_path(Vector2i(4, 2), Vector2i(4, 4), sitter, 3, grid, alone, false) == want_leave[Vector2i(4, 4)],
+		"a unit on forest (4,2), beside the plain, can leave: %d cells reachable (search %d), path to (4,4) %s" % [leave.size(), want_leave.size(), str(want_leave.get(Vector2i(4, 4)))])
+	expect(not service.is_cell_walkable(Vector2i(5, 2), Vector2i(4, 2), sitter, grid, alone, false), "but it cannot step onto the next forest cell (5,2)")
 	grid.free()
 	print("[T1_BLOCKED_CELLS] %s: %d checks, %d failures; forest %d" % ["PASS" if failures == 0 else "FAIL", checks, failures, forest.size()])
 	quit(0 if failures == 0 else 1)

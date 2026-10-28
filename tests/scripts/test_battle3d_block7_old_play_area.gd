@@ -4,12 +4,12 @@ extends SceneTree
 # (not from the code under test): the 180 play cells' types, the 180 cell-centre heights and 400 seeded random points
 # over the play area, all within 1e-5 m.
 # T2 (2026-10-28, 김작's grove decision) changes the forest on purpose: the old play area's forest cells become plain and
-# the two groves below become forest. That change is written here (not read from the code under test); every other
+# the two groves below become forest (C4b, 10-28 보정; a grove cell may have been hill). That change is written here (not read from the code under test); every other
 # cell keeps its old type.
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const FIXTURE := "res://tests/data/block7_old_play_area_0dd9239.json"
 const TOLERANCE := 0.00001
-const T2_GROVES := [Rect2i(0, 3, 2, 3), Rect2i(16, 6, 2, 3)] # x0-1 y3-5 and x16-17 y6-8
+const T2_GROVES := [Rect2i(4, 1, 3, 2), Rect2i(11, 7, 3, 2)] # x4-6 y1-2 and x11-13 y7-8
 var checks := 0
 var failures := 0
 
