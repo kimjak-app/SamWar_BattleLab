@@ -1,7 +1,7 @@
 extends SceneTree
-# T2: two 6-cell forest groves and 32 pines. For each grove combination of the report (C1 = terrain_types.json read as
-# it is, C2 and C3 written over it by tests/scripts/support/battle3d_t2_groves.gd) on a board built with the default
-# settings, the grove being the board's own play-area forest cells:
+# T2: two 6-cell forest groves and 32 pines. For each grove combination of the report (C4b, the default, =
+# terrain_types.json read as it is; C1 and C4 written over it by tests/scripts/support/battle3d_t2_groves.gd) on a board
+# built with the default settings, the grove being the board's own play-area forest cells:
 #   - the cells the lab would hand the engine (the play area's forest cells, as the lab reads them) = the combination's
 #     12 cells, and an engine grid given them blocks 12;
 #   - 32 trees (16 a grove, 2-3 a cell), triangles <= 16,000 in all (counted from the mesh's own arrays);
@@ -9,11 +9,14 @@ extends SceneTree
 #     the mesh's own vertices around its axis x the tree's scale) reaches at most 0.5 m into any non-grove cell; trees of
 #     one cell are >= 1.2 m apart; a second build gives the same trees;
 #   - every start and reinforcement arrival cell of the default battle (read from the engine) is >= 2 cells from the
-#     grove (not on it, not beside it).
+#     grove (not on it, not beside it); no grove cell is a cell the scenario harnesses fix for far units ((0..3,9),
+#     (14..17,0));
+#   - the default (C4b): no grove cell on the play area's edge (row 0 or 9, column 0 or 17).
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const Builder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 const Host := preload("res://scripts/battle3d/battle3d_engine_host.gd")
 const Groves = preload("res://tests/scripts/support/battle3d_t2_groves.gd")
+const FIXED := [Rect2i(0, 9, 4, 1), Rect2i(14, 0, 4, 1)] # (0..3,9) and (14..17,0)
 const TREES := 32
 const TREES_MAX := 16000
 const OVERHANG := 0.5
@@ -47,7 +50,7 @@ func crown(mesh: Mesh) -> float:
 
 func build(combo: String) -> Dictionary:
 	var board = Board.new()
-	if combo != "C1": Groves.apply(board, combo) # C1 is the file itself
+	if combo != Groves.DEFAULT: Groves.apply(board, combo) # the default is the file itself
 	var field = Builder.new()
 	field.play_cells = board.PLAY_SIZE
 	field.setup_from_board(board)
@@ -142,6 +145,11 @@ func run() -> void:
 			for c in grove:
 				if absi(u[1].x - c.x) + absi(u[1].y - c.y) < 2: near.append([u[0], u[1], c])
 		expect(units.size() == 10 and near.is_empty(), "%s: the %d start/arrival cells are >= 2 cells from the grove (%s)" % [combo, units.size(), str(near)])
+		var fixed := grove.filter(func(c): return FIXED.any(func(r): return r.has_point(c)))
+		expect(fixed.is_empty(), "%s: no grove cell on the harnesses' fixed far-unit cells (0..3,9)/(14..17,0) (%s)" % [combo, str(fixed)])
+		if combo == Groves.DEFAULT:
+			var edge := grove.filter(func(c): return c.x == 0 or c.y == 0 or c.x == board.PLAY_SIZE.x - 1 or c.y == board.PLAY_SIZE.y - 1)
+			expect(edge.is_empty(), "%s (default): no grove cell on the play area's edge (%s)" % [combo, str(edge)])
 		summary[combo] = {"trees":ts.size(), "tris":per_tree * b.count, "worst_overhang":snappedf(worst, 0.001), "per_cell":counts}
 	print("[T2_FOREST_GROVES] %s: %d checks, %d failures; %s" % ["PASS" if failures == 0 else "FAIL", checks, failures, summary])
 	quit(0 if failures == 0 else 1)
