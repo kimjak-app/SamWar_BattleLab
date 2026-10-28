@@ -41,7 +41,7 @@ S43 = "tests/scripts/support/battle_setup_s43_harness.gd"  # T1 fix 64bbd44 (che
 WORLD = "tests/scripts/support/battle3d_test_world.gd"
 HARNESSES = [f"tests/scripts/support/battle3d_{n}.gd" for n in ("auto_harness", "auto_hold_harness", "enemy_turn_harness", "engine_attack_harness",
              "option_harness", "reinforce_harness", "skill_harness", "strategy_harness", "wait_harness", "scenario_harness", "blocked_reference")]
-NEW |= {WORLD, WORLD + ".uid"}
+NEW |= {WORLD, WORLD + ".uid", "claude/REPORT_T2_SPLIT_20261029.md"}
 MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, S43, *REPOINTED, *HARNESSES}
 PLAY = (18, 10)
 C4B = [(x, y) for x in range(4, 7) for y in (1, 2)] + [(x, y) for x in range(11, 14) for y in (7, 8)]
