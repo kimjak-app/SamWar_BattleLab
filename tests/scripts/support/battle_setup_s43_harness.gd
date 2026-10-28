@@ -28,6 +28,15 @@ func canonical(value: Variant) -> Variant:
 			return value.map(func(item): return canonical(item))
 	return value
 
+func open_bare(tree: SceneTree, spy := true) -> Node:
+	# T1: the S4-3 tests are engine-only (the BASE golden was recorded without blocked cells) and are not compared with
+	# the 3D lab, so the engine opens without the lab's blocked cells: the auto harness's open_bare minus its T1 line.
+	var host = AutoHost.new() if spy else Host.new()
+	tree.root.add_child(host)
+	await host.initialized
+	await tree.process_frame
+	return host
+
 func open_with_setup(tree: SceneTree, setup: Variant) -> Node:
 	# setup == null: no key at all.
 	if Engine.has_meta(SETUP_KEY): Engine.remove_meta(SETUP_KEY)
