@@ -30,7 +30,8 @@ WORKFLOW = ".github/workflows/verify-c-track.yml"
 VALIDATOR = "tools/validate_t2_forest_groves.py"
 REPORT = "agent/T2_FOREST_GROVES_RESULT_20261028.md"
 NEW = {TEST, TEST + ".uid", HELPER, HELPER + ".uid", "tests/scripts/support/battle3d_blocked_reference.gd.uid", VALIDATOR, REPORT}
-MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, *REPOINTED}
+S43 = "tests/scripts/support/battle_setup_s43_harness.gd"  # T1 fix 64bbd44 (cherry-picked): engine-only S4-3 tests open without blocked cells
+MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, S43, *REPOINTED}
 PLAY = (18, 10)
 
 
