@@ -9,18 +9,22 @@ const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_de
 const TROOP_FIELDS := ["current_troops", "max_troops", "allocated_troops", "initial_allocated_troops", "current_hp", "max_hp"]
 
 class SpyShell extends ShellScript:
+	var test_world := true
 	func create_lab() -> Node:
 		var node := super.create_lab()
+		if test_world: preload("res://tests/scripts/support/battle3d_test_world.gd").lab(node) # T2 split: the test world (C1 groves)
 		node.host.free()
 		node.host = HoldHarness.HoldHost.new()
 		return node
 
 var shell: Node
+var test_world := true # T2 split: false = the lab keeps terrain_types.json's groves (tests of the presentation default)
 
 func open_shell(tree: SceneTree) -> void:
 	tree.root.size = Vector2i(1280,800)
 	if Engine.has_meta(SETUP_KEY): Engine.remove_meta(SETUP_KEY)
 	shell = SpyShell.new()
+	shell.test_world = test_world
 	tree.root.add_child(shell)
 	await tree.process_frame
 

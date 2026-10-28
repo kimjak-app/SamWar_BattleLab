@@ -45,6 +45,7 @@ func click(lab, cell: Vector2i) -> void:
 
 func run() -> void:
 	h = load("res://tests/scripts/support/battle3d_scenario_harness.gd").new()
+	h.test_world = false # T2 split: this test checks the presentation default (terrain_types.json's groves)
 	await h.open_shell(self)
 	root.size = Vector2i(1920, 1080)
 	await h.press_scenario(self, "default")

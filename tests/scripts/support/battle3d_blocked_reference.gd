@@ -7,6 +7,7 @@ const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 
 static func forest_cells() -> Array:
 	var board = Board.new()
+	preload("res://tests/scripts/support/battle3d_test_world.gd").freeze(board) # T2 split: the same test world as the harness labs
 	var cells := []
 	for y in range(board.PLAY_SIZE.y):
 		for x in range(board.PLAY_SIZE.x):

@@ -24,7 +24,7 @@ class SpyHost extends Host:
 
 func open_lab(tree: SceneTree) -> void:
 	tree.root.size=Vector2i(1280,800)
-	lab=load("res://scenes/battle3d/Battle3D_EnginePlayLab.tscn").instantiate()
+	lab=preload("res://tests/scripts/support/battle3d_test_world.gd").lab(load("res://scenes/battle3d/Battle3D_EnginePlayLab.tscn").instantiate()) # T2 split: the test world (C1 groves)
 	lab.host.free()
 	lab.host=SpyHost.new()
 	tree.root.add_child(lab)

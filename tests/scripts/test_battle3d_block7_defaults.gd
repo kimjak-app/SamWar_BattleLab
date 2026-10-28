@@ -65,6 +65,7 @@ func check_field(field, label: String) -> void:
 
 func run() -> void:
 	h = load("res://tests/scripts/support/battle3d_scenario_harness.gd").new()
+	h.test_world = false # T2 split: this test checks the presentation default (terrain_types.json's groves)
 	var cells: Array = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/terrain_types.json")).cells
 	for y in range(PLAY.y):
 		for x in range(PLAY.x):
