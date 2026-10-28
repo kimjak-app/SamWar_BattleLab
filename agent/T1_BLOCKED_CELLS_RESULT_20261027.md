@@ -220,3 +220,8 @@
   - T2에서 auto 하네스의 그 한 줄만 뺀 상태: 통과, 36 checks, 실패 0(`t2_without_reference_in_auto_harness_shard_1.log`).
 - 이 가지의 앞선 전체 검사(`a143b5e`)는 3단계 전이라 드러나지 않았다. 3단계 뒤에는 17개만 다시 돌렸다.
 - 정할 것: s43 하네스(BASE 골든 비교)에서 목록을 빼는 쪽(상속받은 `open_bare`를 BASE 비교에서는 목록 없이)으로 고칠지. 시험 내용 변경이라 지시 없이 하지 않았다.
+
+## 12) 11의 처리 (김작 결정 10-28: "Fix the s43 harness")
+- `64bbd44`: `battle_setup_s43_harness.gd`에 자체 `open_bare`를 두었다. auto 하네스의 `open_bare`에서 T1 비교 기준 줄만 뺀 것이다. 시험과 기대값은 그대로다. s43을 쓰는 시험 7개(BASE 비교 1·2 묶음 포함 8개 실행)는 모두 엔진 단독이고 3D와 비교하지 않는다.
+- 이 가지 끝에서 그 8개: 실패 0(`evidence/s43_fix_on_t1/`).
+- 이 가지의 남은 실패는 동등성 2개(`reinforce_default_rounds`, `strategy_rejections`)로, T2에서 풀린다. T2 가지(이 고침을 cherry-pick)의 전체 검사는 검증기 71, Godot 194, 실패 0이다.
