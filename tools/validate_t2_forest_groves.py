@@ -11,6 +11,11 @@ become plain and exactly two 2x3/3x2 rectangles become forest (12 cells; a grove
 10-28 보정: the default groves are C4b, x4-6 y1-2 and x11-13 y7-8, exactly; five of their cells were hill (a hill cell
 may become forest, nothing else may change kind).
 
+T2 split (10-29): the regression harnesses run in a frozen test world (C1 groves): one helper
+(battle3d_test_world.gd, +uid); each harness's lab creation and the engine-alone reference get exactly one line that calls
+it (nothing removed but the creation line it wraps); the scenario harness has a test_world flag, and the T1 3D test and
+block7_defaults set it false (one line each). Goldens and expectations untouched.
+
 T2_SCOPE_TIP=<commit> audits BASE..commit and reads every file and file list from that commit's tree; HEAD audits the
 live worktree.
 """
@@ -18,7 +23,7 @@ from pathlib import Path
 import argparse, json, os, re, subprocess
 
 BASE = "1050ff73b1ecfc64aaf194e537f066dd620157ae"  # docs(battle): T1 report: causes of the last two failures (forest overlap)
-TIP = os.environ.get("T2_SCOPE_TIP", "23e3ea3b1c3be14564983011ad821021b8370052")  # test(battle3d): tests that pinned the C1 grove cells follow C4b
+TIP = os.environ.get("T2_SCOPE_TIP", "7945838c5b797ea1f7f04c7f9cbdb09d2b5ba993")  # chore(battle3d): uid of the T2 test-world helper
 BUILDER = "scripts/battle3d/terrain_board_builder.gd"
 TERRAIN = "assets/battle3d/terrain_types.json"
 BUDGET = "tests/scripts/test_battle3d_block7_triangle_budget.gd"
@@ -33,7 +38,11 @@ VALIDATOR = "tools/validate_t2_forest_groves.py"
 REPORT = "agent/T2_FOREST_GROVES_RESULT_20261028.md"
 NEW = {TEST, TEST + ".uid", HELPER, HELPER + ".uid", "tests/scripts/support/battle3d_blocked_reference.gd.uid", VALIDATOR, REPORT}
 S43 = "tests/scripts/support/battle_setup_s43_harness.gd"  # T1 fix 64bbd44 (cherry-picked): engine-only S4-3 tests open without blocked cells
-MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, S43, *REPOINTED}
+WORLD = "tests/scripts/support/battle3d_test_world.gd"
+HARNESSES = [f"tests/scripts/support/battle3d_{n}.gd" for n in ("auto_harness", "auto_hold_harness", "enemy_turn_harness", "engine_attack_harness",
+             "option_harness", "reinforce_harness", "skill_harness", "strategy_harness", "wait_harness", "scenario_harness", "blocked_reference")]
+NEW |= {WORLD, WORLD + ".uid"}
+MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, S43, *REPOINTED, *HARNESSES}
 PLAY = (18, 10)
 C4B = [(x, y) for x in range(4, 7) for y in (1, 2)] + [(x, y) for x in range(11, 14) for y in (7, 8)]
 
@@ -108,6 +117,15 @@ def main():
     if WORKFLOW in changes:
         removed, added = diff(WORKFLOW)
         assert not removed and sorted(x.strip() for x in added) == sorted([TEST, VALIDATOR]), ("workflow: the T2 test and this validator added", added)
+    # The test world: every harness change is one call to the helper; the opt-outs are one added line each.
+    for p in HARNESSES:
+        removed, added = diff(p)
+        assert len(removed) <= 1 and 1 <= len(added) <= 4 and any("battle3d_test_world.gd" in x for x in added), ("harness: the test-world call only", p, removed, added)
+        assert all("Battle3D_EnginePlayLab.tscn" in x for x in removed), ("harness: only the lab creation line is wrapped", p, removed)
+    world = text(WORLD)
+    assert 'const GROVES := "C1"' in world and "Groves.apply(board, GROVES)" in world, "the test world is C1"
+    for p in ("tests/scripts/test_battle3d_t1_blocked_cells.gd", "tests/scripts/test_battle3d_block7_defaults.gd"):
+        assert "h.test_world = false" in text(p), ("opt-out", p)
     git("diff", "--check", *rev)
     print(f"T2 validator PASS: base={BASE} scope={TIP}; {len(changes)} paths; groves {sorted(left)} + {sorted(right)}; builder 32 trees, 1.2 m, 0.5 m")
 
