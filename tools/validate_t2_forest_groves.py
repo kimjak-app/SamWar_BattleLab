@@ -8,6 +8,8 @@ helper, this validator, its report and the CI list. The engine, the 3D lab and e
 
 terrain_types.json: outside the 18x10 play area nothing changes; inside it only forest changes: the old forest cells
 become plain and exactly two 2x3/3x2 rectangles become forest (12 cells; a grove may reuse old forest cells).
+10-28 보정: the default groves are C4b, x4-6 y1-2 and x11-13 y7-8, exactly; five of their cells were hill (a hill cell
+may become forest, nothing else may change kind).
 
 T2_SCOPE_TIP=<commit> audits BASE..commit and reads every file and file list from that commit's tree; HEAD audits the
 live worktree.
@@ -16,7 +18,7 @@ from pathlib import Path
 import argparse, json, os, re, subprocess
 
 BASE = "1050ff73b1ecfc64aaf194e537f066dd620157ae"  # docs(battle): T1 report: causes of the last two failures (forest overlap)
-TIP = os.environ.get("T2_SCOPE_TIP", "1e13012b2de8db46513924334b2357843e767482")  # test(battle3d): T2 grove test reads C1 from terrain_types.json itself
+TIP = os.environ.get("T2_SCOPE_TIP", "23e3ea3b1c3be14564983011ad821021b8370052")  # test(battle3d): tests that pinned the C1 grove cells follow C4b
 BUILDER = "scripts/battle3d/terrain_board_builder.gd"
 TERRAIN = "assets/battle3d/terrain_types.json"
 BUDGET = "tests/scripts/test_battle3d_block7_triangle_budget.gd"
@@ -33,6 +35,7 @@ NEW = {TEST, TEST + ".uid", HELPER, HELPER + ".uid", "tests/scripts/support/batt
 S43 = "tests/scripts/support/battle_setup_s43_harness.gd"  # T1 fix 64bbd44 (cherry-picked): engine-only S4-3 tests open without blocked cells
 MODIFIED = {BUILDER, TERRAIN, BUDGET, FADE, WORKFLOW, S43, *REPOINTED}
 PLAY = (18, 10)
+C4B = [(x, y) for x in range(4, 7) for y in (1, 2)] + [(x, y) for x in range(11, 14) for y in (7, 8)]
 
 
 def main():
@@ -71,7 +74,7 @@ def main():
         for x, kind in enumerate(row):
             was = old["cells"][y][x]
             if x < PLAY[0] and y < PLAY[1]:
-                assert kind == was or {was, kind} == {"forest", "plain"}, ("play cell: forest <-> plain only", x, y, was, kind)
+                assert kind == was or {was, kind} == {"forest", "plain"} or (was, kind) == ("hill", "forest"), ("play cell: forest <-> plain, hill -> forest only", x, y, was, kind)
                 if kind == "forest": moved.append((x, y))
             else:
                 assert kind == was, ("scenery cell changed", x, y, was, kind)
@@ -80,6 +83,7 @@ def main():
         xs, ys = sorted({c[0] for c in grove}), sorted({c[1] for c in grove})
         assert len(grove) == 6 and len(xs) * len(ys) == 6 and sorted(map(len, (xs, ys))) == [2, 3], ("a 2x3 or 3x2 grove", grove)
         assert xs == list(range(xs[0], xs[-1] + 1)) and ys == list(range(ys[0], ys[-1] + 1)), ("a rectangle", grove)
+    assert sorted(moved) == sorted(C4B), ("the default groves are C4b", sorted(moved))
 
     # The builder: the pine link, the tree count, the grove limits, the defaults that keep trees inside the play area.
     builder = text(BUILDER)
@@ -100,7 +104,7 @@ def main():
     assert not removed and any("SKIP" in x for x in added), ("fade test: skip lines added, nothing removed", removed)
     for p in REPOINTED:
         removed, added = diff(p)
-        assert len(removed) <= 6, ("re-pointed test: small change", p, removed)
+        assert len(removed) <= 10, ("re-pointed test: small change", p, removed)  # 10-28 보정: the service test's sitter moved to C4b
     if WORKFLOW in changes:
         removed, added = diff(WORKFLOW)
         assert not removed and sorted(x.strip() for x in added) == sorted([TEST, VALIDATOR]), ("workflow: the T2 test and this validator added", added)
