@@ -146,6 +146,8 @@ func _get_post_skill_reposition_valid_cells(caster_state: BattleUnitState, repos
 			continue
 		if battle_grid_controller.get_distance(origin_cell, candidate) > reposition_range:
 			continue
+		if battle_grid_controller.is_blocked(candidate):
+			continue
 		if not _is_valid_destination_for_unit(candidate, caster_state, false):
 			continue
 		result.append(candidate)

@@ -2,6 +2,7 @@ extends SceneTree
 # T3 test 2: the 3D engine lab on the presentation default (C4b groves, the lab hands them to the engine), scenario shell
 # (default battle, test_world = false). The G cases of the T2 split report, on the lab's engine:
 #   - advance (7,2) toward (5,2): (6,2) is forest, the unit stays; retreat ally (8,1) by 2 -> (6,1) and enemy (10,7)
+#     by 1 -> (11,7): forest, they stay; redeploy from (5,3), range 3: no forest candidate (18 of the 24 cells);
 #   - after the lab syncs its views, each unit's view stands on its engine cell (no view in the forest);
 #   - reinforcement arrival (record only, no code change): the four reinforcement marker cells are not blocked.
 var h
@@ -56,6 +57,9 @@ func run() -> void:
 	h.expect(guan.grid_cell == Vector2i(10, 7), "enemy retreat (10,7) by 1: Guan Yu stays off (11,7) (at %s)" % guan.grid_cell)
 	park(b)
 	yi.set_grid_cell(Vector2i(5, 3))
+	var cand: Array = b.call("_get_post_skill_reposition_valid_cells", yi, 3)
+	h.expect(cand.size() == 18 and cand.all(func(c): return not grid.is_blocked(c)), "redeploy from (5,3) range 3: 18 candidates, none forest (%d, %s)" % [cand.size(), str(cand.filter(func(c): return grid.is_blocked(c)))])
+	# The lab's views follow the engine cells: none in the forest.
 	park(b)
 	yi.set_grid_cell(Vector2i(7, 2)); guan.set_grid_cell(Vector2i(10, 7))
 	b.call("_apply_resolver_retreat_move", guan, 1)
@@ -65,6 +69,7 @@ func run() -> void:
 		var at: Vector2i = lab.board.cell_at(lab.views[u.unit_id].position)
 		h.expect(at == u.grid_cell and not forest.has(at), "%s's view stands on its engine cell %s (view %s), not forest" % [u.unit_id, u.grid_cell, at])
 	await h.close_shell(self)
+	print("[T3_3D_BLOCKED_PATHS] checks=", h.checks, " failures=", h.failures, " forest ", forest.size(), " redeploy ", cand.size(), " arrivals ", arrivals)
 	var code := 0 if h.failures.is_empty() else 1
 	h = null
 	await process_frame
