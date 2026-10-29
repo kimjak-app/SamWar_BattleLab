@@ -141,6 +141,7 @@ jobs:
             tools/validate_battle3d_roster_option.py
             tools/validate_t1_blocked_cells.py
             tools/validate_t2_forest_groves.py
+            tools/validate_t3_blocked_all_paths.py
             tools/validate_battle3d_contract.py
             tools/validate_alternating_battle_action_order.py
             tools/validate_single_side_exhaustion_turn_order.py
@@ -319,6 +320,8 @@ jobs:
             tests/scripts/test_battle3d_t1_blocked_cells.gd
             tests/scripts/test_battle3d_t2_forest_groves.gd
             tests/scripts/test_battle_t1_enemy_ai_blocked.gd
+            tests/scripts/test_battle_t3_blocked_paths.gd
+            tests/scripts/test_battle3d_t3_blocked_paths.gd
             tests/scripts/alternating_battle_action_order_test.gd
             tests/scripts/test_single_side_exhaustion_turn_order.gd
           )
