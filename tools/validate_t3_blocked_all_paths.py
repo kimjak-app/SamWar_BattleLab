@@ -18,7 +18,7 @@ from pathlib import Path
 import argparse, os, re, subprocess
 
 BASE = "8d1600330ce7df4fb0f3b3b79c693c9e03e0dd18"  # test(battle3d): T2 validator: the split report is in scope
-TIP = os.environ.get("T3_SCOPE_TIP", "HEAD")
+TIP = os.environ.get("T3_SCOPE_TIP", "16738b17ead42188b995c832d41dc3f5bc8b9b93")  # test(battle): T3 validator and CI lines
 ENGINE = "scripts/battle_web_import_test.gd"
 PRODUCTION = "scripts/battle/battle_production_controller.gd"
 TESTS = ["tests/scripts/test_battle_t3_blocked_paths.gd", "tests/scripts/test_battle3d_t3_blocked_paths.gd"]
