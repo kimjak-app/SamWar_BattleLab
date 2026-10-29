@@ -5631,7 +5631,7 @@ func _apply_resolver_advance_toward_target(caster_state: BattleUnitState, defeat
 	var delta := defeated_state.grid_cell - caster_state.grid_cell
 	var step := Vector2i(signi(delta.x), 0) if absi(delta.x) >= absi(delta.y) else Vector2i(0, signi(delta.y))
 	var destination := caster_state.grid_cell + step
-	if battle_grid_controller.is_in_bounds(destination) and _is_valid_destination_for_unit(destination, caster_state, true):
+	if battle_grid_controller.is_in_bounds(destination) and not battle_grid_controller.is_blocked(destination) and _is_valid_destination_for_unit(destination, caster_state, true):
 		caster_state.set_grid_cell(destination)
 
 
