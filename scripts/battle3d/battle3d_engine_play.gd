@@ -981,7 +981,7 @@ func _consume_action_events() -> void:
 		var event: Dictionary = events[action_cursor]
 		action_cursor+=1
 		if event.kind == "attack_resolved":
-			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id) # Unit3D
+			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id, event.target_id) # Unit3D
 			_show_attack_damage(event)
 		elif event.kind == "unit_defeated":
 			_append_combat_line("격파 · "+event.unit_id)
@@ -1115,7 +1115,7 @@ func _present_enemy_event(event: Dictionary) -> void:
 			enemy_actor_id = event.unit_id
 			_enemy_text("적 행동 중 · " + event.unit_id)
 		"enemy_attack_resolved":
-			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id) # Unit3D
+			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id, event.target_id) # Unit3D
 			_show_enemy_hit(event)
 			enemy_hold = enemy_hold_seconds
 		"enemy_waited":
