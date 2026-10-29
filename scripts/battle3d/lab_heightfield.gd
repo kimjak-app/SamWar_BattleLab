@@ -6,9 +6,17 @@ var river_center: float
 var ford_row: int
 var ford_z: float
 var data: Dictionary
+var terrain_data: Dictionary
+var terrain_cells: Array
 
 func _init() -> void:
 	data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/heightfield.json"))
+	if FileAccess.file_exists("res://assets/battle3d/terrain_types.json"):
+		terrain_data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/terrain_types.json"))
+		terrain_cells = terrain_data.get("cells", [])
+	else:
+		terrain_data = {}
+		terrain_cells = []
 
 	SIZE=Vector2i(int(data.board.width),int(data.board.height))
 	CELL=float(data.board.cell_size)
@@ -50,9 +58,13 @@ func height(x: float, z: float) -> float:
 	return y
 
 func terrain(c: Vector2i) -> String:
+	if valid(c) and c.y < terrain_cells.size():
+		var row: Array = terrain_cells[c.y]
+		if c.x < row.size():
+			return String(row[c.x])
 	var p := world(c)
 	if absf(p.x-(river_center+1.4*sin(p.z*.25))) < 2.6:
 		return "ford" if c.y == ford_row else "river"
-	if (p.x<6 and p.z>11) or (p.x>SIZE.x*CELL-12 and p.z<9):
+	if (p.x<6 and p.z>11) or (p.x>54.0-12 and p.z<9):
 		return "forest"
 	return "hill" if p.y>1.5 else "plain"

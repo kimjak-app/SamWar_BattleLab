@@ -87,8 +87,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _show_terrain_annotations() -> void:
 	_clear_visuals(terrain_view)
 	if not terrain_rules_enabled: return
-	for x in range(18):
-		for y in range(10):
+	for x in range(board.SIZE.x):
+		for y in range(board.SIZE.y):
 			var c := Vector2i(x,y)
 			if board.terrain(c)=="river":
 				var dot := _disc(.15,Color("d69b74"),.05)
