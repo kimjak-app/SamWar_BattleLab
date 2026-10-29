@@ -13,6 +13,9 @@ static var edge_scroll_enabled := true # block 4-4: the option (this session onl
 # HUD block 4-6: the debug text (unit info labels, the control help; the engine lab adds its turn, momentum and unit state
 # lines) is hidden by default, F3 shows it again (this session only). Hidden, never removed: nodes and texts stay.
 static var debug_text_visible := false
+# Unit3D: the switch for the new rigged soldiers (battle3d_unit_visuals.gd). Off: the old models and behaviour, unchanged.
+@export var unit3d_models := false
+var unit_visuals: RefCounted = null # loaded only when unit3d_models is on
 var help_label: Label
 var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
 var mouse_in_window := true
@@ -118,13 +121,19 @@ func _spawn_unit(u: Dictionary) -> void:
 	views[u.unit_id]=root
 	soldiers[u.unit_id]=[]
 	var cavalry: bool = u.unit_type=="cavalry"
-	var model: PackedScene=load("res://assets/battle3d/%s_%s.glb" % [u.side,u.unit_type])
-	for row in range(2):
-		for col in range(3):
-			var soldier = model.instantiate()
-			root.add_child(soldier)
-			soldier.position=Vector3((col-1)*.65,0,(row-.5)*(.95 if cavalry else .7))
-			soldiers[u.unit_id].append(soldier)
+	if unit3d_models:
+		if unit_visuals == null: unit_visuals = load("res://scripts/battle3d/battle3d_unit_visuals.gd").new()
+		if unit_visuals.handles(u):
+			root.set_meta("unit3d", true)
+			soldiers[u.unit_id] = unit_visuals.spawn_soldiers(u, root)
+	if not root.has_meta("unit3d"):
+		var model: PackedScene=load("res://assets/battle3d/%s_%s.glb" % [u.side,u.unit_type])
+		for row in range(2):
+			for col in range(3):
+				var soldier = model.instantiate()
+				root.add_child(soldier)
+				soldier.position=Vector3((col-1)*.65,0,(row-.5)*(.95 if cavalry else .7))
+				soldiers[u.unit_id].append(soldier)
 	var base := _disc(1.05,Color("286496") if u.side=="ally" else Color("a3402a"),.04)
 	root.add_child(base)
 	base.position.y=.035

@@ -296,6 +296,7 @@ func _ready() -> void:
 		queries.alive_units.append(unit)
 		var value: Dictionary = Adapter.to_view(unit)
 		var model_value := value.duplicate(true)
+		model_value["source_unit_type"] = value.unit_type # Unit3D: the type before the mapping below, for the new models
 		if model_value.unit_type not in ["infantry","cavalry"]: model_value.unit_type = "infantry"
 		_spawn_unit(model_value)
 		views[value.unit_id].add_child(_facing_arrow(value.side)) # HUD block 4-6
@@ -470,6 +471,7 @@ func _process(delta: float) -> void:
 		if next.distance_to(Vector3(goal.x,0,goal.z)) < .01:
 			motion.index += 1
 			if motion.index >= motion.path.size(): playback.erase(id)
+	if unit_visuals != null: unit_visuals.update(self, delta) # Unit3D: run while moving, idle after, attacks back to the loop
 	_sync_views()
 	_update_auto_hold()
 
@@ -498,10 +500,12 @@ func _sync_views() -> void:
 		if not playback.has(value.unit_id):
 			root.position = board.world(value.grid_cell)
 			_ground_soldiers(value.unit_id)
+		var unit3d := root.has_meta("unit3d") # Unit3D: N soldiers (not 6), and the new models look along +Z (so + PI)
+		var shown: int = unit_visuals.visible_count(value, soldiers[value.unit_id].size()) if unit3d else visual_soldier_count(value)
 		for index in range(soldiers[value.unit_id].size()):
 			var soldier: Node3D = soldiers[value.unit_id][index]
-			soldier.visible = index < visual_soldier_count(value)
-			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0)
+			soldier.visible = index < shown
+			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0) + (PI if unit3d else 0.0)
 		for child in root.get_children():
 			if child is Label3D: child.text = "%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops]
 			if child.has_meta("facing_arrow"): _place_facing_arrow(child, root, value.facing)
@@ -977,6 +981,7 @@ func _consume_action_events() -> void:
 		var event: Dictionary = events[action_cursor]
 		action_cursor+=1
 		if event.kind == "attack_resolved":
+			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id) # Unit3D
 			_show_attack_damage(event)
 		elif event.kind == "unit_defeated":
 			_append_combat_line("격파 · "+event.unit_id)
@@ -1110,6 +1115,7 @@ func _present_enemy_event(event: Dictionary) -> void:
 			enemy_actor_id = event.unit_id
 			_enemy_text("적 행동 중 · " + event.unit_id)
 		"enemy_attack_resolved":
+			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id) # Unit3D
 			_show_enemy_hit(event)
 			enemy_hold = enemy_hold_seconds
 		"enemy_waited":
