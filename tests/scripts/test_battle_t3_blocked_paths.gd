@@ -3,6 +3,7 @@ extends SceneTree
 # The C4b groves of terrain_types.json (read here) are handed to the engine's grid, as the 3D lab does:
 #   1. advance: Yi at (7,2) toward a defeated unit at (5,2): the step cell (6,2) is forest, so Yi stays at (7,2);
 #      control: toward (9,2) Yi steps to (8,2);
+#   2. retreat: Yi (ally, west) at (8,1) by 2 -> (6,1) forest, stays; Guan Yu (enemy, east) at (10,7) by 1 -> (11,7)
 #      forest, stays; control: Guan Yu at (10,5) by 1 -> (11,5);
 #      no candidate left (Yi at (3,1), range 1: (4,1) forest, (2,1) (3,0) (3,2) occupied): an empty list, Yi stays;
 #   4. the empty list (set_blocked_cells([])): the same calls enter the forest cells as before T3 ((6,2), (6,1), (11,7),
@@ -50,6 +51,12 @@ func advance(from: Vector2i, toward: Vector2i) -> Vector2i:
 	battle.call("_apply_resolver_advance_toward_target", yi, guan)
 	return yi.grid_cell
 
+func retreat(id: String, from: Vector2i, distance: int) -> Vector2i:
+	park()
+	var u = unit(id)
+	u.set_grid_cell(from)
+	battle.call("_apply_resolver_retreat_move", u, distance)
+	return u.grid_cell
 
 
 func run() -> void:
@@ -64,11 +71,19 @@ func run() -> void:
 	# 4 first: the empty list, the behaviour before T3.
 	grid.set_blocked_cells([])
 	expect(advance(Vector2i(7, 2), Vector2i(5, 2)) == Vector2i(6, 2), "empty list: advance enters (6,2)")
+	expect(retreat("yi_sunsin", Vector2i(8, 1), 2) == Vector2i(6, 1), "empty list: ally retreat enters (6,1)")
+	expect(retreat("guan_yu", Vector2i(10, 7), 1) == Vector2i(11, 7), "empty list: enemy retreat enters (11,7)")
 	# 1-3: the groves blocked.
 	grid.set_blocked_cells(forest)
 	var c := advance(Vector2i(7, 2), Vector2i(5, 2))
 	expect(c == Vector2i(7, 2), "advance toward (5,2): (6,2) is forest, Yi stays at (7,2) (at %s)" % c)
 	c = advance(Vector2i(7, 2), Vector2i(9, 2))
 	expect(c == Vector2i(8, 2), "control: advance toward (9,2) steps to (8,2) (at %s)" % c)
+	c = retreat("yi_sunsin", Vector2i(8, 1), 2)
+	expect(c == Vector2i(8, 1), "ally retreat (8,1) by 2: (6,1) is forest, Yi stays (at %s)" % c)
+	c = retreat("guan_yu", Vector2i(10, 7), 1)
+	expect(c == Vector2i(10, 7), "enemy retreat (10,7) by 1: (11,7) is forest, Guan Yu stays (at %s)" % c)
+	c = retreat("guan_yu", Vector2i(10, 5), 1)
+	expect(c == Vector2i(11, 5), "control: enemy retreat (10,5) by 1 -> (11,5) (at %s)" % c)
 	grid.set_blocked_cells([])
 	quit(0 if failures == 0 else 1)

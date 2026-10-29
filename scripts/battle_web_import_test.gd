@@ -5642,6 +5642,8 @@ func _apply_resolver_retreat_move(unit_state: BattleUnitState, distance: int) ->
 	var destination := unit_state.grid_cell + direction * maxi(distance, 1)
 	if not battle_grid_controller.is_in_bounds(destination):
 		return
+	if battle_grid_controller.is_blocked(destination):
+		return
 	if not _is_valid_destination_for_unit(destination, unit_state, true):
 		return
 	var target_position := battle_grid_controller.grid_to_world(destination)

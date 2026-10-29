@@ -1,6 +1,7 @@
 extends SceneTree
 # T3 test 2: the 3D engine lab on the presentation default (C4b groves, the lab hands them to the engine), scenario shell
 # (default battle, test_world = false). The G cases of the T2 split report, on the lab's engine:
+#   - advance (7,2) toward (5,2): (6,2) is forest, the unit stays; retreat ally (8,1) by 2 -> (6,1) and enemy (10,7)
 #   - after the lab syncs its views, each unit's view stands on its engine cell (no view in the forest);
 #   - reinforcement arrival (record only, no code change): the four reinforcement marker cells are not blocked.
 var h
@@ -47,12 +48,17 @@ func run() -> void:
 	h.expect(yi.grid_cell == Vector2i(7, 2), "advance (7,2) toward (5,2): Yi stays off the forest (at %s)" % yi.grid_cell)
 	park(b)
 	yi.set_grid_cell(Vector2i(8, 1))
+	b.call("_apply_resolver_retreat_move", yi, 2)
+	h.expect(yi.grid_cell == Vector2i(8, 1), "ally retreat (8,1) by 2: Yi stays off (6,1) (at %s)" % yi.grid_cell)
 	park(b)
 	guan.set_grid_cell(Vector2i(10, 7))
+	b.call("_apply_resolver_retreat_move", guan, 1)
+	h.expect(guan.grid_cell == Vector2i(10, 7), "enemy retreat (10,7) by 1: Guan Yu stays off (11,7) (at %s)" % guan.grid_cell)
 	park(b)
 	yi.set_grid_cell(Vector2i(5, 3))
 	park(b)
 	yi.set_grid_cell(Vector2i(7, 2)); guan.set_grid_cell(Vector2i(10, 7))
+	b.call("_apply_resolver_retreat_move", guan, 1)
 	lab._sync_views()
 	for i in range(10): await process_frame
 	for u in [yi, guan]:
