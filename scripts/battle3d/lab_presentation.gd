@@ -13,8 +13,8 @@ static var edge_scroll_enabled := true # block 4-4: the option (this session onl
 # HUD block 4-6: the debug text (unit info labels, the control help; the engine lab adds its turn, momentum and unit state
 # lines) is hidden by default, F3 shows it again (this session only). Hidden, never removed: nodes and texts stay.
 static var debug_text_visible := false
-# Unit3D: the switch for the new rigged soldiers (battle3d_unit_visuals.gd). Off: the old models and behaviour, unchanged.
-@export var unit3d_models := false
+# Unit3D: the switch for the new rigged soldiers (battle3d_unit_visuals.gd), on by default. Off: the old models and behaviour.
+@export var unit3d_models := true
 var unit_visuals: RefCounted = null # loaded only when unit3d_models is on
 var help_label: Label
 var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
