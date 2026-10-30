@@ -40,6 +40,10 @@ var fx: Node3D = null # the ranged effects node (one, under the lab root), made 
 var _attack_left: Dictionary = {} # soldier instance id -> seconds left in the attack animation
 var _moving: Dictionary = {} # unit id -> last moving state sent to its soldiers
 var _muskets: Dictionary = {} # soldier instance id -> {node, from, to, t}
+var _rng := RandomNumberGenerator.new() # own stream: the engine judges with the global one, which this never touches
+
+func _init() -> void:
+	_rng.randomize()
 
 ## True when this layer has a model for the unit (by its type before the lab's infantry/cavalry mapping).
 func handles(u: Dictionary) -> bool:
@@ -156,8 +160,8 @@ func _matte(n: Node) -> void:
 
 func _loop(player: AnimationPlayer, anim: String) -> void:
 	player.play(anim)
-	player.seek(randf() * player.current_animation_length, true)
-	player.speed_scale = randf_range(.92, 1.08) * ANIM_SPEED
+	player.seek(_rng.randf() * player.current_animation_length, true)
+	player.speed_scale = _rng.randf_range(.92, 1.08) * ANIM_SPEED
 	_musket_to(player.get_parent(), anim, false)
 
 ## The gunner's musket follows the animation: 0.1 s slerp, or at once for the attack (D / B test scenes).

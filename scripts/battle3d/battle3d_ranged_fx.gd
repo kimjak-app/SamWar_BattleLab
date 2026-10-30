@@ -68,6 +68,10 @@ var _flash_mat := ShaderMaterial.new()
 var _tracer_mat := ShaderMaterial.new()
 var _impact_mat := ShaderMaterial.new()
 var _smoke_mat := ShaderMaterial.new()
+var _rng := RandomNumberGenerator.new() # own stream: the engine judges with the global one, which this never touches
+
+func _init() -> void:
+	_rng.randomize()
 
 func _ready() -> void:
 	effects.name = "Effects"
@@ -126,12 +130,12 @@ func _glow(material: ShaderMaterial, blend: String, tint: Color) -> void:
 func fire_arrow_volley(archers: Array, targets: Array) -> void:
 	var volley := {"sound": false}
 	for i in mini(archers.size(), targets.size()):
-		_after(float(i) * randf_range(STAGGER_MIN, STAGGER_MAX), _start_archer.bind(archers[i], targets[i], volley, i))
+		_after(float(i) * _rng.randf_range(STAGGER_MIN, STAGGER_MAX), _start_archer.bind(archers[i], targets[i], volley, i))
 
 ## Gunner i shoots target i, each at its own attack_gun f0, started i * (0.05..0.12) s after the call.
 func fire_gun_volley(gunners: Array, targets: Array) -> void:
 	for i in mini(gunners.size(), targets.size()):
-		_after(float(i) * randf_range(STAGGER_MIN, STAGGER_MAX), _start_gunner.bind(gunners[i], targets[i], i))
+		_after(float(i) * _rng.randf_range(STAGGER_MIN, STAGGER_MAX), _start_gunner.bind(gunners[i], targets[i], i))
 
 ## Stops every pending shot and removes every effect node.
 func stop_all() -> void:
@@ -200,16 +204,16 @@ func _spawn_arrow(back: Vector3, nock: Vector3, chest: Vector3, record: Dictiona
 	var flight := (chest - back).normalized()
 	var side := flight.cross(Vector3.UP).normalized()
 	var up := side.cross(flight).normalized()
-	var offset := side * randf_range(-ARROW_SCATTER_MAX, ARROW_SCATTER_MAX) + up * randf_range(-ARROW_SCATTER_MAX, ARROW_SCATTER_MAX)
+	var offset := side * _rng.randf_range(-ARROW_SCATTER_MAX, ARROW_SCATTER_MAX) + up * _rng.randf_range(-ARROW_SCATTER_MAX, ARROW_SCATTER_MAX)
 	if offset.length() < ARROW_SCATTER_MIN: offset = (offset.normalized() if offset.length() > .001 else side) * ARROW_SCATTER_MIN
 	var impact := chest + offset
 	# the curve: a quadratic Bezier whose middle rises by the 2D curve amount (and moves +-45 % of it sideways)
-	var rise := randf_range(ARROW_CURVE_MIN, ARROW_CURVE_MAX)
-	var control := back.lerp(impact, .5) + Vector3.UP * rise * 2.0 + side * randf_range(-rise * .45, rise * .45) * 2.0
+	var rise := _rng.randf_range(ARROW_CURVE_MIN, ARROW_CURVE_MAX)
+	var control := back.lerp(impact, .5) + Vector3.UP * rise * 2.0 + side * _rng.randf_range(-rise * .45, rise * .45) * 2.0
 	var end_dir := (impact - control).normalized()
 	var end := impact - end_dir * (ARROW_LENGTH - ARROW_EMBED) # where the back end stops, so the tip is just past the impact point
 	control = back.lerp(end, .5) + (control - back.lerp(impact, .5))
-	var travel := randf_range(ARROW_TRAVEL_MIN, ARROW_TRAVEL_MAX)
+	var travel := _rng.randf_range(ARROW_TRAVEL_MIN, ARROW_TRAVEL_MAX)
 	record.merge({"start_dir": start_dir, "first_tangent": (control - back).normalized(), "chest": chest, "impact": impact, "travel": travel})
 	records.append(record)
 	var tween := _tween()
@@ -233,11 +237,11 @@ func _fly(t: float, arrow: Node3D, p0: Vector3, p1: Vector3, p2: Vector3) -> voi
 
 func _pin(arrow: Node3D, record: Dictionary) -> void:
 	var b := arrow.global_transform.basis
-	arrow.global_transform.basis = b.rotated(b.x.normalized(), randf_range(-ARROW_PIN_TILT, ARROW_PIN_TILT)) # tip still at the target
+	arrow.global_transform.basis = b.rotated(b.x.normalized(), _rng.randf_range(-ARROW_PIN_TILT, ARROW_PIN_TILT)) # tip still at the target
 	record["tip_end"] = arrow.global_transform * Vector3(0, 0, -ARROW_LENGTH)
 	var tween := _tween()
 	tween.tween_property(arrow, "scale", Vector3.ONE * 1.1, ARROW_PIN_POP)
-	tween.tween_interval(randf_range(ARROW_PIN_LINGER_MIN, ARROW_PIN_LINGER_MAX))
+	tween.tween_interval(_rng.randf_range(ARROW_PIN_LINGER_MIN, ARROW_PIN_LINGER_MAX))
 	tween.tween_property(arrow, "scale", Vector3.ONE * .001, ARROW_PIN_FADE) # shared materials: the fade is a shrink
 	tween.tween_callback(arrow.queue_free)
 
@@ -256,7 +260,7 @@ func _start_gunner(gunner: Node3D, target: Node3D, index: int) -> void:
 	var muzzle := _fresh_global(muzzle_node).origin # this frame's f0 pose (the node itself may still hold last frame's)
 	if not is_instance_valid(target): return
 	var chest := target.global_position + Vector3(0, CHEST_HEIGHT, 0)
-	var impact := chest + Vector3(randf_range(-GUN_SCATTER, GUN_SCATTER), randf_range(-GUN_SCATTER, GUN_SCATTER), randf_range(-GUN_SCATTER, GUN_SCATTER))
+	var impact := chest + Vector3(_rng.randf_range(-GUN_SCATTER, GUN_SCATTER), _rng.randf_range(-GUN_SCATTER, GUN_SCATTER), _rng.randf_range(-GUN_SCATTER, GUN_SCATTER))
 	records.append({"index": index, "kind": "shot", "anim_position": player.current_animation_position, "started_usec": started,
 		"fired_usec": Time.get_ticks_usec(), "muzzle": muzzle, "chest": chest, "impact": impact})
 	var flash := _glow_node(_flash_mat, muzzle, 0.12 * .65)
