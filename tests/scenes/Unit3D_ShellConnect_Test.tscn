@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/battle3d/Battle3D_ScenarioShell.tscn" id="1_shell"]
+[ext_resource type="Script" path="res://tests/scripts/unit3d_shell_connect_test.gd" id="2_script"]
+
+[node name="Battle3D_ScenarioShell" instance=ExtResource("1_shell")]
+script = ExtResource("2_script")
