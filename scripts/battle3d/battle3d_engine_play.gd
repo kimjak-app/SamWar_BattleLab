@@ -504,7 +504,8 @@ func _sync_views() -> void:
 		var shown: int = unit_visuals.visible_count(value, soldiers[value.unit_id].size()) if unit3d else visual_soldier_count(value)
 		for index in range(soldiers[value.unit_id].size()):
 			var soldier: Node3D = soldiers[value.unit_id][index]
-			soldier.visible = index < shown
+			if unit3d: unit_visuals.show_soldier(soldier, index < shown) # Unit3D: a soldier the count drops sinks first
+			else: soldier.visible = index < shown
 			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0) + (PI if unit3d else 0.0)
 		for child in root.get_children():
 			if child is Label3D: child.text = "%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops]
@@ -981,7 +982,9 @@ func _consume_action_events() -> void:
 		var event: Dictionary = events[action_cursor]
 		action_cursor+=1
 		if event.kind == "attack_resolved":
-			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id, event.target_id) # Unit3D
+			if unit_visuals != null: # Unit3D: the attacker attacks, the target is pushed back
+				unit_visuals.attack(self, event.attacker_id, event.target_id)
+				unit_visuals.hit(self, event.attacker_id, event.target_id)
 			_show_attack_damage(event)
 		elif event.kind == "unit_defeated":
 			_append_combat_line("격파 · "+event.unit_id)
@@ -1115,7 +1118,9 @@ func _present_enemy_event(event: Dictionary) -> void:
 			enemy_actor_id = event.unit_id
 			_enemy_text("적 행동 중 · " + event.unit_id)
 		"enemy_attack_resolved":
-			if unit_visuals != null: unit_visuals.attack(self, event.attacker_id, event.target_id) # Unit3D
+			if unit_visuals != null: # Unit3D: the attacker attacks, the target is pushed back
+				unit_visuals.attack(self, event.attacker_id, event.target_id)
+				unit_visuals.hit(self, event.attacker_id, event.target_id)
 			_show_enemy_hit(event)
 			enemy_hold = enemy_hold_seconds
 		"enemy_waited":

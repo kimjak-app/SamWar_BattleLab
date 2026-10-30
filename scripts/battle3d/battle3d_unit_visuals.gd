@@ -34,6 +34,13 @@ const CAVALRY_ROWS := [-0.9, 0.0, 0.9] # z
 const CAVALRY_FILES := [-0.65, 0.65] # x (1.3 apart)
 const ATTACK := {"infantry": ["attack_spear_short", 2.17], "cavalry": ["cav_thrust", 2.17], "archer": ["attack_bow", 1.0], "gunner": ["attack_gun", 1.0]} # animation, speed_scale
 const RANGED := ["archer", "gunner"] # their attack is started by the effects script, soldier by soldier
+const HIT_PUSH := 0.15 # m: a hit pushes the target's shown soldiers this far away from the attacker, then back
+const HIT_OUT := 0.06 # s, pushed out
+const HIT_BACK := 0.14 # s, back home
+const HIT_STAGGER := 0.05 # s: each soldier starts 0..this after the hit
+const SINK_TIME := 0.3 # s: a soldier the troop count no longer shows sinks into the ground, then hides
+const SINK_DEPTH := 1.2 # m, used when no model height can be read (1.0 m soldier x SCALE); else the height + SINK_EXTRA
+const SINK_EXTRA := 0.05 # m below the read height, so nothing stays above the ground
 
 var materials: Dictionary = {} # GLB material -> its shared matte copy (roughness 1, metallic 0, specular 0)
 var fx: Node3D = null # the ranged effects node (one, under the lab root), made at the first ranged unit
@@ -41,6 +48,11 @@ var _attack_left: Dictionary = {} # soldier instance id -> seconds left in the a
 var _moving: Dictionary = {} # unit id -> last moving state sent to its soldiers
 var _muskets: Dictionary = {} # soldier instance id -> {node, from, to, t}
 var _rng := RandomNumberGenerator.new() # own stream: the engine judges with the global one, which this never touches
+var _home: Dictionary = {} # soldier instance id -> its spawn position under the unit root
+var _hits: Dictionary = {} # soldier instance id -> {soldier, dir (unit-root local, HIT_PUSH long), t (s; < 0: stagger left)}
+var _sinks: Dictionary = {} # soldier instance id -> {soldier, t (s), depth (m)}
+var _seen: Dictionary = {} # soldier instance id -> true once the lab has set its visibility (the first set never sinks)
+var _heights: Dictionary = {} # kind -> model height above its root (m), read at the first sink
 
 func _init() -> void:
 	_rng.randomize()
@@ -69,6 +81,7 @@ func spawn_soldiers(u: Dictionary, root: Node3D) -> Array:
 				var horseman := _horseman(side)
 				root.add_child(horseman)
 				horseman.position = Vector3(x, 0, z)
+				_home[horseman.get_instance_id()] = horseman.position
 				out.append(horseman)
 		return out
 	for row in 3:
@@ -76,6 +89,7 @@ func spawn_soldiers(u: Dictionary, root: Node3D) -> Array:
 			var soldier := _soldier(side, kind)
 			root.add_child(soldier)
 			soldier.position = Vector3((col - 1) * SPACING, 0, (row - 1) * SPACING)
+			_home[soldier.get_instance_id()] = soldier.position
 			out.append(soldier)
 	return out
 
@@ -184,6 +198,22 @@ func update(lab: Node, delta: float) -> void:
 		if m.t < 1.0 and is_instance_valid(m.node):
 			m.t = minf(1.0, m.t + delta / MUSKET_SLERP)
 			(m.node as Node3D).quaternion = (m.from as Quaternion).slerp(m.to, m.t)
+	for key in _hits.keys(): # x / z only: the lab sets the unit root and the soldiers' height, never their x / z
+		var h: Dictionary = _hits[key]
+		if not is_instance_valid(h.soldier):
+			_hits.erase(key)
+			continue
+		h.t += delta
+		var k := 0.0
+		if h.t >= HIT_OUT + HIT_BACK: _hits.erase(key)
+		elif h.t > HIT_OUT: k = 1.0 - (h.t - HIT_OUT) / HIT_BACK
+		elif h.t > 0.0: k = h.t / HIT_OUT
+		var home: Vector3 = _home[key]
+		h.soldier.position.x = home.x + h.dir.x * k
+		h.soldier.position.z = home.z + h.dir.z * k
+	for key in _sinks.keys():
+		if is_instance_valid(_sinks[key].soldier): _sinks[key].t += delta
+		else: _sinks.erase(key)
 	for id in lab.soldiers:
 		var root: Node3D = lab.views[id]
 		if not root.has_meta("unit3d"): continue
@@ -212,7 +242,7 @@ func attack(lab: Node, attacker_id: String, target_id: String) -> void:
 	for soldier in lab.soldiers[attacker_id]:
 		var kind: String = soldier.get_meta("unit3d_kind")
 		if kind in RANGED:
-			if soldier.visible: shooters.append(soldier)
+			if soldier.visible and not _sinks.has(soldier.get_instance_id()): shooters.append(soldier)
 			continue
 		var player := attack_player_of(soldier)
 		player.play(ATTACK[kind][0])
@@ -220,7 +250,7 @@ func attack(lab: Node, attacker_id: String, target_id: String) -> void:
 		player.speed_scale = ATTACK[kind][1]
 		_attack_left[soldier.get_instance_id()] = player.current_animation_length / ATTACK[kind][1]
 	if shooters.is_empty() or fx == null or not lab.soldiers.has(target_id): return
-	var shown: Array = lab.soldiers[target_id].filter(func(s): return s.visible)
+	var shown: Array = lab.soldiers[target_id].filter(func(s): return s.visible and not _sinks.has(s.get_instance_id()))
 	if shown.is_empty(): shown = lab.soldiers[target_id]
 	var targets: Array = []
 	for i in shooters.size(): targets.append(shown[i % shown.size()])
@@ -231,3 +261,46 @@ func attack(lab: Node, attacker_id: String, target_id: String) -> void:
 func _on_ranged_started(soldier: Node3D, anim: String) -> void:
 	_attack_left[soldier.get_instance_id()] = (player_of(soldier).current_animation_length / ATTACK[soldier.get_meta("unit3d_kind")][1]) + 0.05
 	_musket_to(soldier, anim, true)
+
+## The target's shown soldiers are pushed HIT_PUSH away from the attacker and come back (engine attack_resolved /
+## enemy_attack_resolved, next to attack). A unit whose move is being played back is left where it is.
+func hit(lab: Node, attacker_id: String, target_id: String) -> void:
+	if not lab.views.has(target_id) or not lab.views[target_id].has_meta("unit3d") or not lab.views.has(attacker_id): return
+	if lab.playback.has(target_id): return
+	var root: Node3D = lab.views[target_id]
+	var away: Vector3 = root.global_position - (lab.views[attacker_id] as Node3D).global_position
+	away.y = 0.0
+	if away.length() < .001: return
+	var dir: Vector3 = root.global_transform.basis.inverse() * (away.normalized() * HIT_PUSH)
+	for soldier in lab.soldiers[target_id]:
+		var key: int = soldier.get_instance_id()
+		if soldier.visible and not _sinks.has(key): _hits[key] = {"soldier": soldier, "dir": dir, "t": -_rng.randf_range(0.0, HIT_STAGGER)}
+
+## The lab's per-frame visibility for a new-model soldier (want = index < shown), after it grounded the soldier. One the
+## count drops sinks SINK_TIME into the ground (still visible), then hides at its own height; one the count brings back
+## shows at once. The first set (spawn) never sinks. visible_count is not involved: the shown count stays the lab's.
+func show_soldier(soldier: Node3D, want: bool) -> void:
+	var key: int = soldier.get_instance_id()
+	if want or not _seen.has(key):
+		_seen[key] = true
+		_sinks.erase(key)
+		soldier.visible = want
+		return
+	if not _sinks.has(key):
+		if not soldier.visible: return
+		_sinks[key] = {"soldier": soldier, "t": 0.0, "depth": _sink_depth(soldier)}
+	var sink: Dictionary = _sinks[key]
+	if sink.t >= SINK_TIME:
+		_sinks.erase(key)
+		soldier.visible = false # its height: the lab grounded it again this frame
+		return
+	soldier.position.y -= sink.depth * sink.t / SINK_TIME
+
+func _sink_depth(soldier: Node3D) -> float:
+	var kind: String = soldier.get_meta("unit3d_kind")
+	if not _heights.has(kind):
+		var top := 0.0 # the highest mesh point above the root (rest-pose boxes, weapons included)
+		for mesh in soldier.find_children("*", "MeshInstance3D", true, false):
+			top = maxf(top, ((mesh as MeshInstance3D).global_transform * (mesh as MeshInstance3D).get_aabb()).end.y - soldier.global_position.y)
+		_heights[kind] = top
+	return _heights[kind] + SINK_EXTRA if _heights[kind] > 0.0 else SINK_DEPTH
