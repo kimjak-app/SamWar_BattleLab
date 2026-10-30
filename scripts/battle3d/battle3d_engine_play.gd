@@ -500,13 +500,13 @@ func _sync_views() -> void:
 		if not playback.has(value.unit_id):
 			root.position = board.world(value.grid_cell)
 			_ground_soldiers(value.unit_id)
-		var unit3d := root.has_meta("unit3d") # Unit3D: N soldiers (not 6), and the new models look along +Z (so + PI)
+		var unit3d := root.has_meta("unit3d") # Unit3D: N soldiers (not 6), turned by unit_visuals.update (travel / facing)
 		var shown: int = unit_visuals.visible_count(value, soldiers[value.unit_id].size()) if unit3d else visual_soldier_count(value)
 		for index in range(soldiers[value.unit_id].size()):
 			var soldier: Node3D = soldiers[value.unit_id][index]
 			if unit3d: unit_visuals.show_soldier(soldier, index < shown) # Unit3D: a soldier the count drops sinks first
 			else: soldier.visible = index < shown
-			soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0) + (PI if unit3d else 0.0)
+			if not unit3d: soldier.rotation.y = {"up":0.0,"down":PI,"left":PI/2,"right":-PI/2}.get(value.facing,0.0)
 		for child in root.get_children():
 			if child is Label3D: child.text = "%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops]
 			if child.has_meta("facing_arrow"): _place_facing_arrow(child, root, value.facing)

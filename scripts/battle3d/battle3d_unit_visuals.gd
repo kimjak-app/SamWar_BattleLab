@@ -41,6 +41,8 @@ const HIT_STAGGER := 0.05 # s: each soldier starts 0..this after the hit
 const SINK_TIME := 0.3 # s: a soldier the troop count no longer shows sinks into the ground, then hides
 const SINK_DEPTH := 1.2 # m, used when no model height can be read (1.0 m soldier x SCALE); else the height + SINK_EXTRA
 const SINK_EXTRA := 0.05 # m below the read height, so nothing stays above the ground
+const TURN_RATE := 14.0 # 1/s: soldiers turn toward the unit's target yaw by 1 - exp(-TURN_RATE * delta) a frame
+const FACING_YAW := {"up": 0.0, "down": PI, "left": PI / 2, "right": -PI / 2} # the lab's table (_sync_views), old-model yaw
 
 var materials: Dictionary = {} # GLB material -> its shared matte copy (roughness 1, metallic 0, specular 0)
 var fx: Node3D = null # the ranged effects node (one, under the lab root), made at the first ranged unit
@@ -53,6 +55,8 @@ var _hits: Dictionary = {} # soldier instance id -> {soldier, dir (unit-root loc
 var _sinks: Dictionary = {} # soldier instance id -> {soldier, t (s), depth (m)}
 var _seen: Dictionary = {} # soldier instance id -> true once the lab has set its visibility (the first set never sinks)
 var _heights: Dictionary = {} # kind -> model height above its root (m), read at the first sink
+var _yaw_target: Dictionary = {} # unit id -> the yaw its soldiers turn to (kept while a move has no length left)
+var _yaw_ready: Dictionary = {} # soldier instance id -> true once it has a yaw (the first one is set, not turned to)
 
 func _init() -> void:
 	_rng.randomize()
@@ -217,6 +221,13 @@ func update(lab: Node, delta: float) -> void:
 	for id in lab.soldiers:
 		var root: Node3D = lab.views[id]
 		if not root.has_meta("unit3d"): continue
+		var yaw := _target_yaw(lab, id, root)
+		var turn := 1.0 - exp(-TURN_RATE * delta)
+		for soldier in lab.soldiers[id]: # rotation only: position, visibility and animation stay as they are
+			if _yaw_ready.has(soldier.get_instance_id()): soldier.rotation.y = lerp_angle(soldier.rotation.y, yaw, turn)
+			else:
+				soldier.rotation.y = yaw
+				_yaw_ready[soldier.get_instance_id()] = true
 		var moving: bool = lab.playback.has(id)
 		var unit_changed: bool = _moving.get(id, false) != moving
 		_moving[id] = moving
@@ -304,3 +315,16 @@ func _sink_depth(soldier: Node3D) -> float:
 			top = maxf(top, ((mesh as MeshInstance3D).global_transform * (mesh as MeshInstance3D).get_aabb()).end.y - soldier.global_position.y)
 		_heights[kind] = top
 	return _heights[kind] + SINK_EXTRA if _heights[kind] > 0.0 else SINK_DEPTH
+
+## The yaw a unit's soldiers turn to (the new models look along +Z, so + PI on the lab's yaw): while the lab plays
+## its move back, the travel toward the path's next cell (atan2(-dx, -dz), as lab_presentation's mock move); else the
+## engine's facing. A move with under 0.01 m left keeps the last target.
+func _target_yaw(lab: Node, id: String, root: Node3D) -> float:
+	if lab.playback.has(id):
+		var motion: Dictionary = lab.playback[id]
+		var goal: Vector3 = lab.board.world(motion.path[motion.index])
+		var travel := Vector2(goal.x - root.position.x, goal.z - root.position.z)
+		if travel.length() >= .01: _yaw_target[id] = atan2(-travel.x, -travel.y) + PI
+	elif lab.display_values.has(id):
+		_yaw_target[id] = FACING_YAW.get(lab.display_values[id].facing, 0.0) + PI
+	return _yaw_target.get(id, PI)
