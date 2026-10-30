@@ -4,6 +4,7 @@ const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const Host = preload("res://scripts/battle3d/battle3d_engine_host.gd")
 var lab
 var samples: Array = []
+var spawn_types: Dictionary = {} # unit id -> engine unit_type when the lab was opened (= the lab's source_unit_type)
 var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/golden/battle_attack_baseline_v0.json"))
 
 class SpyBattle extends Oracle.BoundaryBattle:
@@ -30,6 +31,8 @@ func open_lab(tree: SceneTree) -> void:
 	tree.root.add_child(lab)
 	while not lab.ready_for_input: await tree.process_frame
 	await tree.physics_frame
+	spawn_types.clear() # Unit3D: the engine's types the lab built its models from (setup_case rewrites unit_type later)
+	for unit in lab.engine.all_battle_unit_states: spawn_types[unit.unit_id]=unit.unit_type
 
 func close_lab(tree: SceneTree) -> void:
 	lab.engine.observe=Callable()
@@ -80,10 +83,19 @@ func sync_check(label: String, positions := true) -> void:
 			expect(lab.playback[unit.unit_id].path[-1]==unit.grid_cell,label+" playback ends on engine cell "+unit.unit_id)
 		elif positions: expect(view.position.distance_to(lab.board.world(unit.grid_cell))<.001,label+" cell "+unit.unit_id)
 		var count := 0
-		for soldier in lab.soldiers[unit.unit_id]:
-			if soldier.visible: count+=1
-		var expected_count := clampi(ceili(6.0*float(value.current_troops)/maxf(1.0,float(value.max_troops))),0,6)
+		var sinking: Array = [] # Unit3D: indexes of soldiers sinking out (still visible for SINK_TIME); not counted as shown
+		for index in range(lab.soldiers[unit.unit_id].size()):
+			var soldier: Node3D = lab.soldiers[unit.unit_id][index]
+			if lab.unit_visuals!=null and lab.unit_visuals._sinks.has(soldier.get_instance_id()): sinking.append(index)
+			elif soldier.visible: count+=1
+		# Unit3D: density by the unit's own soldier count N, and N itself checked: old models 6; new models by the type the
+		# lab built them from (spawn_types, not the current unit_type): infantry, archer, gunner 9, cavalry 6.
+		var n: int = lab.soldiers[unit.unit_id].size()
+		var expected_n: int = {"infantry":9,"archer":9,"gunner":9,"cavalry":6}.get(spawn_types.get(unit.unit_id,""),-1) if view.has_meta("unit3d") else 6
+		expect(n==expected_n,label+" soldier count N "+unit.unit_id)
+		var expected_count := clampi(ceili(float(n)*float(value.current_troops)/maxf(1.0,float(value.max_troops))),0,n)
 		expect(count==expected_count,label+" visual density "+unit.unit_id)
+		expect(sinking.all(func(index): return index>=expected_count),label+" only dropped soldiers sink "+unit.unit_id)
 		for child in view.get_children():
 			if child is Label3D: expect(child.text=="%s | %s\n%s" % [value.unit_id,value.unit_type,value.current_troops],label+" troops label "+unit.unit_id)
 		if available:
