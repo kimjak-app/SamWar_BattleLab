@@ -12,9 +12,13 @@ const BOW := {"ally": "res://assets/battle3d/weapons/weapon_bow_blue.glb", "enem
 const QUIVER := {"ally": "res://assets/battle3d/weapons/weapon_quiver_blue.glb", "enemy": "res://assets/battle3d/weapons/weapon_quiver_red.glb"}
 const MUSKET := "res://assets/battle3d/weapons/weapon_musket.glb"
 const SPEAR_SHORT_LIBRARY := "res://assets/battle3d/base_soldier/anim_attack_spear_short.glb" # AnimationLibrary (attack_spear_short)
+const RUN_CARRY_LIBRARY := "res://assets/battle3d/base_soldier/anim_run_carry_v2.glb" # AnimationLibrary (run_carry, looped by its import)
+const CARRY := ["infantry", "gunner"] # these run with run_carry (weapon raised); the others run with run
 const HORSE := "res://assets/battle3d/horse/warhorse.glb"
 const RIDER_LIBRARY := "res://assets/battle3d/base_soldier/anim_cavalry_rider.glb" # AnimationLibrary (sit_cavalry, cav_thrust, ...)
-const SPEAR_Q := Quaternion(0.3704, 0.9157, -0.0862, 0.1294) # weapons README v3, on WeaponSocket_R (one hand, fixed)
+const SPEAR_Q := Quaternion(0.3704, 0.9157, -0.0862, 0.1294) # weapons README v3, on WeaponSocket_R (one hand)
+const SPEAR_RUN_Q  := Quaternion(0.7762, 0.0214, -0.3109, 0.5481)  # WeaponSocket_R, position (0,0,0)
+const MUSKET_RUN_Q := Quaternion(0.7687, 0.4027, 0.3290, 0.3724)   # WeaponSocket_R, position (0,0,0)
 const BOW_Q := Quaternion(0.0973, 0.7935, 0.6005, -0.0160) # on WeaponSocket_L
 const QUIVER_BONE := "mixamorig_Spine2"
 const QUIVER_POSITION := Vector3(-0.030, -0.020, -0.145)
@@ -22,8 +26,8 @@ const QUIVER_Q := Quaternion(-0.0846, -0.0211, 0.2410, 0.9666)
 const MUSKET_Q := { # on WeaponSocket_R, per animation
 	"idle": Quaternion(0.4956, 0.3527, 0.1508, 0.7793), "idle_alt": Quaternion(0.4956, 0.3527, 0.1508, 0.7793),
 	"walk": Quaternion(0.5600, 0.3742, 0.2963, 0.6772), "run": Quaternion(-0.0931, -0.3625, 0.4307, 0.8212),
-	"attack_gun": Quaternion(0.7749, -0.2058, 0.5645, 0.1962)}
-const MUSKET_SLERP := 0.1 # s, between animations (the attack takes its value at once)
+	"attack_gun": Quaternion(0.7749, -0.2058, 0.5645, 0.1962), "run_carry": MUSKET_RUN_Q}
+const MUSKET_SLERP := 0.1 # s, between animations (the attack takes its value at once); the spear too
 const CAVALRY_SPEAR_Q := Quaternion(0.3114, 0.9195, 0.1201, 0.2078) # handoff README, on the rider's WeaponSocket_R, held at +Y 0.20
 const CAVALRY_SPEAR_GRIP := Vector3(0, -0.20, 0)
 const RIDER_OFFSET := Vector3(0, -0.358, 0) # rider root under the horse's Saddle, no rotation
@@ -49,6 +53,7 @@ var fx: Node3D = null # the ranged effects node (one, under the lab root), made 
 var _attack_left: Dictionary = {} # soldier instance id -> seconds left in the attack animation
 var _moving: Dictionary = {} # unit id -> last moving state sent to its soldiers
 var _muskets: Dictionary = {} # soldier instance id -> {node, from, to, t}
+var _spears: Dictionary = {} # spearman instance id -> {node, from, to, t}
 var _rng := RandomNumberGenerator.new() # own stream: the engine judges with the global one, which this never touches
 var _home: Dictionary = {} # soldier instance id -> its spawn position under the unit root
 var _hits: Dictionary = {} # soldier instance id -> {soldier, dir (unit-root local, HIT_PUSH long), t (s; < 0: stagger left)}
@@ -102,10 +107,12 @@ func _soldier(side: String, kind: String) -> Node3D:
 	soldier.scale = Vector3.ONE * SCALE
 	soldier.set_meta("unit3d_kind", kind)
 	_add_library(player_of(soldier), SPEAR_SHORT_LIBRARY)
+	if kind in CARRY: _add_library(player_of(soldier), RUN_CARRY_LIBRARY)
 	var socket_r: Node3D = soldier.find_child("WeaponSocket_R", true, false)
 	match kind:
 		"infantry":
-			_weapon(SPEAR[side], socket_r, SPEAR_Q)
+			var spear := _weapon(SPEAR[side], socket_r, SPEAR_Q)
+			_spears[soldier.get_instance_id()] = {"node": spear, "from": SPEAR_Q, "to": SPEAR_Q, "t": 1.0}
 		"archer":
 			_weapon(BOW[side], soldier.find_child("WeaponSocket_L", true, false), BOW_Q)
 			var back := BoneAttachment3D.new()
@@ -181,6 +188,7 @@ func _loop(player: AnimationPlayer, anim: String) -> void:
 	player.seek(_rng.randf() * player.current_animation_length, true)
 	player.speed_scale = _rng.randf_range(.92, 1.08) * ANIM_SPEED
 	_musket_to(player.get_parent(), anim, false)
+	_spear_to(player.get_parent(), anim, false)
 
 ## The gunner's musket follows the animation: 0.1 s slerp, or at once for the attack (D / B test scenes).
 func _musket_to(soldier: Node, anim: String, snap: bool) -> void:
@@ -192,13 +200,24 @@ func _musket_to(soldier: Node, anim: String, snap: bool) -> void:
 	m.t = 1.0 if snap else 0.0
 	if snap: (m.node as Node3D).quaternion = m.to
 
+## The spearman's spear, as the musket: SPEAR_RUN_Q in run_carry, SPEAR_Q in anything else (at once for the attack).
+func _spear_to(soldier: Node, anim: String, snap: bool) -> void:
+	var key: int = soldier.get_instance_id()
+	if not _spears.has(key): return
+	var m: Dictionary = _spears[key]
+	m.from = (m.node as Node3D).quaternion
+	m.to = SPEAR_RUN_Q if anim == "run_carry" else SPEAR_Q
+	m.t = 1.0 if snap else 0.0
+	if snap: (m.node as Node3D).quaternion = m.to
+
 ## How many of the unit's n soldiers are shown: the lab's density rule with n in place of 6.
 func visible_count(value: Dictionary, n: int) -> int:
 	return clampi(ceili(float(n) * float(value.current_troops) / maxf(1.0, float(value.max_troops))), 0, n)
 
-## Per frame: run while the unit's move is being played back, idle otherwise; attacks return to the loop.
+## Per frame: run (run_carry for CARRY) while the unit's move is being played back, idle otherwise; attacks return to
+## the loop.
 func update(lab: Node, delta: float) -> void:
-	for m in _muskets.values():
+	for m in _muskets.values() + _spears.values():
 		if m.t < 1.0 and is_instance_valid(m.node):
 			m.t = minf(1.0, m.t + delta / MUSKET_SLERP)
 			(m.node as Node3D).quaternion = (m.from as Quaternion).slerp(m.to, m.t)
@@ -243,7 +262,8 @@ func update(lab: Node, delta: float) -> void:
 				restart = true
 			if not restart: continue
 			if horseman: _loop(attack_player_of(soldier), "sit_cavalry")
-			else: _loop(player_of(soldier), "run" if moving else "idle")
+			elif not moving: _loop(player_of(soldier), "idle")
+			else: _loop(player_of(soldier), "run_carry" if soldier.get_meta("unit3d_kind") in CARRY else "run")
 
 ## The attacker's soldiers play their basic attack once (engine attack_resolved / enemy_attack_resolved). Archers and
 ## gunners shoot target_id's shown soldiers through the effects script (soldier i -> target soldier i % count).
@@ -259,6 +279,7 @@ func attack(lab: Node, attacker_id: String, target_id: String) -> void:
 		player.play(ATTACK[kind][0])
 		player.seek(0.0, true)
 		player.speed_scale = ATTACK[kind][1]
+		_spear_to(soldier, ATTACK[kind][0], true)
 		_attack_left[soldier.get_instance_id()] = player.current_animation_length / ATTACK[kind][1]
 	if shooters.is_empty() or fx == null or not lab.soldiers.has(target_id): return
 	var shown: Array = lab.soldiers[target_id].filter(func(s): return s.visible and not _sinks.has(s.get_instance_id()))
