@@ -1,0 +1,51 @@
+{
+ "albedo": [
+  2048,
+  1536
+ ],
+ "coast_tex": [
+  1024,
+  768
+ ],
+ "depth_tex": [
+  512,
+  384
+ ],
+ "region_count": 13,
+ "region_land_km2": {
+  "1": 7703,
+  "2": 16445,
+  "3": 8451,
+  "4": 18866,
+  "5": 9613,
+  "6": 8226,
+  "7": 17300,
+  "8": 18516,
+  "9": 18432,
+  "10": 9536,
+  "11": 10641,
+  "12": 17745,
+  "13": 15748
+ },
+ "region_dist_max_km": 40.0,
+ "grid": [
+  257,
+  193
+ ],
+ "kept_cells": 31688,
+ "est_tris": 63376,
+ "region_tex": [
+  1024,
+  768
+ ],
+ "river_polylines": 148,
+ "river_points": 10212,
+ "coast_sdf_km": 8.0,
+ "depth_max_m": 4000.0,
+ "bake_seconds": 22.4,
+ "source": "synthetic (tools/make_dummy_map.py, seed 1313)",
+ "width_km": 640.0,
+ "height_km": 480.0,
+ "height_scale": 7.0,
+ "texel_km": 0.3125
+}

@@ -1,0 +1,70 @@
+{
+ "_comment": "더미 맵 마커 표시 위치(맵 km). 상징적 위치.",
+ "markers": {
+  "c01": {
+   "x_km": 210.2,
+   "z_km": -195.0,
+   "marker_scene": ""
+  },
+  "c02": {
+   "x_km": 50.1,
+   "z_km": -153.6,
+   "marker_scene": ""
+  },
+  "c03": {
+   "x_km": -109.5,
+   "z_km": -144.5,
+   "marker_scene": ""
+  },
+  "c04": {
+   "x_km": 141.2,
+   "z_km": -60.9,
+   "marker_scene": ""
+  },
+  "c05": {
+   "x_km": 299.6,
+   "z_km": -55.4,
+   "marker_scene": ""
+  },
+  "c06": {
+   "x_km": -309.7,
+   "z_km": -53.9,
+   "marker_scene": ""
+  },
+  "c07": {
+   "x_km": -51.9,
+   "z_km": -31.3,
+   "marker_scene": ""
+  },
+  "c08": {
+   "x_km": -179.8,
+   "z_km": 2.8,
+   "marker_scene": ""
+  },
+  "c09": {
+   "x_km": 46.4,
+   "z_km": 41.4,
+   "marker_scene": ""
+  },
+  "c10": {
+   "x_km": 214.3,
+   "z_km": 65.3,
+   "marker_scene": ""
+  },
+  "c11": {
+   "x_km": -189.0,
+   "z_km": 131.8,
+   "marker_scene": ""
+  },
+  "c12": {
+   "x_km": -69.2,
+   "z_km": 193.5,
+   "marker_scene": ""
+  },
+  "c13": {
+   "x_km": 149.5,
+   "z_km": 204.8,
+   "marker_scene": ""
+  }
+ }
+}

@@ -1,0 +1,188 @@
+{
+ "_comment": "v2.3 지역 테이블(index·도시·세력은 v2.2와 같음, region_ids.png 경계만 tools/regions23.py로 지형 따라 다시 그림) — 실제 13개 도시(city_table.json id). index = region_ids.png 값(1..255, 0 = 중립/지역 없음). realm = 국경 그룹(같은 realm끼리는 얇은 2톤 내부 경계, 다른 realm/중립과는 굵은 국경). shade = 같은 realm 이웃끼리 채움 밝기 교대(-1/0/+1). color = 기본 팔레트(map_config territory.faction_palette와 같음).",
+ "region_map": "textures/region_ids.png",
+ "regions": [
+  {
+   "index": 1,
+   "region_id": "pyeongyang",
+   "city_id": "pyeongyang",
+   "name_ko": "평양",
+   "realm": "korea",
+   "default_owner": "goguryeo",
+   "color": "#9B6BE0",
+   "shade": 1,
+   "city_lonlat": [
+    125.75,
+    39.02
+   ]
+  },
+  {
+   "index": 2,
+   "region_id": "hanseong",
+   "city_id": "hanseong",
+   "name_ko": "한성",
+   "realm": "korea",
+   "default_owner": "player",
+   "color": "#2F6BFF",
+   "shade": -1,
+   "city_lonlat": [
+    127.1,
+    37.52
+   ]
+  },
+  {
+   "index": 3,
+   "region_id": "sabi",
+   "city_id": "sabi",
+   "name_ko": "사비",
+   "realm": "korea",
+   "default_owner": "baekje_faction",
+   "color": "#B07CF0",
+   "shade": 1,
+   "city_lonlat": [
+    126.91,
+    36.28
+   ]
+  },
+  {
+   "index": 4,
+   "region_id": "gyeongju",
+   "city_id": "gyeongju",
+   "name_ko": "경주",
+   "realm": "korea",
+   "default_owner": "silla",
+   "color": "#E0559A",
+   "shade": 0,
+   "city_lonlat": [
+    129.21,
+    35.84
+   ]
+  },
+  {
+   "index": 5,
+   "region_id": "edo",
+   "city_id": "edo",
+   "name_ko": "에도",
+   "realm": "japan",
+   "default_owner": "tokugawa",
+   "color": "#FF7A1A",
+   "shade": 1,
+   "city_lonlat": [
+    139.77,
+    35.68
+   ]
+  },
+  {
+   "index": 6,
+   "region_id": "kyoto",
+   "city_id": "kyoto",
+   "name_ko": "교토",
+   "realm": "japan",
+   "default_owner": "oda",
+   "color": "#FFD84A",
+   "shade": -1,
+   "city_lonlat": [
+    135.76,
+    35.01
+   ]
+  },
+  {
+   "index": 7,
+   "region_id": "osaka",
+   "city_id": "osaka",
+   "name_ko": "오사카",
+   "realm": "japan",
+   "default_owner": "toyotomi",
+   "color": "#E8505B",
+   "shade": 1,
+   "city_lonlat": [
+    135.5,
+    34.69
+   ]
+  },
+  {
+   "index": 8,
+   "region_id": "kyushu",
+   "city_id": "kyushu",
+   "name_ko": "큐슈",
+   "realm": "japan",
+   "default_owner": "kyushu_faction",
+   "color": "#C98A4A",
+   "shade": -1,
+   "city_lonlat": [
+    130.71,
+    32.8
+   ]
+  },
+  {
+   "index": 9,
+   "region_id": "yecheng",
+   "city_id": "yecheng",
+   "name_ko": "업성",
+   "realm": "wei",
+   "default_owner": "wei",
+   "color": "#62A6F2",
+   "shade": 0,
+   "city_lonlat": [
+    114.35,
+    36.33
+   ]
+  },
+  {
+   "index": 10,
+   "region_id": "luoyang",
+   "city_id": "luoyang",
+   "name_ko": "낙양",
+   "realm": "chu",
+   "default_owner": "chu",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    112.45,
+    34.62
+   ]
+  },
+  {
+   "index": 11,
+   "region_id": "jianye",
+   "city_id": "jianye",
+   "name_ko": "건업",
+   "realm": "wu",
+   "default_owner": "wu",
+   "color": "#C8283C",
+   "shade": 0,
+   "city_lonlat": [
+    118.78,
+    32.05
+   ]
+  },
+  {
+   "index": 12,
+   "region_id": "chengdu",
+   "city_id": "chengdu",
+   "name_ko": "성도",
+   "realm": "shu",
+   "default_owner": "shu",
+   "color": "#E2C23A",
+   "shade": 0,
+   "city_lonlat": [
+    104.07,
+    30.66
+   ]
+  },
+  {
+   "index": 13,
+   "region_id": "karakorum",
+   "city_id": "karakorum",
+   "name_ko": "카라코룸",
+   "realm": "mongol",
+   "default_owner": "mongol_faction",
+   "color": "#17B3B0",
+   "shade": 0,
+   "city_lonlat": [
+    102.83,
+    47.2
+   ]
+  }
+ ]
+}

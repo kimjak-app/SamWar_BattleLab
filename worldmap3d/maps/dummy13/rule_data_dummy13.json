@@ -1,0 +1,210 @@
+{
+ "_comment": "더미 맵 규칙 데이터(테스트용). 세력 ID는 한반도 샘플과 같다.",
+ "version": 3,
+ "factions": [
+  {
+   "id": "player",
+   "name_ko": "플레이어",
+   "color": "#3b6fd6"
+  },
+  {
+   "id": "goguryeo_faction",
+   "name_ko": "고구려",
+   "color": "#d9474f"
+  },
+  {
+   "id": "silla_faction",
+   "name_ko": "신라",
+   "color": "#22a99a"
+  },
+  {
+   "id": "baekje_faction",
+   "name_ko": "백제",
+   "color": "#9c5bd6"
+  }
+ ],
+ "cities": [
+  {
+   "id": "c01",
+   "name_ko": "가람",
+   "owner": "player",
+   "troops": 1000,
+   "grade": 1,
+   "capital": true
+  },
+  {
+   "id": "c02",
+   "name_ko": "나루",
+   "owner": "player",
+   "troops": 1137,
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "c03",
+   "name_ko": "다솔",
+   "owner": "goguryeo_faction",
+   "troops": 1274,
+   "grade": 3,
+   "capital": false
+  },
+  {
+   "id": "c04",
+   "name_ko": "라온",
+   "owner": "goguryeo_faction",
+   "troops": 1411,
+   "grade": 1,
+   "capital": false
+  },
+  {
+   "id": "c05",
+   "name_ko": "마루",
+   "owner": "silla_faction",
+   "troops": 1548,
+   "grade": 2,
+   "capital": true
+  },
+  {
+   "id": "c06",
+   "name_ko": "바다",
+   "owner": "goguryeo_faction",
+   "troops": 1685,
+   "grade": 3,
+   "capital": false
+  },
+  {
+   "id": "c07",
+   "name_ko": "사랑",
+   "owner": "baekje_faction",
+   "troops": 1822,
+   "grade": 1,
+   "capital": false
+  },
+  {
+   "id": "c08",
+   "name_ko": "아라",
+   "owner": "baekje_faction",
+   "troops": 1959,
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "c09",
+   "name_ko": "자람",
+   "owner": "player",
+   "troops": 2096,
+   "grade": 3,
+   "capital": true
+  },
+  {
+   "id": "c10",
+   "name_ko": "차오",
+   "owner": "player",
+   "troops": 2233,
+   "grade": 1,
+   "capital": false
+  },
+  {
+   "id": "c11",
+   "name_ko": "카라",
+   "owner": "silla_faction",
+   "troops": 2370,
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "c12",
+   "name_ko": "타래",
+   "owner": "goguryeo_faction",
+   "troops": 2507,
+   "grade": 3,
+   "capital": false
+  },
+  {
+   "id": "c13",
+   "name_ko": "하늘",
+   "owner": "silla_faction",
+   "troops": 2644,
+   "grade": 1,
+   "capital": true
+  }
+ ],
+ "roads": [
+  [
+   "c01",
+   "c04"
+  ],
+  [
+   "c01",
+   "c02"
+  ],
+  [
+   "c02",
+   "c04"
+  ],
+  [
+   "c02",
+   "c07"
+  ],
+  [
+   "c03",
+   "c07"
+  ],
+  [
+   "c03",
+   "c02"
+  ],
+  [
+   "c04",
+   "c09"
+  ],
+  [
+   "c05",
+   "c10"
+  ],
+  [
+   "c05",
+   "c04"
+  ],
+  [
+   "c06",
+   "c08"
+  ],
+  [
+   "c06",
+   "c03"
+  ],
+  [
+   "c07",
+   "c09"
+  ],
+  [
+   "c08",
+   "c11"
+  ],
+  [
+   "c08",
+   "c07"
+  ],
+  [
+   "c10",
+   "c04"
+  ],
+  [
+   "c11",
+   "c12"
+  ],
+  [
+   "c12",
+   "c09"
+  ],
+  [
+   "c13",
+   "c10"
+  ],
+  [
+   "c13",
+   "c09"
+  ]
+ ]
+}

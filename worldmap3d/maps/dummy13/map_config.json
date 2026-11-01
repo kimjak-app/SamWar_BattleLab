@@ -1,0 +1,74 @@
+{
+ "_comment": "더미 맵(640×480 km, 지역 13개) 설정 — 이 파일 경로만 바꾸면 같은 코드/셰이더로 로드된다(수용 기준 5).",
+ "map_id": "dummy13",
+ "size_km": [
+  640.0,
+  480.0
+ ],
+ "height": {
+  "grid": "terrain/heightgrid_f32.bin",
+  "grid_size": [
+   257,
+   193
+  ],
+  "height_scale": 7.0
+ },
+ "textures": {
+  "albedo": "textures/terrain_albedo.png",
+  "normal": "textures/terrain_normal.png",
+  "mask": "textures/terrain_mask.png",
+  "coast": "textures/terrain_coast.png",
+  "depth": "textures/terrain_depth.png",
+  "region_ids": "textures/region_ids.png",
+  "region_dist": "textures/region_dist.png"
+ },
+ "encoding": {
+  "coast_sdf_km": 8.0,
+  "depth_max_m": 4000.0,
+  "region_dist_max_km": 40.0,
+  "region_dist": "sqrt(d_km/region_dist_max_km)"
+ },
+ "regions": "regions.json",
+ "markers": "markers.json",
+ "rivers": "rivers.json",
+ "rule_data": "rule_data_dummy13.json",
+ "camera": {
+  "far_distance_km": 760.0,
+  "near_distance_km": 120.0,
+  "pan_bounds_km": [
+   -280,
+   -210,
+   560,
+   420
+  ],
+  "start_km": [
+   0,
+   0
+  ],
+  "start_zoom": 0.0
+ },
+ "territory": {
+  "fill_preset": "light",
+  "presets": {
+   "strong": {
+    "fill_far": 0.88,
+    "fill_near": 0.45,
+    "band": 1.0
+   },
+   "medium": {
+    "fill_far": 0.68,
+    "fill_near": 0.22,
+    "band": 0.9
+   },
+   "light": {
+    "fill_far": 0.5,
+    "fill_near": 0.08,
+    "band": 0.8
+   }
+  }
+ },
+ "look": {
+  "edge_mist_km": 70.0,
+  "detail_tile_km": 4.0
+ }
+}

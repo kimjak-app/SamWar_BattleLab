@@ -1,0 +1,122 @@
+{
+ "_comment": "v2.2 도시 마커 위치(맵 km, x=동, z=남, 원점=맵 중앙). city_table.json v3_city_lonlat -> LCC 투영 -> 한/일 확대 워프로 계산. 13개 실제 도시.",
+ "markers": {
+  "pyeongyang": {
+   "x_km": 722.7,
+   "z_km": -508.7,
+   "marker_scene": "",
+   "lonlat": [
+    125.75,
+    39.02
+   ]
+  },
+  "hanseong": {
+   "x_km": 864.1,
+   "z_km": -290.4,
+   "marker_scene": "",
+   "lonlat": [
+    127.1,
+    37.52
+   ]
+  },
+  "sabi": {
+   "x_km": 848.5,
+   "z_km": -114.2,
+   "marker_scene": "",
+   "lonlat": [
+    126.91,
+    36.28
+   ]
+  },
+  "gyeongju": {
+   "x_km": 1110.3,
+   "z_km": -70.8,
+   "marker_scene": "",
+   "lonlat": [
+    129.21,
+    35.84
+   ]
+  },
+  "edo": {
+   "x_km": 2182.1,
+   "z_km": -281.0,
+   "marker_scene": "",
+   "lonlat": [
+    139.77,
+    35.68
+   ]
+  },
+  "kyoto": {
+   "x_km": 1780.5,
+   "z_km": -116.0,
+   "marker_scene": "",
+   "lonlat": [
+    135.76,
+    35.01
+   ]
+  },
+  "osaka": {
+   "x_km": 1760.7,
+   "z_km": -68.8,
+   "marker_scene": "",
+   "lonlat": [
+    135.5,
+    34.69
+   ]
+  },
+  "kyushu": {
+   "x_km": 1279.4,
+   "z_km": 268.6,
+   "marker_scene": "",
+   "lonlat": [
+    130.71,
+    32.8
+   ]
+  },
+  "yecheng": {
+   "x_km": -250.9,
+   "z_km": -246.7,
+   "marker_scene": "",
+   "lonlat": [
+    114.35,
+    36.33
+   ]
+  },
+  "luoyang": {
+   "x_km": -432.3,
+   "z_km": -71.1,
+   "marker_scene": "",
+   "lonlat": [
+    112.45,
+    34.62
+   ]
+  },
+  "jianye": {
+   "x_km": 134.0,
+   "z_km": 235.7,
+   "marker_scene": "",
+   "lonlat": [
+    118.78,
+    32.05
+   ]
+  },
+  "chengdu": {
+   "x_km": -1251.3,
+   "z_km": 268.5,
+   "marker_scene": "",
+   "lonlat": [
+    104.07,
+    30.66
+   ]
+  },
+  "karakorum": {
+   "x_km": -1053.7,
+   "z_km": -1545.6,
+   "marker_scene": "",
+   "lonlat": [
+    102.83,
+    47.2
+   ]
+  }
+ }
+}

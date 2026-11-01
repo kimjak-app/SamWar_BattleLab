@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://b7wm3deastasia2"]
+
+[ext_resource type="Script" path="res://worldmap3d/scripts/worldmap3d_root.gd" id="1_root"]
+
+[node name="WorldMap3DEastAsia" type="Node3D"]
+script = ExtResource("1_root")
+map_config_path = "res://worldmap3d/maps/eastasia/map_config.json"
+show_markers = false
+show_roads = false

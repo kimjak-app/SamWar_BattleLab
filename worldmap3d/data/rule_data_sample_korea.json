@@ -1,0 +1,17 @@
+{
+ "_comment": "EASTWAR 월드맵3D — 규칙 데이터 예시(게임 쪽 원본을 흉내 낸 샘플). 세력/소유/병력/길 연결만 담는다. 지도 위치(마커)와 지역 모양은 맵 폴더(markers.json, regions.json + region_ids.png)에 따로 있다. 색과 수치는 임시값.",
+ "version": 3,
+ "factions": [
+  {"id": "player",           "name_ko": "플레이어(예시)", "color": "#3b6fd6", "placeholder": true},
+  {"id": "goguryeo_faction", "name_ko": "고구려(예시)",   "color": "#d9474f", "placeholder": true},
+  {"id": "silla_faction",    "name_ko": "신라(예시)",     "color": "#22a99a", "placeholder": true, "_note": "숲 초록과 구분되는 청록(옥색)"},
+  {"id": "baekje_faction",   "name_ko": "백제(예시)",     "color": "#9c5bd6", "placeholder": true}
+ ],
+ "cities": [
+  {"id": "hanseong",   "name_ko": "한성", "owner": "player",           "troops": 3450, "grade": 3, "capital": true},
+  {"id": "pyeongyang", "name_ko": "평양", "owner": "goguryeo_faction", "troops": 2850, "grade": 3, "capital": true},
+  {"id": "gyeongju",   "name_ko": "경주", "owner": "silla_faction",    "troops": 2700, "grade": 2, "capital": true},
+  {"id": "sabi",       "name_ko": "사비", "owner": "baekje_faction",   "troops": 1950, "grade": 2, "capital": true}
+ ],
+ "roads": [["pyeongyang", "hanseong"], ["hanseong", "sabi"], ["hanseong", "gyeongju"], ["sabi", "gyeongju"]]
+}

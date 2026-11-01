@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://b7wm3dea22test"]
+
+[ext_resource type="Script" path="res://worldmap3d/scripts/worldmap_test_hud.gd" id="1_hud"]
+[ext_resource type="PackedScene" uid="uid://b7wm3deastasia2" path="res://worldmap3d/scenes/worldmap3d_eastasia.tscn" id="2_map"]
+
+[node name="WorldMapV22Test" type="Node"]
+script = ExtResource("1_hud")
+
+[node name="WorldMap3DEastAsia" parent="." instance=ExtResource("2_map")]

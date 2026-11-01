@@ -26,3 +26,21 @@ assets/video_test/theora_safe/godot_*frame.wav
 assets/video_test/theora_safe/source_frame_*.png
 # EASTWAR 3D world map: big baked terrain textures stay out of git (kept locally / versioned zips). Uploaded once after v2.2 split 2x2.
 **/worldmap3d/maps/**/textures/terrain_*
+
+# ---- EASTWAR WorldMap3D v2.3 (기존 한 줄 `**/worldmap3d/maps/**/textures/terrain_*` 을 이 블록으로 교체)
+# 1) 통짜(분할 안 된) terrain_* 텍스처는 계속 막음
+**/worldmap3d/maps/**/textures/terrain_*
+# 2) 2x2 분할 조각은 허용 (terrain_albedo_tile_0_0.webp ... terrain_normal_tile_1_1.webp)
+!**/worldmap3d/maps/**/textures/terrain_*_tile_*
+# 3) 모든 .import 파일은 허용 (Godot 4.6.2-stable이 만든 임포트 설정; 통짜 파일의 .import도 포함)
+!**/worldmap3d/maps/**/textures/*.import
+# 4) [필수] 작은 통짜 텍스처 3개 허용 — 이 3줄이 주석(#)이면 mask/coast/depth가 저장소에 안 올라가서
+#    클론한 프로젝트에서 동아시아 맵이 열리지 않습니다. 셋 다 50 MB 미만(GitHub 100 MB 제한 아래).
+#    (v2.2 블록에서는 이 3줄이 주석이었습니다. v2.3에서는 반드시 주석을 푼 상태로 넣으세요.)
+!**/worldmap3d/maps/**/textures/terrain_mask.webp
+!**/worldmap3d/maps/**/textures/terrain_coast.png
+!**/worldmap3d/maps/**/textures/terrain_depth.png
+# 5) (선택) dummy13 테스트 맵 텍스처도 올리려면 주석 해제
+!**/worldmap3d/maps/dummy13/textures/terrain_*
+# 6) 성능 측정 결과 폴더(bench_out/)는 올리지 않음
+bench_out/

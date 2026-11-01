@@ -1,0 +1,305 @@
+{
+ "_comment": "EASTWAR 동아시아 월드맵 v2.2 — 규칙 데이터(실제 13개 도시, tools/city_table.json 기준). owner \"\" = 중립. factions[].realm = 참고용 국경 그룹(map_config territory.border_group = \"realm\"일 때만 사용; 기본 \"owner\"). 색은 map_config territory.faction_palette(지도 팔레트)가 우선, 없으면 여기 color.",
+ "version": 4,
+ "factions": [
+  {
+   "id": "goguryeo",
+   "name_ko": "고구려",
+   "color": "#9B6BE0",
+   "realm": "korea",
+   "home_city": "pyeongyang"
+  },
+  {
+   "id": "player",
+   "name_ko": "플레이어(한성)",
+   "color": "#2F6BFF",
+   "realm": "korea",
+   "home_city": "hanseong"
+  },
+  {
+   "id": "baekje_faction",
+   "name_ko": "백제",
+   "color": "#B07CF0",
+   "realm": "korea",
+   "home_city": "sabi"
+  },
+  {
+   "id": "silla",
+   "name_ko": "신라",
+   "color": "#E0559A",
+   "realm": "korea",
+   "home_city": "gyeongju"
+  },
+  {
+   "id": "tokugawa",
+   "name_ko": "도쿠가와",
+   "color": "#FF7A1A",
+   "realm": "japan",
+   "home_city": "edo"
+  },
+  {
+   "id": "oda",
+   "name_ko": "오다",
+   "color": "#FFD84A",
+   "realm": "japan",
+   "home_city": "kyoto"
+  },
+  {
+   "id": "toyotomi",
+   "name_ko": "도요토미",
+   "color": "#E8505B",
+   "realm": "japan",
+   "home_city": "osaka"
+  },
+  {
+   "id": "kyushu_faction",
+   "name_ko": "큐슈",
+   "color": "#C98A4A",
+   "realm": "japan",
+   "home_city": "kyushu"
+  },
+  {
+   "id": "wei",
+   "name_ko": "위(업성)",
+   "color": "#62A6F2",
+   "realm": "wei",
+   "home_city": "yecheng"
+  },
+  {
+   "id": "chu",
+   "name_ko": "초(항우)",
+   "color": "#2E7D32",
+   "realm": "chu",
+   "home_city": "luoyang"
+  },
+  {
+   "id": "wu",
+   "name_ko": "오",
+   "color": "#C8283C",
+   "realm": "wu",
+   "home_city": "jianye"
+  },
+  {
+   "id": "shu",
+   "name_ko": "촉",
+   "color": "#E2C23A",
+   "realm": "shu",
+   "home_city": "chengdu"
+  },
+  {
+   "id": "mongol_faction",
+   "name_ko": "몽골",
+   "color": "#17B3B0",
+   "realm": "mongol",
+   "home_city": "karakorum"
+  }
+ ],
+ "cities": [
+  {
+   "id": "pyeongyang",
+   "name_ko": "평양",
+   "owner": "goguryeo",
+   "troops": 280,
+   "population": 42000,
+   "type": "production_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "hanseong",
+   "name_ko": "한성",
+   "owner": "player",
+   "troops": 300,
+   "population": 50000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true
+  },
+  {
+   "id": "sabi",
+   "name_ko": "사비",
+   "owner": "baekje_faction",
+   "troops": 300,
+   "population": 44000,
+   "type": "river_trade_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "gyeongju",
+   "name_ko": "경주",
+   "owner": "silla",
+   "troops": 280,
+   "population": 48000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true
+  },
+  {
+   "id": "yecheng",
+   "name_ko": "업성",
+   "owner": "wei",
+   "troops": 450,
+   "population": 55000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "luoyang",
+   "name_ko": "낙양",
+   "owner": "chu",
+   "troops": 420,
+   "population": 80000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true
+  },
+  {
+   "id": "jianye",
+   "name_ko": "건업",
+   "owner": "wu",
+   "troops": 300,
+   "population": 52000,
+   "type": "river_trade_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "chengdu",
+   "name_ko": "성도",
+   "owner": "shu",
+   "troops": 350,
+   "population": 60000,
+   "type": "production_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "kyoto",
+   "name_ko": "교토",
+   "owner": "oda",
+   "troops": 240,
+   "population": 45000,
+   "type": "coastal_trade_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "osaka",
+   "name_ko": "오사카",
+   "owner": "toyotomi",
+   "troops": 260,
+   "population": 50000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true
+  },
+  {
+   "id": "kyushu",
+   "name_ko": "큐슈",
+   "owner": "kyushu_faction",
+   "troops": 270,
+   "population": 42000,
+   "type": "coastal_trade_city",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "edo",
+   "name_ko": "에도",
+   "owner": "tokugawa",
+   "troops": 380,
+   "population": 46000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false
+  },
+  {
+   "id": "karakorum",
+   "name_ko": "카라코룸",
+   "owner": "mongol_faction",
+   "troops": 460,
+   "population": 36000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false
+  }
+ ],
+ "roads": [
+  [
+   "chengdu",
+   "jianye"
+  ],
+  [
+   "chengdu",
+   "luoyang"
+  ],
+  [
+   "edo",
+   "kyoto"
+  ],
+  [
+   "gyeongju",
+   "hanseong"
+  ],
+  [
+   "gyeongju",
+   "sabi"
+  ],
+  [
+   "hanseong",
+   "pyeongyang"
+  ],
+  [
+   "hanseong",
+   "sabi"
+  ],
+  [
+   "jianye",
+   "luoyang"
+  ],
+  [
+   "jianye",
+   "yecheng"
+  ],
+  [
+   "karakorum",
+   "pyeongyang"
+  ],
+  [
+   "karakorum",
+   "yecheng"
+  ],
+  [
+   "kyoto",
+   "osaka"
+  ],
+  [
+   "luoyang",
+   "yecheng"
+  ]
+ ],
+ "sea_routes": [
+  [
+   "gyeongju",
+   "kyoto"
+  ],
+  [
+   "gyeongju",
+   "osaka"
+  ],
+  [
+   "jianye",
+   "sabi"
+  ],
+  [
+   "kyushu",
+   "osaka"
+  ],
+  [
+   "kyushu",
+   "sabi"
+  ]
+ ]
+}

@@ -1,0 +1,84 @@
+{
+ "_comment": "더미 맵 지역 테이블(13개). index = region_ids.png 값.",
+ "region_map": "textures/region_ids.png",
+ "regions": [
+  {
+   "index": 1,
+   "region_id": "r01",
+   "city_id": "c01",
+   "name_ko": "가람 일대"
+  },
+  {
+   "index": 2,
+   "region_id": "r02",
+   "city_id": "c02",
+   "name_ko": "나루 일대"
+  },
+  {
+   "index": 3,
+   "region_id": "r03",
+   "city_id": "c03",
+   "name_ko": "다솔 일대"
+  },
+  {
+   "index": 4,
+   "region_id": "r04",
+   "city_id": "c04",
+   "name_ko": "라온 일대"
+  },
+  {
+   "index": 5,
+   "region_id": "r05",
+   "city_id": "c05",
+   "name_ko": "마루 일대"
+  },
+  {
+   "index": 6,
+   "region_id": "r06",
+   "city_id": "c06",
+   "name_ko": "바다 일대"
+  },
+  {
+   "index": 7,
+   "region_id": "r07",
+   "city_id": "c07",
+   "name_ko": "사랑 일대"
+  },
+  {
+   "index": 8,
+   "region_id": "r08",
+   "city_id": "c08",
+   "name_ko": "아라 일대"
+  },
+  {
+   "index": 9,
+   "region_id": "r09",
+   "city_id": "c09",
+   "name_ko": "자람 일대"
+  },
+  {
+   "index": 10,
+   "region_id": "r10",
+   "city_id": "c10",
+   "name_ko": "차오 일대"
+  },
+  {
+   "index": 11,
+   "region_id": "r11",
+   "city_id": "c11",
+   "name_ko": "카라 일대"
+  },
+  {
+   "index": 12,
+   "region_id": "r12",
+   "city_id": "c12",
+   "name_ko": "타래 일대"
+  },
+  {
+   "index": 13,
+   "region_id": "r13",
+   "city_id": "c13",
+   "name_ko": "하늘 일대"
+  }
+ ]
+}

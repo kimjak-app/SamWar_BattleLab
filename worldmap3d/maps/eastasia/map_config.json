@@ -1,0 +1,312 @@
+{
+ "_comment": "EASTWAR 월드맵3D v2.3 (v2.2 + 지형 따라가는 지역 경계) — 동아시아 전체 맵 설정. 같은 씬/스크립트/셰이더, 이 파일만 바꾸면 맵이 바뀐다. 좌표: 1 유닛 = 1 km, x = 동(+), z = 남(+), 원점 = 맵 중앙. 런타임에 위경도 없음(투영/워프는 굽기 단계에서만).",
+ "map_id": "eastasia",
+ "size_km": [
+  5549.823,
+  3699.882
+ ],
+ "height": {
+  "grid": "terrain/heightgrid_f32.bin",
+  "grid_size": [
+   1729,
+   1153
+  ],
+  "height_scale": 9.5,
+  "_note": "y(km) = 굽기 표고(m, 산 강조 곡선 적용) × height_scale / 1000, 바다(-9999)는 메시에서 제외"
+ },
+ "terrain": {
+  "tiled": true,
+  "tile_cells": 128,
+  "lod_strides": [
+   2,
+   4,
+   8
+  ],
+  "lod_errors": "terrain/tile_lod.json",
+  "lod_threshold_px": 1.0,
+  "skirt_km": 6.0,
+  "_note": "청크(128셀) + 메시 LOD. lod_threshold_px 키우면 더 빨리 거친 LOD로(빠름/거침), 0이면 LOD 끔."
+ },
+ "textures": {
+  "albedo_tiles": [
+   "textures/terrain_albedo_tile_0_0.webp",
+   "textures/terrain_albedo_tile_1_0.webp",
+   "textures/terrain_albedo_tile_0_1.webp",
+   "textures/terrain_albedo_tile_1_1.webp"
+  ],
+  "normal_tiles": [
+   "textures/terrain_normal_tile_0_0.webp",
+   "textures/terrain_normal_tile_1_0.webp",
+   "textures/terrain_normal_tile_0_1.webp",
+   "textures/terrain_normal_tile_1_1.webp"
+  ],
+  "mask": "textures/terrain_mask.webp",
+  "coast": "textures/terrain_coast.png",
+  "depth": "textures/terrain_depth.png",
+  "region_ids": "textures/region_ids.png",
+  "region_dist": "textures/region_dist.png"
+ },
+ "texture_tiles": {
+  "grid": [
+   2,
+   2
+  ],
+  "tile_px": [
+   6912,
+   4608
+  ],
+  "full_px": [
+   13824,
+   9216
+  ],
+  "order": "_tile_<x>_<y>, x = 동쪽(열), y = 남쪽(행): _tile_0_0 _tile_1_0 _tile_0_1 _tile_1_1",
+  "_note": "v2.2: albedo/normal을 2x2 파일로 분할(각 < 50 MB). 셰이더가 경계 ±반 텍셀(밉 레벨 기준)에서 이웃 타일을 섞어 단일 텍스처와 같은 이중선형 결과를 낸다(패딩 없음 → VRAM 동일). 단일 텍스처 맵은 textures.albedo/normal 키를 쓰면 된다."
+ },
+ "encoding": {
+  "coast_sdf_km": 8.0,
+  "depth_max_m": 4000.0,
+  "depth": "sqrt(depth/depth_max) 16bit = L*256+A (terrain_depth.png)",
+  "region_dist_max_km": 40.0,
+  "region_dist": "sqrt(d_km/region_dist_max_km), L = 가장 가까운 다른 지역, A = 두 번째"
+ },
+ "regions": "regions.json",
+ "markers": "markers.json",
+ "rivers": "rivers.json",
+ "rule_data": "rule_data_eastasia.json",
+ "camera": {
+  "far_distance_km": 5400.0,
+  "near_distance_km": 120.0,
+  "_note": "near_distance_km = 최소 줌(카메라 거리 km). v3와 같은 120. 더 가까이 보려면 이 값만 낮추면 된다.",
+  "fill_screen_clamp": true,
+  "clamp_margin_km": 55.0,
+  "clamp_horizon_mul": 3.0,
+  "input_scheme": "A",
+  "_input_note": "v2.2 input_scheme A = Q/E·오른쪽 드래그 회전 + 가운데 드래그 이동, B = Q/E 회전 + 가운데·오른쪽 드래그 이동. 공통: 좌클릭 선택, 휠 줌, WASD 이동. 테스트 씬에서 F2로 전환.",
+  "_clamp_note": "v2.1: 화면 전체(네 모서리+변 중점)의 지면 투영이 항상 맵 사각형 안에 있도록 줌아웃/팬을 제한(회전 포함). clamp_margin_km = 맵 가장자리에서 이만큼 안쪽까지만 보임(가장자리 안개 띠 절반 정도만 살짝 보임). clamp_horizon_mul = 수평선 쪽 광선은 카메라 거리×이 값에서 자름(그 너머는 안개). fill_screen_clamp=false면 pan_bounds_km 사용.",
+  "pan_bounds_km": [
+   -2624.9,
+   -1729.9,
+   5249.8,
+   3459.9
+  ],
+  "start_km": [
+   -115.7,
+   15.3
+  ],
+  "start_zoom": 0.0
+ },
+ "territory": {
+  "fill_preset": "light",
+  "_note": "light = v3와 같음(내부 0.50→0.08, 지형색 유지). 색은 휘도 보존 혼합.",
+  "palette_source": "map",
+  "faction_palette": {
+   "goguryeo": "#9B6BE0",
+   "player": "#2F6BFF",
+   "baekje_faction": "#B07CF0",
+   "silla": "#E0559A",
+   "tokugawa": "#FF7A1A",
+   "oda": "#FFD84A",
+   "toyotomi": "#E8505B",
+   "kyushu_faction": "#C98A4A",
+   "wei": "#62A6F2",
+   "chu": "#2E7D32",
+   "wu": "#C8283C",
+   "shu": "#E2C23A",
+   "mongol_faction": "#17B3B0"
+  },
+  "_palette_note": "v2.2: 세력 색(지도 팔레트). palette_source = \"map\"이면 이 표가 rule data의 faction color보다 우선, \"rules\"면 rule data 색 사용. 게임에서 바꾸려면 이 표를 고치거나 런타임에 WorldMap3DRoot.set_faction_color(id, color). 위(업성) = v3 색 #62A6F2 유지(감독 확인: 바다로 안 읽힘). 낙양 = 초(항우) 독립 세력, 진한 녹색 #2E7D32(위 파랑·촉 노랑·오 진홍·몽골 청록과 구분).",
+  "faction_palette_v3_original": {
+   "yecheng": "#62A6F2",
+   "luoyang": "#4468BE"
+  },
+  "faction_palette_game_owner_colors": {
+   "goguryeo": "#5980F2",
+   "player": "#409EFF",
+   "baekje_faction": "#E08A47",
+   "silla": "#E6BD3D",
+   "wei": "#7594B8",
+   "chu": "#CC3D38",
+   "wu": "#47B8C2",
+   "shu": "#2E9452",
+   "oda": "#9447D6",
+   "toyotomi": "#DB7A29",
+   "kyushu_faction": "#A36B47",
+   "tokugawa": "#52B870",
+   "mongol_faction": "#9E8566"
+  },
+  "border_group": "owner",
+  "_border_note": "v2.2 기본 owner = 소유 세력이 같으면 얇은 2톤 내부 경계, 다르면 굵은 국경(새 게임은 13개 도시가 모두 다른 세력 → 전부 굵은 국경; 점령해 한 세력이 2곳 이상 가지면 내부 경계가 보임). \"realm\" = factions[].realm(한반도/일본/위/초/오/촉/몽골)이 같으면 얇은 경계.",
+  "inner_border": {
+   "width_ratio": 0.4,
+   "dark": 0.42,
+   "halo": 0.45,
+   "halo_px": 0.8,
+   "shade_amount": 0.08,
+   "fill_alternation": false,
+   "_note": "같은 realm 내부 경계: 굵은 국경 폭 × width_ratio의 진한 선(세력색 × dark) + 양쪽 halo_px 밝은 테(2톤). fill_alternation(기본 false, 보류) = true일 때만 같은 경계 그룹 이웃 지역끼리 채움 밝기 교대(regions.json shade × shade_amount).",
+   "min_px": 1.6
+  },
+  "presets": {
+   "strong": {
+    "fill_far": 0.88,
+    "fill_near": 0.45,
+    "band": 1.0
+   },
+   "medium": {
+    "fill_far": 0.68,
+    "fill_near": 0.22,
+    "band": 0.9
+   },
+   "light": {
+    "fill_far": 0.5,
+    "fill_near": 0.08,
+    "band": 0.8
+   }
+  }
+ },
+ "look": {
+  "edge_mist_km": 70.0,
+  "detail_tile_km": 4.0
+ },
+ "views_km": {
+  "korea": [
+   920.5,
+   -260.4
+  ],
+  "japan": [
+   1800.6,
+   -145.3
+  ],
+  "north_china_plain": [
+   -104.7,
+   -258.2
+  ],
+  "yangtze": [
+   -320.9,
+   400.3
+  ],
+  "tibet_edge": [
+   -1391.0,
+   206.9
+  ],
+  "taebaek": [
+   1041.7,
+   -294.1
+  ],
+  "japan_alps": [
+   1937.4,
+   -308.0
+  ],
+  "qinling": [
+   -797.0,
+   -15.9
+  ],
+  "taihang": [
+   -312.2,
+   -323.9
+  ],
+  "himalaya": [
+   -1877.3,
+   265.0
+  ],
+  "tarim_west": [
+   -2614.6,
+   -964.7
+  ],
+  "kunlun_west": [
+   -2630.0,
+   -656.6
+  ],
+  "_v3_note": "v3_* = v3 한반도 프리뷰(far/mid/near/near_east/min)와 같은 경위도 지점(v3 vs v2 비교용)",
+  "v3_far": [
+   934.6,
+   -395.0
+  ],
+  "v3_mid": [
+   887.3,
+   -245.3
+  ],
+  "v3_near": [
+   862.4,
+   -152.8
+  ],
+  "v3_near_east": [
+   1039.4,
+   -114.1
+  ],
+  "v3_min": [
+   932.9,
+   -169.7
+  ],
+  "mongolia": [
+   -846.6,
+   -1286.8
+  ],
+  "wei_inner": [
+   -266.8,
+   -200.4
+  ],
+  "korea_inner": [
+   852.9,
+   -301.8
+  ],
+  "korea_capture": [
+   821.4,
+   -402.2
+  ],
+  "cities": {
+   "pyeongyang": [
+    722.7,
+    -508.7
+   ],
+   "hanseong": [
+    864.1,
+    -290.4
+   ],
+   "sabi": [
+    848.5,
+    -114.2
+   ],
+   "gyeongju": [
+    1110.3,
+    -70.8
+   ],
+   "edo": [
+    2182.1,
+    -281.0
+   ],
+   "kyoto": [
+    1780.5,
+    -116.0
+   ],
+   "osaka": [
+    1760.7,
+    -68.8
+   ],
+   "kyushu": [
+    1279.4,
+    268.6
+   ],
+   "yecheng": [
+    -250.9,
+    -246.7
+   ],
+   "luoyang": [
+    -432.3,
+    -71.1
+   ],
+   "jianye": [
+    134.0,
+    235.7
+   ],
+   "chengdu": [
+    -1251.3,
+    268.5
+   ],
+   "karakorum": [
+    -1053.7,
+    -1545.6
+   ]
+  }
+ }
+}
