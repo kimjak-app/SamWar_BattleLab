@@ -76,5 +76,11 @@ func set_faction_color(c: Color) -> void:
 	_body.modulate = c
 	_emblem.modulate = c.darkened(0.05)
 
+## v2.4: sideways offset (in banner heights) so close cities (kyoto/osaka, the Korean chain) do not cover each other
+## at far zoom. markers.json -> "banner_dx". The castle stays on the real city position.
+func set_offset_x(dx: float) -> void:
+	for c in get_children():
+		c.position.x += dx
+
 func set_troops(n: int) -> void:
 	_troops.text = _fmt(n)

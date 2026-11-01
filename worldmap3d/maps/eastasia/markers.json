@@ -1,7 +1,8 @@
 {
- "_comment": "v2.2 도시 마커 위치(맵 km, x=동, z=남, 원점=맵 중앙). city_table.json v3_city_lonlat -> LCC 투영 -> 한/일 확대 워프로 계산. 13개 실제 도시.",
+ "_comment": "v2.2 도시 마커 위치(맵 km, x=동, z=남, 원점=맵 중앙). city_table.json v3_city_lonlat -> LCC 투영 -> 한/일 확대 워프로 계산. 13개 실제 도시. v2.4: banner_dx = 깃발을 옆으로 비키는 양(깃발 높이 배율, +동/-서; 성은 실제 위치 그대로), 먼 줌에서 가까운 도시 깃발끼리 겹치지 않게.",
  "markers": {
   "pyeongyang": {
+   "banner_dx": -0.16,
    "x_km": 722.7,
    "z_km": -508.7,
    "marker_scene": "",
@@ -11,6 +12,7 @@
    ]
   },
   "hanseong": {
+   "banner_dx": 0.16,
    "x_km": 864.1,
    "z_km": -290.4,
    "marker_scene": "",
@@ -20,6 +22,7 @@
    ]
   },
   "sabi": {
+   "banner_dx": -0.16,
    "x_km": 848.5,
    "z_km": -114.2,
    "marker_scene": "",
@@ -47,6 +50,7 @@
    ]
   },
   "kyoto": {
+   "banner_dx": 0.17,
    "x_km": 1780.5,
    "z_km": -116.0,
    "marker_scene": "",
@@ -56,6 +60,7 @@
    ]
   },
   "osaka": {
+   "banner_dx": -0.17,
    "x_km": 1760.7,
    "z_km": -68.8,
    "marker_scene": "",

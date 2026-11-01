@@ -5,5 +5,9 @@
 [node name="WorldMap3DEastAsia" type="Node3D"]
 script = ExtResource("1_root")
 map_config_path = "res://worldmap3d/maps/eastasia/map_config.json"
-show_markers = false
+show_markers = true
+banner_screen_scale = 0.11
+banner_max_km = 150.0
+castle_screen_scale = 0.008
+castle_max_scale = 10.0
 show_roads = false

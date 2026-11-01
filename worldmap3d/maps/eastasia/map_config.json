@@ -1,5 +1,5 @@
 {
- "_comment": "EASTWAR 월드맵3D v2.3 (v2.2 + 지형 따라가는 지역 경계) — 동아시아 전체 맵 설정. 같은 씬/스크립트/셰이더, 이 파일만 바꾸면 맵이 바뀐다. 좌표: 1 유닛 = 1 km, x = 동(+), z = 남(+), 원점 = 맵 중앙. 런타임에 위경도 없음(투영/워프는 굽기 단계에서만).",
+ "_comment": "EASTWAR 월드맵3D v2.4 (v2.3 + 13도시 깃발·성·지역 이름 라벨; v2.3 = 지형 따라가는 지역 경계) — 동아시아 전체 맵 설정. 같은 씬/스크립트/셰이더, 이 파일만 바꾸면 맵이 바뀐다. 좌표: 1 유닛 = 1 km, x = 동(+), z = 남(+), 원점 = 맵 중앙. 런타임에 위경도 없음(투영/워프는 굽기 단계에서만).",
  "map_id": "eastasia",
  "size_km": [
   5549.823,
@@ -71,6 +71,26 @@
  },
  "regions": "regions.json",
  "markers": "markers.json",
+ "region_labels": {
+  "_note": "v2.4 지역 이름 라벨 스타일. 글자·위치는 regions.json(label_ko / label_xz_km / label_scale). screen_scale = 글자 높이/카메라 거리, fade_near_km→fade_full_km = 이보다 가까우면 서서히 사라짐(가까이서는 깃발이 주인공), scale_from_km→scale_full_km = 작은 지역 라벨이 label_scale로 줄어드는 구간, tilt_deg = 지면에서 카메라 쪽으로 세우는 각도. enabled=false면 라벨 없음.",
+  "enabled": true,
+  "font_size": 128,
+  "letter_spacing_px": 30,
+  "color": "#F4E7C6",
+  "outline_color": "#2B1D10E6",
+  "outline_px": 24,
+  "screen_scale": 0.032,
+  "min_km": 6.0,
+  "max_km": 150.0,
+  "fade_near_km": 240.0,
+  "fade_full_km": 480.0,
+  "tilt_deg": 35.0,
+  "lift_km": 2.0,
+  "render_priority": -2,
+  "scale_from_km": 1800.0,
+  "scale_full_km": 3800.0
+ },
+ "_markers_v24": "v2.4: 13도시 깃발(배너)+성 표시 켜짐(씬 show_markers=true), 지역 이름 라벨 = region_labels(스타일) + regions.json label_ko/label_xz_km.",
  "rivers": "rivers.json",
  "rule_data": "rule_data_eastasia.json",
  "camera": {

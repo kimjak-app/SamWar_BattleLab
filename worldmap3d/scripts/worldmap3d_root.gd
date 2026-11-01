@@ -16,6 +16,10 @@ signal city_selected(city_id: String, region_index: int)   # v2.2: left click (c
 @export var banner_min_km := 1.2
 @export var banner_max_km := 100.0
 @export var show_markers := true
+@export var castle_screen_scale := 0.0                       # v2.4: >0 = castle scale ≈ this × camera distance (km), clamped below
+@export var castle_min_scale := 1.0
+@export var castle_max_scale := 14.0
+@export var show_region_labels := true                       # v2.4: map_config "region_labels" (painterly region names)
 @export var show_rivers := true
 @export var show_roads := true
 
@@ -32,6 +36,8 @@ var marker_def := {}          # city_id -> Dictionary from markers.json
 var banners := {}             # city_id -> WorldMapCityBanner
 var markers := {}             # city_id -> Node3D (castle placeholder or custom scene)
 var glows := {}               # city_id -> Sprite3D
+var region_labels: Node3D    # v2.4 region name labels (worldmap_region_labels.gd, no class_name); null if the map has none
+const REGION_LABELS_SCRIPT := preload("res://worldmap3d/scripts/worldmap_region_labels.gd")
 var terrain_mat: ShaderMaterial
 var sea_mat: ShaderMaterial
 var road_mat: ShaderMaterial
@@ -84,6 +90,8 @@ func _ready() -> void:
 	stats.t_ribbons_ms = (Time.get_ticks_usec() - t1) / 1000.0
 	if show_markers:
 		_build_cities()
+	if show_region_labels:
+		_build_region_labels()
 	_build_camera()
 	set_fill_preset(fill_preset)
 	stats.build_ms = (Time.get_ticks_usec() - t0) / 1000.0
@@ -374,9 +382,29 @@ func _build_cities() -> void:
 		var b := WorldMapCityBanner.new()
 		b.name = "Banner_" + cid
 		b.build(c, col, font)
+		var bdx := float(marker_def.get(cid, {}).get("banner_dx", 0.0))
+		if bdx != 0.0:
+			b.set_offset_x(bdx)
 		add_child(b)
 		banners[cid] = b
 		_place_city(cid)
+
+## v2.4: region name labels from the existing region table (regions.json label_ko / label_xz_km, fallback name_ko +
+## centroid from region_ids.png) with the style in map_config "region_labels". Maps without that block get no labels.
+func _build_region_labels() -> void:
+	var st = cfg.raw.get("region_labels", null)
+	if not (st is Dictionary) or not bool(st.get("enabled", true)):
+		return
+	region_labels = REGION_LABELS_SCRIPT.new()
+	region_labels.name = "RegionLabels"
+	add_child(region_labels)
+	var img: Image = null
+	for r in regions.regions:
+		if not r.has("label_xz_km"):
+			var t := _tex("region_ids")
+			img = t.get_image() if t else null
+			break
+	stats.region_labels = region_labels.build(regions.regions, st, load("res://worldmap3d/fonts/NotoSerifKR-Bold-subset.otf"), img, geo.uv_to_xz, geo.height_at)
 
 func _place_city(cid: String) -> void:
 	var xz: Vector2 = marker_xz[cid]
@@ -423,6 +451,17 @@ func _process(_dt: float) -> void:
 		var d := camera.global_position.distance_to(b.global_position)
 		var s := clampf(d * banner_screen_scale, banner_min_km, banner_max_km)
 		b.global_transform = Transform3D(cb.scaled(Vector3(s, s, s)), b.global_position)
+	if castle_screen_scale > 0.0:
+		for id in markers:
+			var m: Node3D = markers[id]
+			var d := camera.global_position.distance_to(m.global_position)
+			var k := clampf(d * castle_screen_scale, castle_min_scale, castle_max_scale) * float(marker_def.get(id, {}).get("marker_scale", 1.0))
+			m.scale = Vector3(k, k, k)
+			if glows.has(id):
+				var kg := minf(k, 3.0)          # ground glow: do not let it wash over the castle at far zoom
+				glows[id].scale = Vector3(kg, kg, kg)
+	if region_labels:
+		region_labels.update_for_camera(camera)
 
 func update_zoom_params() -> void:
 	var t := smoothstep(0.2, 1.0, camera.zoom)

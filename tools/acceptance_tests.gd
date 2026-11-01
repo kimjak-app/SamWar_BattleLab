@@ -63,6 +63,8 @@ func _show_overlays(on: bool) -> void:
 	for d in [root.banners, root.markers, root.glows]:
 		for k in d:
 			d[k].visible = on
+	if root.region_labels:                      # v2.4: region name labels are overlays too
+		root.region_labels.visible = on
 
 ## `zoom` is given in v3-Korea terms (far 1300 km, near 120 km) and converted to the same camera DISTANCE on the
 ## loaded map, so the EA map is tested at exactly the v3 screen scale.
