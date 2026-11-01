@@ -19,6 +19,8 @@ extends SceneTree
 #     finished signal or fallback timer) is printed, not judged.
 var h
 var hud
+# The span is measured frame to frame (process_frame + get_ticks_msec), so it can undershoot the 4.01 s schedule by about a frame or two; 0.05 s keeps real regressions (a missing time-scale compensation gives ~1 s at x4) failing.
+const CUTIN_SPAN_TOLERANCE_SEC := 0.05
 
 func _initialize() -> void:
 	run.call_deferred()
@@ -148,7 +150,7 @@ func run() -> void:
 	h.expect(log_casts.size() >= 1 and shell_casts == log_casts, "every engine skill_cast got one cut-in or still toast, in the engine's order (%d) %s / %s" % [log_casts.size(), shell_casts, log_casts])
 	h.expect(hold_violations.is_empty() and lock_bad == 0 and auto_wait_bad == 0, "while a cut-in played: no skill event presented (%s), lab held and busy every frame (%d / %d)" % [hold_violations.slice(0, 5), lock_bad, auto_wait_bad])
 	h.expect(lab.hud_held_skill_events.is_empty() and not lab.hud_cutin_hold, "after the battle: nothing left held")
-	h.expect(cutin_spans.size() >= 1 and cutin_spans.all(func(c): return c[3] >= 4.0), "at speed x%s every 3D cut-in lasts at least 4.01 real seconds (decision 3) %s" % [lab.SPEED_STEPS[lab.speed_index], cutin_spans.map(func(c): return c[3])])
+	h.expect(cutin_spans.size() >= 1 and cutin_spans.all(func(c): return c[3] >= 4.0 - CUTIN_SPAN_TOLERANCE_SEC), "at speed x%s every 3D cut-in lasts at least 4.0 s minus %.2f s measurement tolerance in real seconds (decision 3) %s" % [lab.SPEED_STEPS[lab.speed_index], CUTIN_SPAN_TOLERANCE_SEC, cutin_spans.map(func(c): return c[3])])
 	h.expect(ending_during_cutin == 0 and cutin_spans.size() == h.shell.cutin_log.filter(func(c): return c.route == "video").size(), "the ending waits for the last cut-in: every video cut-in ended before it (%d frames overlapped)" % ending_during_cutin)
 	h.expect(ending_seen and ending_frame >= result_frame and panel_frame > ending_frame and hud.endings_played.size() == 1 and hud.endings_played[0].state == "victory",
 		"ending video after the result (frame %d >= %d), result panel after it (%d) %s" % [ending_frame, result_frame, panel_frame, hud.endings_played])
