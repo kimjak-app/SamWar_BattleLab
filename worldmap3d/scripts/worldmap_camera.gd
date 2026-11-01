@@ -11,6 +11,7 @@
 ##   common: left click = select (signal select_requested), wheel = zoom, WASD/arrows = pan, Q/E = rotate (free rotation)
 ##   A: middle drag = pan, right drag = rotate        B: middle drag = pan, right drag = pan (rotate only with Q/E)
 ## external_input_block = true (or a focused LineEdit/TextEdit) -> WASD/arrows/QE are ignored (mouse still works).
+## v2.3: external_input = true -> own mouse/key input is skipped; smoothing + fill_clamp keep running; drive with apply_wheel / apply_left_button / apply_drag_button / apply_drag_motion / set_external_axes.
 ## fill_clamp stays active under any rotation.
 class_name WorldMap3DCamera
 extends Camera3D
@@ -45,6 +46,9 @@ var clamp_horizon_mul := 3.0
 var zoom_min := 0.0                 # current lower zoom limit (from fill_clamp), read-only for tools
 var input_scheme := "A"             # v2.2: "A" | "B" (see header)
 var external_input_block := false   # v2.2: set true while a UI text field has focus (also auto-detected)
+var external_input := false         # v2.3: true = this camera ignores its own input (_unhandled_input / key polling); a controller drives it via apply_* / set_external_axes
+var _ext_pan := Vector2.ZERO        # external WASD-style axes (x: right+, y: down+), only read while external_input
+var _ext_yaw_dir := 0.0             # external rotate axis (+1 = Q direction, -1 = E direction), only read while external_input
 var _click_from := Vector2.ZERO
 signal select_requested(screen_pos: Vector2)
 signal input_scheme_changed(scheme: String)
@@ -166,37 +170,64 @@ func current_distance() -> float:
 	return far_distance * pow(near_distance / far_distance, zoom)
 
 func _unhandled_input(e: InputEvent) -> void:
-	if manual:
+	if manual or external_input:
 		return
 	if e is InputEventMouseButton:
 		if e.button_index == MOUSE_BUTTON_WHEEL_UP and e.pressed:
-			zoom_goal = clampf(zoom_goal + zoom_step, 0.0, 1.0)
+			apply_wheel(1)
 		elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN and e.pressed:
-			zoom_goal = clampf(zoom_goal - zoom_step, 0.0, 1.0)
+			apply_wheel(-1)
 		elif e.button_index == MOUSE_BUTTON_LEFT:
-			# v2.2: left = select (a click, not a drag)
-			if e.pressed:
-				_click_from = e.position
-			elif e.position.distance_to(_click_from) < 6.0:
-				select_requested.emit(e.position)
-		elif e.button_index == MOUSE_BUTTON_MIDDLE:
-			_drag = 1 if e.pressed else 0
-		elif e.button_index == MOUSE_BUTTON_RIGHT:
-			_drag = (2 if input_scheme == "A" else 1) if e.pressed else 0
+			apply_left_button(e.position, e.pressed)
+		elif e.button_index == MOUSE_BUTTON_MIDDLE or e.button_index == MOUSE_BUTTON_RIGHT:
+			apply_drag_button(e.button_index, e.pressed)
 	elif e is InputEventMouseMotion and _drag != 0:
-		if _drag == 1:
-			var k := current_distance() * 2.0 * tan(deg_to_rad(fov) * 0.5) / get_viewport().get_visible_rect().size.y
-			var d := Vector2(-e.relative.x, -e.relative.y / maxf(sin(-rotation.x), 0.35)) * k
-			_target_goal += d.rotated(-yaw)
-			target = _target_goal
-		else:
-			yaw_goal -= e.relative.x * 0.005
+		apply_drag_motion(e.relative)
+
+## Wheel zoom: dir > 0 = zoom in (like WHEEL_UP), dir < 0 = zoom out.
+func apply_wheel(dir: int) -> void:
+	if dir > 0:
+		zoom_goal = clampf(zoom_goal + zoom_step, 0.0, 1.0)
+	elif dir < 0:
+		zoom_goal = clampf(zoom_goal - zoom_step, 0.0, 1.0)
+
+## Left button: select on release when the pointer moved < 6 px since the press (emits select_requested).
+func apply_left_button(pos: Vector2, pressed: bool) -> void:
+	if pressed:
+		_click_from = pos
+	elif pos.distance_to(_click_from) < 6.0:
+		select_requested.emit(pos)
+
+## Middle button = pan drag. Right button = rotate drag in scheme A, pan drag in scheme B. Release ends the drag.
+func apply_drag_button(button_index: int, pressed: bool) -> void:
+	if button_index == MOUSE_BUTTON_MIDDLE:
+		_drag = 1 if pressed else 0
+	elif button_index == MOUSE_BUTTON_RIGHT:
+		_drag = (2 if input_scheme == "A" else 1) if pressed else 0
+
+## Pointer motion while a drag is active (_drag 1 = pan, 2 = rotate).
+func apply_drag_motion(rel: Vector2) -> void:
+	if _drag == 1:
+		var k := current_distance() * 2.0 * tan(deg_to_rad(fov) * 0.5) / get_viewport().get_visible_rect().size.y
+		var d := Vector2(-rel.x, -rel.y / maxf(sin(-rotation.x), 0.35)) * k
+		_target_goal += d.rotated(-yaw)
+		target = _target_goal
+	elif _drag == 2:
+		yaw_goal -= rel.x * 0.005
+
+## External keyboard-style axes (only used while external_input): pan.x right+, pan.y down+; yaw_dir +1 = Q, -1 = E.
+func set_external_axes(pan: Vector2, yaw_dir: float) -> void:
+	_ext_pan = pan
+	_ext_yaw_dir = yaw_dir
 
 func _process(dt: float) -> void:
 	if manual:
 		return
 	var pan := Vector2.ZERO
-	if not keys_blocked():
+	if external_input:
+		pan = _ext_pan
+		yaw_goal += _ext_yaw_dir * dt * 1.2
+	elif not keys_blocked():
 		pan = Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))
 		if Input.is_physical_key_pressed(KEY_A): pan.x -= 1
 		if Input.is_physical_key_pressed(KEY_D): pan.x += 1
