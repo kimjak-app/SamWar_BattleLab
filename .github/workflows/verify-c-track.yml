@@ -168,6 +168,7 @@ jobs:
             tests/scripts/test_worldmap_city_resource_service_extraction.gd
             tests/scripts/test_worldmap_city_detail_presentation_extraction.gd
             tests/scripts/test_worldmap_camera_controller_extraction.gd
+            tests/scripts/test_worldmap_camera_keyboard_guard.gd
             tests/scripts/test_worldmap_hud_controller_extraction.gd
             tests/scripts/test_worldmap_shared_ui_controller_extraction.gd
             tests/scripts/test_world_calendar_service_extraction.gd

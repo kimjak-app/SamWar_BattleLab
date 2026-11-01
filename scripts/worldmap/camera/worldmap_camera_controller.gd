@@ -173,6 +173,8 @@ func get_world_rect() -> Rect2:
 func _handle_keyboard_pan(delta: float) -> void:
 	if _camera == null:
 		return
+	if _is_keyboard_camera_blocked():
+		return
 	var input_vector := Vector2.ZERO
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
 		input_vector.x -= 1.0
@@ -231,6 +233,18 @@ func _get_viewport_size() -> Vector2:
 	if _viewport_owner != null:
 		return _viewport_owner.get_viewport().get_visible_rect().size
 	return get_viewport().get_visible_rect().size
+
+
+func _is_keyboard_camera_blocked() -> bool:
+	var viewport: Viewport = null
+	if _viewport_owner != null and _viewport_owner.is_inside_tree():
+		viewport = _viewport_owner.get_viewport()
+	elif is_inside_tree():
+		viewport = get_viewport()
+	if viewport == null:
+		return false
+	var focus_owner := viewport.gui_get_focus_owner()
+	return focus_owner is LineEdit or focus_owner is TextEdit
 
 
 func _complete_battle_entry_handoff() -> void:
