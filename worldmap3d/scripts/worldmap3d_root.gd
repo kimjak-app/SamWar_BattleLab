@@ -38,7 +38,7 @@ var road_mat: ShaderMaterial
 var river_mat: ShaderMaterial
 var road_node: MeshInstance3D
 var river_node: MeshInstance3D
-var camera: WorldMapCamera
+var camera: WorldMap3DCamera
 var env: Environment
 var sun: DirectionalLight3D
 var roads := WorldMapRoads.new()
@@ -389,8 +389,8 @@ func _place_city(cid: String) -> void:
 		banners[cid].position = Vector3(xz.x, y + 0.3, xz.y)
 
 func _build_camera() -> void:
-	camera = WorldMapCamera.new()
-	camera.name = "WorldMapCamera"
+	camera = WorldMap3DCamera.new()
+	camera.name = "WorldMap3DCamera"
 	camera.configure(cfg)
 	camera.ground_height = geo.height_at
 	camera.env_ref = env

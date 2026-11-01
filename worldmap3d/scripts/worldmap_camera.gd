@@ -12,7 +12,7 @@
 ##   A: middle drag = pan, right drag = rotate        B: middle drag = pan, right drag = pan (rotate only with Q/E)
 ## external_input_block = true (or a focused LineEdit/TextEdit) -> WASD/arrows/QE are ignored (mouse still works).
 ## fill_clamp stays active under any rotation.
-class_name WorldMapCamera
+class_name WorldMap3DCamera
 extends Camera3D
 
 @export var far_distance := 1300.0
