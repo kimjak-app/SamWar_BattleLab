@@ -24,3 +24,5 @@ tools/ffmpeg/
 assets/video_test/theora_safe/godot_*frame*.png
 assets/video_test/theora_safe/godot_*frame.wav
 assets/video_test/theora_safe/source_frame_*.png
+# EASTWAR 3D world map: big baked terrain textures stay out of git (kept locally / versioned zips). Uploaded once after v2.2 split 2x2.
+**/worldmap3d/maps/**/textures/terrain_*
