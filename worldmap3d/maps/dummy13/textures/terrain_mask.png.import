@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cnruqrg3dpupu"
 path.s3tc="res://.godot/imported/terrain_mask.png-11c7b3c86bbdfeab4d4d6f9a644fd4cd.s3tc.ctex"
-path.etc2="res://.godot/imported/terrain_mask.png-11c7b3c86bbdfeab4d4d6f9a644fd4cd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/maps/dummy13/textures/terrain_mask.png"
-dest_files=["res://.godot/imported/terrain_mask.png-11c7b3c86bbdfeab4d4d6f9a644fd4cd.s3tc.ctex", "res://.godot/imported/terrain_mask.png-11c7b3c86bbdfeab4d4d6f9a644fd4cd.etc2.ctex"]
+dest_files=["res://.godot/imported/terrain_mask.png-11c7b3c86bbdfeab4d4d6f9a644fd4cd.s3tc.ctex"]
 
 [params]
 

@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvr7doubbmfsh"
 path.s3tc="res://.godot/imported/terrain_normal.png-1aca148f3df8de7fd438ffd5fc6f0d42.s3tc.ctex"
-path.etc2="res://.godot/imported/terrain_normal.png-1aca148f3df8de7fd438ffd5fc6f0d42.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/maps/dummy13/textures/terrain_normal.png"
-dest_files=["res://.godot/imported/terrain_normal.png-1aca148f3df8de7fd438ffd5fc6f0d42.s3tc.ctex", "res://.godot/imported/terrain_normal.png-1aca148f3df8de7fd438ffd5fc6f0d42.etc2.ctex"]
+dest_files=["res://.godot/imported/terrain_normal.png-1aca148f3df8de7fd438ffd5fc6f0d42.s3tc.ctex"]
 
 [params]
 

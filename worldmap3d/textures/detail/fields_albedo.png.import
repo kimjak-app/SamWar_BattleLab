@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c21dephieyyet"
 path.s3tc="res://.godot/imported/fields_albedo.png-356cb6495b7e676700e2d4575ed32896.s3tc.ctex"
-path.etc2="res://.godot/imported/fields_albedo.png-356cb6495b7e676700e2d4575ed32896.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/textures/detail/fields_albedo.png"
-dest_files=["res://.godot/imported/fields_albedo.png-356cb6495b7e676700e2d4575ed32896.s3tc.ctex", "res://.godot/imported/fields_albedo.png-356cb6495b7e676700e2d4575ed32896.etc2.ctex"]
+dest_files=["res://.godot/imported/fields_albedo.png-356cb6495b7e676700e2d4575ed32896.s3tc.ctex"]
 
 [params]
 

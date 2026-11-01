@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://v5gbkb3x0ihh"
 path.s3tc="res://.godot/imported/forest_albedo.png-ead8502a26e977e4c872a985a6715906.s3tc.ctex"
-path.etc2="res://.godot/imported/forest_albedo.png-ead8502a26e977e4c872a985a6715906.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/textures/detail/forest_albedo.png"
-dest_files=["res://.godot/imported/forest_albedo.png-ead8502a26e977e4c872a985a6715906.s3tc.ctex", "res://.godot/imported/forest_albedo.png-ead8502a26e977e4c872a985a6715906.etc2.ctex"]
+dest_files=["res://.godot/imported/forest_albedo.png-ead8502a26e977e4c872a985a6715906.s3tc.ctex"]
 
 [params]
 

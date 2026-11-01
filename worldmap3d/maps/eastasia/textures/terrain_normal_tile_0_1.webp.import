@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://clnfre3ukay7t"
 path.s3tc="res://.godot/imported/terrain_normal_tile_0_1.webp-18a2d476ea5090ecc17d34cd1038b10b.s3tc.ctex"
-path.etc2="res://.godot/imported/terrain_normal_tile_0_1.webp-18a2d476ea5090ecc17d34cd1038b10b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/maps/eastasia/textures/terrain_normal_tile_0_1.webp"
-dest_files=["res://.godot/imported/terrain_normal_tile_0_1.webp-18a2d476ea5090ecc17d34cd1038b10b.s3tc.ctex", "res://.godot/imported/terrain_normal_tile_0_1.webp-18a2d476ea5090ecc17d34cd1038b10b.etc2.ctex"]
+dest_files=["res://.godot/imported/terrain_normal_tile_0_1.webp-18a2d476ea5090ecc17d34cd1038b10b.s3tc.ctex"]
 
 [params]
 

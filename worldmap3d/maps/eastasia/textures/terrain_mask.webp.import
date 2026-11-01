@@ -4,16 +4,15 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://n3hv2ivlrtqq"
 path.s3tc="res://.godot/imported/terrain_mask.webp-9dc26e933ba8eaabef864740a703edbe.s3tc.ctex"
-path.etc2="res://.godot/imported/terrain_mask.webp-9dc26e933ba8eaabef864740a703edbe.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://worldmap3d/maps/eastasia/textures/terrain_mask.webp"
-dest_files=["res://.godot/imported/terrain_mask.webp-9dc26e933ba8eaabef864740a703edbe.s3tc.ctex", "res://.godot/imported/terrain_mask.webp-9dc26e933ba8eaabef864740a703edbe.etc2.ctex"]
+dest_files=["res://.godot/imported/terrain_mask.webp-9dc26e933ba8eaabef864740a703edbe.s3tc.ctex"]
 
 [params]
 
