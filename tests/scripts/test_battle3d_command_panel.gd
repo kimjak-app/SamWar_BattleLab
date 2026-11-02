@@ -148,6 +148,13 @@ func run() -> void:
 		for u in b.all_battle_unit_states.filter(func(x): return x.side == "ally"): lab.hud_skill_cost(u.unit_id)
 		h.shell.command_state()
 	h.expect(engine_print(b) == before, "N7 x20 for five allies (+ shell command_state): engine fingerprint unchanged")
+	# The shell centres the camera on the acting ally with a real-time tween (CAMERA_CENTER_SEC) that owns lab.focus.
+	# A frame-count wait can end before it does, and the tween would then pull the camera back in the middle of the
+	# camera checks below (CI race). So wait for the tween itself, with a real-time cap.
+	var centre_start := Time.get_ticks_msec()
+	while is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running() and Time.get_ticks_msec() - centre_start < 5000:
+		await process_frame
+	h.expect(not (is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running()), "camera centring tween finished before the camera checks")
 	# Camera: the panel follows the unit model; inside the screen; hidden when the unit is off screen.
 	var follow_bad := []
 	for yaw in [0.32, 1.2, -0.9]:
