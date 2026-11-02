@@ -10,6 +10,7 @@ const BATTLE_ENTRY_ZOOM_3D := 0.85
 
 var _cam3d = null                 # WorldMap3DCamera (untyped, see header)
 var input_blocked := false        # main sets true while a modal / the tech tree is open (blocks keyboard axes)
+var skip_battle_entry_camera := false   # host sets true until T-WM3D-07 gives the handoff a 3D focus
 
 
 func configure_3d(camera3d, debug_label: Label, viewport_owner: Node) -> void:
@@ -68,7 +69,7 @@ func handle_unhandled_input(event: InputEvent) -> bool:
 func start_battle_entry_handoff(focus_position: Vector2, continue_callable: Callable) -> bool:
 	if _battle_entry_handoff_in_progress or not continue_callable.is_valid():
 		return false
-	if _cam3d == null:
+	if _cam3d == null or skip_battle_entry_camera:
 		continue_callable.call()
 		return false
 	_battle_entry_handoff_in_progress = true

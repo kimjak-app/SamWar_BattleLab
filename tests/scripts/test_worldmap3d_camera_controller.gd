@@ -129,6 +129,16 @@ func _run() -> void:
 	_expect(calls2[0] == 1, "natural end calls the continue callable once")
 	_expect(not ctl.is_battle_entry_handoff_in_progress(), "natural end clears in_progress")
 
+	# 11b. skip_battle_entry_camera (03-4 host: no 3D handoff until T-WM3D-07)
+	var calls_skip := [0]
+	var cb_skip := func() -> void: calls_skip[0] += 1
+	ctl.skip_battle_entry_camera = true
+	var skip_started := ctl.start_battle_entry_handoff(Vector2(30, 10), cb_skip)
+	_expect(not skip_started and calls_skip[0] == 1 and not ctl.is_battle_entry_handoff_in_progress(), "skip_battle_entry_camera: returns false, continue called once at once, not in progress")
+	ctl.skip_battle_entry_camera = false
+	_expect(ctl.start_battle_entry_handoff(Vector2(30, 10), cb_skip), "skip_battle_entry_camera back to false: handoff starts again")
+	ctl.skip_battle_entry_handoff()
+
 	# 12. controller without a 3D camera behaves like the 2D parent for the handoff
 	var calls3 := [0]
 	var cb3 := func() -> void: calls3[0] += 1

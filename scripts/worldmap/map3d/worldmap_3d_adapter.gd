@@ -18,6 +18,8 @@ var faction_resolver: Callable = Callable()                      # (marker) -> S
 var world_root_2d: CanvasItem = null   # the 2D map ($WorldMapRoot); hidden while 3D is active
 var unmapped_owners: Array = []        # "city_id:faction_id" pairs the 3D map rejected (for tests / F6 report)
 var _active := false
+var _last_synced: Dictionary = {}   # city_id -> "faction|troops" last pushed to the 3D map
+var _last_synced_ok: Dictionary = {}   # city_id -> whether the 3D map accepted that owner
 
 
 ## Builds the 3D layer (CanvasLayer -10 > SubViewportContainer > SubViewport > scene) under `parent`.
@@ -50,6 +52,8 @@ func create_layer(parent: Node, scene_path: String = SCENE_PATH_DEFAULT) -> bool
 
 ## Binds an already-built 3D root (also used by tests with a fake root).
 func bind_root(root) -> void:
+	_last_synced.clear()
+	_last_synced_ok.clear()
 	if root3d != null and root3d.has_signal("city_selected") and root3d.city_selected.is_connected(_on_root_city_selected):
 		root3d.city_selected.disconnect(_on_root_city_selected)
 	root3d = root
@@ -70,6 +74,9 @@ func get_camera():
 ## 3D on = 3D layer visible + 2D map hidden (so its Area2D markers cannot also receive the click). Off = the reverse.
 func set_active(value: bool) -> void:
 	_active = value
+	if value:
+		_last_synced.clear()   # push every city once when the 3D map comes back
+		_last_synced_ok.clear()
 	if layer != null:
 		layer.visible = value
 	if world_root_2d != null:
@@ -94,6 +101,7 @@ func _on_root_city_selected(city_id: String, _region_index: int) -> void:
 
 ## Pushes one city's owner (and troops, if a provider is set) from the 2D side into the 3D map.
 ## Returns true when the 3D map accepted the owner. Rejected pairs are recorded in unmapped_owners.
+## A city whose owner and troops are unchanged since the last push is not pushed again (main syncs on every HUD refresh).
 func sync_city(city_id: String) -> bool:
 	if root3d == null:
 		return false
@@ -103,13 +111,19 @@ func sync_city(city_id: String) -> bool:
 	var faction: String = str(marker.owner_faction_id)
 	if faction_resolver.is_valid():
 		faction = str(faction_resolver.call(marker))
+	var troops := int(troops_provider.call(city_id)) if troops_provider.is_valid() else -1
+	var synced_key := "%s|%d" % [faction, troops]
+	if _last_synced.get(city_id, null) == synced_key:
+		return bool(_last_synced_ok.get(city_id, false))
 	var ok: bool = bool(root3d.set_city_owner(city_id, faction))
 	if not ok:
 		var key := "%s:%s" % [city_id, faction]
 		if not unmapped_owners.has(key):
 			unmapped_owners.append(key)
 	if troops_provider.is_valid():
-		root3d.set_city_troops(city_id, int(troops_provider.call(city_id)))
+		root3d.set_city_troops(city_id, troops)
+	_last_synced[city_id] = synced_key
+	_last_synced_ok[city_id] = ok
 	return ok
 
 

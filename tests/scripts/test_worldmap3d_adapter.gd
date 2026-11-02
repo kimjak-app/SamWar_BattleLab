@@ -11,7 +11,9 @@ class FakeRoot extends Node:
 	var owners := {}
 	var troops := {}
 	var factions := ["player", "wei", "chu"]
+	var owner_calls := 0   # counts set_city_owner calls (03-4: unchanged values are not pushed again)
 	func set_city_owner(city_id: String, faction_id: String) -> bool:
+		owner_calls += 1
 		if not factions.has(faction_id):
 			return false
 		owners[city_id] = faction_id
@@ -131,6 +133,24 @@ func _run() -> void:
 	_expect(lone.focus_for_city("hanseong", fb) == fb, "no root: focus_for_city = fallback")
 	_expect(lone.focus_for_2d_position(hanseong.global_position, fb) == fb, "no root: focus_for_2d_position = fallback")
 	lone.free()
+
+	# 8b. unchanged owner + troops are not pushed again; a change or a new root pushes again
+	adapter.bind_root(fake)
+	fake.owner_calls = 0
+	adapter.sync_city("hanseong")
+	adapter.sync_city("hanseong")
+	_expect(fake.owner_calls == 1, "same values twice: set_city_owner called once (%d)" % fake.owner_calls)
+	adapter.troops_provider = func(_cid: String) -> int: return 500
+	adapter.sync_city("hanseong")
+	_expect(fake.owner_calls == 2 and fake.troops.get("hanseong", -1) == 500, "troops value changed: pushed again (%d)" % fake.owner_calls)
+	adapter.sync_city("hanseong")
+	_expect(fake.owner_calls == 2, "troops unchanged again: not pushed (%d)" % fake.owner_calls)
+	fake2.owner_calls = 0
+	adapter.bind_root(fake2)
+	adapter.sync_city("hanseong")
+	_expect(fake2.owner_calls == 1, "bind_root(other root): the same values are pushed again (%d)" % fake2.owner_calls)
+	adapter.troops_provider = Callable()
+	adapter.bind_root(fake)
 
 	# 10. missing scene file -> safe failure
 	var missing := WorldMap3DAdapter.new()
