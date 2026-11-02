@@ -49,6 +49,15 @@ func mouse(at: Vector2, kind: String) -> void:
 	event.global_position = at
 	root.push_input(event)
 
+func wait_camera_centred() -> bool:
+	# The shell's camera-centre tween (CAMERA_CENTER_SEC, real time) restarts whenever the acting ally changes (a new
+	# "round:unit" turn key) and moves lab.focus, so the panel moves with it. Wait for that tween before anything that
+	# depends on a still camera (a real mouse click on the panel, a camera move). Real-time cap so a stuck tween cannot hang CI.
+	var start := Time.get_ticks_msec()
+	while is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running() and Time.get_ticks_msec() - start < 5000:
+		await process_frame
+	return not (is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running())
+
 func real_click(control: Control) -> Control:
 	# Move, press, release at the control's centre; returns the control under the mouse.
 	var at := control.get_global_rect().get_center()
@@ -148,13 +157,9 @@ func run() -> void:
 		for u in b.all_battle_unit_states.filter(func(x): return x.side == "ally"): lab.hud_skill_cost(u.unit_id)
 		h.shell.command_state()
 	h.expect(engine_print(b) == before, "N7 x20 for five allies (+ shell command_state): engine fingerprint unchanged")
-	# The shell centres the camera on the acting ally with a real-time tween (CAMERA_CENTER_SEC) that owns lab.focus.
-	# A frame-count wait can end before it does, and the tween would then pull the camera back in the middle of the
-	# camera checks below (CI race). So wait for the tween itself, with a real-time cap.
-	var centre_start := Time.get_ticks_msec()
-	while is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running() and Time.get_ticks_msec() - centre_start < 5000:
-		await process_frame
-	h.expect(not (is_instance_valid(h.shell.camera_tween) and h.shell.camera_tween.is_running()), "camera centring tween finished before the camera checks")
+	# Wait for the shell's camera-centre tween before the camera checks below (CI race; see wait_camera_centred).
+	var centred: bool = await wait_camera_centred()
+	h.expect(centred, "camera centring tween finished before the camera checks")
 	# Camera: the panel follows the unit model; inside the screen; hidden when the unit is off screen.
 	var follow_bad := []
 	for yaw in [0.32, 1.2, -0.9]:
@@ -216,10 +221,12 @@ func run() -> void:
 				lab = h.lab
 				b = lab.engine
 				for k in range(3): await process_frame
+				await wait_camera_centred()
 				if actor != b.active_unit_state.unit_id:
 					h.click(b.all_battle_unit_states.filter(func(u): return u.unit_id == actor)[0].grid_cell)
 					lab._sync_views()
 					for k in range(3): await process_frame
+					await wait_camera_centred()
 				var enabled: bool = not lab_buttons(lab)[i].disabled
 				if not enabled and path == "lab_emit": break # a disabled button is not pressed in the 2D either
 				var writes_before: Array = b.writes.duplicate()
@@ -246,6 +253,7 @@ func run() -> void:
 	lab = h.lab
 	b = lab.engine
 	for k in range(3): await process_frame
+	await wait_camera_centred()
 	await real_click(panel.button_at(0))
 	for k in range(2): await process_frame
 	h.expect(b.current_phase == "attack_select" and not panel.panel.visible, "attack target selection: panel hidden (phase %s)" % b.current_phase)
@@ -260,6 +268,7 @@ func run() -> void:
 		lab = h.lab
 		b = lab.engine
 		for k in range(3): await process_frame
+		await wait_camera_centred()
 		var unit: BattleUnitState = b.active_unit_state
 		var targets: Array = lab.queries.query(unit.unit_id, unit.grid_cell).get("reachable", {}).keys()
 		var target_cell = null
