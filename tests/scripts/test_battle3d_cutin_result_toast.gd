@@ -19,7 +19,7 @@ extends SceneTree
 #     finished signal or fallback timer) is printed, not judged.
 var h
 var hud
-# The span is measured frame to frame (process_frame + get_ticks_msec), so it can undershoot the 4.01 s schedule by about a frame or two; 0.05 s keeps real regressions (a missing time-scale compensation gives ~1 s at x4) failing.
+# The span starts at the HUD's own start time (hud.cutin_started_msec) and ends on the observed frame, so it can still be off by a frame or two; 0.05 s keeps real regressions (a missing time-scale compensation gives ~1 s at x4) failing.
 const CUTIN_SPAN_TOLERANCE_SEC := 0.05
 
 func _initialize() -> void:
@@ -95,6 +95,7 @@ func run() -> void:
 	var casts_engine := [] # [frame, msec, caster, skill_id]
 	var first_effect := {} # engine log index of the cast -> [frame, msec]
 	var cutin_spans := [] # [caster, start frame, end frame, real s]
+	var observe_lags := [] # ms from the HUD's start to the frame the test first saw the cut-in
 	var hold_violations := [] # skill events presented while a cut-in held
 	var lock_bad := 0
 	var auto_wait_bad := 0
@@ -127,7 +128,8 @@ func run() -> void:
 		var playing: bool = hud.cutin_playing
 		if playing and not was_playing:
 			cut_start = frames
-			cut_msec = Time.get_ticks_msec()
+			cut_msec = hud.cutin_started_msec
+			observe_lags.append(Time.get_ticks_msec() - cut_msec)
 			presented_before = lab.skill_presentations.size() + lab.enemy_skill_presentations.size()
 		if playing:
 			# The cast itself is presented when the hold starts; nothing after it until the release.
@@ -169,6 +171,7 @@ func run() -> void:
 		timing.append([c[2], c[3], (fe[0] - c[0]) if fe else -1, ((fe[1] - c[1]) / 1000.0) if fe else -1.0])
 	print("[CUTIN] speed x", lab.SPEED_STEPS[lab.speed_index], " Engine.time_scale=", Engine.time_scale, " casts (caster, skill, frames to first effect, real s)=", timing)
 	print("[CUTIN] 3D cut-ins (caster, start frame, end frame, real s)=", cutin_spans, " routes=", h.shell.cutin_log.map(func(c): return [c.caster, c.route]))
+	print("[CUTIN] observe lag ms=", observe_lags)
 	print("[CUTIN] toasts=", hud.toasts_played, " still toasts=", hud.still_toasts_played, " ending=", hud.endings_played, " frames: result ", result_frame, " ending ", ending_frame, " panel ", panel_frame)
 	await h.close_shell(self)
 	print("[CUTIN] checks=", h.checks, " failures=", h.failures)
