@@ -780,7 +780,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1417264083]
-color = Color(0.8, 0.24, 0.22, 1)
+color = Color(0.1804, 0.4902, 0.1961, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=466205067]
@@ -817,7 +817,7 @@ polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 2
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1795904376]
 position = Vector2(1, -2)
-color = Color(0.46, 0.58, 0.72, 1)
+color = Color(0.3843, 0.6510, 0.9490, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1958600461]
@@ -852,7 +852,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=342110932]
-color = Color(0.18, 0.58, 0.32, 1)
+color = Color(0.8863, 0.7608, 0.2275, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1592116492]
@@ -891,7 +891,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=461754331]
-color = Color(0.28, 0.72, 0.76, 1)
+color = Color(0.7843, 0.1569, 0.2353, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=1075573425]
@@ -931,7 +931,7 @@ polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 2
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=504928822]
 position = Vector2(1, 0)
-color = Color(0.62, 0.52, 0.4, 1)
+color = Color(0.0902, 0.7020, 0.6902, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1233003602]
@@ -966,7 +966,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=969232397]
-color = Color(0.35, 0.5, 0.95, 1)
+color = Color(0.6078, 0.4196, 0.8784, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=1618162506]
@@ -1001,7 +1001,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=1978806803]
-color = Color(0.25, 0.62, 1, 1)
+color = Color(0.1843, 0.4196, 1, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=968113656]
@@ -1041,7 +1041,7 @@ polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 2
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=2103931355]
 position = Vector2(-1, 0)
-color = Color(0.9, 0.74, 0.24, 1)
+color = Color(0.8784, 0.3333, 0.6039, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=69590797]
@@ -1080,7 +1080,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=753088931]
-color = Color(0.88, 0.54, 0.28, 1)
+color = Color(0.6902, 0.4863, 0.9412, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=770833669]
@@ -1118,7 +1118,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2002838387]
-color = Color(0.58, 0.28, 0.84, 1)
+color = Color(1, 0.8471, 0.2902, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=1692800815]
@@ -1157,7 +1157,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=242329786]
-color = Color(0.86, 0.48, 0.16, 1)
+color = Color(0.9098, 0.3137, 0.3569, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1377964481]
@@ -1196,7 +1196,7 @@ color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=1952379592]
-color = Color(0.64, 0.42, 0.28, 1)
+color = Color(0.7882, 0.5412, 0.2902, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=322802430]
@@ -1232,7 +1232,7 @@ polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 2
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=835873330]
 position = Vector2(0, 2)
-color = Color(0.32, 0.72, 0.44, 1)
+color = Color(1, 0.4784, 0.1020, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1624340547]

@@ -7,6 +7,8 @@ on:
       - "scripts/worldmap/map3d/**"
       - "WorldMap3D_*.tscn"
       - "tests/scripts/test_worldmap3d_*.gd"
+      - "scripts/worldmap_city_marker.gd"
+      - "WorldMap.tscn"
       - ".github/workflows/verify-worldmap3d.yml"
   workflow_dispatch:
 permissions:

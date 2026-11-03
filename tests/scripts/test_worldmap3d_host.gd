@@ -91,7 +91,7 @@ func _run() -> void:
 	_expect(int(root3d.cities["hanseong"].get("troops", -1)) == 777, "troops 777 on hanseong reach the 3D map")
 	_expect(str(root3d.cities["luoyang"].get("owner", "")) == "wei", "owner wei on luoyang reaches the 3D map")
 
-	# 6. toggle 2D <-> 3D (also by F8 into the host)
+	# 6. toggle 2D <-> 3D by code; F8 (Godot's editor stop key) is no longer a toggle key
 	var old_controller = main.get("_camera_controller")
 	_expect(host.toggle_map_view_3d(), "toggle returns true")
 	var now_controller = main.get("_camera_controller")
@@ -110,11 +110,12 @@ func _run() -> void:
 	var f8 := InputEventKey.new()
 	f8.keycode = KEY_F8
 	f8.pressed = true
-	host._unhandled_input(f8)
-	_expect(not host.active, "F8: 3D -> 2D")
-	host._unhandled_input(f8)
-	_expect(host.active, "F8 again: 2D -> 3D")
+	root.push_input(f8)
 	await process_frame
+	_expect(host.active and world2d.visible == false, "F8: no toggle (still 3D, 2D root hidden)")
+	root.push_input(f8)
+	await process_frame
+	_expect(host.active and world2d.visible == false, "F8 again: still 3D, 2D root hidden")
 
 	# 7. battle-entry camera handoff is skipped in 3D (main unchanged; the 3D controller skips it)
 	var calls := [0]

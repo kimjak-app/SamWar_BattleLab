@@ -10,7 +10,7 @@ const AdapterScript := preload("res://scripts/worldmap/map3d/worldmap_3d_adapter
 const SYNC_INTERVAL := 0.25   # seconds between owner/troop syncs while 3D is on (the adapter skips unchanged cities)
 
 @export var main_path: NodePath = NodePath("../WorldMap")
-@export var start_in_3d := true   # dev/test scene: starts on the 3D map. F8 toggles 2D/3D (dev key, replaced at T-WM3D-08)
+@export var start_in_3d := true   # dev/test scene: starts on the 3D map. toggle by code only (`toggle_map_view_3d()`); the production switch is a settings screen at T-WM3D-08
 
 var main: Node = null
 var adapter: WorldMap3DAdapter = null
@@ -34,14 +34,6 @@ func _process(delta: float) -> void:
 	if _sync_timer >= SYNC_INTERVAL:
 		_sync_timer = 0.0
 		adapter.sync_all()
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if main == null:
-		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F8:
-		toggle_map_view_3d()
-		get_viewport().set_input_as_handled()
 
 
 func toggle_map_view_3d() -> bool:

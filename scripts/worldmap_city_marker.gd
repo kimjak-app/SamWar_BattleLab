@@ -66,19 +66,19 @@ const REFRESH_CITY_POSITIONS := {
 }
 
 const OWNER_COLORS := {
-	"player": Color(0.25, 0.62, 1.0, 1.0),
-	"goguryeo": Color(0.35, 0.50, 0.95, 1.0),
-	"baekje_faction": Color(0.88, 0.54, 0.28, 1.0),
-	"silla": Color(0.90, 0.74, 0.24, 1.0),
-	"chu": Color(0.80, 0.24, 0.22, 1.0),
-	"wei": Color(0.46, 0.58, 0.72, 1.0),
-	"shu": Color(0.18, 0.58, 0.32, 1.0),
-	"wu": Color(0.28, 0.72, 0.76, 1.0),
-	"oda": Color(0.58, 0.28, 0.84, 1.0),
-	"toyotomi": Color(0.86, 0.48, 0.16, 1.0),
-	"kyushu_faction": Color(0.64, 0.42, 0.28, 1.0),
-	"tokugawa": Color(0.32, 0.72, 0.44, 1.0),
-	"mongol_faction": Color(0.62, 0.52, 0.40, 1.0),
+	"player": Color(0.184, 0.420, 1.000, 1.0),  # #2F6BFF (v3/v2.2 3D palette)
+	"goguryeo": Color(0.608, 0.420, 0.878, 1.0),  # #9B6BE0 (v3/v2.2 3D palette)
+	"baekje_faction": Color(0.690, 0.486, 0.941, 1.0),  # #B07CF0 (v3/v2.2 3D palette)
+	"silla": Color(0.878, 0.333, 0.604, 1.0),  # #E0559A (v3/v2.2 3D palette)
+	"chu": Color("#2E7D32"),  # #2E7D32 (v3/v2.2 3D palette)
+	"wei": Color(0.384, 0.651, 0.949, 1.0),  # #62A6F2 (v3/v2.2 3D palette)
+	"shu": Color(0.886, 0.761, 0.227, 1.0),  # #E2C23A (v3/v2.2 3D palette)
+	"wu": Color(0.784, 0.157, 0.235, 1.0),  # #C8283C (v3/v2.2 3D palette)
+	"oda": Color(1.000, 0.847, 0.290, 1.0),  # #FFD84A (v3/v2.2 3D palette)
+	"toyotomi": Color(0.910, 0.314, 0.357, 1.0),  # #E8505B (v3/v2.2 3D palette)
+	"kyushu_faction": Color(0.788, 0.541, 0.290, 1.0),  # #C98A4A (v3/v2.2 3D palette)
+	"tokugawa": Color(1.000, 0.478, 0.102, 1.0),  # #FF7A1A (v3/v2.2 3D palette)
+	"mongol_faction": Color("#17B3B0"),  # #17B3B0 (v3/v2.2 3D palette)
 }
 
 
