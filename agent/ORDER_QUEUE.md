@@ -18,7 +18,9 @@
 | 4 | `agent/ORDER_AUDIT_M7_WORLDMAP_TO_3D_BATTLE_20261105.md` | 완료 |
 | 5 | `agent/ORDER_AUDIT_CITYHUD_20261105.md` | 완료 |
 | 6 | `agent/ORDER_M7_0_TEST_REPAIR_20261105.md` | 준비됨 — **새 가지** `feature/wm3d-m7prep-20261105`(시작점 `9160baf`), 정본 가지 push 금지 |
-| 7 | `agent/ORDER_CITYHUD_CH1_ASSETS_20261105.md` | 준비됨 — **새 가지** `feature/wm3d-cityhud-20261105`(시작점 `9160baf`), 6번 뒤 |
+| 6 | (위 6번) | **완료**(`add66d5`·`62abaad`) |
+| 7 | `agent/ORDER_CITYHUD_CH1_ASSETS_20261105.md` + **답신 `agent/ORDER_CITYHUD_CH1_REPLY_1_20261105.md`** | **멈춤→답신(B안)으로 재개**, 새 가지 `feature/wm3d-cityhud-20261105` |
+| 8 | `agent/ORDER_M7_0B_LIFECYCLE_TEST_20261105.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이미 있음), 7번 뒤 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
