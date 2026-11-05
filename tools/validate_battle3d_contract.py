@@ -19,9 +19,15 @@ assert 'terrain_rules_enabled' not in query
 view=(S/'battle3d_connect_lab.gd').read_text(encoding='utf8')
 assert 'var terrain_rules_enabled := false' in view
 assert 'var query_mode := true' in view
+# M7-1: the one test that builds a real worldmap battle context loads WorldMap.tscn once (in the test only); the 3D
+# scripts and every other battle3d test still never name it.
+CONTEXT_ENTRY_TEST=ROOT/'tests/scripts/test_battle3d_worldmap_context_entry.gd'
 for file in list(S.glob('*.gd'))+list((ROOT/'tests/scripts').glob('test_battle3d_*.gd')):
     text=file.read_text(encoding='utf8')
-    assert 'WorldMap.tscn' not in text
+    if file == CONTEXT_ENTRY_TEST:
+        assert text.count('WorldMap.tscn') == 1, 'context entry test: WorldMap.tscn once'
+    else:
+        assert 'WorldMap.tscn' not in text
     if file != S/'battle3d_engine_host.gd':
         assert 'Battle_Main.tscn' not in text
     for path in re.findall(r'(?:load|preload)\("res://([^"%]+)"\)',text):

@@ -10,6 +10,9 @@ const LAB_SCENE := "res://scenes/battle3d/Battle3D_EnginePlayLab.tscn"
 const TOP_HUD_SCENE := "res://scenes/battle3d/Battle3D_TopHud.tscn"
 const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const SETUP_KEY := "samwar_battle_setup"
+# M7-1: a worldmap battle context waiting in this meta starts the lab at once (no start panel). The engine reads and
+# removes it in its _ready (the shell never reads or removes it) and applies it before the lab draws the units.
+const CONTEXT_KEY := "samwar_worldmap_battle_context"
 const WIN_PRACTICE_RATIO := 0.25
 const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_demo", "enemy_reinforce_02_test_unit"]
 const SCENARIO_ORDER := ["default", "win_practice"]
@@ -25,6 +28,7 @@ var restart_button: Button
 var choose_button: Button
 var result_text := ""
 var lab_count := 0
+var worldmap_context_mode := false # M7-1: the lab was started from a worldmap battle context (M7-2 takes it over)
 # HUD spike: the 2D top HUD as an overlay (layer 5, under the shell's layer 10).
 # It shows the lab's momentum_display and current_round only (no engine call).
 # The lab's own round/momentum text labels sat in the same screen area; the
@@ -189,6 +193,7 @@ func _ready() -> void:
 	choose_button.custom_minimum_size = Vector2(160,44)
 	choose_button.pressed.connect(choose_scenario)
 	row.add_child(choose_button)
+	if Engine.has_meta(CONTEXT_KEY): start_worldmap_context()
 
 func create_lab() -> Node:
 	# Test shells may swap the lab's engine host for an observing one before it enters the tree.
@@ -205,8 +210,42 @@ func start_scenario(id: String) -> void:
 	if not SCENARIO_LABELS.has(id): return
 	_close_lab()
 	scenario = id
+	worldmap_context_mode = false
 	var setup := scenario_setup(id)
 	if not setup.is_empty(): Engine.set_meta(SETUP_KEY, setup) # read and removed by the engine in its _ready
+	_open_lab()
+
+func start_worldmap_context() -> void:
+	# M7-1: never a scenario setup here (the engine reads a setup after the context and could override its troops).
+	# The new battle / scenario buttons are hidden: the context meta is consumed, so it cannot be restarted.
+	_close_lab() # also drops a stale setup meta
+	scenario = ""
+	worldmap_context_mode = true
+	_open_lab()
+	if worldmap_context_applied(): return
+	push_warning("[BATTLE3D_CONTEXT] worldmap battle context not applied; back to the start panel")
+	worldmap_context_mode = false
+	_close_lab()
+	_show_result_buttons()
+	start_panel.visible = true
+
+func worldmap_context_applied() -> bool:
+	# Engine reads only: the context it kept, and both sides of its context roster filled from context heroes (an empty or
+	# broken context leaves the engine on its own test battle, which the shell cannot tell apart otherwise).
+	var context = lab.engine.get("worldmap_battle_context")
+	var summary = lab.engine.get("worldmap_context_roster_summary")
+	if not context is Dictionary or context.is_empty() or not summary is Dictionary: return false
+	for side in ["ally", "enemy"]:
+		var roster: Dictionary = summary.get(side, {})
+		if (roster.get("requested_hero_ids", []) as Array).is_empty() or int(roster.get("resolved_count", 0)) <= 0: return false
+	return true
+
+func _show_result_buttons() -> void:
+	restart_button.visible = not worldmap_context_mode
+	choose_button.visible = not worldmap_context_mode
+
+func _open_lab() -> void:
+	_show_result_buttons()
 	lab = create_lab()
 	lab.hud_cutin_enabled = true
 	lab.edge_scrolled.connect(_on_edge_scrolled) # block 4-4
@@ -217,6 +256,7 @@ func start_scenario(id: String) -> void:
 	result_text = ""
 
 func restart() -> void:
+	if worldmap_context_mode: return # the context was consumed by the engine
 	start_scenario(scenario)
 
 func choose_scenario() -> void:

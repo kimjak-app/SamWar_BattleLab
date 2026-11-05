@@ -102,7 +102,7 @@ var last_phase := ""
 # M3: enemy-turn playback. Third independent cursor; never merged with the
 # movement (event_cursor) or ally action (action_cursor) sequences.
 const WAIT_TEXT := {"wait":"대기","confused":"혼란","no_path":"경로 없음","path_blocked":"경로 막힘","no_target":"대상 없음"}
-const RESULT_TEXT := {"victory":"승리","defeat":"패배"}
+const RESULT_TEXT := {"victory":"승리","defeat":"패배","retreat":"후퇴"}
 var enemy_cursor := 0
 var enemy_queue: Array = [] # Presentation only; the engine state stays the truth.
 var enemy_slot: Array = []
