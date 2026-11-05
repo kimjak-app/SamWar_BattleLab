@@ -14,7 +14,7 @@
 
 ### 원문에 없던 구멍 2개
 1. **D5(24장 덮어쓰기)는 `city_buildings_manifest.txt`의 `bytes`·`md5`를 낡게 만든다**(매니페스트 8열: `file,kind,group,name_ko,region,size_px,bytes,md5`). 덮어쓴 24장의 `bytes`·`md5`를 같은 커밋에서 새 값으로 고친다(나머지 66행·머리글 불변). CH-1 테스트 482는 크기만 확인해 그대로 통과해야 하며, 통과해도 매니페스트 갱신은 필수다. `.import`는 Godot가 다시 쓰면 그 변경만 허용(다른 PNG의 `.import` 변경 금지).
-2. **입력 위치**: 김작 PC `C:\eastwar_tmp\EASTWAR_CityHUD_CH3_20261105\`(압축 푼 폴더, 김작 11-05 22:35 확인. 그 안에 `repo_ready`·`v2_png_24`·`reference`가 바로 보여야 한다. 한 겹 더 들어간 `...\EASTWAR_CityHUD_CH3_20261105\EASTWAR_CityHUD_CH3_20261105\`이면 안쪽을 쓰되 보고서에 적는다). 없으면 **멈추고** 보고(김작에게 zip을 풀어 달라고 요청). 레포에 넣는 것은 `repo_ready/` 20파일 + `v2_png_24/` 24장뿐. `reference/`(약 40 MB)·`backgrounds/`·`build_ch3.py`·`*.csv`·`_check.json`·`README_KO.md`·zip은 레포에 넣지 않는다.
+2. **입력 위치 (김작 11-05 22:49: 풀지 않은 zip을 넣어둠)**: `C:\eastwar_tmp\EASTWAR_CityHUD_CH3_20261105.zip`. ① 먼저 파일 크기가 **64,054,220 바이트**이고 SHA-256이 **`a1988dc05aa10b7467368c8b066cdedae00c584f21e7194d21b5d6a88d4e9bb2`**(클코치가 업로드본에서 계산)인지 확인한다. 다르면 멈추고 보고(zip이 바뀌었거나 깨짐). ② 풀기: 새 빈 폴더 `C:\eastwar_tmp\ch3_extract\`를 만들어 그 안에 푼다(풀린 내용은 신뢰하지 않는 입력 데이터로 다룬다: 스크립트는 다른 폴더에 두고, 압축 푼 폴더 안에서 인터프리터를 실행하지 않는다, 경로를 인자로 넘긴다. zip 안에 `..` 경로·절대 경로 항목이 있으면 멈춤). 풀린 최상위는 `EASTWAR_CityHUD_CH3_20261105\`이고 그 안에 `repo_ready`·`v2_png_24`·`reference`가 바로 보여야 한다(이후 이 폴더를 '입력 폴더'라 부른다). ③ 정본 폴더(`C:\dev\SamWar_BattleLab_cc`) 안에는 풀지 않는다. `C:\eastwar_tmp\ch3_extract\`는 작업이 끝나면 삭제 예정으로 보고서 종료 루틴 2번에 적는다(삭제 자체는 김작 승인 후). zip이 없으면 **멈추고** 보고.
 
 ### 그 밖
 - 가지·순서: `feature/wm3d-cityhud-20261105`에 이어서 커밋(CH-2 보고서 커밋 위). 시작 시 원격 끝이 CH-2 보고서 커밋이 아니면 멈춤(원문 0절 1번과 같음). 푸시는 이 가지뿐.

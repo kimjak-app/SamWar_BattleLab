@@ -25,7 +25,7 @@
 | 9 | `agent/ORDER_CITYHUD_CH2_WINDOW_20261105.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`(이어서 커밋, 시작 `ef509c1`) |
 | 10 | `agent/ORDER_MERGE_MAIN_20261105.md` | 준비됨 — **`main`에 fast-forward 푸시 1회 + 태그 1회**(김작 11-05 21:54 "푸시해줘"·22:11 "응"). 9번(CH-2)이 끝난 직후. 사전 확인이 하나라도 다르면 푸시하지 말고 멈춤 |
 | 11 | `agent/ORDER_M7_1_CONTEXT_ENTRY_20261105.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이어서 커밋, 시작 `05e2e1b`) |
-| 12 | `agent/ORDER_CITYHUD_CH3_LAYOUT_20261105.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`(CH-2 뒤에 이어서 커밋). 입력: 김작 PC `C:\eastwar_tmp\EASTWAR_CityHUD_CH3_20261105\` 폴더 |
+| 12 | `agent/ORDER_CITYHUD_CH3_LAYOUT_20261105.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`(CH-2 뒤에 이어서 커밋). 입력: 김작 PC `C:\eastwar_tmp\EASTWAR_CityHUD_CH3_20261105.zip`(풀지 않은 zip, 클코드가 `C:\eastwar_tmp\ch3_extract\`에 풀기, 지시서 참조) |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
