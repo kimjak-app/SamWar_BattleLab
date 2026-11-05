@@ -1,11 +1,14 @@
 extends SceneTree
-# M7-1: the 3D shell starts straight from a worldmap battle context. The context is the one the real WorldMap builds for
-# a player attack (_confirm_player_attack_deployment -> pending battle context, the same dictionary the WorldMap hands to
-# the battle scene); the WorldMap is freed before its entry camera hands off, so no scene change happens here. The shell
+# M7-1: the 3D shell starts straight from a worldmap battle context. The context comes from the real WorldMap builder
+# for a player attack (_build_player_attack_battle_context) plus the fields _confirm_player_attack_deployment adds; no
+# departure, snapshot or handoff runs, so no camera handoff or scene change can happen (locally or in CI).
+# 출정 확인 전체 흐름(비용 차감·스냅샷·핸드오프)은 `test_worldmap_battle_main_roundtrip_settlement`가 다룬다. 여기서는 셸이 받는 문맥 모양만 실제 빌더로 만든다.
+# The shell
 # must skip the start panel, never set a scenario setup, leave the context meta to the engine (consumed) and show the
 # context's units in the 3D lab. Without the meta the start panel comes first; a broken context goes back to it.
 const CONTEXT_KEY := "samwar_worldmap_battle_context"
 const SETUP_KEY := "samwar_battle_setup"
+const WORLDMAP_SCENE := "res://WorldMap.tscn" # the scene the context comes from and returns to
 const SOURCE_CITY := "hanseong"
 const TARGET_CITY := "pyeongyang"
 var h
@@ -114,7 +117,7 @@ func compare_side(lab: Node, context: Dictionary, context_side: String, lab_side
 
 
 func real_worldmap_context() -> Dictionary:
-	var worldmap: Node = load("res://WorldMap.tscn").instantiate()
+	var worldmap: Node = load(WORLDMAP_SCENE).instantiate()
 	root.add_child(worldmap)
 	await process_frame
 	await process_frame
@@ -130,15 +133,18 @@ func real_worldmap_context() -> Dictionary:
 		if food_type.is_empty() and int(worldmap.call("_get_city_supply_resource_amount", SOURCE_CITY, candidate)) >= food: food_type = candidate
 	var gold := maxi(0, int(supply.get("gold", 0)))
 	var salt := maxi(0, int(supply.get("salt", 0)))
-	worldmap.call("_confirm_player_attack_deployment", {
-		"deployment_type": "attack", "mode": "manual", "source_city_id": SOURCE_CITY, "target_city_id": TARGET_CITY,
-		"selected_hero_ids": [hero_id], "attacker_troop_allocation": {hero_id: 1},
-		"attacker_food_type": food_type, "attacker_food_amount": food, "attacker_carried_gold": gold, "attacker_salt_amount": salt,
-		"supply_cost": {"food_type": food_type, "food": food, "gold": gold, "salt": salt, food_type: food},
-	})
-	await process_frame
-	var context: Dictionary = (worldmap.call("_get_pending_battle_context_mvp") as Dictionary).duplicate(true)
-	worldmap.free() # before its entry camera hands off: the context stays a plain dictionary here
+	var selected: Array[String] = [hero_id]
+	var supply_cost := {"food_type": food_type, "food": food, "gold": gold, "salt": salt, food_type: food}
+	var context: Dictionary = (worldmap.call("_build_player_attack_battle_context", SOURCE_CITY, TARGET_CITY, "manual", selected, {hero_id: 1}, supply_cost) as Dictionary).duplicate(true)
+	if not context.is_empty():
+		# The fields _confirm_player_attack_deployment adds after the builder (same names).
+		context["attacker_total_allocated_troops"] = 1
+		context["attacker_source_city_id"] = SOURCE_CITY
+		context["transaction_id"] = "t-test-1"
+		context["scenario_id"] = str(worldmap.get("_player_state").get("active_scenario_id", "korea_mvp"))
+		context["player_faction_id"] = str(worldmap.call("_get_current_player_faction_id"))
+		context["result_return_destination"] = WORLDMAP_SCENE
+	worldmap.free()
 	await process_frame
 	return context
 
