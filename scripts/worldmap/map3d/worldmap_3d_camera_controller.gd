@@ -10,7 +10,10 @@ const BATTLE_ENTRY_ZOOM_3D := 0.85
 
 var _cam3d = null                 # WorldMap3DCamera (untyped, see header)
 var input_blocked := false        # main sets true while a modal / the tech tree is open (blocks keyboard axes)
-var skip_battle_entry_camera := false   # host sets true until T-WM3D-07 gives the handoff a 3D focus
+var skip_battle_entry_camera := false   # true = no battle-entry camera move (tests / emergency); the battle still starts
+## T-WM3D-07: main's battle-entry focus (2D world position) -> 3D ground coordinate (km). The host connects the
+## adapter here. Not valid, or returning a non-finite point (Vector2.INF) = no camera move, continue at once.
+var focus_converter := Callable()
 
 
 func configure_3d(camera3d, debug_label: Label, viewport_owner: Node) -> void:
@@ -69,9 +72,14 @@ func handle_unhandled_input(event: InputEvent) -> bool:
 func start_battle_entry_handoff(focus_position: Vector2, continue_callable: Callable) -> bool:
 	if _battle_entry_handoff_in_progress or not continue_callable.is_valid():
 		return false
-	if _cam3d == null or skip_battle_entry_camera:
+	if _cam3d == null or skip_battle_entry_camera or not focus_converter.is_valid():
 		continue_callable.call()
 		return false
+	var converted = focus_converter.call(focus_position)
+	if not (converted is Vector2) or not (converted as Vector2).is_finite():
+		continue_callable.call()
+		return false
+	var focus3d: Vector2 = converted
 	_battle_entry_handoff_in_progress = true
 	_battle_entry_handoff_completed = false
 	_battle_entry_handoff_continue_callable = continue_callable
@@ -80,9 +88,9 @@ func start_battle_entry_handoff(focus_position: Vector2, continue_callable: Call
 	_cam3d.apply_drag_button(MOUSE_BUTTON_MIDDLE, false)
 	_cam3d.apply_drag_button(MOUSE_BUTTON_RIGHT, false)
 	var target_zoom := maxf(float(_cam3d.zoom_goal), BATTLE_ENTRY_ZOOM_3D)
-	_battle_entry_handoff_target_position = focus_position
+	_battle_entry_handoff_target_position = focus3d   # skip_battle_entry_handoff() jumps here (3D coordinate)
 	_battle_entry_handoff_target_zoom = Vector2(target_zoom, target_zoom)
-	_cam3d.set_view(focus_position, target_zoom, rad_to_deg(_cam3d.yaw_goal), false)
+	_cam3d.set_view(focus3d, target_zoom, rad_to_deg(_cam3d.yaw_goal), false)
 	_battle_entry_handoff_tween = create_tween()
 	_battle_entry_handoff_tween.tween_interval(BATTLE_ENTRY_PAN_SEC + BATTLE_ENTRY_HOLD_SEC)
 	_battle_entry_handoff_tween.tween_callback(_complete_battle_entry_handoff)

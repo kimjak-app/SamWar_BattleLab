@@ -101,7 +101,8 @@ func _run() -> void:
 	line_edit.release_focus()
 	_expect(not ctl._is_keyboard_camera_blocked(), "released LineEdit does not block")
 
-	# 10. battle entry handoff + skip
+	# 10. battle entry handoff + skip (T-WM3D-07: the handoff needs a focus converter; identity here, a real one in 11c)
+	ctl.focus_converter = func(p: Vector2) -> Vector2: return p
 	var calls := [0]
 	var cb := func() -> void: calls[0] += 1
 	_expect(ctl.start_battle_entry_handoff(Vector2(100, 0), cb), "handoff starts")
@@ -138,6 +139,37 @@ func _run() -> void:
 	ctl.skip_battle_entry_camera = false
 	_expect(ctl.start_battle_entry_handoff(Vector2(30, 10), cb_skip), "skip_battle_entry_camera back to false: handoff starts again")
 	ctl.skip_battle_entry_handoff()
+
+	# 11c. T-WM3D-07: the converter maps main's 2D focus to the 3D ground coordinate
+	var conv_calls := [0]
+	ctl.focus_converter = func(p: Vector2) -> Vector2: return Vector2(p.x * 2.0 - 7.0, p.y + 300.0)
+	var cbc := func() -> void: conv_calls[0] += 1
+	_expect(ctl.start_battle_entry_handoff(Vector2(40, 10), cbc), "converter: handoff starts")
+	_expect(ctl.is_battle_entry_handoff_in_progress(), "converter: handoff in progress")
+	_expect(cam._target_goal.is_equal_approx(Vector2(73, 310)), "converter: camera goal is the converted 3D point (%s)" % str(cam._target_goal))
+	_expect(conv_calls[0] == 0, "converter: continue not called yet")
+	ctl.skip_battle_entry_handoff()
+	_expect(conv_calls[0] == 1, "converter: skip calls continue exactly once")
+	_expect(cam.target.is_equal_approx(Vector2(73, 310)), "converter: skip jumps to the converted 3D point")
+	ctl.skip_battle_entry_handoff()
+	ctl.handle_unhandled_input(space)
+	await create_timer(1.0).timeout
+	_expect(conv_calls[0] == 1, "converter: still exactly once after a second skip, a key and the old tween time")
+	var conv_calls2 := [0]
+	ctl.start_battle_entry_handoff(Vector2(20, 20), func() -> void: conv_calls2[0] += 1)
+	await create_timer(1.0).timeout
+	_expect(conv_calls2[0] == 1 and not ctl.is_battle_entry_handoff_in_progress(), "converter: natural end calls continue exactly once")
+
+	# 11d. T-WM3D-07: no / failing converter -> no camera move, continue at once (the battle must still start)
+	var bad_calls := [0]
+	var cbb := func() -> void: bad_calls[0] += 1
+	var goal_before := cam._target_goal
+	ctl.focus_converter = Callable()
+	_expect(not ctl.start_battle_entry_handoff(Vector2(5, 5), cbb) and bad_calls[0] == 1 and not ctl.is_battle_entry_handoff_in_progress(), "no converter: returns false, continue once at once")
+	ctl.focus_converter = func(_p: Vector2) -> Vector2: return Vector2.INF
+	_expect(not ctl.start_battle_entry_handoff(Vector2(5, 5), cbb) and bad_calls[0] == 2 and not ctl.is_battle_entry_handoff_in_progress(), "converter INF: returns false, continue once at once")
+	_expect(cam._target_goal.is_equal_approx(goal_before), "no / INF converter: camera goal unchanged")
+	ctl.focus_converter = func(p: Vector2) -> Vector2: return p
 
 	# 12. controller without a 3D camera behaves like the 2D parent for the handoff
 	var calls3 := [0]

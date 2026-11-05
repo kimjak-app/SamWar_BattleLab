@@ -8,8 +8,11 @@ extends Node
 const CameraControllerScript := preload("res://scripts/worldmap/map3d/worldmap_3d_camera_controller.gd")
 const AdapterScript := preload("res://scripts/worldmap/map3d/worldmap_3d_adapter.gd")
 const SYNC_INTERVAL := 0.25   # seconds between owner/troop syncs while 3D is on (the adapter skips unchanged cities)
+const BATTLE_ENTRY_BLEND := 0.72   # = worldmap_main.gd _build_worldmap_battle_entry_focus lerp (test_worldmap3d_host.gd checks it)
+const MAIN_BATTLE_META_CONST := "WORLDMAP_BATTLE_CONTEXT_META_KEY"   # main sets this Engine meta right before Battle_Main
 
 @export var main_path: NodePath = NodePath("../WorldMap")
+@export var mem_probe_enabled := true   # T-WM3D-07: memory rows in user://wm3d_mem_log.csv (3D mode only)
 @export var start_in_3d := true   # dev/test scene: starts on the 3D map. toggle by code only (`toggle_map_view_3d()`); the production switch is a settings screen at T-WM3D-08
 
 var main: Node = null
@@ -23,6 +26,7 @@ func _ready() -> void:
 	if main == null:
 		push_warning("WorldMap3DHost: worldmap main not found at %s" % str(main_path))
 		return
+	main.tree_exiting.connect(_on_main_tree_exiting)
 	if start_in_3d:
 		set_map_view_3d(true)
 
@@ -63,6 +67,7 @@ func set_map_view_3d(enable: bool) -> bool:
 				return false
 			created.set_markers(main.get("_city_markers_by_id"))
 			adapter = created
+			_sample_map_ready()
 		adapter.set_active(true)
 		active = true
 		adapter.sync_all()
@@ -84,7 +89,7 @@ func _replace_camera_controller(old) -> void:
 		controller.name = "WorldMapCameraController"
 		main.add_child(controller)
 		controller.configure_3d(adapter.get_camera(), main.get("camera_debug_label"), main)
-		controller.skip_battle_entry_camera = true   # the 3D handoff comes with T-WM3D-07
+		controller.focus_converter = Callable(self, "_focus_for_battle_entry")
 		main.set("_camera_controller", controller)
 	else:
 		main.call("_ensure_camera_controller")   # main builds its own 2D controller, exactly as at startup
@@ -99,3 +104,37 @@ func _city_owner(marker) -> String:
 	var entry: Dictionary = main.call("_get_city_hud_entry", str(marker.city_id))
 	var owner_id := str(entry.get("owner_faction_id", entry.get("owner", entry.get("nation", ""))))
 	return owner_id if not owner_id.is_empty() else str(marker.owner_faction_id)
+
+
+## T-WM3D-07: main's 2D battle-entry focus (72% from the attacking city to the target) -> the same 72% point between the
+## two cities on the 3D map. Vector2.INF when it cannot be converted: the controller then skips the camera move and the
+## battle starts at once (a failed camera move must never block the battle).
+func _focus_for_battle_entry(pos2d: Vector2) -> Vector2:
+	if adapter == null:
+		return Vector2.INF
+	return adapter.focus_for_blend_2d(pos2d, BATTLE_ENTRY_BLEND, Vector2.INF)
+
+
+# ------------------------------------------------------------------ T-WM3D-07 memory probe
+func _sample_map_ready() -> void:
+	if not mem_probe_enabled:
+		return
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if active and is_inside_tree():
+		WorldMap3DMemProbe.shared().sample("map_ready")
+
+
+## main leaves the tree: when it is leaving for a battle (main set its battle-context meta just before
+## change_scene_to_file), sample while the 3D layer still exists, then 60 frames into Battle_Main (the probe outlives
+## this host in Engine meta), and mark the return for T-WM3D-08's 3D world map.
+func _on_main_tree_exiting() -> void:
+	if not active or not mem_probe_enabled or main == null:
+		return
+	var key = main.get_script().get_script_constant_map().get(MAIN_BATTLE_META_CONST, "") if main.get_script() != null else ""
+	if String(key).is_empty() or not Engine.has_meta(String(key)):
+		return
+	var probe := WorldMap3DMemProbe.shared()
+	probe.sample("before_battle")
+	probe.mark_pending_return()
+	probe.sample_after_frames("battle_ready_plus_60f", 60)

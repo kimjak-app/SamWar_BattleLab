@@ -9,6 +9,7 @@ signal city_pick_forwarded(city_id: String)
 
 const SCENE_PATH_DEFAULT := "res://worldmap3d/scenes/worldmap3d_eastasia.tscn"
 const LAYER_ORDER := -10   # behind the unchanged WorldMapUI HUD
+const BLEND_MATCH_PX := 0.5   # T-WM3D-07 focus_for_blend_2d: max 2D distance (px) to accept a marker-pair blend
 
 var root3d = null                      # WorldMap3DRoot (untyped, see header)
 var layer: CanvasLayer = null
@@ -143,6 +144,35 @@ func focus_for_2d_position(pos2d: Vector2, fallback: Vector2 = Vector2.ZERO) -> 
 		if marker != null and is_instance_valid(marker) and marker.global_position.is_equal_approx(pos2d):
 			return focus_for_city(str(city_id), fallback)
 	return fallback
+
+
+## T-WM3D-07: main's battle-entry focus is the point `t` (0.72) of the way from one 2D marker to another. Finds the
+## ordered marker pair (a, b) whose 2D blend lies within BLEND_MATCH_PX of `pos2d` (closest wins) and returns the same
+## blend of their 3D positions. Otherwise an exact marker position (focus_for_2d_position), else `fallback`.
+## Pairs whose city is missing in the 3D map are skipped. 13 cities = 156 ordered pairs, cheap.
+func focus_for_blend_2d(pos2d: Vector2, t: float = 0.72, fallback: Vector2 = Vector2.ZERO) -> Vector2:
+	var xz = root3d.get("marker_xz") if root3d != null else null
+	if not (xz is Dictionary):
+		return fallback
+	var best_err := INF
+	var best := Vector2.ZERO
+	for a in markers_by_id.keys():
+		var ma = markers_by_id[a]
+		if ma == null or not is_instance_valid(ma) or not xz.has(str(a)):
+			continue
+		for b in markers_by_id.keys():
+			if a == b:
+				continue
+			var mb = markers_by_id[b]
+			if mb == null or not is_instance_valid(mb) or not xz.has(str(b)):
+				continue
+			var err: float = (ma.global_position as Vector2).lerp(mb.global_position, t).distance_to(pos2d)
+			if err <= BLEND_MATCH_PX and err < best_err:
+				best_err = err
+				best = (xz[str(a)] as Vector2).lerp(xz[str(b)], t)
+	if best_err < INF:
+		return best
+	return focus_for_2d_position(pos2d, fallback)
 
 
 func focus_for_city(city_id: String, fallback: Vector2 = Vector2.ZERO) -> Vector2:

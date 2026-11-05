@@ -6,6 +6,7 @@ extends SceneTree
 
 const WORLDMAP_SCENE := preload("res://WorldMap.tscn")
 const HOST_SCENE_PATH := "res://WorldMap3D_Host_Test.tscn"
+const MEM_LOG_TEST := "user://wm3d_mem_log_host_test.csv"
 
 var _checks := 0
 var _failures := 0
@@ -25,7 +26,9 @@ func _run() -> void:
 	_expect(main2d.find_child("WorldMap3DLayer", true, false) == null, "no host: no WorldMap3DLayer")
 	_expect(not (main2d.get("_camera_controller") is WorldMap3DCameraController), "no host: 2D camera controller")
 
-	# 2. host scene starts in 3D
+	# 2. host scene starts in 3D (T-WM3D-07: the shared memory probe writes to a test file)
+	WorldMap3DMemProbe.shared().log_path = MEM_LOG_TEST
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(MEM_LOG_TEST))
 	_expect(change_scene_to_packed(load(HOST_SCENE_PATH)) == OK, "host scene transition starts")
 	await process_frame
 	await process_frame
@@ -117,17 +120,74 @@ func _run() -> void:
 	await process_frame
 	_expect(host.active and world2d.visible == false, "F8 again: still 3D, 2D root hidden")
 
-	# 7. battle-entry camera handoff is skipped in 3D (main unchanged; the 3D controller skips it)
+	# 7. T-WM3D-07: battle-entry camera handoff in 3D. main's own 72% focus (2D) -> host converter -> 3D 72% point
+	var ctl3d = main.call("_ensure_camera_controller")
+	_expect(ctl3d is WorldMap3DCameraController and ctl3d.skip_battle_entry_camera == false, "3D: controller does not skip the battle-entry camera")
+	_expect(ctl3d.focus_converter.is_valid(), "3D: controller focus_converter is connected")
+	var xz: Dictionary = root3d.marker_xz
+	var worst := 0.0
+	var pair_list := [["hanseong", "pyeongyang"], ["luoyang", "jianye"], ["chengdu", "jianye"], ["gyeongju", "kyoto"], ["sabi", "kyushu"], ["karakorum", "yecheng"]]
+	for pr in pair_list:
+		var focus: Dictionary = main.call("_build_worldmap_battle_entry_focus", pr[0], pr[1])
+		var got3: Vector2 = host._focus_for_battle_entry(focus.get("position", Vector2.ZERO))
+		worst = maxf(worst, got3.distance_to((xz[pr[0]] as Vector2).lerp(xz[pr[1]], WorldMap3DHost.BATTLE_ENTRY_BLEND)))
+	_expect(worst <= 0.001, "main 72%% focus -> host converter = 3D 72%% point on %d pairs (worst %.6f km)" % [pair_list.size(), worst])
+	_expect(not host._focus_for_battle_entry(Vector2(-99999, -99999)).is_finite(), "host converter: unknown 2D point -> INF")
 	var calls := [0]
 	main.call("_start_worldmap_battle_entry_camera_handoff", "hanseong", "pyeongyang", func() -> void: calls[0] += 1)
-	_expect(calls[0] == 1, "3D: battle-entry handoff calls continue once at once (%d)" % calls[0])
-	_expect(not main.call("_ensure_camera_controller").is_battle_entry_handoff_in_progress(), "3D: no handoff in progress")
+	var want_hp: Vector2 = (xz["hanseong"] as Vector2).lerp(xz["pyeongyang"], 0.72)
+	_expect(calls[0] == 0 and ctl3d.is_battle_entry_handoff_in_progress(), "3D: handoff runs (continue not called yet)")
+	_expect(adapter.get_camera()._target_goal.distance_to(want_hp) <= 0.001, "3D: camera goal = 3D 72%% point hanseong->pyeongyang")
+	_expect(host.set_map_view_3d(false) == false and host.active, "3D: set_map_view_3d(false) refused during the handoff")
+	main.call("_skip_worldmap_battle_entry_camera_handoff")
+	_expect(calls[0] == 1 and not ctl3d.is_battle_entry_handoff_in_progress(), "3D: skip -> continue exactly once")
+	await create_timer(1.0).timeout
+	_expect(calls[0] == 1, "3D: still exactly once after the handoff time")
+
+	# 7b. T-WM3D-07: memory probe wiring (log written to a test file, not the real user://wm3d_mem_log.csv)
+	var probe := WorldMap3DMemProbe.shared()
+	_expect(host.mem_probe_enabled and _has_label(probe.log_path, "map_ready"), "probe: map_ready row written at 3D start")
+	_expect(main.tree_exiting.is_connected(host._on_main_tree_exiting), "probe: host listens to main.tree_exiting")
+	Engine.set_meta("samwar_worldmap_battle_context", {"test": true})
+	host._on_main_tree_exiting()
+	Engine.remove_meta("samwar_worldmap_battle_context")
+	_expect(_has_label(probe.log_path, "before_battle"), "probe: before_battle row written when main leaves for a battle")
+	_expect(Engine.has_meta(WorldMap3DMemProbe.PENDING_RETURN_META), "probe: before_battle marks a pending return (08 reads it)")
+	Engine.remove_meta(WorldMap3DMemProbe.PENDING_RETURN_META)
 
 	# 8. missing 3D scene: covered by test_worldmap3d_adapter.gd ("create_layer(missing file) is false").
 
-	# 9. cleanup
-	current_scene.queue_free()
-	await process_frame
+	# 9. T-WM3D-07: a real scene change for a battle (an empty stand-in scene for Battle_Main.tscn, which would need the
+	# battle side). main sets its battle-context meta, then change_scene: before_battle is written while the 3D layer is
+	# still in the tree, the host and main are freed with the scene, and the probe writes battle_ready_plus_60f 60 frames on.
+	var layer_alive := [false]
+	var layer_in_tree := [true]
+	main.tree_exiting.connect(func() -> void:
+		layer_alive[0] = is_instance_valid(adapter.layer) and is_instance_valid(adapter.root3d)
+		layer_in_tree[0] = layer_alive[0] and adapter.layer.is_inside_tree(), CONNECT_ONE_SHOT)
+	var before_rows := _count_label(probe.log_path, "before_battle")
+	var stand_in := PackedScene.new()
+	var stand_in_node := Node.new()
+	stand_in_node.name = "BattleStandIn"
+	stand_in.pack(stand_in_node)
+	stand_in_node.free()
+	Engine.set_meta("samwar_worldmap_battle_context", {"test": true})
+	change_scene_to_packed(stand_in)
+	for i in 30:
+		await process_frame
+	_expect(current_scene != null and current_scene.name == "BattleStandIn", "battle stand-in scene is current")
+	_expect(not is_instance_valid(host) and not is_instance_valid(main), "host and main are freed with the world-map scene")
+	_expect(layer_alive[0], "3D layer and 3D root not freed yet when main.tree_exiting fires")
+	print("[WORLDMAP3D_HOST] note: at main.tree_exiting the 3D layer is_inside_tree = %s (children leave the tree first)" % str(layer_in_tree[0]))
+	_expect(_count_label(probe.log_path, "before_battle") == before_rows + 1, "before_battle row written once by the real scene change")
+	_expect(_count_label(probe.log_path, "battle_ready_plus_60f") == 0 and probe.is_waiting(), "battle_ready_plus_60f not yet at 30 frames")
+	for i in 40:
+		await process_frame
+	_expect(_count_label(probe.log_path, "battle_ready_plus_60f") == 1, "battle_ready_plus_60f row written after 60 frames")
+	_expect(FileAccess.get_file_as_string(probe.log_path).contains(",battle_ready_plus_60f,") and FileAccess.get_file_as_string(probe.log_path).strip_edges().ends_with(",BattleStandIn"), "battle_ready_plus_60f row records the battle scene")
+	Engine.remove_meta("samwar_worldmap_battle_context")
+	if Engine.has_meta(WorldMap3DMemProbe.PENDING_RETURN_META):
+		Engine.remove_meta(WorldMap3DMemProbe.PENDING_RETURN_META)
 	_finish()
 
 
@@ -138,6 +198,15 @@ func _expect(condition: bool, label: String) -> void:
 		push_error("[WORLDMAP3D_HOST_FAIL] %s" % label)
 
 
+func _count_label(path: String, label: String) -> int:
+	return FileAccess.get_file_as_string(path).count("," + label + ",") if FileAccess.file_exists(path) else 0
+
+
+func _has_label(path: String, label: String) -> bool:
+	return FileAccess.file_exists(path) and FileAccess.get_file_as_string(path).contains("," + label + ",")
+
+
 func _finish() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(MEM_LOG_TEST))
 	print("[WORLDMAP3D_HOST] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)

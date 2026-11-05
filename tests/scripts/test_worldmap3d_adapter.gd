@@ -134,6 +134,56 @@ func _run() -> void:
 	_expect(lone.focus_for_2d_position(hanseong.global_position, fb) == fb, "no root: focus_for_2d_position = fallback")
 	lone.free()
 
+	# 9b. T-WM3D-07: focus_for_blend_2d — the 72% point between two 2D markers -> the same 72% point between their 3D cities
+	var blend_adapter := WorldMap3DAdapter.new()
+	root.add_child(blend_adapter)
+	var blend_root := FakeRoot.new()
+	root.add_child(blend_root)
+	var blend_markers := {}
+	var blend_xz := {}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20261105
+	for k in 13:
+		var cid := "city%02d" % k
+		blend_markers[cid] = _marker(cid, "player", Vector2(rng.randf_range(0, 1800), rng.randf_range(0, 1000)))
+		blend_xz[cid] = Vector2(rng.randf_range(-2700, 2700), rng.randf_range(-1800, 1800))
+	blend_root.marker_xz = blend_xz
+	blend_adapter.set_markers(blend_markers)
+	blend_adapter.bind_root(blend_root)
+	var worst := 0.0
+	var pairs := 0
+	var matched := 0
+	for a in blend_markers:
+		for b in blend_markers:
+			if a == b:
+				continue
+			pairs += 1
+			var p2: Vector2 = (blend_markers[a] as Node2D).global_position.lerp((blend_markers[b] as Node2D).global_position, 0.72)
+			var want: Vector2 = (blend_xz[a] as Vector2).lerp(blend_xz[b], 0.72)
+			var got3: Vector2 = blend_adapter.focus_for_blend_2d(p2, 0.72, fb)
+			if got3 != fb:
+				matched += 1
+			worst = maxf(worst, got3.distance_to(want))
+	_expect(pairs == 156 and matched == 156, "focus_for_blend_2d: all 156 ordered pairs matched (%d/%d)" % [matched, pairs])
+	_expect(worst <= 0.001, "focus_for_blend_2d: 72%% point within 0.001 km on every pair (worst %.6f)" % worst)
+	var m0: Node2D = blend_markers["city00"]
+	var m1: Node2D = blend_markers["city01"]
+	_expect(blend_adapter.focus_for_blend_2d(m0.global_position, 0.72, fb) == blend_xz["city00"], "focus_for_blend_2d(exact marker) = that city")
+	_expect(blend_adapter.focus_for_blend_2d(Vector2(-5000, -5000), 0.72, fb) == fb, "focus_for_blend_2d(nowhere) = fallback")
+	var p01 := m0.global_position.lerp(m1.global_position, 0.72)
+	_expect(blend_adapter.focus_for_blend_2d(p01 + Vector2(0.4, 0), 0.72, fb).distance_to((blend_xz["city00"] as Vector2).lerp(blend_xz["city01"], 0.72)) <= 0.001, "focus_for_blend_2d: 0.4 px off still matches")
+	_expect(blend_adapter.focus_for_blend_2d(p01 + Vector2(0.6, 0), 0.72, fb) == fb, "focus_for_blend_2d: 0.6 px off = fallback")
+	blend_xz.erase("city01")
+	_expect(blend_adapter.focus_for_blend_2d(p01, 0.72, fb) == fb, "focus_for_blend_2d: pair with a city missing in 3D is skipped")
+	var no_root := WorldMap3DAdapter.new()
+	no_root.set_markers(blend_markers)
+	_expect(no_root.focus_for_blend_2d(p01, 0.72, fb) == fb, "focus_for_blend_2d: no root = fallback")
+	no_root.free()
+	for cid in blend_markers:
+		(blend_markers[cid] as Node).free()
+	blend_adapter.free()
+	blend_root.free()
+
 	# 8b. unchanged owner + troops are not pushed again; a change or a new root pushes again
 	adapter.bind_root(fake)
 	fake.owner_calls = 0
