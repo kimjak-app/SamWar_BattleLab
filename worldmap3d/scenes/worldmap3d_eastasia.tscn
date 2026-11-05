@@ -10,4 +10,4 @@ banner_screen_scale = 0.11
 banner_max_km = 150.0
 castle_screen_scale = 0.008
 castle_max_scale = 10.0
-show_roads = false
+show_roads = true

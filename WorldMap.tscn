@@ -143,6 +143,12 @@ _data = {
 }
 point_count = 3
 
+[sub_resource type="Curve2D" id="Curve2D_route_chengdu_jianye"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 408.5, 730.5, 0, 0, 0, 0, 681.75, 705, 0, 0, 0, 0, 955, 670)
+}
+point_count = 3
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_city_click"]
 radius = 40.0
 
@@ -760,6 +766,20 @@ progress = 127.81009
 scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="Route_Chengdu_Jianye" type="Node2D" parent="WorldMapRoot/RouteLayer" unique_id=376415438]
+script = ExtResource("8_route_path")
+route_id = "Route_Chengdu_Jianye"
+start_city_id = "chengdu"
+end_city_id = "jianye"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Chengdu_Jianye" unique_id=1818531065]
+curve = SubResource("Curve2D_route_chengdu_jianye")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Chengdu_Jianye" unique_id=1563353612]
+points = PackedVector2Array(408.5, 730.5, 681.75, 705, 955, 670)
+width = 4.5
+default_color = Color(0.86, 0.62, 0.32, 0.72)
 
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot" unique_id=1124618027]
 

@@ -23,6 +23,20 @@ signal city_selected(city_id: String, region_index: int)   # v2.2: left click (c
 @export var show_rivers := true
 @export var show_roads := true
 
+## T-WM3D-06: road / sea-route ribbon look, matched to the 2D routes (scripts/worldmap_route_path.gd LAND_/SEA_ROUTE_COLOR
+## rgb, width ratio 2.5 : 4.5). One place to tune after the F6 check.
+const ROAD_CORE_COLOR := Color(0.86, 0.62, 0.32)
+const ROAD_EDGE_COLOR := Color(0.45, 0.30, 0.14)
+const ROAD_OPACITY := 0.85
+const ROAD_WIDTH_KM := 0.55
+const ROAD_MIN_PX := 2.0
+const SEA_ROUTE_CORE_COLOR := Color(0.55, 0.82, 1.0)
+const SEA_ROUTE_EDGE_COLOR := Color(0.25, 0.45, 0.62)
+const SEA_ROUTE_OPACITY := 0.6
+const SEA_ROUTE_WIDTH_KM := ROAD_WIDTH_KM * 2.5 / 4.5
+const SEA_ROUTE_MIN_PX := 2.0
+const SEA_ROUTE_RENDER_PRIORITY := 2   # roads 1, rivers 0
+
 const SHADERS := "res://worldmap3d/shaders/"
 const TEX := "res://worldmap3d/textures/"
 var cfg := WorldMapConfig.new()
@@ -43,6 +57,8 @@ var sea_mat: ShaderMaterial
 var road_mat: ShaderMaterial
 var river_mat: ShaderMaterial
 var road_node: MeshInstance3D
+var sea_route_mat: ShaderMaterial
+var sea_route_node: MeshInstance3D
 var river_node: MeshInstance3D
 var camera: WorldMap3DCamera
 var env: Environment
@@ -87,6 +103,7 @@ func _ready() -> void:
 		_build_rivers()
 	if show_roads:
 		_build_roads()
+		_build_sea_routes()
 	stats.t_ribbons_ms = (Time.get_ticks_usec() - t1) / 1000.0
 	if show_markers:
 		_build_cities()
@@ -97,9 +114,10 @@ func _ready() -> void:
 	stats.build_ms = (Time.get_ticks_usec() - t0) / 1000.0
 	stats.map_id = cfg.map_id
 	stats.region_count = regions.regions.size()
-	print("[WorldMap3D] map '%s' built in %.0f ms (data %.0f, terrain %.0f, ribbons %.0f) terrain tris %d, road tris %d, river tris %d, regions %d" % [
+	print("[WorldMap3D] map '%s' built in %.0f ms (data %.0f, terrain %.0f, ribbons %.0f) terrain tris %d, road tris %d, river tris %d, regions %d, roads %d, sea routes %d, sea route tris %d, sea build %.0f ms" % [
 		cfg.map_id, stats.build_ms, stats.t_data_ms, stats.t_terrain_ms, stats.t_ribbons_ms, stats.terrain_tris,
-		stats.get("road_tris", 0), stats.get("river_tris", 0), stats.region_count])
+		stats.get("road_tris", 0), stats.get("river_tris", 0), stats.region_count,
+		stats.get("road_count", 0), stats.get("sea_route_count", 0), stats.get("sea_route_tris", 0), stats.get("sea_build_ms", 0.0)])
 	map_built.emit(stats)
 
 # ------------------------------------------------------------------ build
@@ -326,20 +344,45 @@ func _build_roads() -> void:
 	var mesh := WorldMapRibbons.build(geo, roads.paths, [], 0.8)
 	stats.road_build_ms = (Time.get_ticks_usec() - t) / 1000.0
 	stats.road_tris = mesh.surface_get_array_index_len(0) / 3 if mesh.get_surface_count() > 0 else 0
+	stats.road_count = roads.paths.size()
 	if road_mat == null:
 		road_mat = ShaderMaterial.new()
 		road_mat.shader = load(SHADERS + "worldmap_ribbon.gdshader")
-		road_mat.set_shader_parameter("width_km", 0.55)
-		road_mat.set_shader_parameter("min_px", 2.0)
-		road_mat.set_shader_parameter("core_color", Color(0.95, 0.91, 0.78))
-		road_mat.set_shader_parameter("edge_color", Color(0.42, 0.33, 0.22))
+		road_mat.set_shader_parameter("width_km", ROAD_WIDTH_KM)
+		road_mat.set_shader_parameter("min_px", ROAD_MIN_PX)
+		road_mat.set_shader_parameter("core_color", ROAD_CORE_COLOR)
+		road_mat.set_shader_parameter("edge_color", ROAD_EDGE_COLOR)
 		road_mat.set_shader_parameter("edge_from", 0.6)
-		road_mat.set_shader_parameter("opacity", 0.92)
+		road_mat.set_shader_parameter("opacity", ROAD_OPACITY)
 		road_mat.render_priority = 1
 	if road_node:
 		road_node.mesh = mesh
 	else:
 		road_node = _ribbon_node("Roads", mesh, road_mat)
+
+## T-WM3D-06: sea routes (rules.sea_routes) as ribbons over sea cells. Sea cells are drawn at mesh_height_at (-8 m grid
+## floor -> y -0.076 km), above the open-sea plane (y -0.15), so the plain WorldMapRibbons.build keeps them above water.
+func _build_sea_routes() -> void:
+	var t := Time.get_ticks_usec()
+	roads.build_sea_paths(geo, marker_xz, rules.get("sea_routes", []))
+	var mesh := WorldMapRibbons.build(geo, roads.sea_paths, [], 0.8)
+	stats.sea_build_ms = (Time.get_ticks_usec() - t) / 1000.0
+	stats.sea_route_tris = mesh.surface_get_array_index_len(0) / 3 if mesh.get_surface_count() > 0 else 0
+	stats.sea_route_count = roads.sea_paths.size()
+	if sea_route_mat == null:
+		sea_route_mat = ShaderMaterial.new()
+		sea_route_mat.shader = load(SHADERS + "worldmap_ribbon.gdshader")
+		sea_route_mat.set_shader_parameter("width_km", SEA_ROUTE_WIDTH_KM)
+		sea_route_mat.set_shader_parameter("min_px", SEA_ROUTE_MIN_PX)
+		sea_route_mat.set_shader_parameter("core_color", SEA_ROUTE_CORE_COLOR)
+		sea_route_mat.set_shader_parameter("edge_color", SEA_ROUTE_EDGE_COLOR)
+		sea_route_mat.set_shader_parameter("edge_from", 0.6)
+		sea_route_mat.set_shader_parameter("opacity", SEA_ROUTE_OPACITY)
+		sea_route_mat.render_priority = SEA_ROUTE_RENDER_PRIORITY
+	if sea_route_node:
+		sea_route_node.mesh = mesh
+	else:
+		sea_route_node = _ribbon_node("SeaRoutes", mesh, sea_route_mat)
 
 func _make_marker(cid: String, c: Dictionary, col: Color) -> Node3D:
 	var path: String = marker_def.get(cid, {}).get("marker_scene", "")
@@ -518,6 +561,7 @@ func set_marker_position(city_id: String, xz: Vector2, rebuild_roads := true) ->
 	_place_city(city_id)
 	if rebuild_roads and show_roads:
 		_build_roads()
+		_build_sea_routes()
 
 func set_fill_preset(name: String) -> void:
 	_preset = cfg.fill_preset(name)
