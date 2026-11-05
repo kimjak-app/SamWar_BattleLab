@@ -19,7 +19,7 @@ func _run() -> void:
 
 	worldmap.call("_handoff_battle_context_to_battle_scene", _build_context())
 	await process_frame
-	_expect(bool(worldmap.get("_worldmap_battle_entry_handoff_in_progress")), "battle handoff entered once")
+	_expect(worldmap.call("_ensure_camera_controller").is_battle_entry_handoff_in_progress(), "battle handoff entered once")
 
 	var skip_event := InputEventKey.new()
 	skip_event.pressed = true

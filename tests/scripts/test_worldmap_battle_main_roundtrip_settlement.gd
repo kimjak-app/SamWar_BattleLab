@@ -79,7 +79,7 @@ func _run() -> void:
 
 	worldmap.call("_confirm_player_attack_deployment", deployment)
 	await process_frame
-	_expect(bool(worldmap.get("_worldmap_battle_entry_handoff_in_progress")), "Real player attack enters handoff")
+	_expect(worldmap.call("_ensure_camera_controller").is_battle_entry_handoff_in_progress(), "Real player attack enters handoff")
 	var skip_event := InputEventKey.new()
 	skip_event.pressed = true
 	skip_event.keycode = KEY_ENTER
