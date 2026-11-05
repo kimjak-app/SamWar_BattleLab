@@ -14,7 +14,7 @@
 
 ### 원문에 없던 구멍 2개
 1. **D5(24장 덮어쓰기)는 `city_buildings_manifest.txt`의 `bytes`·`md5`를 낡게 만든다**(매니페스트 8열: `file,kind,group,name_ko,region,size_px,bytes,md5`). 덮어쓴 24장의 `bytes`·`md5`를 같은 커밋에서 새 값으로 고친다(나머지 66행·머리글 불변). CH-1 테스트 482는 크기만 확인해 그대로 통과해야 하며, 통과해도 매니페스트 갱신은 필수다. `.import`는 Godot가 다시 쓰면 그 변경만 허용(다른 PNG의 `.import` 변경 금지).
-2. **입력 위치**: 김작 PC 바탕화면 `C:\Users\seong\Desktop\EASTWAR_CityHUD_CH3_20261105\`(압축 푼 폴더. CH-1과 같은 방식). 없으면 **멈추고** 보고(김작에게 zip을 풀어 달라고 요청). 레포에 넣는 것은 `repo_ready/` 20파일 + `v2_png_24/` 24장뿐. `reference/`(약 40 MB)·`backgrounds/`·`build_ch3.py`·`*.csv`·`_check.json`·`README_KO.md`·zip은 레포에 넣지 않는다.
+2. **입력 위치**: 김작 PC `C:\eastwar_tmp\EASTWAR_CityHUD_CH3_20261105\`(압축 푼 폴더, 김작 11-05 22:35 확인. 그 안에 `repo_ready`·`v2_png_24`·`reference`가 바로 보여야 한다. 한 겹 더 들어간 `...\EASTWAR_CityHUD_CH3_20261105\EASTWAR_CityHUD_CH3_20261105\`이면 안쪽을 쓰되 보고서에 적는다). 없으면 **멈추고** 보고(김작에게 zip을 풀어 달라고 요청). 레포에 넣는 것은 `repo_ready/` 20파일 + `v2_png_24/` 24장뿐. `reference/`(약 40 MB)·`backgrounds/`·`build_ch3.py`·`*.csv`·`_check.json`·`README_KO.md`·zip은 레포에 넣지 않는다.
 
 ### 그 밖
 - 가지·순서: `feature/wm3d-cityhud-20261105`에 이어서 커밋(CH-2 보고서 커밋 위). 시작 시 원격 끝이 CH-2 보고서 커밋이 아니면 멈춤(원문 0절 1번과 같음). 푸시는 이 가지뿐.
