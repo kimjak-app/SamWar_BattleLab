@@ -15,8 +15,10 @@
 | 1 | `agent/ORDER_WM3D_06_ROADS_20261105.md` | 준비됨 |
 | 2 | `agent/ORDER_WM3D_07_BATTLE_ENTRY_20261105.md` | 준비됨 |
 | 3 | `agent/ORDER_WM3D_08_PRODUCTION_20261105.md` | 준비됨 |
-| 4 | `agent/ORDER_AUDIT_M7_WORLDMAP_TO_3D_BATTLE_20261105.md` | 준비됨(읽기 전용 감사, 김작 13:48 승인) |
-| 5 | `agent/ORDER_AUDIT_CITYHUD_20261105.md` | 준비됨(읽기 전용 감사, 4번 뒤) |
+| 4 | `agent/ORDER_AUDIT_M7_WORLDMAP_TO_3D_BATTLE_20261105.md` | 완료 |
+| 5 | `agent/ORDER_AUDIT_CITYHUD_20261105.md` | 완료 |
+| 6 | `agent/ORDER_M7_0_TEST_REPAIR_20261105.md` | 준비됨 — **새 가지** `feature/wm3d-m7prep-20261105`(시작점 `9160baf`), 정본 가지 push 금지 |
+| 7 | `agent/ORDER_CITYHUD_CH1_ASSETS_20261105.md` | 준비됨 — **새 가지** `feature/wm3d-cityhud-20261105`(시작점 `9160baf`), 6번 뒤 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
@@ -63,3 +65,8 @@
 1. 클코드에게 이 큐를 읽게 하는 문장 하나만 붙여 넣는다(클코치가 문장을 따로 준다).
 2. 하루 끝에 F6 한 번(06·07·08), "합격/불합격".
 3. `main` 병합 승인(오늘이 아니어도 됨).
+
+## 9. 6·7번 특별 규칙 (11-05 16:30, 5절·6절의 push 가지 규칙보다 **이 절이 우선**)
+- 6번·7번은 오늘 밤 김작 F6·`main` 합류 대상(`feature/wm3d-intake-20261101` `9160baf`)을 **바꾸지 않기 위해** 각자 새 가지에서 한다. 각 지시서가 정한 가지에만 push한다(김작 11-01 사전 승인 `feature/wm3d-*` 범위). 정본 가지에는 push하지 않는다.
+- 보고서·진행 기록도 각자의 새 가지에만 쓴다(정본 `PROGRESS_WM3D.md` 수정 금지). 6번이 끝난 뒤 7번을 시작하고, 새 가지는 항상 `9160baf`에서 만든다(7번은 6번 가지 위가 아님).
+- 6·7번 중 하나라도 멈추면 큐 5절 대기 절차를 따른다.
