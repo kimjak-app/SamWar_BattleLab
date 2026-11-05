@@ -13,7 +13,7 @@
 | 순서 | 파일 | 상태 |
 |---|---|---|
 | 1 | `agent/ORDER_WM3D_06_ROADS_20261105.md` | 준비됨 |
-| 2 | `agent/ORDER_WM3D_07_BATTLE_ENTRY_20261105.md` | 클코치 작성 중(파일이 생기면 시작 가능) |
+| 2 | `agent/ORDER_WM3D_07_BATTLE_ENTRY_20261105.md` | 준비됨 |
 | 3 | `agent/ORDER_WM3D_08_PRODUCTION_20261105.md` | 클코치 작성 중(파일이 생기면 시작 가능) |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
