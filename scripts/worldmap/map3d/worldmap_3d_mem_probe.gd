@@ -9,7 +9,9 @@ extends RefCounted
 const META_KEY := "wm3d_mem_probe"
 const PENDING_RETURN_META := "wm3d_mem_pending_return"   # set before a battle; T-WM3D-08's 3D world map reads it on return
 const LOG_PATH_DEFAULT := "user://wm3d_mem_log.csv"
-const CSV_HEADER := "unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene"
+const CSV_HEADER := "unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene,build_ms"
+## T-WM3D-08 added build_ms (map_ready / world_ready_after_return: host start -> 3D map shown; empty otherwise). A log
+## with another header (07's 8 columns) is moved aside to <name>_old_<unix time>.csv once, so one file never mixes two layouts.
 const MB := 1048576.0
 
 var log_path := LOG_PATH_DEFAULT
@@ -36,8 +38,8 @@ static func shared() -> WorldMap3DMemProbe:
 	return probe
 
 
-## Reads the monitors now, appends one CSV row and returns the values.
-func sample(label: String) -> Dictionary:
+## Reads the monitors now, appends one CSV row and returns the values. build_ms < 0 = not a map build row.
+func sample(label: String, build_ms := -1.0) -> Dictionary:
 	var s := {
 		"unix_time": Time.get_unix_time_from_system(),
 		"label": label,
@@ -47,6 +49,7 @@ func sample(label: String) -> Dictionary:
 		"object_count": int(Performance.get_monitor(Performance.OBJECT_COUNT)),
 		"object_resource_count": int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
 		"scene": _scene_name(),
+		"build_ms": build_ms,
 	}
 	_append(s)
 	return s
@@ -74,11 +77,11 @@ func mark_pending_return() -> void:
 
 
 ## True (and one "world_ready_after_return" row written) when a battle left a pending return; clears it.
-func consume_pending_return(label := "world_ready_after_return") -> bool:
+func consume_pending_return(label := "world_ready_after_return", build_ms := -1.0) -> bool:
 	if not Engine.has_meta(PENDING_RETURN_META):
 		return false
 	Engine.remove_meta(PENDING_RETURN_META)
-	sample(label)
+	sample(label, build_ms)
 	return true
 
 
@@ -100,6 +103,7 @@ func _scene_name() -> String:
 
 
 func _append(s: Dictionary) -> void:
+	_rotate_if_other_layout()
 	var exists := FileAccess.file_exists(log_path)
 	var f := FileAccess.open(log_path, FileAccess.READ_WRITE if exists else FileAccess.WRITE)
 	if f == null:
@@ -109,6 +113,23 @@ func _append(s: Dictionary) -> void:
 		f.seek_end()
 	else:
 		f.store_line(CSV_HEADER)
-	f.store_line("%.3f,%s,%.3f,%.3f,%.3f,%d,%d,%s" % [s.unix_time, String(s.label).replace(",", "_"), s.video_mb, s.texture_mb,
-			s.buffer_mb, s.object_count, s.object_resource_count, s.scene])
+	var ms: float = s.get("build_ms", -1.0)
+	f.store_line("%.3f,%s,%.3f,%.3f,%.3f,%d,%d,%s,%s" % [s.unix_time, String(s.label).replace(",", "_"), s.video_mb, s.texture_mb,
+			s.buffer_mb, s.object_count, s.object_resource_count, s.scene, ("%.0f" % ms) if ms >= 0.0 else ""])
 	f.close()
+
+
+func _rotate_if_other_layout() -> void:
+	if not FileAccess.file_exists(log_path):
+		return
+	var f := FileAccess.open(log_path, FileAccess.READ)
+	if f == null:
+		return
+	var first := f.get_line().strip_edges()
+	f.close()
+	if first == CSV_HEADER:
+		return
+	var old_path := "%s_old_%d.csv" % [log_path.get_basename(), int(Time.get_unix_time_from_system())]
+	var err := DirAccess.rename_absolute(ProjectSettings.globalize_path(log_path), ProjectSettings.globalize_path(old_path))
+	if err != OK:
+		push_warning("WorldMap3DMemProbe: %s has another layout and cannot be moved to %s (%s)" % [log_path, old_path, error_string(err)])

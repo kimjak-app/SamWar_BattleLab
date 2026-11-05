@@ -1,7 +1,9 @@
-## EASTWAR WorldMap3D -> game layer: attaches the 3D map to an UNCHANGED worldmap_main.gd. This node is a SIBLING of the
-## WorldMap root (see WorldMap3D_Host_Test.tscn); worldmap_main.gd itself is not edited (its bytes are pinned by the
-## C-track validators until T-WM3D-08 re-pins them once). It reads / sets main's private names through get / set / call,
-## on purpose: if main renames them, test_worldmap3d_host.gd fails loudly.
+## EASTWAR WorldMap3D -> game layer: attaches the 3D map to an UNCHANGED worldmap_main.gd. T-WM3D-08: the production
+## WorldMap.tscn holds this node as a CHILD of the WorldMap root (main_path ".."); WorldMap3D_Host_Test.tscn still adds a
+## SIBLING one, which then stays idle (one host per main, the first to claim it wins). worldmap_main.gd is not edited; the
+## host reads / sets main's private names through get / set / call, on purpose: if main renames them,
+## test_worldmap3d_host.gd fails loudly. 2D stays exactly as before when the player chose 2D (WorldMap3DSettings) or the
+## 3D files are missing (mobile export, C-track import with worldmap3d/ ignored): then no 3D layer is built at all.
 class_name WorldMap3DHost
 extends Node
 
@@ -10,25 +12,68 @@ const AdapterScript := preload("res://scripts/worldmap/map3d/worldmap_3d_adapter
 const SYNC_INTERVAL := 0.25   # seconds between owner/troop syncs while 3D is on (the adapter skips unchanged cities)
 const BATTLE_ENTRY_BLEND := 0.72   # = worldmap_main.gd _build_worldmap_battle_entry_focus lerp (test_worldmap3d_host.gd checks it)
 const MAIN_BATTLE_META_CONST := "WORLDMAP_BATTLE_CONTEXT_META_KEY"   # main sets this Engine meta right before Battle_Main
+const MAIN_HOST_META := "wm3d_host"   # main's meta -> the host that owns it (one host per main)
 
 @export var main_path: NodePath = NodePath("../WorldMap")
 @export var mem_probe_enabled := true   # T-WM3D-07: memory rows in user://wm3d_mem_log.csv (3D mode only)
-@export var start_in_3d := true   # dev/test scene: starts on the 3D map. toggle by code only (`toggle_map_view_3d()`); the production switch is a settings screen at T-WM3D-08
+@export var scene_path_3d := ""   # empty = WorldMap3DSettings.SCENE_3D (tests point it at a missing file: 2D fallback)
+@export var start_in_3d := true   # false = never start in 3D (WorldMap3DSettings decides otherwise; toggle_map_view_3d() by code)
 
 var main: Node = null
 var adapter: WorldMap3DAdapter = null
 var active := false
+var idle := false         # true = another host already owns main (WorldMap3D_Host_Test.tscn's sibling host), or no main
 var _sync_timer := 0.0
+var _t_start_ms := 0
 
 
 func _ready() -> void:
-	main = get_node_or_null(main_path)
-	if main == null:
+	_t_start_ms = Time.get_ticks_msec()
+	var m := get_node_or_null(main_path)
+	if m == null:
+		idle = true
 		push_warning("WorldMap3DHost: worldmap main not found at %s" % str(main_path))
 		return
+	var owner_host = m.get_meta(MAIN_HOST_META) if m.has_meta(MAIN_HOST_META) else null
+	if owner_host != null and is_instance_valid(owner_host) and owner_host != self:
+		idle = true
+		print("[WorldMap3DHost] %s idle: %s already hosts the 3D map for %s" % [get_path(), owner_host.get_path(), m.get_path()])
+		return
+	m.set_meta(MAIN_HOST_META, self)
+	main = m
+	add_to_group(WorldMap3DSettings.HOST_GROUP)
+	if not main.is_node_ready():   # child of main (WorldMap.tscn): main._ready builds its markers / 2D controller after us
+		await main.ready
 	main.tree_exiting.connect(_on_main_tree_exiting)
-	if start_in_3d:
-		set_map_view_3d(true)
+	if start_in_3d and WorldMap3DSettings.wants_3d():
+		if not set_map_view_3d(true):
+			print("[WorldMap3DHost] 3D map unavailable (%s) -> 2D world map" % _scene_3d())
+
+
+func _scene_3d() -> String:
+	return scene_path_3d if not scene_path_3d.is_empty() else WorldMap3DSettings.SCENE_3D
+
+
+func _exit_tree() -> void:
+	if main != null and is_instance_valid(main) and main.has_meta(MAIN_HOST_META) and main.get_meta(MAIN_HOST_META) == self:
+		main.remove_meta(MAIN_HOST_META)
+
+
+## Settings popup (WorldMap3DSettings changed): 2D / 3D now, and the 3D camera input scheme. Returns false when the
+## switch was refused (battle-entry handoff running, 3D unavailable).
+func apply_settings() -> bool:
+	if main == null or idle:
+		return false
+	var ok := set_map_view_3d(WorldMap3DSettings.use_3d())
+	_apply_camera_scheme()
+	return ok
+
+
+func _apply_camera_scheme() -> void:
+	var s := WorldMap3DSettings.camera_scheme()
+	var cam = adapter.get_camera() if adapter != null else null
+	if cam != null and not s.is_empty() and cam.has_method("set_input_scheme"):
+		cam.set_input_scheme(s)
 
 
 func _process(delta: float) -> void:
@@ -47,7 +92,7 @@ func toggle_map_view_3d() -> bool:
 ## Switches between the 2D world map and the 3D map. Returns false (and changes nothing) when main is missing, a
 ## battle-entry camera handoff is running, or the 3D scene is unavailable (mobile build / C-track import without worldmap3d/).
 func set_map_view_3d(enable: bool) -> bool:
-	if main == null:
+	if main == null or idle:
 		return false
 	if enable == active:
 		return true
@@ -62,11 +107,12 @@ func set_map_view_3d(enable: bool) -> bool:
 			created.world_root_2d = main.get_node_or_null("WorldMapRoot") as CanvasItem
 			created.troops_provider = Callable(self, "_city_troops")
 			created.faction_resolver = Callable(self, "_city_owner")
-			if not created.create_layer(main):
+			if not created.create_layer(main, _scene_3d()):
 				created.queue_free()
 				return false
 			created.set_markers(main.get("_city_markers_by_id"))
 			adapter = created
+			_apply_camera_scheme()
 			_sample_map_ready()
 		adapter.set_active(true)
 		active = true
@@ -122,7 +168,10 @@ func _sample_map_ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if active and is_inside_tree():
-		WorldMap3DMemProbe.shared().sample("map_ready")
+		var probe := WorldMap3DMemProbe.shared()
+		var ms := float(Time.get_ticks_msec() - _t_start_ms)   # host start (scene load) -> 3D map shown
+		probe.sample("map_ready", ms)
+		probe.consume_pending_return("world_ready_after_return", ms)   # T-WM3D-08: back from a battle
 
 
 ## main leaves the tree: when it is leaving for a battle (main set its battle-context meta just before

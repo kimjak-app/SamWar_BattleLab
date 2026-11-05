@@ -7,6 +7,7 @@ extends SceneTree
 const WORLDMAP_SCENE := preload("res://WorldMap.tscn")
 const HOST_SCENE_PATH := "res://WorldMap3D_Host_Test.tscn"
 const MEM_LOG_TEST := "user://wm3d_mem_log_host_test.csv"
+const SETTINGS_TEST := "user://samwar_worldmap3d_host_test.cfg"
 
 var _checks := 0
 var _failures := 0
@@ -17,14 +18,18 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	# 1. WorldMap.tscn alone (no host) stays 2D
+	# 1. WorldMap.tscn with the 2D setting stays 2D (T-WM3D-08: WorldMap.tscn has its own host; settings in a test file)
+	WorldMap3DSettings.path = SETTINGS_TEST
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SETTINGS_TEST))
+	WorldMap3DSettings.set_wants_3d(false)
 	_expect(change_scene_to_packed(WORLDMAP_SCENE) == OK, "WorldMap scene transition starts")
 	await process_frame
 	await process_frame
 	var main2d := current_scene
 	_expect(main2d != null, "WorldMap scene loaded")
-	_expect(main2d.find_child("WorldMap3DLayer", true, false) == null, "no host: no WorldMap3DLayer")
-	_expect(not (main2d.get("_camera_controller") is WorldMap3DCameraController), "no host: 2D camera controller")
+	_expect(main2d.find_child("WorldMap3DLayer", true, false) == null, "2D setting: no WorldMap3DLayer")
+	_expect(not (main2d.get("_camera_controller") is WorldMap3DCameraController), "2D setting: 2D camera controller")
+	WorldMap3DSettings.set_wants_3d(true)
 
 	# 2. host scene starts in 3D (T-WM3D-07: the shared memory probe writes to a test file)
 	WorldMap3DMemProbe.shared().log_path = MEM_LOG_TEST
@@ -32,9 +37,12 @@ func _run() -> void:
 	_expect(change_scene_to_packed(load(HOST_SCENE_PATH)) == OK, "host scene transition starts")
 	await process_frame
 	await process_frame
-	var host = current_scene.get_node_or_null("WorldMap3DHost") if current_scene != null else null
 	var main = current_scene.get_node_or_null("WorldMap") if current_scene != null else null
-	_expect(host is WorldMap3DHost and main != null, "host scene: WorldMap + WorldMap3DHost")
+	var sibling = current_scene.get_node_or_null("WorldMap3DHost") if current_scene != null else null
+	var host = main.get_node_or_null("WorldMap3DHost") if main != null else null   # T-WM3D-08: WorldMap.tscn's own host
+	_expect(host is WorldMap3DHost and main != null, "host scene: WorldMap + its WorldMap3DHost")
+	_expect(sibling is WorldMap3DHost and sibling.idle and sibling.adapter == null, "host scene: the sibling host stays idle (one host per main)")
+	_expect(main != null and main.get_meta("wm3d_host", null) == host, "main's wm3d_host meta = WorldMap.tscn's host")
 	if not (host is WorldMap3DHost) or main == null:
 		_finish()
 		return
@@ -184,7 +192,7 @@ func _run() -> void:
 	for i in 40:
 		await process_frame
 	_expect(_count_label(probe.log_path, "battle_ready_plus_60f") == 1, "battle_ready_plus_60f row written after 60 frames")
-	_expect(FileAccess.get_file_as_string(probe.log_path).contains(",battle_ready_plus_60f,") and FileAccess.get_file_as_string(probe.log_path).strip_edges().ends_with(",BattleStandIn"), "battle_ready_plus_60f row records the battle scene")
+	_expect(FileAccess.get_file_as_string(probe.log_path).contains(",battle_ready_plus_60f,") and FileAccess.get_file_as_string(probe.log_path).strip_edges().ends_with(",BattleStandIn,"), "battle_ready_plus_60f row records the battle scene")
 	Engine.remove_meta("samwar_worldmap_battle_context")
 	if Engine.has_meta(WorldMap3DMemProbe.PENDING_RETURN_META):
 		Engine.remove_meta(WorldMap3DMemProbe.PENDING_RETURN_META)
@@ -208,5 +216,6 @@ func _has_label(path: String, label: String) -> bool:
 
 func _finish() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(MEM_LOG_TEST))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SETTINGS_TEST))
 	print("[WORLDMAP3D_HOST] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)

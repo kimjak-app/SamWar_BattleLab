@@ -36,8 +36,27 @@ func _run() -> void:
 	var lines := _lines(LOG)
 	_expect(lines.size() == 3, "CSV: header + 2 rows (%d lines)" % lines.size())
 	_expect(lines.size() > 0 and lines[0] == WorldMap3DMemProbe.CSV_HEADER, "CSV: first line is the header")
-	_expect(lines.size() == 3 and lines[1].split(",").size() == 8 and lines[2].split(",")[1] == "unit_b", "CSV: rows have 8 fields, label in field 2")
+	_expect(lines.size() == 3 and lines[1].split(",").size() == 9 and lines[2].split(",")[1] == "unit_b", "CSV: rows have 9 fields, label in field 2")
 	_expect(lines.size() == 3 and lines[1].split(",")[2].is_valid_float(), "CSV: video_mb field is a number")
+
+	# 2b. T-WM3D-08: build_ms column (map builds only) and a log with another layout is moved aside, not mixed
+	probe.sample("unit_ms", 1234.4)
+	lines = _lines(LOG)
+	_expect(lines[lines.size() - 1].split(",")[8] == "1234" and lines[1].split(",")[8] == "", "CSV: build_ms written for a map row, empty otherwise")
+	var f := FileAccess.open(LOG, FileAccess.WRITE)
+	f.store_line("unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene")
+	f.store_line("1.000,old_row,0.000,0.000,0.000,1,1,X")
+	f.close()
+	probe.sample("unit_new_layout")
+	lines = _lines(LOG)
+	_expect(lines.size() == 2 and lines[0] == WorldMap3DMemProbe.CSV_HEADER and lines[1].split(",")[1] == "unit_new_layout", "old 8-column log moved aside: new file with the 9-column header")
+	var moved := []
+	for fn in DirAccess.get_files_at("user://"):
+		if fn.begins_with("wm3d_mem_probe_test_old_") and fn.ends_with(".csv"):
+			moved.append(fn)
+	_expect(moved.size() == 1 and FileAccess.get_file_as_string("user://" + moved[0]).contains("old_row"), "old log kept as wm3d_mem_probe_test_old_<time>.csv")
+	for fn in moved:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://" + fn))
 
 	# 3. unwritable path: no exception, still returns the sample
 	var bad := WorldMap3DMemProbe.new()
@@ -66,8 +85,8 @@ func _run() -> void:
 		await process_frame
 	lines = _lines(LOG)
 	var last := lines[lines.size() - 1].split(",") if lines.size() > 0 else PackedStringArray()
-	_expect(last.size() == 8 and last[1] == "unit_after", "after 2 scene changes + 10 frames: unit_after row written")
-	_expect(last.size() == 8 and last[7] == "SceneA", "unit_after row records the scene of the moment (SceneA)")
+	_expect(last.size() == 9 and last[1] == "unit_after", "after 2 scene changes + 10 frames: unit_after row written")
+	_expect(last.size() == 9 and last[7] == "SceneA", "unit_after row records the scene of the moment (SceneA)")
 	_expect(not probe.is_waiting(), "sample_after_frames: done")
 	_expect(Engine.get_meta(WorldMap3DMemProbe.META_KEY) == shared, "shared probe still in Engine meta after scene changes")
 	for i in 12:

@@ -24,6 +24,7 @@
 [ext_resource type="Script" uid="uid://5ni3vjkv5d3n" path="res://scripts/worldmap/ui/worldmap_territory_controller.gd" id="24_territory"]
 [ext_resource type="Script" uid="uid://8u164ks1duu8" path="res://scripts/worldmap/ui/worldmap_turn_summary_controller.gd" id="25_turn_summary"]
 [ext_resource type="Script" uid="uid://cwuec8hllnb4l" path="res://scripts/worldmap/ui/worldmap_character_speech_controller.gd" id="26_character_speech"]
+[ext_resource type="Script" uid="uid://b0b5t7tlst25s" path="res://scripts/worldmap/map3d/worldmap_3d_host.gd" id="27_worldmap3d_host"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -2338,3 +2339,7 @@ custom_minimum_size = Vector2(220, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "새 게임"
+
+[node name="WorldMap3DHost" type="Node" parent="." unique_id=1726110508]
+script = ExtResource("27_worldmap3d_host")
+main_path = NodePath("..")
