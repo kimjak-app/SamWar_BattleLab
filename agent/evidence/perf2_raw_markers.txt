@@ -1,0 +1,1599 @@
+## p05_WorldMap3D_Host_Test_headless_1.log
+[PERF2] driver_change_scene 329203
+[PERF2] scene3d_load_start 4231920
+[PERF2] scene3d_load_end 4354570
+[PERF2] scene3d_instantiate_end 4356650
+[PERF2] root_ready 4357726
+[PERF2] geo_load_start 4359441
+[PERF2] geo_load_end 4365440
+[PERF2] data_end 4369127
+[PERF2] env_end 4372595
+[PERF2] terrain_mesh_end 6559787
+[PERF2] terrain_material_end 7197479
+[PERF2] terrain_end 7200317
+[PERF2] sea_end 7206389
+[PERF2] river_parse_end 7299326
+[PERF2] river_mesh_end 8359629
+[PERF2] rivers_end 8368333
+[PERF2] sea_routes_end 8369049
+[PERF2] cities_end 8398359
+[PERF2] labels_end 8399496
+[PERF2] camera_fill_end 8401528
+[PERF2] scene3d_add_child_end 8403055
+[PERF2] create_layer_end 8403767
+[PERF2] set_markers_end 8404576
+[PERF2] switch_end 8406018
+[PERF2] driver_scene_ready 8540268
+[PERF2] driver_root_seen 8540268
+[PERF2] driver_end 8546830
+[WorldMap3D] map 'eastasia' built in 4043 ms (data 10, terrain 2835, ribbons 1162) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [6.6, 20.7, 0.9, 15.1, 0.8, 15.0, 0.9, 14.7]
+[PERF2_RESULT] {"built_in_ms": 4043.5, "data_ms": 10.4, "end_ms": 8217.6, "engine_start_to_run_ms": 329.2, "frames": 2, "headless": true, "label": "p05_WorldMap3D_Host_Test_headless_1", "renderer": "forward_plus", "ribbons_ms": 1161.9, "road_build_ms": -1.0, "root_seen_ms": 8211.1, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8211.1, "sea_build_ms": -1.0, "terrain_ms": 2835.2, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap3D_Host_Test_headless_2.log
+[PERF2] driver_change_scene 307948
+[PERF2] scene3d_load_start 4231871
+[PERF2] scene3d_load_end 4356253
+[PERF2] scene3d_instantiate_end 4358311
+[PERF2] root_ready 4359487
+[PERF2] geo_load_start 4361315
+[PERF2] geo_load_end 4368477
+[PERF2] data_end 4371484
+[PERF2] env_end 4374183
+[PERF2] terrain_mesh_end 6560351
+[PERF2] terrain_material_end 7205302
+[PERF2] terrain_end 7208734
+[PERF2] sea_end 7213165
+[PERF2] river_parse_end 7303979
+[PERF2] river_mesh_end 8371579
+[PERF2] rivers_end 8379648
+[PERF2] sea_routes_end 8380558
+[PERF2] cities_end 8409572
+[PERF2] labels_end 8410759
+[PERF2] camera_fill_end 8412849
+[PERF2] scene3d_add_child_end 8414479
+[PERF2] create_layer_end 8415259
+[PERF2] set_markers_end 8416024
+[PERF2] switch_end 8417283
+[PERF2] driver_scene_ready 8553678
+[PERF2] driver_root_seen 8553678
+[PERF2] driver_end 8560213
+[WorldMap3D] map 'eastasia' built in 4053 ms (data 11, terrain 2840, ribbons 1167) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [6.5, 17.6, 0.9, 14.6, 0.8, 15.1, 0.8, 14.5]
+[PERF2_RESULT] {"built_in_ms": 4053.1, "data_ms": 10.9, "end_ms": 8252.3, "engine_start_to_run_ms": 307.9, "frames": 2, "headless": true, "label": "p05_WorldMap3D_Host_Test_headless_2", "renderer": "forward_plus", "ribbons_ms": 1166.8, "road_build_ms": -1.0, "root_seen_ms": 8245.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8245.7, "sea_build_ms": -1.0, "terrain_ms": 2840.3, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap3D_Host_Test_headless_3.log
+[PERF2] driver_change_scene 310945
+[PERF2] scene3d_load_start 4144561
+[PERF2] scene3d_load_end 4257341
+[PERF2] scene3d_instantiate_end 4259810
+[PERF2] root_ready 4261323
+[PERF2] geo_load_start 4263541
+[PERF2] geo_load_end 4270068
+[PERF2] data_end 4273444
+[PERF2] env_end 4276396
+[PERF2] terrain_mesh_end 6512439
+[PERF2] terrain_material_end 7166589
+[PERF2] terrain_end 7170221
+[PERF2] sea_end 7176077
+[PERF2] river_parse_end 7266471
+[PERF2] river_mesh_end 8355817
+[PERF2] rivers_end 8368434
+[PERF2] sea_routes_end 8369182
+[PERF2] cities_end 8398546
+[PERF2] labels_end 8399853
+[PERF2] camera_fill_end 8401882
+[PERF2] scene3d_add_child_end 8403550
+[PERF2] create_layer_end 8404384
+[PERF2] set_markers_end 8405232
+[PERF2] switch_end 8406617
+[PERF2] driver_scene_ready 8552070
+[PERF2] driver_root_seen 8552070
+[PERF2] driver_end 8572807
+[WorldMap3D] map 'eastasia' built in 4140 ms (data 11, terrain 2901, ribbons 1192) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [20.7, 17.8, 2.5, 14.1, 1.1, 13.6, 0.9, 15.3]
+[PERF2_RESULT] {"built_in_ms": 4139.9, "data_ms": 10.6, "end_ms": 8261.9, "engine_start_to_run_ms": 310.9, "frames": 2, "headless": true, "label": "p05_WorldMap3D_Host_Test_headless_3", "renderer": "forward_plus", "ribbons_ms": 1192.5, "road_build_ms": -1.0, "root_seen_ms": 8241.1, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8241.1, "sea_build_ms": -1.0, "terrain_ms": 2901.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap3D_Host_Test_headless_4.log
+[PERF2] driver_change_scene 322871
+[PERF2] scene3d_load_start 4234116
+[PERF2] scene3d_load_end 4341817
+[PERF2] scene3d_instantiate_end 4344424
+[PERF2] root_ready 4345830
+[PERF2] geo_load_start 4347903
+[PERF2] geo_load_end 4354240
+[PERF2] data_end 4357411
+[PERF2] env_end 4360362
+[PERF2] terrain_mesh_end 6539037
+[PERF2] terrain_material_end 7215937
+[PERF2] terrain_end 7219278
+[PERF2] sea_end 7223930
+[PERF2] river_parse_end 7316229
+[PERF2] river_mesh_end 8366253
+[PERF2] rivers_end 8374406
+[PERF2] sea_routes_end 8375216
+[PERF2] cities_end 8403203
+[PERF2] labels_end 8404339
+[PERF2] camera_fill_end 8406340
+[PERF2] scene3d_add_child_end 8407698
+[PERF2] create_layer_end 8408772
+[PERF2] set_markers_end 8409860
+[PERF2] switch_end 8411365
+[PERF2] driver_scene_ready 8537595
+[PERF2] driver_root_seen 8537595
+[PERF2] driver_end 8544191
+[WorldMap3D] map 'eastasia' built in 4060 ms (data 10, terrain 2865, ribbons 1151) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [6.6, 12.8, 1.0, 15.0, 1.2, 14.7, 0.9, 14.3]
+[PERF2_RESULT] {"built_in_ms": 4059.8, "data_ms": 10.2, "end_ms": 8221.3, "engine_start_to_run_ms": 322.9, "frames": 2, "headless": true, "label": "p05_WorldMap3D_Host_Test_headless_4", "renderer": "forward_plus", "ribbons_ms": 1150.7, "road_build_ms": -1.0, "root_seen_ms": 8214.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8214.7, "sea_build_ms": -1.0, "terrain_ms": 2864.9, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap3D_Host_Test_headless_5.log
+[PERF2] driver_change_scene 396374
+[PERF2] scene3d_load_start 4370635
+[PERF2] scene3d_load_end 4487243
+[PERF2] scene3d_instantiate_end 4489153
+[PERF2] root_ready 4490479
+[PERF2] geo_load_start 4492358
+[PERF2] geo_load_end 4498360
+[PERF2] data_end 4501374
+[PERF2] env_end 4503972
+[PERF2] terrain_mesh_end 6647525
+[PERF2] terrain_material_end 7294694
+[PERF2] terrain_end 7297811
+[PERF2] sea_end 7302419
+[PERF2] river_parse_end 7393199
+[PERF2] river_mesh_end 8486290
+[PERF2] rivers_end 8495890
+[PERF2] sea_routes_end 8496845
+[PERF2] cities_end 8525366
+[PERF2] labels_end 8526719
+[PERF2] camera_fill_end 8528921
+[PERF2] scene3d_add_child_end 8530404
+[PERF2] create_layer_end 8531268
+[PERF2] set_markers_end 8532100
+[PERF2] switch_end 8533337
+[PERF2] driver_scene_ready 8665351
+[PERF2] driver_root_seen 8665351
+[PERF2] driver_end 8671925
+[WorldMap3D] map 'eastasia' built in 4038 ms (data 10, terrain 2800, ribbons 1194) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [6.6, 13.5, 0.8, 14.7, 0.9, 14.8, 0.8, 14.6]
+[PERF2_RESULT] {"built_in_ms": 4038.0, "data_ms": 9.8, "end_ms": 8275.6, "engine_start_to_run_ms": 396.4, "frames": 2, "headless": true, "label": "p05_WorldMap3D_Host_Test_headless_5", "renderer": "forward_plus", "ribbons_ms": 1193.8, "road_build_ms": -1.0, "root_seen_ms": 8269.0, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8269.0, "sea_build_ms": -1.0, "terrain_ms": 2799.8, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap3D_Host_Test_window_1.log
+[PERF2] driver_change_scene 1314171
+[PERF2] scene3d_load_start 5023886
+[PERF2] scene3d_load_end 5149883
+[PERF2] scene3d_instantiate_end 5153719
+[PERF2] root_ready 5154886
+[PERF2] geo_load_start 5156797
+[PERF2] geo_load_end 5170725
+[PERF2] data_end 5174242
+[PERF2] env_end 5178672
+[PERF2] terrain_mesh_end 7408754
+[PERF2] terrain_material_end 8633486
+[PERF2] terrain_end 8636844
+[PERF2] sea_end 8642419
+[PERF2] river_parse_end 8736182
+[PERF2] river_mesh_end 9881444
+[PERF2] rivers_end 9890328
+[PERF2] sea_routes_end 9891011
+[PERF2] cities_end 9951099
+[PERF2] labels_end 9952250
+[PERF2] camera_fill_end 9957149
+[PERF2] scene3d_add_child_end 9958780
+[PERF2] create_layer_end 9959389
+[PERF2] set_markers_end 9960058
+[PERF2] switch_end 9961326
+[PERF2] driver_scene_ready 10619469
+[PERF2] driver_root_seen 10619469
+[PERF2] driver_end 10875850
+[WorldMap3D] map 'eastasia' built in 4802 ms (data 18, terrain 3465, ribbons 1248) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [256.4, 59.8, 13.9, 13.8, 14.2, 13.6, 13.5, 13.4]
+[PERF2_RESULT] {"built_in_ms": 4801.9, "data_ms": 18.2, "end_ms": 9561.7, "engine_start_to_run_ms": 1314.2, "frames": 2, "headless": false, "label": "p05_WorldMap3D_Host_Test_window_1", "renderer": "forward_plus", "ribbons_ms": 1248.4, "road_build_ms": -1.0, "root_seen_ms": 9305.3, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 9305.3, "sea_build_ms": -1.0, "terrain_ms": 3464.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p05_WorldMap3D_Host_Test_window_2.log
+[PERF2] driver_change_scene 1444880
+[PERF2] scene3d_load_start 5125212
+[PERF2] scene3d_load_end 5231697
+[PERF2] scene3d_instantiate_end 5235023
+[PERF2] root_ready 5235710
+[PERF2] geo_load_start 5237121
+[PERF2] geo_load_end 5242651
+[PERF2] data_end 5245377
+[PERF2] env_end 5248559
+[PERF2] terrain_mesh_end 7397773
+[PERF2] terrain_material_end 8377405
+[PERF2] terrain_end 8380118
+[PERF2] sea_end 8385002
+[PERF2] river_parse_end 8485643
+[PERF2] river_mesh_end 9531071
+[PERF2] rivers_end 9538861
+[PERF2] sea_routes_end 9539505
+[PERF2] cities_end 9598006
+[PERF2] labels_end 9599235
+[PERF2] camera_fill_end 9602365
+[PERF2] scene3d_add_child_end 9603583
+[PERF2] create_layer_end 9604141
+[PERF2] set_markers_end 9604739
+[PERF2] switch_end 9605827
+[PERF2] driver_scene_ready 10162728
+[PERF2] driver_root_seen 10162728
+[PERF2] driver_end 10304575
+[WorldMap3D] map 'eastasia' built in 4367 ms (data 9, terrain 3137, ribbons 1154) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [141.8, 13.2, 12.9, 13.3, 13.2, 13.2, 13.3, 13.8]
+[PERF2_RESULT] {"built_in_ms": 4366.6, "data_ms": 9.0, "end_ms": 8859.7, "engine_start_to_run_ms": 1444.9, "frames": 2, "headless": false, "label": "p05_WorldMap3D_Host_Test_window_2", "renderer": "forward_plus", "ribbons_ms": 1154.4, "road_build_ms": -1.0, "root_seen_ms": 8717.8, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8717.8, "sea_build_ms": -1.0, "terrain_ms": 3137.1, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p05_WorldMap3D_Host_Test_window_3.log
+[PERF2] driver_change_scene 1492841
+[PERF2] scene3d_load_start 5176705
+[PERF2] scene3d_load_end 5283531
+[PERF2] scene3d_instantiate_end 5286865
+[PERF2] root_ready 5287559
+[PERF2] geo_load_start 5288883
+[PERF2] geo_load_end 5294613
+[PERF2] data_end 5297405
+[PERF2] env_end 5300459
+[PERF2] terrain_mesh_end 7446724
+[PERF2] terrain_material_end 8339123
+[PERF2] terrain_end 8341711
+[PERF2] sea_end 8346283
+[PERF2] river_parse_end 8435677
+[PERF2] river_mesh_end 9478217
+[PERF2] rivers_end 9486917
+[PERF2] sea_routes_end 9487556
+[PERF2] cities_end 9544245
+[PERF2] labels_end 9545549
+[PERF2] camera_fill_end 9548114
+[PERF2] scene3d_add_child_end 9549435
+[PERF2] create_layer_end 9551716
+[PERF2] set_markers_end 9552403
+[PERF2] switch_end 9553538
+[PERF2] driver_scene_ready 10089530
+[PERF2] driver_root_seen 10089530
+[PERF2] driver_end 10258066
+[WorldMap3D] map 'eastasia' built in 4261 ms (data 9, terrain 3046, ribbons 1141) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [168.5, 45.2, 13.7, 13.0, 13.5, 13.5, 13.6, 14.1]
+[PERF2_RESULT] {"built_in_ms": 4260.6, "data_ms": 9.2, "end_ms": 8765.2, "engine_start_to_run_ms": 1492.8, "frames": 2, "headless": false, "label": "p05_WorldMap3D_Host_Test_window_3", "renderer": "forward_plus", "ribbons_ms": 1141.2, "road_build_ms": -1.0, "root_seen_ms": 8596.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8596.7, "sea_build_ms": -1.0, "terrain_ms": 3046.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p05_WorldMap3D_Host_Test_window_4.log
+[PERF2] driver_change_scene 1443400
+[PERF2] scene3d_load_start 5137641
+[PERF2] scene3d_load_end 5241962
+[PERF2] scene3d_instantiate_end 5244862
+[PERF2] root_ready 5245679
+[PERF2] geo_load_start 5247155
+[PERF2] geo_load_end 5252847
+[PERF2] data_end 5255724
+[PERF2] env_end 5258747
+[PERF2] terrain_mesh_end 7412167
+[PERF2] terrain_material_end 8314452
+[PERF2] terrain_end 8317123
+[PERF2] sea_end 8321966
+[PERF2] river_parse_end 8411751
+[PERF2] river_mesh_end 9449627
+[PERF2] rivers_end 9458407
+[PERF2] sea_routes_end 9459062
+[PERF2] cities_end 9516461
+[PERF2] labels_end 9517730
+[PERF2] camera_fill_end 9520252
+[PERF2] scene3d_add_child_end 9521695
+[PERF2] create_layer_end 9522315
+[PERF2] set_markers_end 9522880
+[PERF2] switch_end 9523999
+[PERF2] driver_scene_ready 10041089
+[PERF2] driver_root_seen 10041089
+[PERF2] driver_end 10247018
+[WorldMap3D] map 'eastasia' built in 4274 ms (data 9, terrain 3064, ribbons 1137) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [205.9, 64.4, 51.3, 13.4, 13.1, 13.2, 13.3, 12.9]
+[PERF2_RESULT] {"built_in_ms": 4274.4, "data_ms": 9.3, "end_ms": 8803.6, "engine_start_to_run_ms": 1443.4, "frames": 2, "headless": false, "label": "p05_WorldMap3D_Host_Test_window_4", "renderer": "forward_plus", "ribbons_ms": 1137.0, "road_build_ms": -1.0, "root_seen_ms": 8597.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8597.7, "sea_build_ms": -1.0, "terrain_ms": 3063.9, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p05_WorldMap3D_Host_Test_window_5.log
+[PERF2] driver_change_scene 1470797
+[PERF2] scene3d_load_start 5187937
+[PERF2] scene3d_load_end 5294873
+[PERF2] scene3d_instantiate_end 5298195
+[PERF2] root_ready 5298905
+[PERF2] geo_load_start 5300250
+[PERF2] geo_load_end 5306373
+[PERF2] data_end 5309045
+[PERF2] env_end 5312014
+[PERF2] terrain_mesh_end 7470276
+[PERF2] terrain_material_end 8395863
+[PERF2] terrain_end 8398439
+[PERF2] sea_end 8402831
+[PERF2] river_parse_end 8492410
+[PERF2] river_mesh_end 9552294
+[PERF2] rivers_end 9561465
+[PERF2] sea_routes_end 9562130
+[PERF2] cities_end 9619411
+[PERF2] labels_end 9620553
+[PERF2] camera_fill_end 9623665
+[PERF2] scene3d_add_child_end 9625420
+[PERF2] create_layer_end 9626541
+[PERF2] set_markers_end 9627554
+[PERF2] switch_end 9629090
+[PERF2] driver_scene_ready 10195479
+[PERF2] driver_root_seen 10195479
+[PERF2] driver_end 10277892
+[WorldMap3D] map 'eastasia' built in 4325 ms (data 10, terrain 3091, ribbons 1159) terrain tris 2639484, road tris 0, river tris 404966, regions 13
+[PERF2_FRAMES] [82.4, 34.7, 35.6, 34.1, 13.3, 12.4, 13.2, 12.9]
+[PERF2_RESULT] {"built_in_ms": 4324.9, "data_ms": 9.5, "end_ms": 8807.1, "engine_start_to_run_ms": 1470.8, "frames": 2, "headless": false, "label": "p05_WorldMap3D_Host_Test_window_5", "renderer": "forward_plus", "ribbons_ms": 1159.2, "road_build_ms": -1.0, "root_seen_ms": 8724.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 8724.7, "sea_build_ms": -1.0, "terrain_ms": 3091.4, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p05_WorldMap_headless_1.log
+[PERF2] driver_change_scene 313512
+[PERF2] driver_scene_ready 4234880
+[PERF2] driver_end 4241450
+[PERF2_FRAMES] [6.6, 14.3, 0.6, 15.1, 1.0, 15.0, 0.9, 15.1]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3927.9, "engine_start_to_run_ms": 313.5, "frames": 2, "headless": true, "label": "p05_WorldMap_headless_1", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3921.4, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap_headless_2.log
+[PERF2] driver_change_scene 328343
+[PERF2] driver_scene_ready 4242834
+[PERF2] driver_end 4249411
+[PERF2_FRAMES] [6.6, 9.6, 16.0, 0.5, 14.8, 0.5, 15.1, 0.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3921.1, "engine_start_to_run_ms": 328.3, "frames": 2, "headless": true, "label": "p05_WorldMap_headless_2", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3914.5, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap_headless_3.log
+[PERF2] driver_change_scene 302218
+[PERF2] driver_scene_ready 4054757
+[PERF2] driver_end 4061451
+[PERF2_FRAMES] [6.7, 15.1, 0.5, 14.6, 0.4, 14.8, 0.4, 15.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3759.2, "engine_start_to_run_ms": 302.2, "frames": 2, "headless": true, "label": "p05_WorldMap_headless_3", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3752.5, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap_headless_4.log
+[PERF2] driver_change_scene 316674
+[PERF2] driver_scene_ready 4324028
+[PERF2] driver_end 4330516
+[PERF2_FRAMES] [6.5, 6.9, 15.1, 0.4, 15.6, 0.5, 15.7, 0.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4013.8, "engine_start_to_run_ms": 316.7, "frames": 2, "headless": true, "label": "p05_WorldMap_headless_4", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4007.4, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap_headless_5.log
+[PERF2] driver_change_scene 311223
+[PERF2] driver_scene_ready 4061931
+[PERF2] driver_end 4068419
+[PERF2_FRAMES] [6.5, 9.7, 16.1, 0.5, 15.5, 0.6, 14.3, 0.6]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3757.2, "engine_start_to_run_ms": 311.2, "frames": 2, "headless": true, "label": "p05_WorldMap_headless_5", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3750.7, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p05_WorldMap_window_1.log
+[PERF2] driver_change_scene 1335551
+[PERF2] driver_scene_ready 5230609
+[PERF2] driver_end 5269486
+[PERF2_FRAMES] [38.9, 11.8, 9.8, 11.9, 12.0, 16.4, 16.5, 16.7]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3933.9, "engine_start_to_run_ms": 1335.5, "frames": 2, "headless": false, "label": "p05_WorldMap_window_1", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3895.1, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p05_WorldMap_window_2.log
+[PERF2] driver_change_scene 1481596
+[PERF2] driver_scene_ready 5277790
+[PERF2] driver_end 5312576
+[PERF2_FRAMES] [34.8, 13.0, 13.0, 15.3, 16.6, 16.7, 16.7, 17.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3831.0, "engine_start_to_run_ms": 1481.6, "frames": 2, "headless": false, "label": "p05_WorldMap_window_2", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3796.2, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p05_WorldMap_window_3.log
+[PERF2] driver_change_scene 1475413
+[PERF2] driver_scene_ready 5595231
+[PERF2] driver_end 5636414
+[PERF2_FRAMES] [41.2, 13.1, 9.5, 24.3, 13.1, 9.2, 13.3, 13.2]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4161.0, "engine_start_to_run_ms": 1475.4, "frames": 2, "headless": false, "label": "p05_WorldMap_window_3", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4119.8, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p05_WorldMap_window_4.log
+[PERF2] driver_change_scene 1544162
+[PERF2] driver_scene_ready 5615648
+[PERF2] driver_end 5654654
+[PERF2_FRAMES] [39.0, 12.6, 13.5, 15.7, 16.6, 16.9, 16.7, 16.5]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4110.5, "engine_start_to_run_ms": 1544.2, "frames": 2, "headless": false, "label": "p05_WorldMap_window_4", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4071.5, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p05_WorldMap_window_5.log
+[PERF2] driver_change_scene 1499812
+[PERF2] driver_scene_ready 5677635
+[PERF2] driver_end 5713455
+[PERF2_FRAMES] [35.8, 13.3, 16.9, 16.2, 16.5, 16.9, 16.7, 16.7]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4213.6, "engine_start_to_run_ms": 1499.8, "frames": 2, "headless": false, "label": "p05_WorldMap_window_5", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4177.8, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p06_WorldMap3D_Host_Test_headless_1.log
+[PERF2] driver_change_scene 312861
+[PERF2] scene3d_load_start 4057601
+[PERF2] scene3d_load_end 4173847
+[PERF2] scene3d_instantiate_end 4176153
+[PERF2] root_ready 4177525
+[PERF2] geo_load_start 4179549
+[PERF2] geo_load_end 4186108
+[PERF2] data_end 4189260
+[PERF2] env_end 4191982
+[PERF2] terrain_mesh_end 6392501
+[PERF2] terrain_material_end 7049471
+[PERF2] terrain_end 7052819
+[PERF2] sea_end 7058276
+[PERF2] river_parse_end 7150993
+[PERF2] river_mesh_end 8299238
+[PERF2] rivers_end 8307749
+[PERF2] road_paths_end 11609008
+[PERF2] roads_end 11883038
+[PERF2] sea_paths_end 13135647
+[PERF2] sea_routes_end 13254996
+[PERF2] cities_end 13283365
+[PERF2] labels_end 13284639
+[PERF2] camera_fill_end 13287344
+[PERF2] scene3d_add_child_end 13288995
+[PERF2] create_layer_end 13289721
+[PERF2] set_markers_end 13290590
+[PERF2] switch_end 13291857
+[PERF2] driver_scene_ready 13422475
+[PERF2] driver_root_seen 13422475
+[PERF2] driver_end 13429031
+[WorldMap3D] map 'eastasia' built in 9109 ms (data 10, terrain 2868, ribbons 6197) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1370 ms
+[PERF2_FRAMES] [6.6, 18.2, 0.8, 14.8, 0.8, 13.8, 0.9, 14.6]
+[PERF2_RESULT] {"built_in_ms": 9109.3, "data_ms": 10.4, "end_ms": 13116.2, "engine_start_to_run_ms": 312.9, "frames": 2, "headless": true, "label": "p06_WorldMap3D_Host_Test_headless_1", "renderer": "forward_plus", "ribbons_ms": 6196.9, "road_build_ms": 3574.3, "root_seen_ms": 13109.6, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13109.6, "sea_build_ms": 1370.5, "terrain_ms": 2867.8, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap3D_Host_Test_headless_2.log
+[PERF2] driver_change_scene 313382
+[PERF2] scene3d_load_start 4167577
+[PERF2] scene3d_load_end 4288713
+[PERF2] scene3d_instantiate_end 4290435
+[PERF2] root_ready 4291725
+[PERF2] geo_load_start 4293765
+[PERF2] geo_load_end 4300083
+[PERF2] data_end 4303637
+[PERF2] env_end 4306512
+[PERF2] terrain_mesh_end 6473152
+[PERF2] terrain_material_end 7147785
+[PERF2] terrain_end 7150644
+[PERF2] sea_end 7154913
+[PERF2] river_parse_end 7250115
+[PERF2] river_mesh_end 8391208
+[PERF2] rivers_end 8399188
+[PERF2] road_paths_end 11514585
+[PERF2] roads_end 11780047
+[PERF2] sea_paths_end 12929251
+[PERF2] sea_routes_end 13053513
+[PERF2] cities_end 13083851
+[PERF2] labels_end 13084918
+[PERF2] camera_fill_end 13087001
+[PERF2] scene3d_add_child_end 13088447
+[PERF2] create_layer_end 13089140
+[PERF2] set_markers_end 13089894
+[PERF2] switch_end 13091189
+[PERF2] driver_scene_ready 13226898
+[PERF2] driver_root_seen 13226898
+[PERF2] driver_end 13233484
+[WorldMap3D] map 'eastasia' built in 8795 ms (data 11, terrain 2850, ribbons 5899) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1272 ms
+[PERF2_FRAMES] [6.6, 14.4, 0.8, 14.8, 0.8, 15.3, 0.9, 13.5]
+[PERF2_RESULT] {"built_in_ms": 8794.7, "data_ms": 10.6, "end_ms": 12920.1, "engine_start_to_run_ms": 313.4, "frames": 2, "headless": true, "label": "p06_WorldMap3D_Host_Test_headless_2", "renderer": "forward_plus", "ribbons_ms": 5898.7, "road_build_ms": 3379.9, "root_seen_ms": 12913.5, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12913.5, "sea_build_ms": 1271.8, "terrain_ms": 2849.9, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap3D_Host_Test_headless_3.log
+[PERF2] driver_change_scene 336313
+[PERF2] scene3d_load_start 4279934
+[PERF2] scene3d_load_end 4412327
+[PERF2] scene3d_instantiate_end 4414578
+[PERF2] root_ready 4415910
+[PERF2] geo_load_start 4417946
+[PERF2] geo_load_end 4423993
+[PERF2] data_end 4427804
+[PERF2] env_end 4430621
+[PERF2] terrain_mesh_end 6708561
+[PERF2] terrain_material_end 7817752
+[PERF2] terrain_end 7821988
+[PERF2] sea_end 7827333
+[PERF2] river_parse_end 7922290
+[PERF2] river_mesh_end 9041095
+[PERF2] rivers_end 9049852
+[PERF2] road_paths_end 12197613
+[PERF2] roads_end 12456371
+[PERF2] sea_paths_end 13561675
+[PERF2] sea_routes_end 13690063
+[PERF2] cities_end 13722329
+[PERF2] labels_end 13723546
+[PERF2] camera_fill_end 13725623
+[PERF2] scene3d_add_child_end 13727147
+[PERF2] create_layer_end 13727940
+[PERF2] set_markers_end 13728618
+[PERF2] switch_end 13729871
+[PERF2] driver_scene_ready 13861320
+[PERF2] driver_root_seen 13861320
+[PERF2] driver_end 13867909
+[WorldMap3D] map 'eastasia' built in 9309 ms (data 11, terrain 3399, ribbons 5861) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1232 ms
+[PERF2_FRAMES] [6.6, 9.4, 15.1, 0.9, 15.2, 0.8, 14.3, 0.8]
+[PERF2_RESULT] {"built_in_ms": 9309.2, "data_ms": 10.6, "end_ms": 13531.6, "engine_start_to_run_ms": 336.3, "frames": 2, "headless": true, "label": "p06_WorldMap3D_Host_Test_headless_3", "renderer": "forward_plus", "ribbons_ms": 5861.3, "road_build_ms": 3405.7, "root_seen_ms": 13525.0, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13525.0, "sea_build_ms": 1232.1, "terrain_ms": 3399.3, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap3D_Host_Test_headless_4.log
+[PERF2] driver_change_scene 319054
+[PERF2] scene3d_load_start 4291011
+[PERF2] scene3d_load_end 4411574
+[PERF2] scene3d_instantiate_end 4413917
+[PERF2] root_ready 4415448
+[PERF2] geo_load_start 4417624
+[PERF2] geo_load_end 4424618
+[PERF2] data_end 4427903
+[PERF2] env_end 4430842
+[PERF2] terrain_mesh_end 6771008
+[PERF2] terrain_material_end 7426173
+[PERF2] terrain_end 7428743
+[PERF2] sea_end 7433391
+[PERF2] river_parse_end 7532295
+[PERF2] river_mesh_end 8717316
+[PERF2] rivers_end 8726119
+[PERF2] road_paths_end 11766470
+[PERF2] roads_end 12018493
+[PERF2] sea_paths_end 13102051
+[PERF2] sea_routes_end 13224787
+[PERF2] cities_end 13253544
+[PERF2] labels_end 13255099
+[PERF2] camera_fill_end 13257393
+[PERF2] scene3d_add_child_end 13259525
+[PERF2] create_layer_end 13260916
+[PERF2] set_markers_end 13262065
+[PERF2] switch_end 13263643
+[PERF2] driver_scene_ready 13396050
+[PERF2] driver_root_seen 13396050
+[PERF2] driver_end 13402619
+[WorldMap3D] map 'eastasia' built in 8842 ms (data 11, terrain 3004, ribbons 5792) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1205 ms
+[PERF2_FRAMES] [6.6, 9.1, 15.3, 1.2, 15.0, 1.5, 14.4, 1.1]
+[PERF2_RESULT] {"built_in_ms": 8841.6, "data_ms": 11.1, "end_ms": 13083.6, "engine_start_to_run_ms": 319.1, "frames": 2, "headless": true, "label": "p06_WorldMap3D_Host_Test_headless_4", "renderer": "forward_plus", "ribbons_ms": 5792.0, "road_build_ms": 3291.3, "root_seen_ms": 13077.0, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13077.0, "sea_build_ms": 1204.7, "terrain_ms": 3003.9, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap3D_Host_Test_headless_5.log
+[PERF2] driver_change_scene 319791
+[PERF2] scene3d_load_start 4222298
+[PERF2] scene3d_load_end 4346488
+[PERF2] scene3d_instantiate_end 4347955
+[PERF2] root_ready 4349352
+[PERF2] geo_load_start 4351552
+[PERF2] geo_load_end 4357642
+[PERF2] data_end 4360914
+[PERF2] env_end 4363632
+[PERF2] terrain_mesh_end 6579205
+[PERF2] terrain_material_end 7246007
+[PERF2] terrain_end 7249314
+[PERF2] sea_end 7255109
+[PERF2] river_parse_end 7346140
+[PERF2] river_mesh_end 8433632
+[PERF2] rivers_end 8441906
+[PERF2] road_paths_end 11497862
+[PERF2] roads_end 11748853
+[PERF2] sea_paths_end 12837599
+[PERF2] sea_routes_end 12956994
+[PERF2] cities_end 12985289
+[PERF2] labels_end 12986535
+[PERF2] camera_fill_end 12988701
+[PERF2] scene3d_add_child_end 12990835
+[PERF2] create_layer_end 12991712
+[PERF2] set_markers_end 12992589
+[PERF2] switch_end 12993871
+[PERF2] driver_scene_ready 13128093
+[PERF2] driver_root_seen 13128093
+[PERF2] driver_end 13134694
+[WorldMap3D] map 'eastasia' built in 8639 ms (data 10, terrain 2893, ribbons 5702) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1206 ms
+[PERF2_FRAMES] [6.6, 11.7, 2.1, 14.0, 0.9, 14.2, 1.0, 14.8]
+[PERF2_RESULT] {"built_in_ms": 8639.0, "data_ms": 10.4, "end_ms": 12814.9, "engine_start_to_run_ms": 319.8, "frames": 2, "headless": true, "label": "p06_WorldMap3D_Host_Test_headless_5", "renderer": "forward_plus", "ribbons_ms": 5701.8, "road_build_ms": 3306.0, "root_seen_ms": 12808.3, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12808.3, "sea_build_ms": 1206.4, "terrain_ms": 2893.1, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap3D_Host_Test_window_1.log
+[PERF2] driver_change_scene 1296225
+[PERF2] scene3d_load_start 4986817
+[PERF2] scene3d_load_end 5112625
+[PERF2] scene3d_instantiate_end 5117253
+[PERF2] root_ready 5119250
+[PERF2] geo_load_start 5121784
+[PERF2] geo_load_end 5135260
+[PERF2] data_end 5139036
+[PERF2] env_end 5143991
+[PERF2] terrain_mesh_end 7274204
+[PERF2] terrain_material_end 8205352
+[PERF2] terrain_end 8208323
+[PERF2] sea_end 8214122
+[PERF2] river_parse_end 8306314
+[PERF2] river_mesh_end 9349406
+[PERF2] rivers_end 9357900
+[PERF2] road_paths_end 12254102
+[PERF2] roads_end 12493454
+[PERF2] sea_paths_end 13542875
+[PERF2] sea_routes_end 13659354
+[PERF2] cities_end 13716975
+[PERF2] labels_end 13718451
+[PERF2] camera_fill_end 13721685
+[PERF2] scene3d_add_child_end 13723697
+[PERF2] create_layer_end 13724704
+[PERF2] set_markers_end 13725650
+[PERF2] switch_end 13727134
+[PERF2] driver_scene_ready 14166004
+[PERF2] driver_root_seen 14166004
+[PERF2] driver_end 14402185
+[WorldMap3D] map 'eastasia' built in 8602 ms (data 18, terrain 3071, ribbons 5446) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1164 ms
+[PERF2_FRAMES] [236.2, 12.7, 14.2, 13.4, 13.2, 13.5, 13.9, 16.6]
+[PERF2_RESULT] {"built_in_ms": 8601.6, "data_ms": 18.0, "end_ms": 13106.0, "engine_start_to_run_ms": 1296.2, "frames": 2, "headless": false, "label": "p06_WorldMap3D_Host_Test_window_1", "renderer": "forward_plus", "ribbons_ms": 5446.2, "road_build_ms": 3134.8, "root_seen_ms": 12869.8, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12869.8, "sea_build_ms": 1164.3, "terrain_ms": 3070.9, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p06_WorldMap3D_Host_Test_window_2.log
+[PERF2] driver_change_scene 1440682
+[PERF2] scene3d_load_start 5208852
+[PERF2] scene3d_load_end 5329971
+[PERF2] scene3d_instantiate_end 5333923
+[PERF2] root_ready 5334698
+[PERF2] geo_load_start 5336113
+[PERF2] geo_load_end 5341783
+[PERF2] data_end 5344599
+[PERF2] env_end 5347743
+[PERF2] terrain_mesh_end 7514058
+[PERF2] terrain_material_end 8433294
+[PERF2] terrain_end 8436179
+[PERF2] sea_end 8441171
+[PERF2] river_parse_end 8529565
+[PERF2] river_mesh_end 9584891
+[PERF2] rivers_end 9593424
+[PERF2] road_paths_end 12523695
+[PERF2] roads_end 12775254
+[PERF2] sea_paths_end 13964896
+[PERF2] sea_routes_end 14088747
+[PERF2] cities_end 14152486
+[PERF2] labels_end 14153550
+[PERF2] camera_fill_end 14156234
+[PERF2] scene3d_add_child_end 14157453
+[PERF2] create_layer_end 14158025
+[PERF2] set_markers_end 14158572
+[PERF2] switch_end 14159680
+[PERF2] driver_scene_ready 14599622
+[PERF2] driver_root_seen 14599622
+[PERF2] driver_end 14740387
+[WorldMap3D] map 'eastasia' built in 8821 ms (data 9, terrain 3094, ribbons 5647) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1312 ms
+[PERF2_FRAMES] [140.8, 12.8, 13.6, 13.5, 13.3, 13.3, 15.3, 16.7]
+[PERF2_RESULT] {"built_in_ms": 8821.5, "data_ms": 9.3, "end_ms": 13299.7, "engine_start_to_run_ms": 1440.7, "frames": 2, "headless": false, "label": "p06_WorldMap3D_Host_Test_window_2", "renderer": "forward_plus", "ribbons_ms": 5647.2, "road_build_ms": 3181.0, "root_seen_ms": 13158.9, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13158.9, "sea_build_ms": 1311.8, "terrain_ms": 3094.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p06_WorldMap3D_Host_Test_window_3.log
+[PERF2] driver_change_scene 1444209
+[PERF2] scene3d_load_start 5117472
+[PERF2] scene3d_load_end 5236403
+[PERF2] scene3d_instantiate_end 5240287
+[PERF2] root_ready 5241444
+[PERF2] geo_load_start 5243240
+[PERF2] geo_load_end 5249291
+[PERF2] data_end 5252447
+[PERF2] env_end 5256031
+[PERF2] terrain_mesh_end 7449592
+[PERF2] terrain_material_end 8347548
+[PERF2] terrain_end 8350123
+[PERF2] sea_end 8354724
+[PERF2] river_parse_end 8443724
+[PERF2] river_mesh_end 9483708
+[PERF2] rivers_end 9491502
+[PERF2] road_paths_end 12416851
+[PERF2] roads_end 12658652
+[PERF2] sea_paths_end 13707670
+[PERF2] sea_routes_end 13825258
+[PERF2] cities_end 13881652
+[PERF2] labels_end 13882745
+[PERF2] camera_fill_end 13885338
+[PERF2] scene3d_add_child_end 13886687
+[PERF2] create_layer_end 13887299
+[PERF2] set_markers_end 13887872
+[PERF2] switch_end 13889045
+[PERF2] driver_scene_ready 14328637
+[PERF2] driver_root_seen 14328637
+[PERF2] driver_end 14528042
+[WorldMap3D] map 'eastasia' built in 8644 ms (data 10, terrain 3099, ribbons 5471) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1165 ms
+[PERF2_FRAMES] [199.4, 14.0, 13.1, 13.8, 13.3, 12.9, 13.3, 13.1]
+[PERF2_RESULT] {"built_in_ms": 8643.6, "data_ms": 10.0, "end_ms": 13083.8, "engine_start_to_run_ms": 1444.2, "frames": 2, "headless": false, "label": "p06_WorldMap3D_Host_Test_window_3", "renderer": "forward_plus", "ribbons_ms": 5471.3, "road_build_ms": 3166.4, "root_seen_ms": 12884.4, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12884.4, "sea_build_ms": 1165.2, "terrain_ms": 3099.3, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p06_WorldMap3D_Host_Test_window_4.log
+[PERF2] driver_change_scene 1441562
+[PERF2] scene3d_load_start 5104337
+[PERF2] scene3d_load_end 5218515
+[PERF2] scene3d_instantiate_end 5221349
+[PERF2] root_ready 5222135
+[PERF2] geo_load_start 5223552
+[PERF2] geo_load_end 5229127
+[PERF2] data_end 5231653
+[PERF2] env_end 5234707
+[PERF2] terrain_mesh_end 7368314
+[PERF2] terrain_material_end 8268768
+[PERF2] terrain_end 8271341
+[PERF2] sea_end 8275976
+[PERF2] river_parse_end 8363879
+[PERF2] river_mesh_end 9388976
+[PERF2] rivers_end 9397378
+[PERF2] road_paths_end 12356509
+[PERF2] roads_end 12593981
+[PERF2] sea_paths_end 13660064
+[PERF2] sea_routes_end 13775049
+[PERF2] cities_end 13835081
+[PERF2] labels_end 13836567
+[PERF2] camera_fill_end 13839494
+[PERF2] scene3d_add_child_end 13841453
+[PERF2] create_layer_end 13842481
+[PERF2] set_markers_end 13843487
+[PERF2] switch_end 13845059
+[PERF2] driver_scene_ready 14278762
+[PERF2] driver_root_seen 14278762
+[PERF2] driver_end 14527123
+[WorldMap3D] map 'eastasia' built in 8618 ms (data 9, terrain 3042, ribbons 5500) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1180 ms
+[PERF2_FRAMES] [248.4, 14.1, 13.0, 13.9, 13.7, 13.0, 13.5, 13.1]
+[PERF2_RESULT] {"built_in_ms": 8617.6, "data_ms": 8.8, "end_ms": 13085.6, "engine_start_to_run_ms": 1441.6, "frames": 2, "headless": false, "label": "p06_WorldMap3D_Host_Test_window_4", "renderer": "forward_plus", "ribbons_ms": 5499.7, "road_build_ms": 3195.8, "root_seen_ms": 12837.2, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12837.2, "sea_build_ms": 1179.5, "terrain_ms": 3042.0, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p06_WorldMap3D_Host_Test_window_5.log
+[PERF2] driver_change_scene 1434650
+[PERF2] scene3d_load_start 5111258
+[PERF2] scene3d_load_end 5225182
+[PERF2] scene3d_instantiate_end 5228556
+[PERF2] root_ready 5229213
+[PERF2] geo_load_start 5230806
+[PERF2] geo_load_end 5236345
+[PERF2] data_end 5238962
+[PERF2] env_end 5241921
+[PERF2] terrain_mesh_end 7371028
+[PERF2] terrain_material_end 8273797
+[PERF2] terrain_end 8276416
+[PERF2] sea_end 8280840
+[PERF2] river_parse_end 8376331
+[PERF2] river_mesh_end 9412225
+[PERF2] rivers_end 9424333
+[PERF2] road_paths_end 12330981
+[PERF2] roads_end 12568945
+[PERF2] sea_paths_end 13630771
+[PERF2] sea_routes_end 13747903
+[PERF2] cities_end 13808103
+[PERF2] labels_end 13809114
+[PERF2] camera_fill_end 13811645
+[PERF2] scene3d_add_child_end 13813007
+[PERF2] create_layer_end 13813607
+[PERF2] set_markers_end 13814153
+[PERF2] switch_end 13815224
+[PERF2] driver_scene_ready 14276510
+[PERF2] driver_root_seen 14276510
+[PERF2] driver_end 14430034
+[WorldMap3D] map 'eastasia' built in 8582 ms (data 9, terrain 3040, ribbons 5468) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1177 ms
+[PERF2_FRAMES] [153.5, 66.5, 53.8, 13.0, 13.5, 13.0, 13.4, 13.1]
+[PERF2_RESULT] {"built_in_ms": 8582.3, "data_ms": 8.9, "end_ms": 12995.4, "engine_start_to_run_ms": 1434.6, "frames": 2, "headless": false, "label": "p06_WorldMap3D_Host_Test_window_5", "renderer": "forward_plus", "ribbons_ms": 5467.9, "road_build_ms": 3143.8, "root_seen_ms": 12841.9, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12841.9, "sea_build_ms": 1177.3, "terrain_ms": 3039.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## p06_WorldMap_headless_1.log
+[PERF2] driver_change_scene 314811
+[PERF2] driver_scene_ready 4170380
+[PERF2] driver_end 4188071
+[PERF2_FRAMES] [17.7, 1.6, 13.5, 0.4, 15.1, 0.4, 15.4, 0.6]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3873.3, "engine_start_to_run_ms": 314.8, "frames": 2, "headless": true, "label": "p06_WorldMap_headless_1", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3855.6, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap_headless_2.log
+[PERF2] driver_change_scene 304583
+[PERF2] driver_scene_ready 4427315
+[PERF2] driver_end 4433894
+[PERF2_FRAMES] [6.6, 15.7, 0.4, 15.2, 0.5, 15.6, 0.5, 15.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4129.3, "engine_start_to_run_ms": 304.6, "frames": 2, "headless": true, "label": "p06_WorldMap_headless_2", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4122.7, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap_headless_3.log
+[PERF2] driver_change_scene 323898
+[PERF2] driver_scene_ready 4301989
+[PERF2] driver_end 4308562
+[PERF2_FRAMES] [6.6, 14.5, 0.5, 15.1, 0.5, 15.5, 0.5, 14.7]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3984.7, "engine_start_to_run_ms": 323.9, "frames": 2, "headless": true, "label": "p06_WorldMap_headless_3", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3978.1, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap_headless_4.log
+[PERF2] driver_change_scene 339424
+[PERF2] driver_scene_ready 4334257
+[PERF2] driver_end 4340854
+[PERF2_FRAMES] [6.6, 6.9, 14.9, 0.6, 15.5, 0.5, 14.3, 0.5]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4001.4, "engine_start_to_run_ms": 339.4, "frames": 2, "headless": true, "label": "p06_WorldMap_headless_4", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3994.8, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap_headless_5.log
+[PERF2] driver_change_scene 306823
+[PERF2] driver_scene_ready 4179734
+[PERF2] driver_end 4186170
+[PERF2_FRAMES] [6.4, 16.0, 0.4, 14.7, 0.5, 15.6, 0.5, 14.8]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3879.3, "engine_start_to_run_ms": 306.8, "frames": 2, "headless": true, "label": "p06_WorldMap_headless_5", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3872.9, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## p06_WorldMap_window_1.log
+[PERF2] driver_change_scene 1291161
+[PERF2] driver_scene_ready 5157943
+[PERF2] driver_end 5225409
+[PERF2_FRAMES] [67.5, 27.3, 12.4, 3.4, 16.9, 16.7, 16.7, 16.7]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3934.2, "engine_start_to_run_ms": 1291.2, "frames": 2, "headless": false, "label": "p06_WorldMap_window_1", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3866.8, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p06_WorldMap_window_2.log
+[PERF2] driver_change_scene 1493683
+[PERF2] driver_scene_ready 5304328
+[PERF2] driver_end 5345030
+[PERF2_FRAMES] [40.7, 12.1, 9.7, 11.7, 12.4, 14.9, 15.8, 17.0]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3851.3, "engine_start_to_run_ms": 1493.7, "frames": 2, "headless": false, "label": "p06_WorldMap_window_2", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3810.6, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p06_WorldMap_window_3.log
+[PERF2] driver_change_scene 1469062
+[PERF2] driver_scene_ready 5338447
+[PERF2] driver_end 5374980
+[PERF2_FRAMES] [36.5, 12.1, 15.7, 14.2, 16.1, 16.7, 17.3, 16.1]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3905.9, "engine_start_to_run_ms": 1469.1, "frames": 2, "headless": false, "label": "p06_WorldMap_window_3", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3869.4, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p06_WorldMap_window_4.log
+[PERF2] driver_change_scene 1475898
+[PERF2] driver_scene_ready 5329335
+[PERF2] driver_end 5378980
+[PERF2_FRAMES] [49.6, 13.8, 24.4, 12.8, 15.1, 21.0, 13.7, 15.1]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 3903.1, "engine_start_to_run_ms": 1475.9, "frames": 2, "headless": false, "label": "p06_WorldMap_window_4", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 3853.4, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## p06_WorldMap_window_5.log
+[PERF2] driver_change_scene 1504777
+[PERF2] driver_scene_ready 5526114
+[PERF2] driver_end 5560556
+[PERF2_FRAMES] [34.4, 29.1, 16.8, 29.5, 19.9, 21.4, 12.2, 13.4]
+[PERF2_RESULT] {"built_in_ms": -1.0, "data_ms": -1.0, "end_ms": 4055.8, "engine_start_to_run_ms": 1504.8, "frames": 2, "headless": false, "label": "p06_WorldMap_window_5", "renderer": "forward_plus", "ribbons_ms": -1.0, "road_build_ms": -1.0, "root_seen_ms": -1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 4021.3, "sea_build_ms": -1.0, "terrain_ms": -1.0, "texture_mem_mb": 112.1, "video_mem_mb": 329.6}
+
+## pnow_WorldMap3D_Host_Test_headless_1.log
+[PERF2] driver_change_scene 289665
+[PERF2] host_ready 2877278
+[PERF2] main_ready 3890740
+[PERF2] create_layer_start 3893377
+[PERF2] scene3d_load_start 3895043
+[PERF2] scene3d_load_end 4004858
+[PERF2] scene3d_instantiate_end 4007162
+[PERF2] root_ready 4008548
+[PERF2] geo_load_start 4010654
+[PERF2] geo_load_end 4017201
+[PERF2] data_end 4020470
+[PERF2] env_end 4023349
+[PERF2] terrain_mesh_end 6151411
+[PERF2] terrain_material_end 6774491
+[PERF2] terrain_end 6777833
+[PERF2] sea_end 6782613
+[PERF2] river_parse_end 6871594
+[PERF2] river_mesh_end 7890257
+[PERF2] rivers_end 7897743
+[PERF2] road_paths_end 10875298
+[PERF2] roads_end 11120114
+[PERF2] sea_paths_end 12210930
+[PERF2] sea_routes_end 12332032
+[PERF2] cities_end 12358279
+[PERF2] labels_end 12359300
+[PERF2] camera_fill_end 12361143
+[PERF2] scene3d_add_child_end 12362472
+[PERF2] create_layer_end 12363404
+[PERF2] set_markers_end 12364725
+[PERF2] switch_end 12366263
+[PERF2] host_ready 12367094
+[PERF2] driver_scene_ready 12531986
+[PERF2] driver_root_seen 12531986
+[PERF2] two_frames_end 12536109
+[PERF2] driver_end 12538358
+[WorldMap3D] map 'eastasia' built in 8352 ms (data 10, terrain 2760, ribbons 5549) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1210 ms
+[PERF2_FRAMES] [6.4, 17.8, 1.3, 13.3, 0.8, 15.3, 1.0, 13.6]
+[PERF2_RESULT] {"built_in_ms": 8351.8, "data_ms": 10.5, "end_ms": 12248.7, "engine_start_to_run_ms": 289.7, "frames": 2, "headless": true, "label": "pnow_WorldMap3D_Host_Test_headless_1", "renderer": "forward_plus", "ribbons_ms": 5549.2, "road_build_ms": 3221.4, "root_seen_ms": 12242.3, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12242.3, "sea_build_ms": 1209.9, "terrain_ms": 2760.1, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap3D_Host_Test_headless_2.log
+[PERF2] driver_change_scene 431480
+[PERF2] host_ready 3294092
+[PERF2] main_ready 4435605
+[PERF2] create_layer_start 4438145
+[PERF2] scene3d_load_start 4440413
+[PERF2] scene3d_load_end 4558977
+[PERF2] scene3d_instantiate_end 4562237
+[PERF2] root_ready 4564468
+[PERF2] geo_load_start 4567261
+[PERF2] geo_load_end 4573721
+[PERF2] data_end 4576772
+[PERF2] env_end 4579955
+[PERF2] terrain_mesh_end 6793344
+[PERF2] terrain_material_end 7448755
+[PERF2] terrain_end 7451948
+[PERF2] sea_end 7456631
+[PERF2] river_parse_end 7548712
+[PERF2] river_mesh_end 8637806
+[PERF2] rivers_end 8646060
+[PERF2] road_paths_end 11646280
+[PERF2] roads_end 11889088
+[PERF2] sea_paths_end 12974759
+[PERF2] sea_routes_end 13119131
+[PERF2] cities_end 13145082
+[PERF2] labels_end 13146061
+[PERF2] camera_fill_end 13147949
+[PERF2] scene3d_add_child_end 13149081
+[PERF2] create_layer_end 13149682
+[PERF2] set_markers_end 13150275
+[PERF2] switch_end 13151969
+[PERF2] host_ready 13152704
+[PERF2] driver_scene_ready 13280555
+[PERF2] driver_root_seen 13280555
+[PERF2] two_frames_end 13285795
+[PERF2] driver_end 13288473
+[WorldMap3D] map 'eastasia' built in 8582 ms (data 10, terrain 2877, ribbons 5663) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1228 ms
+[PERF2_FRAMES] [7.9, 8.3, 15.9, 1.5, 14.3, 0.9, 15.1, 0.8]
+[PERF2_RESULT] {"built_in_ms": 8581.9, "data_ms": 10.2, "end_ms": 12857.0, "engine_start_to_run_ms": 431.5, "frames": 2, "headless": true, "label": "pnow_WorldMap3D_Host_Test_headless_2", "renderer": "forward_plus", "ribbons_ms": 5662.5, "road_build_ms": 3241.8, "root_seen_ms": 12849.1, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12849.1, "sea_build_ms": 1228.4, "terrain_ms": 2877.5, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap3D_Host_Test_headless_3.log
+[PERF2] driver_change_scene 308233
+[PERF2] host_ready 3091495
+[PERF2] main_ready 4206690
+[PERF2] create_layer_start 4209178
+[PERF2] scene3d_load_start 4210800
+[PERF2] scene3d_load_end 4333286
+[PERF2] scene3d_instantiate_end 4335710
+[PERF2] root_ready 4337168
+[PERF2] geo_load_start 4339329
+[PERF2] geo_load_end 4346428
+[PERF2] data_end 4349694
+[PERF2] env_end 4352446
+[PERF2] terrain_mesh_end 6532544
+[PERF2] terrain_material_end 7239707
+[PERF2] terrain_end 7242565
+[PERF2] sea_end 7247023
+[PERF2] river_parse_end 7340960
+[PERF2] river_mesh_end 8398704
+[PERF2] rivers_end 8406978
+[PERF2] road_paths_end 11445301
+[PERF2] roads_end 11703081
+[PERF2] sea_paths_end 12876741
+[PERF2] sea_routes_end 13075788
+[PERF2] cities_end 13107387
+[PERF2] labels_end 13108461
+[PERF2] camera_fill_end 13110457
+[PERF2] scene3d_add_child_end 13111618
+[PERF2] create_layer_end 13112198
+[PERF2] set_markers_end 13112740
+[PERF2] switch_end 13114172
+[PERF2] host_ready 13114861
+[PERF2] driver_scene_ready 13256787
+[PERF2] driver_root_seen 13256787
+[PERF2] two_frames_end 13261418
+[PERF2] driver_end 13263671
+[WorldMap3D] map 'eastasia' built in 8772 ms (data 11, terrain 2895, ribbons 5829) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1371 ms
+[PERF2_FRAMES] [6.9, 8.5, 15.8, 0.8, 15.2, 1.0, 14.6, 1.3]
+[PERF2_RESULT] {"built_in_ms": 8772.4, "data_ms": 11.0, "end_ms": 12955.4, "engine_start_to_run_ms": 308.2, "frames": 2, "headless": true, "label": "pnow_WorldMap3D_Host_Test_headless_3", "renderer": "forward_plus", "ribbons_ms": 5829.4, "road_build_ms": 3294.8, "root_seen_ms": 12948.6, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12948.6, "sea_build_ms": 1370.8, "terrain_ms": 2895.3, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap3D_Host_Test_headless_4.log
+[PERF2] driver_change_scene 329219
+[PERF2] host_ready 3182015
+[PERF2] main_ready 4274864
+[PERF2] create_layer_start 4276838
+[PERF2] scene3d_load_start 4278473
+[PERF2] scene3d_load_end 4393330
+[PERF2] scene3d_instantiate_end 4395705
+[PERF2] root_ready 4397299
+[PERF2] geo_load_start 4399573
+[PERF2] geo_load_end 4405846
+[PERF2] data_end 4408949
+[PERF2] env_end 4412179
+[PERF2] terrain_mesh_end 6563166
+[PERF2] terrain_material_end 7203028
+[PERF2] terrain_end 7206215
+[PERF2] sea_end 7211263
+[PERF2] river_parse_end 7302731
+[PERF2] river_mesh_end 8376952
+[PERF2] rivers_end 8385464
+[PERF2] road_paths_end 11396923
+[PERF2] roads_end 11642559
+[PERF2] sea_paths_end 12723816
+[PERF2] sea_routes_end 12843228
+[PERF2] cities_end 12870825
+[PERF2] labels_end 12872099
+[PERF2] camera_fill_end 12874216
+[PERF2] scene3d_add_child_end 12875835
+[PERF2] create_layer_end 12876666
+[PERF2] set_markers_end 12877461
+[PERF2] switch_end 12878966
+[PERF2] host_ready 12879778
+[PERF2] driver_scene_ready 13003913
+[PERF2] driver_root_seen 13003913
+[PERF2] two_frames_end 13008742
+[PERF2] driver_end 13011212
+[WorldMap3D] map 'eastasia' built in 8476 ms (data 10, terrain 2800, ribbons 5632) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1199 ms
+[PERF2_FRAMES] [7.3, 14.3, 0.9, 14.5, 0.8, 15.3, 0.8, 14.2]
+[PERF2_RESULT] {"built_in_ms": 8476.2, "data_ms": 10.1, "end_ms": 12682.0, "engine_start_to_run_ms": 329.2, "frames": 2, "headless": true, "label": "pnow_WorldMap3D_Host_Test_headless_4", "renderer": "forward_plus", "ribbons_ms": 5632.2, "road_build_ms": 3255.6, "root_seen_ms": 12674.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12674.7, "sea_build_ms": 1198.9, "terrain_ms": 2800.3, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap3D_Host_Test_headless_5.log
+[PERF2] driver_change_scene 295422
+[PERF2] host_ready 2926804
+[PERF2] main_ready 3990723
+[PERF2] create_layer_start 3993164
+[PERF2] scene3d_load_start 3994668
+[PERF2] scene3d_load_end 4116040
+[PERF2] scene3d_instantiate_end 4118317
+[PERF2] root_ready 4119645
+[PERF2] geo_load_start 4121704
+[PERF2] geo_load_end 4128044
+[PERF2] data_end 4130999
+[PERF2] env_end 4133723
+[PERF2] terrain_mesh_end 6479094
+[PERF2] terrain_material_end 7143937
+[PERF2] terrain_end 7146913
+[PERF2] sea_end 7150782
+[PERF2] river_parse_end 7239987
+[PERF2] river_mesh_end 8298434
+[PERF2] rivers_end 8306083
+[PERF2] road_paths_end 11298529
+[PERF2] roads_end 11537901
+[PERF2] sea_paths_end 12589398
+[PERF2] sea_routes_end 12705287
+[PERF2] cities_end 12735773
+[PERF2] labels_end 12737143
+[PERF2] camera_fill_end 12739213
+[PERF2] scene3d_add_child_end 12740809
+[PERF2] create_layer_end 12741580
+[PERF2] set_markers_end 12742366
+[PERF2] switch_end 12744000
+[PERF2] host_ready 12744835
+[PERF2] driver_scene_ready 12869909
+[PERF2] driver_root_seen 12869909
+[PERF2] two_frames_end 12874895
+[PERF2] driver_end 12877435
+[WorldMap3D] map 'eastasia' built in 8619 ms (data 10, terrain 3018, ribbons 5555) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1166 ms
+[PERF2_FRAMES] [7.5, 13.9, 0.8, 15.0, 0.8, 14.4, 0.8, 14.9]
+[PERF2_RESULT] {"built_in_ms": 8619.1, "data_ms": 10.1, "end_ms": 12582.0, "engine_start_to_run_ms": 295.4, "frames": 2, "headless": true, "label": "pnow_WorldMap3D_Host_Test_headless_5", "renderer": "forward_plus", "ribbons_ms": 5555.4, "road_build_ms": 3230.6, "root_seen_ms": 12574.5, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12574.5, "sea_build_ms": 1165.7, "terrain_ms": 3017.7, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap3D_Host_Test_window_1.log
+[PERF2] driver_change_scene 1306006
+[PERF2] host_ready 4030181
+[PERF2] main_ready 5092037
+[PERF2] create_layer_start 5094392
+[PERF2] scene3d_load_start 5095786
+[PERF2] scene3d_load_end 5210962
+[PERF2] scene3d_instantiate_end 5214740
+[PERF2] root_ready 5216147
+[PERF2] geo_load_start 5218231
+[PERF2] geo_load_end 5224600
+[PERF2] data_end 5227739
+[PERF2] env_end 5231899
+[PERF2] terrain_mesh_end 7382785
+[PERF2] terrain_material_end 8302458
+[PERF2] terrain_end 8304555
+[PERF2] sea_end 8310024
+[PERF2] river_parse_end 8400802
+[PERF2] river_mesh_end 9523184
+[PERF2] rivers_end 9531776
+[PERF2] road_paths_end 12527650
+[PERF2] roads_end 12770938
+[PERF2] sea_paths_end 13825569
+[PERF2] sea_routes_end 13943806
+[PERF2] cities_end 14012889
+[PERF2] labels_end 14013958
+[PERF2] camera_fill_end 14016932
+[PERF2] scene3d_add_child_end 14018271
+[PERF2] create_layer_end 14018850
+[PERF2] set_markers_end 14019399
+[PERF2] switch_end 14020898
+[PERF2] host_ready 14021639
+[PERF2] driver_scene_ready 14471875
+[PERF2] driver_root_seen 14471875
+[PERF2] two_frames_end 14558521
+[PERF2] driver_end 14616614
+[WorldMap3D] map 'eastasia' built in 8800 ms (data 10, terrain 3079, ribbons 5635) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1172 ms
+[PERF2_FRAMES] [144.7, 56.8, 56.5, 45.5, 13.4, 13.3, 13.8, 12.6]
+[PERF2_RESULT] {"built_in_ms": 8800.1, "data_ms": 10.2, "end_ms": 13310.6, "engine_start_to_run_ms": 1306.0, "frames": 2, "headless": false, "label": "pnow_WorldMap3D_Host_Test_window_1", "renderer": "forward_plus", "ribbons_ms": 5634.8, "road_build_ms": 3238.3, "root_seen_ms": 13165.9, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13165.9, "sea_build_ms": 1171.9, "terrain_ms": 3078.8, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap3D_Host_Test_window_2.log
+[PERF2] driver_change_scene 1705710
+[PERF2] host_ready 4447901
+[PERF2] main_ready 5493918
+[PERF2] create_layer_start 5495860
+[PERF2] scene3d_load_start 5496846
+[PERF2] scene3d_load_end 5611253
+[PERF2] scene3d_instantiate_end 5614707
+[PERF2] root_ready 5615618
+[PERF2] geo_load_start 5617356
+[PERF2] geo_load_end 5622837
+[PERF2] data_end 5625556
+[PERF2] env_end 5628591
+[PERF2] terrain_mesh_end 7836852
+[PERF2] terrain_material_end 8745288
+[PERF2] terrain_end 8748051
+[PERF2] sea_end 8752746
+[PERF2] river_parse_end 8847104
+[PERF2] river_mesh_end 9927939
+[PERF2] rivers_end 9935815
+[PERF2] road_paths_end 12924688
+[PERF2] roads_end 13165225
+[PERF2] sea_paths_end 14226814
+[PERF2] sea_routes_end 14343499
+[PERF2] cities_end 14407517
+[PERF2] labels_end 14410701
+[PERF2] camera_fill_end 14413613
+[PERF2] scene3d_add_child_end 14414859
+[PERF2] create_layer_end 14415463
+[PERF2] set_markers_end 14416012
+[PERF2] switch_end 14417507
+[PERF2] host_ready 14418222
+[PERF2] driver_scene_ready 14846753
+[PERF2] driver_root_seen 14846753
+[PERF2] two_frames_end 15002841
+[PERF2] driver_end 15070092
+[WorldMap3D] map 'eastasia' built in 8798 ms (data 9, terrain 3125, ribbons 5592) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1177 ms
+[PERF2_FRAMES] [223.3, 13.9, 14.4, 14.0, 14.1, 12.3, 13.5, 13.6]
+[PERF2_RESULT] {"built_in_ms": 8797.6, "data_ms": 9.0, "end_ms": 13364.4, "engine_start_to_run_ms": 1705.7, "frames": 2, "headless": false, "label": "pnow_WorldMap3D_Host_Test_window_2", "renderer": "forward_plus", "ribbons_ms": 5591.7, "road_build_ms": 3228.6, "root_seen_ms": 13141.0, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 13141.0, "sea_build_ms": 1176.8, "terrain_ms": 3124.8, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap3D_Host_Test_window_3.log
+[PERF2] driver_change_scene 1452998
+[PERF2] host_ready 4111609
+[PERF2] main_ready 5150183
+[PERF2] create_layer_start 5152120
+[PERF2] scene3d_load_start 5153397
+[PERF2] scene3d_load_end 5264525
+[PERF2] scene3d_instantiate_end 5267897
+[PERF2] root_ready 5269475
+[PERF2] geo_load_start 5270821
+[PERF2] geo_load_end 5276466
+[PERF2] data_end 5278942
+[PERF2] env_end 5282022
+[PERF2] terrain_mesh_end 7418798
+[PERF2] terrain_material_end 8323972
+[PERF2] terrain_end 8326337
+[PERF2] sea_end 8331340
+[PERF2] river_parse_end 8421945
+[PERF2] river_mesh_end 9454294
+[PERF2] rivers_end 9463093
+[PERF2] road_paths_end 12376476
+[PERF2] roads_end 12615127
+[PERF2] sea_paths_end 13681357
+[PERF2] sea_routes_end 13797695
+[PERF2] cities_end 13858022
+[PERF2] labels_end 13859061
+[PERF2] camera_fill_end 13861538
+[PERF2] scene3d_add_child_end 13862785
+[PERF2] create_layer_end 13863366
+[PERF2] set_markers_end 13863948
+[PERF2] switch_end 13865588
+[PERF2] host_ready 13866300
+[PERF2] driver_scene_ready 14309738
+[PERF2] driver_root_seen 14309738
+[PERF2] two_frames_end 14496308
+[PERF2] driver_end 14531977
+[WorldMap3D] map 'eastasia' built in 8592 ms (data 9, terrain 3050, ribbons 5467) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1181 ms
+[PERF2_FRAMES] [222.2, 13.2, 13.8, 13.6, 13.6, 13.3, 15.3, 16.7]
+[PERF2_RESULT] {"built_in_ms": 8592.1, "data_ms": 8.8, "end_ms": 13079.0, "engine_start_to_run_ms": 1453.0, "frames": 2, "headless": false, "label": "pnow_WorldMap3D_Host_Test_window_3", "renderer": "forward_plus", "ribbons_ms": 5466.8, "road_build_ms": 3151.3, "root_seen_ms": 12856.7, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12856.7, "sea_build_ms": 1181.1, "terrain_ms": 3050.4, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap3D_Host_Test_window_4.log
+[PERF2] driver_change_scene 1472233
+[PERF2] host_ready 4151644
+[PERF2] main_ready 5201324
+[PERF2] create_layer_start 5203170
+[PERF2] scene3d_load_start 5204136
+[PERF2] scene3d_load_end 5316311
+[PERF2] scene3d_instantiate_end 5319630
+[PERF2] root_ready 5320401
+[PERF2] geo_load_start 5321762
+[PERF2] geo_load_end 5327266
+[PERF2] data_end 5329770
+[PERF2] env_end 5332741
+[PERF2] terrain_mesh_end 7476923
+[PERF2] terrain_material_end 8383903
+[PERF2] terrain_end 8386576
+[PERF2] sea_end 8391230
+[PERF2] river_parse_end 8480254
+[PERF2] river_mesh_end 9519371
+[PERF2] rivers_end 9528189
+[PERF2] road_paths_end 12447964
+[PERF2] roads_end 12690934
+[PERF2] sea_paths_end 13746674
+[PERF2] sea_routes_end 13864726
+[PERF2] cities_end 13925503
+[PERF2] labels_end 13926704
+[PERF2] camera_fill_end 13929348
+[PERF2] scene3d_add_child_end 13930562
+[PERF2] create_layer_end 13931152
+[PERF2] set_markers_end 13931720
+[PERF2] switch_end 13933272
+[PERF2] host_ready 13934026
+[PERF2] driver_scene_ready 14382630
+[PERF2] driver_root_seen 14382630
+[PERF2] two_frames_end 14469717
+[PERF2] driver_end 14521143
+[WorldMap3D] map 'eastasia' built in 8609 ms (data 9, terrain 3059, ribbons 5474) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1172 ms
+[PERF2_FRAMES] [138.5, 12.8, 13.7, 13.7, 13.4, 12.8, 16.6, 16.8]
+[PERF2_RESULT] {"built_in_ms": 8608.9, "data_ms": 8.7, "end_ms": 13048.9, "engine_start_to_run_ms": 1472.2, "frames": 2, "headless": false, "label": "pnow_WorldMap3D_Host_Test_window_4", "renderer": "forward_plus", "ribbons_ms": 5473.5, "road_build_ms": 3161.6, "root_seen_ms": 12910.4, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12910.4, "sea_build_ms": 1172.2, "terrain_ms": 3059.1, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap3D_Host_Test_window_5.log
+[PERF2] driver_change_scene 1471002
+[PERF2] host_ready 4140109
+[PERF2] main_ready 5223488
+[PERF2] create_layer_start 5225340
+[PERF2] scene3d_load_start 5226276
+[PERF2] scene3d_load_end 5339589
+[PERF2] scene3d_instantiate_end 5341957
+[PERF2] root_ready 5342726
+[PERF2] geo_load_start 5344033
+[PERF2] geo_load_end 5349846
+[PERF2] data_end 5352347
+[PERF2] env_end 5355269
+[PERF2] terrain_mesh_end 7483204
+[PERF2] terrain_material_end 8406884
+[PERF2] terrain_end 8409562
+[PERF2] sea_end 8414103
+[PERF2] river_parse_end 8511703
+[PERF2] river_mesh_end 9575899
+[PERF2] rivers_end 9584659
+[PERF2] road_paths_end 12496386
+[PERF2] roads_end 12740474
+[PERF2] sea_paths_end 13809000
+[PERF2] sea_routes_end 13924632
+[PERF2] cities_end 13982859
+[PERF2] labels_end 13983900
+[PERF2] camera_fill_end 13986465
+[PERF2] scene3d_add_child_end 13987748
+[PERF2] create_layer_end 13988328
+[PERF2] set_markers_end 13988907
+[PERF2] switch_end 13990449
+[PERF2] host_ready 13991422
+[PERF2] driver_scene_ready 14429267
+[PERF2] driver_root_seen 14429267
+[PERF2] two_frames_end 14516069
+[PERF2] driver_end 14572311
+[WorldMap3D] map 'eastasia' built in 8644 ms (data 9, terrain 3059, ribbons 5511) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1183 ms
+[PERF2_FRAMES] [143.0, 56.3, 57.7, 33.5, 13.3, 12.9, 13.6, 13.3]
+[PERF2_RESULT] {"built_in_ms": 8643.8, "data_ms": 9.0, "end_ms": 13101.3, "engine_start_to_run_ms": 1471.0, "frames": 2, "headless": false, "label": "pnow_WorldMap3D_Host_Test_window_5", "renderer": "forward_plus", "ribbons_ms": 5511.3, "road_build_ms": 3155.0, "root_seen_ms": 12958.3, "scene": "res://WorldMap3D_Host_Test.tscn", "scene_ready_ms": 12958.3, "sea_build_ms": 1183.2, "terrain_ms": 3059.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap_headless_1.log
+[PERF2] driver_change_scene 302458
+[PERF2] host_ready 3012161
+[PERF2] main_ready 4081244
+[PERF2] create_layer_start 4083239
+[PERF2] scene3d_load_start 4084901
+[PERF2] scene3d_load_end 4199400
+[PERF2] scene3d_instantiate_end 4201883
+[PERF2] root_ready 4203354
+[PERF2] geo_load_start 4205446
+[PERF2] geo_load_end 4211805
+[PERF2] data_end 4215038
+[PERF2] env_end 4217792
+[PERF2] terrain_mesh_end 6344296
+[PERF2] terrain_material_end 6978598
+[PERF2] terrain_end 6981536
+[PERF2] sea_end 6986381
+[PERF2] river_parse_end 7078591
+[PERF2] river_mesh_end 8105244
+[PERF2] rivers_end 8112795
+[PERF2] road_paths_end 11131394
+[PERF2] roads_end 11377819
+[PERF2] sea_paths_end 12464192
+[PERF2] sea_routes_end 12610121
+[PERF2] cities_end 12640092
+[PERF2] labels_end 12641699
+[PERF2] camera_fill_end 12645670
+[PERF2] scene3d_add_child_end 12647142
+[PERF2] create_layer_end 12647787
+[PERF2] set_markers_end 12648358
+[PERF2] switch_end 12650206
+[PERF2] driver_scene_ready 12786335
+[PERF2] driver_root_seen 12786335
+[PERF2] two_frames_end 12791448
+[PERF2] driver_end 12794084
+[WorldMap3D] map 'eastasia' built in 8442 ms (data 10, terrain 2770, ribbons 5624) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1231 ms
+[PERF2_FRAMES] [7.7, 13.7, 1.1, 14.4, 1.1, 14.6, 0.9, 15.1]
+[PERF2_RESULT] {"built_in_ms": 8441.7, "data_ms": 10.3, "end_ms": 12491.6, "engine_start_to_run_ms": 302.5, "frames": 2, "headless": true, "label": "pnow_WorldMap_headless_1", "renderer": "forward_plus", "ribbons_ms": 5624.0, "road_build_ms": 3264.0, "root_seen_ms": 12483.9, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12483.9, "sea_build_ms": 1230.5, "terrain_ms": 2769.7, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap_headless_2.log
+[PERF2] driver_change_scene 302291
+[PERF2] host_ready 3045556
+[PERF2] main_ready 4306408
+[PERF2] create_layer_start 4308004
+[PERF2] scene3d_load_start 4309321
+[PERF2] scene3d_load_end 4434254
+[PERF2] scene3d_instantiate_end 4436669
+[PERF2] root_ready 4441218
+[PERF2] geo_load_start 4443753
+[PERF2] geo_load_end 4450219
+[PERF2] data_end 4453698
+[PERF2] env_end 4456903
+[PERF2] terrain_mesh_end 6609161
+[PERF2] terrain_material_end 7235405
+[PERF2] terrain_end 7238223
+[PERF2] sea_end 7242672
+[PERF2] river_parse_end 7331554
+[PERF2] river_mesh_end 8383200
+[PERF2] rivers_end 8391315
+[PERF2] road_paths_end 11457406
+[PERF2] roads_end 11718362
+[PERF2] sea_paths_end 12797713
+[PERF2] sea_routes_end 12918170
+[PERF2] cities_end 12949326
+[PERF2] labels_end 12950594
+[PERF2] camera_fill_end 12952665
+[PERF2] scene3d_add_child_end 12953882
+[PERF2] create_layer_end 12954509
+[PERF2] set_markers_end 12955088
+[PERF2] switch_end 12956478
+[PERF2] driver_scene_ready 13089212
+[PERF2] driver_root_seen 13089212
+[PERF2] two_frames_end 13095337
+[PERF2] driver_end 13097956
+[WorldMap3D] map 'eastasia' built in 8511 ms (data 11, terrain 2787, ribbons 5675) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1199 ms
+[PERF2_FRAMES] [8.7, 17.5, 0.8, 14.4, 0.8, 14.4, 0.9, 15.3]
+[PERF2_RESULT] {"built_in_ms": 8510.6, "data_ms": 11.0, "end_ms": 12795.7, "engine_start_to_run_ms": 302.3, "frames": 2, "headless": true, "label": "pnow_WorldMap_headless_2", "renderer": "forward_plus", "ribbons_ms": 5675.3, "road_build_ms": 3326.0, "root_seen_ms": 12786.9, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12786.9, "sea_build_ms": 1198.9, "terrain_ms": 2787.3, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap_headless_3.log
+[PERF2] driver_change_scene 323535
+[PERF2] host_ready 3829550
+[PERF2] main_ready 5315107
+[PERF2] create_layer_start 5317831
+[PERF2] scene3d_load_start 5320275
+[PERF2] scene3d_load_end 5437649
+[PERF2] scene3d_instantiate_end 5440602
+[PERF2] root_ready 5442857
+[PERF2] geo_load_start 5445767
+[PERF2] geo_load_end 5454435
+[PERF2] data_end 5458774
+[PERF2] env_end 5461618
+[PERF2] terrain_mesh_end 7697361
+[PERF2] terrain_material_end 8342954
+[PERF2] terrain_end 8345970
+[PERF2] sea_end 8350192
+[PERF2] river_parse_end 8439285
+[PERF2] river_mesh_end 9473005
+[PERF2] rivers_end 9480592
+[PERF2] road_paths_end 12410959
+[PERF2] roads_end 12651514
+[PERF2] sea_paths_end 13702159
+[PERF2] sea_routes_end 13817351
+[PERF2] cities_end 13844204
+[PERF2] labels_end 13845445
+[PERF2] camera_fill_end 13847549
+[PERF2] scene3d_add_child_end 13849218
+[PERF2] create_layer_end 13850053
+[PERF2] set_markers_end 13850905
+[PERF2] switch_end 13852735
+[PERF2] driver_scene_ready 13974673
+[PERF2] driver_root_seen 13974673
+[PERF2] two_frames_end 13980069
+[PERF2] driver_end 13982677
+[WorldMap3D] map 'eastasia' built in 8404 ms (data 14, terrain 2889, ribbons 5468) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1164 ms
+[PERF2_FRAMES] [8.0, 12.6, 0.8, 14.5, 0.9, 14.6, 0.8, 15.2]
+[PERF2_RESULT] {"built_in_ms": 8403.6, "data_ms": 14.0, "end_ms": 13659.1, "engine_start_to_run_ms": 323.5, "frames": 2, "headless": true, "label": "pnow_WorldMap_headless_3", "renderer": "forward_plus", "ribbons_ms": 5467.8, "road_build_ms": 3170.0, "root_seen_ms": 13651.1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 13651.1, "sea_build_ms": 1164.1, "terrain_ms": 2889.4, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap_headless_4.log
+[PERF2] driver_change_scene 306927
+[PERF2] host_ready 2991228
+[PERF2] main_ready 4083584
+[PERF2] create_layer_start 4093653
+[PERF2] scene3d_load_start 4094887
+[PERF2] scene3d_load_end 4215273
+[PERF2] scene3d_instantiate_end 4217426
+[PERF2] root_ready 4218744
+[PERF2] geo_load_start 4258218
+[PERF2] geo_load_end 4264579
+[PERF2] data_end 4267723
+[PERF2] env_end 4270437
+[PERF2] terrain_mesh_end 6472973
+[PERF2] terrain_material_end 7144725
+[PERF2] terrain_end 7162643
+[PERF2] sea_end 7167587
+[PERF2] river_parse_end 7257584
+[PERF2] river_mesh_end 8325198
+[PERF2] rivers_end 8332252
+[PERF2] road_paths_end 11311827
+[PERF2] roads_end 11564455
+[PERF2] sea_paths_end 12802270
+[PERF2] sea_routes_end 12925048
+[PERF2] cities_end 12954653
+[PERF2] labels_end 12956191
+[PERF2] camera_fill_end 12958956
+[PERF2] scene3d_add_child_end 12961098
+[PERF2] create_layer_end 12962068
+[PERF2] set_markers_end 12963051
+[PERF2] switch_end 12964836
+[PERF2] driver_scene_ready 13110522
+[PERF2] driver_root_seen 13110522
+[PERF2] two_frames_end 13114738
+[PERF2] driver_end 13117474
+[WorldMap3D] map 'eastasia' built in 8703 ms (data 10, terrain 2898, ribbons 5758) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1359 ms
+[PERF2_FRAMES] [7.0, 12.3, 1.1, 15.1, 2.7, 12.4, 1.0, 14.2]
+[PERF2_RESULT] {"built_in_ms": 8702.6, "data_ms": 10.3, "end_ms": 12810.5, "engine_start_to_run_ms": 306.9, "frames": 2, "headless": true, "label": "pnow_WorldMap_headless_4", "renderer": "forward_plus", "ribbons_ms": 5758.3, "road_build_ms": 3230.9, "root_seen_ms": 12803.6, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12803.6, "sea_build_ms": 1359.4, "terrain_ms": 2898.1, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap_headless_5.log
+[PERF2] driver_change_scene 307349
+[PERF2] host_ready 3388978
+[PERF2] main_ready 4575459
+[PERF2] create_layer_start 4577640
+[PERF2] scene3d_load_start 4578836
+[PERF2] scene3d_load_end 4703903
+[PERF2] scene3d_instantiate_end 4705298
+[PERF2] root_ready 4706431
+[PERF2] geo_load_start 4708198
+[PERF2] geo_load_end 4714642
+[PERF2] data_end 4717665
+[PERF2] env_end 4720190
+[PERF2] terrain_mesh_end 6904366
+[PERF2] terrain_material_end 7534018
+[PERF2] terrain_end 7537704
+[PERF2] sea_end 7542400
+[PERF2] river_parse_end 7633578
+[PERF2] river_mesh_end 8701075
+[PERF2] rivers_end 8708651
+[PERF2] road_paths_end 11654497
+[PERF2] roads_end 11896339
+[PERF2] sea_paths_end 12972976
+[PERF2] sea_routes_end 13089492
+[PERF2] cities_end 13116710
+[PERF2] labels_end 13117964
+[PERF2] camera_fill_end 13120134
+[PERF2] scene3d_add_child_end 13121654
+[PERF2] create_layer_end 13122478
+[PERF2] set_markers_end 13123323
+[PERF2] switch_end 13124898
+[PERF2] driver_scene_ready 13251212
+[PERF2] driver_root_seen 13251212
+[PERF2] two_frames_end 13257031
+[PERF2] driver_end 13259517
+[WorldMap3D] map 'eastasia' built in 8413 ms (data 10, terrain 2823, ribbons 5548) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1192 ms
+[PERF2_FRAMES] [8.3, 9.9, 2.2, 13.0, 0.8, 14.7, 0.8, 14.6]
+[PERF2_RESULT] {"built_in_ms": 8413.4, "data_ms": 10.2, "end_ms": 12952.2, "engine_start_to_run_ms": 307.3, "frames": 2, "headless": true, "label": "pnow_WorldMap_headless_5", "renderer": "forward_plus", "ribbons_ms": 5547.7, "road_build_ms": 3186.8, "root_seen_ms": 12943.9, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12943.9, "sea_build_ms": 1191.6, "terrain_ms": 2823.1, "texture_mem_mb": 0.0, "video_mem_mb": 0.0}
+
+## pnow_WorldMap_window_1.log
+[PERF2] driver_change_scene 1354450
+[PERF2] host_ready 4161325
+[PERF2] main_ready 5247857
+[PERF2] create_layer_start 5249555
+[PERF2] scene3d_load_start 5250971
+[PERF2] scene3d_load_end 5365120
+[PERF2] scene3d_instantiate_end 5369234
+[PERF2] root_ready 5370652
+[PERF2] geo_load_start 5372679
+[PERF2] geo_load_end 5378840
+[PERF2] data_end 5382368
+[PERF2] env_end 5386564
+[PERF2] terrain_mesh_end 7552811
+[PERF2] terrain_material_end 8474977
+[PERF2] terrain_end 8478383
+[PERF2] sea_end 8483380
+[PERF2] river_parse_end 8577083
+[PERF2] river_mesh_end 9637054
+[PERF2] rivers_end 9645330
+[PERF2] road_paths_end 12618136
+[PERF2] roads_end 12861958
+[PERF2] sea_paths_end 13941656
+[PERF2] sea_routes_end 14060816
+[PERF2] cities_end 14122680
+[PERF2] labels_end 14123787
+[PERF2] camera_fill_end 14127022
+[PERF2] scene3d_add_child_end 14128208
+[PERF2] create_layer_end 14128787
+[PERF2] set_markers_end 14129554
+[PERF2] switch_end 14131121
+[PERF2] driver_scene_ready 14593151
+[PERF2] driver_root_seen 14593151
+[PERF2] two_frames_end 14775781
+[PERF2] driver_end 14794115
+[WorldMap3D] map 'eastasia' built in 8756 ms (data 10, terrain 3098, ribbons 5578) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1197 ms
+[PERF2_FRAMES] [201.0, 12.8, 13.4, 14.4, 14.2, 14.1, 14.0, 12.8]
+[PERF2_RESULT] {"built_in_ms": 8755.7, "data_ms": 10.4, "end_ms": 13439.7, "engine_start_to_run_ms": 1354.4, "frames": 2, "headless": false, "label": "pnow_WorldMap_window_1", "renderer": "forward_plus", "ribbons_ms": 5578.2, "road_build_ms": 3215.9, "root_seen_ms": 13238.7, "scene": "res://WorldMap.tscn", "scene_ready_ms": 13238.7, "sea_build_ms": 1197.4, "terrain_ms": 3097.5, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap_window_2.log
+[PERF2] driver_change_scene 1471622
+[PERF2] host_ready 4116340
+[PERF2] main_ready 5202971
+[PERF2] create_layer_start 5205122
+[PERF2] scene3d_load_start 5206279
+[PERF2] scene3d_load_end 5318747
+[PERF2] scene3d_instantiate_end 5321601
+[PERF2] root_ready 5322493
+[PERF2] geo_load_start 5323919
+[PERF2] geo_load_end 5329475
+[PERF2] data_end 5332083
+[PERF2] env_end 5335066
+[PERF2] terrain_mesh_end 7481990
+[PERF2] terrain_material_end 8382937
+[PERF2] terrain_end 8385780
+[PERF2] sea_end 8390137
+[PERF2] river_parse_end 8479545
+[PERF2] river_mesh_end 9509518
+[PERF2] rivers_end 9517824
+[PERF2] road_paths_end 12399147
+[PERF2] roads_end 12638732
+[PERF2] sea_paths_end 13697263
+[PERF2] sea_routes_end 13814089
+[PERF2] cities_end 13877381
+[PERF2] labels_end 13880521
+[PERF2] camera_fill_end 13883406
+[PERF2] scene3d_add_child_end 13884698
+[PERF2] create_layer_end 13885330
+[PERF2] set_markers_end 13885909
+[PERF2] switch_end 13887388
+[PERF2] driver_scene_ready 14345979
+[PERF2] driver_root_seen 14345979
+[PERF2] two_frames_end 14433666
+[PERF2] driver_end 14491335
+[WorldMap3D] map 'eastasia' built in 8561 ms (data 9, terrain 3056, ribbons 5425) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1174 ms
+[PERF2_FRAMES] [145.4, 56.3, 61.4, 38.9, 12.9, 13.5, 13.5, 13.3]
+[PERF2_RESULT] {"built_in_ms": 8560.8, "data_ms": 8.9, "end_ms": 13019.7, "engine_start_to_run_ms": 1471.6, "frames": 2, "headless": false, "label": "pnow_WorldMap_window_2", "renderer": "forward_plus", "ribbons_ms": 5424.8, "road_build_ms": 3120.1, "root_seen_ms": 12874.4, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12874.4, "sea_build_ms": 1173.8, "terrain_ms": 3055.7, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap_window_3.log
+[PERF2] driver_change_scene 1443101
+[PERF2] host_ready 4113432
+[PERF2] main_ready 5167111
+[PERF2] create_layer_start 5168799
+[PERF2] scene3d_load_start 5169791
+[PERF2] scene3d_load_end 5281529
+[PERF2] scene3d_instantiate_end 5284854
+[PERF2] root_ready 5286866
+[PERF2] geo_load_start 5288393
+[PERF2] geo_load_end 5293904
+[PERF2] data_end 5296448
+[PERF2] env_end 5299469
+[PERF2] terrain_mesh_end 7452522
+[PERF2] terrain_material_end 8357055
+[PERF2] terrain_end 8359629
+[PERF2] sea_end 8363929
+[PERF2] river_parse_end 8454225
+[PERF2] river_mesh_end 9489239
+[PERF2] rivers_end 9497644
+[PERF2] road_paths_end 12423048
+[PERF2] roads_end 12671355
+[PERF2] sea_paths_end 13754791
+[PERF2] sea_routes_end 13873696
+[PERF2] cities_end 13930153
+[PERF2] labels_end 13931136
+[PERF2] camera_fill_end 13933489
+[PERF2] scene3d_add_child_end 13934719
+[PERF2] create_layer_end 13935270
+[PERF2] set_markers_end 13935794
+[PERF2] switch_end 13937259
+[PERF2] driver_scene_ready 14378234
+[PERF2] driver_root_seen 14378234
+[PERF2] two_frames_end 14535255
+[PERF2] driver_end 14583608
+[WorldMap3D] map 'eastasia' built in 8647 ms (data 9, terrain 3065, ribbons 5511) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1201 ms
+[PERF2_FRAMES] [205.4, 12.5, 13.8, 13.9, 13.5, 14.0, 13.4, 13.5]
+[PERF2_RESULT] {"built_in_ms": 8646.5, "data_ms": 8.9, "end_ms": 13140.5, "engine_start_to_run_ms": 1443.1, "frames": 2, "headless": false, "label": "pnow_WorldMap_window_3", "renderer": "forward_plus", "ribbons_ms": 5510.6, "road_build_ms": 3172.8, "root_seen_ms": 12935.1, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12935.1, "sea_build_ms": 1200.8, "terrain_ms": 3065.1, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap_window_4.log
+[PERF2] driver_change_scene 1448107
+[PERF2] host_ready 4105822
+[PERF2] main_ready 5157707
+[PERF2] create_layer_start 5159557
+[PERF2] scene3d_load_start 5160524
+[PERF2] scene3d_load_end 5272463
+[PERF2] scene3d_instantiate_end 5275870
+[PERF2] root_ready 5276582
+[PERF2] geo_load_start 5277932
+[PERF2] geo_load_end 5283388
+[PERF2] data_end 5285870
+[PERF2] env_end 5288942
+[PERF2] terrain_mesh_end 7464744
+[PERF2] terrain_material_end 8442779
+[PERF2] terrain_end 8445934
+[PERF2] sea_end 8451070
+[PERF2] river_parse_end 8543413
+[PERF2] river_mesh_end 9628370
+[PERF2] rivers_end 9636769
+[PERF2] road_paths_end 12589358
+[PERF2] roads_end 12829273
+[PERF2] sea_paths_end 13908597
+[PERF2] sea_routes_end 14031288
+[PERF2] cities_end 14089392
+[PERF2] labels_end 14090430
+[PERF2] camera_fill_end 14093146
+[PERF2] scene3d_add_child_end 14094349
+[PERF2] create_layer_end 14094901
+[PERF2] set_markers_end 14095438
+[PERF2] switch_end 14096922
+[PERF2] driver_scene_ready 14612095
+[PERF2] driver_root_seen 14612095
+[PERF2] two_frames_end 14628732
+[PERF2] driver_end 14642526
+[WorldMap3D] map 'eastasia' built in 8817 ms (data 9, terrain 3163, ribbons 5581) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1200 ms
+[PERF2_FRAMES] [30.4, 13.2, 13.3, 13.0, 13.2, 13.1, 13.2, 12.7]
+[PERF2_RESULT] {"built_in_ms": 8816.6, "data_ms": 8.7, "end_ms": 13194.4, "engine_start_to_run_ms": 1448.1, "frames": 2, "headless": false, "label": "pnow_WorldMap_window_4", "renderer": "forward_plus", "ribbons_ms": 5581.0, "road_build_ms": 3191.7, "root_seen_ms": 13164.0, "scene": "res://WorldMap.tscn", "scene_ready_ms": 13164.0, "sea_build_ms": 1200.5, "terrain_ms": 3162.8, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}
+
+## pnow_WorldMap_window_5.log
+[PERF2] driver_change_scene 1434846
+[PERF2] host_ready 4093489
+[PERF2] main_ready 5116893
+[PERF2] create_layer_start 5118719
+[PERF2] scene3d_load_start 5119654
+[PERF2] scene3d_load_end 5231547
+[PERF2] scene3d_instantiate_end 5234945
+[PERF2] root_ready 5235710
+[PERF2] geo_load_start 5237067
+[PERF2] geo_load_end 5242835
+[PERF2] data_end 5245449
+[PERF2] env_end 5248504
+[PERF2] terrain_mesh_end 7405135
+[PERF2] terrain_material_end 8332986
+[PERF2] terrain_end 8336139
+[PERF2] sea_end 8341133
+[PERF2] river_parse_end 8430456
+[PERF2] river_mesh_end 9473805
+[PERF2] rivers_end 9481528
+[PERF2] road_paths_end 12412198
+[PERF2] roads_end 12654042
+[PERF2] sea_paths_end 13710418
+[PERF2] sea_routes_end 13827876
+[PERF2] cities_end 13885623
+[PERF2] labels_end 13886832
+[PERF2] camera_fill_end 13889267
+[PERF2] scene3d_add_child_end 13890499
+[PERF2] create_layer_end 13891079
+[PERF2] set_markers_end 13891610
+[PERF2] switch_end 13893124
+[PERF2] driver_scene_ready 14418781
+[PERF2] driver_root_seen 14418781
+[PERF2] two_frames_end 14575852
+[PERF2] driver_end 14582786
+[WorldMap3D] map 'eastasia' built in 8654 ms (data 9, terrain 3094, ribbons 5487) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1172 ms
+[PERF2_FRAMES] [164.0, 63.1, 13.4, 13.4, 13.2, 12.9, 16.2, 16.9]
+[PERF2_RESULT] {"built_in_ms": 8653.6, "data_ms": 9.1, "end_ms": 13147.9, "engine_start_to_run_ms": 1434.8, "frames": 2, "headless": false, "label": "pnow_WorldMap_window_5", "renderer": "forward_plus", "ribbons_ms": 5487.2, "road_build_ms": 3171.7, "root_seen_ms": 12983.9, "scene": "res://WorldMap.tscn", "scene_ready_ms": 12983.9, "sea_build_ms": 1172.3, "terrain_ms": 3093.6, "texture_mem_mb": 702.4, "video_mem_mb": 1427.1}

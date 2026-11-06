@@ -1,0 +1,180 @@
+#!/bin/bash
+# PERF2: 3 points x 2 scenes x 2 modes x 5 runs, one at a time. A fresh user dir per point+scene+mode (run 1 = cold).
+P="$1"; G=<Godot 4.6.2 console exe>
+mkdir -p "$P/logs"
+for w in p05 p06 pnow; do
+  for scene in WorldMap.tscn WorldMap3D_Host_Test.tscn; do
+    for mode in window headless; do
+      ud="$P/ud_${w}_${scene%.tscn}_${mode}"; rm -rf "$ud"; mkdir -p "$ud"
+      for run in 1 2 3 4 5; do
+        log="$P/logs/${w}_${scene%.tscn}_${mode}_${run}.log"
+        flag=""; [ "$mode" = headless ] && flag="--headless"
+        (cd "$P/$w" && APPDATA="$(cygpath -w "$ud")" timeout 240 "$G" $flag --path . --resolution 1920x1080 --script "$(cygpath -m "$P/driver.gd")" -- "res://$scene" "${w}_${scene%.tscn}_${mode}_${run}" > "$log" 2>&1)
+        echo "$w $scene $mode $run exit=$? $(grep -o '"end_ms":[0-9.]*' "$log")"
+      done
+    done
+  done
+done
+echo ALLDONE
+----- driver.gd -----
+extends SceneTree
+
+# PERF2 driver (read only, outside the repository): opens one scene, prints usec marks on the same clock as the
+# temporary [PERF2] markers, and quits. args after "--": <res scene path> <label>
+#   [PERF2] driver_change_scene <usec>   just before change_scene_to_file
+#   [PERF2] driver_scene_ready <usec>    first frame with the new current scene ready
+#   [PERF2] driver_root_seen <usec>      first frame a worldmap3d root (stats.build_ms set) exists
+#   [PERF2] driver_end <usec>            two frames after the root (or after the scene for a 2D-only scene)
+#   [PERF2_FRAMES] the first 8 frame deltas (ms) after the scene is ready (shader compile / texture upload spikes)
+#   [PERF2_RESULT] one JSON line
+
+var _frame_usec: Array = []
+
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	var args := OS.get_cmdline_user_args()
+	var scene_path: String = args[0]
+	var label: String = args[1] if args.size() > 1 else scene_path
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	root.size = Vector2i(1920, 1080)
+	var engine_start_to_run_ms := Time.get_ticks_usec() / 1000.0
+	var t0 := Time.get_ticks_usec()
+	print("[PERF2] driver_change_scene %d" % t0)
+	change_scene_to_file(scene_path)
+	var t_scene := 0
+	var t_root := 0
+	var stats := {}
+	var frames := 0
+	while frames < 2000:
+		await process_frame
+		frames += 1
+		var now := Time.get_ticks_usec()
+		if t_scene > 0:
+			_frame_usec.append(now)
+		if t_scene == 0 and current_scene != null and current_scene.is_node_ready():
+			t_scene = now
+			print("[PERF2] driver_scene_ready %d" % now)
+			_frame_usec.append(now)
+		if t_scene > 0 and t_root == 0:
+			var r := _find_root(current_scene)
+			if r != null:
+				t_root = now
+				stats = r.get("stats")
+				print("[PERF2] driver_root_seen %d" % now)
+		if t_scene > 0 and (t_root > 0 or frames > 240 or current_scene.find_child("WorldMap3DHost", true, false) == null):
+			break   # a scene without a 3D host (2D-only) ends at its ready frame
+	await process_frame
+	await process_frame
+	var t_end := Time.get_ticks_usec()
+	print("[PERF2] driver_end %d" % t_end)
+	_frame_usec.append(t_end)
+	for i in 8:   # frame times right after the map is shown (first draws: shader compile, texture upload)
+		await process_frame
+		_frame_usec.append(Time.get_ticks_usec())
+	var deltas: Array = []
+	for i in range(1, mini(_frame_usec.size(), 9)):
+		deltas.append(snappedf((_frame_usec[i] - _frame_usec[i - 1]) / 1000.0, 0.1))
+	print("[PERF2_FRAMES] %s" % str(deltas))
+	var result := {
+		"label": label, "scene": scene_path, "renderer": RenderingServer.get_current_rendering_method(),
+		"headless": DisplayServer.get_name() == "headless", "engine_start_to_run_ms": snappedf(engine_start_to_run_ms, 0.1),
+		"scene_ready_ms": snappedf((t_scene - t0) / 1000.0, 0.1),
+		"root_seen_ms": snappedf((t_root - t0) / 1000.0, 0.1) if t_root > 0 else -1,
+		"end_ms": snappedf((t_end - t0) / 1000.0, 0.1),
+		"built_in_ms": snappedf(float(stats.get("build_ms", -1)), 0.1),
+		"data_ms": snappedf(float(stats.get("t_data_ms", -1)), 0.1), "terrain_ms": snappedf(float(stats.get("t_terrain_ms", -1)), 0.1),
+		"ribbons_ms": snappedf(float(stats.get("t_ribbons_ms", -1)), 0.1), "road_build_ms": snappedf(float(stats.get("road_build_ms", -1)), 0.1),
+		"sea_build_ms": snappedf(float(stats.get("sea_build_ms", -1)), 0.1),
+		"video_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
+		"texture_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0, 0.1),
+		"frames": frames,
+	}
+	print("[PERF2_RESULT] %s" % JSON.stringify(result))
+	quit(0)
+
+
+func _find_root(node: Node) -> Node:
+	if node == null:
+		return null
+	var script = node.get_script()
+	if script != null and str(script.resource_path).ends_with("worldmap3d_root.gd"):
+		var s = node.get("stats")
+		if s is Dictionary and (s as Dictionary).has("build_ms"):
+			return node
+	for child in node.get_children():
+		var found := _find_root(child)
+		if found != null:
+			return found
+	return null
+----- instrument.py (temporary markers, worktrees only) -----
+"""Temporary PERF2 markers in one measurement worktree (never committed). usage: instrument.py <worktree>
+Each marker prints "[PERF2] <name> <usec>" (Time.get_ticks_usec). A pattern not found is reported and skipped."""
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+M = 'print("[PERF2] %s %d" % ["{name}", Time.get_ticks_usec()])'
+
+
+def mark(name, indent):
+    return indent + M.replace("{name}", name) + "\n"
+
+
+def patch(rel, edits):
+    p = root / rel
+    if not p.exists():
+        print("missing file", rel)
+        return
+    s = p.read_text(encoding="utf8")
+    for anchor, name, where, indent in edits:
+        if s.count(anchor) != 1:
+            print("skip", rel, name, "count", s.count(anchor))
+            continue
+        line = mark(name, indent)
+        s = s.replace(anchor, line + anchor if where == "before" else anchor + line)
+        print("ok", rel, name)
+    p.write_text(s, encoding="utf8", newline="\n")
+
+
+patch("scripts/worldmap/map3d/worldmap_3d_host.gd", [
+    ("\t_t_start_ms = Time.get_ticks_msec()\n", "host_ready", "after", "\t"),
+    ("\t\tawait main.ready\n", "main_ready", "after", "\t\t"),
+    ("\t\t\tif not created.create_layer(main, _scene_3d()):\n", "create_layer_start", "before", "\t\t\t"),
+    ("\t\t\tcreated.set_markers(main.get(\"_city_markers_by_id\"))\n", "create_layer_end", "before", "\t\t\t"),
+    ("\t\t\tadapter = created\n", "set_markers_end", "before", "\t\t\t"),
+    ("\t_replace_camera_controller(old)\n\treturn true\n", "switch_end", "before", "\t"),
+    ("\tif active and is_inside_tree():\n\t\tvar probe := WorldMap3DMemProbe.shared()\n", "two_frames_end", "before", "\t"),
+])
+patch("scripts/worldmap/map3d/worldmap_3d_adapter.gd", [
+    ("\tvar packed = load(scene_path)\n", "scene3d_load_start", "before", "\t"),
+    ("\tlayer = CanvasLayer.new()\n", "scene3d_load_end", "before", "\t"),
+    ("\tvar inst = packed.instantiate()\n", "scene3d_instantiate_end", "after", "\t"),
+    ("\tsub.add_child(inst)\n", "scene3d_add_child_end", "after", "\t"),
+])
+patch("worldmap3d/scripts/worldmap3d_root.gd", [
+    ("\tvar t0 := Time.get_ticks_usec()\n\tif not cfg.load_file(map_config_path):\n", "root_ready", "before", "\t"),
+    ("\tif not geo.load_data(cfg):\n", "geo_load_start", "before", "\t"),
+    ("\tvar rp := rule_data_path if rule_data_path != \"\" else cfg.rule_data_path\n", "geo_load_end", "before", "\t"),
+    ("\t_build_environment()\n\tvar t1 := Time.get_ticks_usec()\n", "data_end", "before", "\t"),
+    ("\t_build_terrain()\n\t_build_sea()\n", "env_end", "before", "\t"),
+    ("\t_build_sea()\n\tstats.t_terrain_ms", "terrain_end", "before", "\t"),
+    ("\tstats.t_terrain_ms = (Time.get_ticks_usec() - t1) / 1000.0\n", "sea_end", "before", "\t"),
+    ("\tif show_roads:\n\t\t_build_roads()\n", "rivers_end", "before", "\t"),
+    ("\t\t_build_sea_routes()\n\tstats.t_ribbons_ms", "roads_end", "before", "\t\t"),
+    ("\tstats.t_ribbons_ms = (Time.get_ticks_usec() - t1) / 1000.0\n", "sea_routes_end", "before", "\t"),
+    ("\tif show_region_labels:\n\t\t_build_region_labels()\n", "cities_end", "before", "\t"),
+    ("\t_build_camera()\n\tset_fill_preset(fill_preset)\n", "labels_end", "before", "\t"),
+    ("\tstats.build_ms = (Time.get_ticks_usec() - t0) / 1000.0\n", "camera_fill_end", "before", "\t"),
+    # inside _build_terrain: tiles vs material / textures
+    ("\tterrain_mat = ShaderMaterial.new()\n\tterrain_mat.shader = load(SHADERS + \"worldmap_terrain.gdshader\")\n", "terrain_mesh_end", "before", "\t"),
+    ("\tif tiled:\n\t\tvar tn := Node3D.new()\n", "terrain_material_end", "before", "\t"),
+    # inside roads / sea routes / rivers: paths vs ribbon meshes
+    ("\troads.build_paths(geo, marker_xz, rules.roads)\n", "road_paths_end", "after", "\t"),
+    ("\troads.build_sea_paths(geo, marker_xz, rules.get(\"sea_routes\", []))\n", "sea_paths_end", "after", "\t"),
+    ("\tvar mesh := WorldMapRibbons.build(geo, lines, widths, 1.2)\n", "river_mesh_end", "after", "\t"),
+    ("\tvar mesh := WorldMapRibbons.build(geo, lines, widths, 1.2)\n", "river_parse_end", "before", "\t"),
+])

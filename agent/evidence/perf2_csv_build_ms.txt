@@ -1,0 +1,29 @@
+# PERF2: CSV map_ready build_ms (host _ready -> 3D shown + 2 frames) written by the probe into the temporary user dirs, 5 runs each
+## ud_pnow_WorldMap3D_Host_Test_headless
+unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene,build_ms
+1793940513.059,map_ready,0.000,0.000,0.000,5969,251,WorldMap3DHostTest,9659
+1793940526.992,map_ready,0.000,0.000,0.000,5969,251,WorldMap3DHostTest,9992
+1793940540.813,map_ready,0.000,0.000,0.000,5969,251,WorldMap3DHostTest,10171
+1793940554.405,map_ready,0.000,0.000,0.000,5969,251,WorldMap3DHostTest,9827
+1793940567.788,map_ready,0.000,0.000,0.000,5969,251,WorldMap3DHostTest,9949
+## ud_pnow_WorldMap3D_Host_Test_window
+unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene,build_ms
+1793940437.746,map_ready,1427.063,702.418,121.884,5860,251,WorldMap3DHostTest,10529
+1793940453.762,map_ready,1427.063,702.418,121.884,5860,251,WorldMap3DHostTest,10558
+1793940469.058,map_ready,1427.063,702.418,121.884,5860,251,WorldMap3DHostTest,10386
+1793940484.288,map_ready,1427.063,702.418,121.884,5860,251,WorldMap3DHostTest,10319
+1793940499.599,map_ready,1427.063,702.418,121.884,5860,251,WorldMap3DHostTest,10377
+## ud_pnow_WorldMap_headless
+unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene,build_ms
+1793940366.373,map_ready,0.000,0.000,0.000,5967,251,WorldMap_Test,9780
+1793940380.168,map_ready,0.000,0.000,0.000,5967,251,WorldMap_Test,10051
+1793940394.769,map_ready,0.000,0.000,0.000,5967,251,WorldMap_Test,10151
+1793940408.490,map_ready,0.000,0.000,0.000,5967,251,WorldMap_Test,10124
+1793940422.582,map_ready,0.000,0.000,0.000,5967,251,WorldMap_Test,9869
+## ud_pnow_WorldMap_window
+unix_time,label,video_mb,texture_mb,buffer_mb,object_count,object_resource_count,scene,build_ms
+1793940291.398,map_ready,1427.063,702.418,121.884,5858,251,WorldMap_Test,10617
+1793940306.613,map_ready,1427.063,702.418,121.884,5858,251,WorldMap_Test,10319
+1793940322.027,map_ready,1427.063,702.418,121.884,5858,251,WorldMap_Test,10423
+1793940337.428,map_ready,1427.063,702.418,121.884,5858,251,WorldMap_Test,10524
+1793940352.740,map_ready,1427.063,702.418,121.873,5858,251,WorldMap_Test,10484

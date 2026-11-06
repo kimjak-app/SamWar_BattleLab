@@ -1,0 +1,355 @@
+== p05 WorldMap headless  total(change_scene->shown+2f) run1 3928 ms, runs2-5 min/med/max 3757 / 3840 / 4014
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->driver_scene_ready      run1    3921 | runs2-5 3751 / 3834 / 4007 | 99.8%
+   driver_scene_ready->driver_end               run1       7 | runs2-5 6 / 7 / 7 |  0.2%
+   first frames after shown (ms): r1 [6.6, 14.3, 0.6, 15.1, 1.0, 15.0, 0.9, 15.1] ; r2 [6.6, 9.6, 16.0, 0.5, 14.8, 0.5, 15.1, 0.4] ; r3 [6.7, 15.1, 0.5, 14.6, 0.4, 14.8, 0.4, 15.4] ; r4 [6.5, 6.9, 15.1, 0.4, 15.6, 0.5, 15.7, 0.4] ; r5 [6.5, 9.7, 16.1, 0.5, 15.5, 0.6, 14.3, 0.6]
+
+== p05 WorldMap window  total(change_scene->shown+2f) run1 3934 ms, runs2-5 min/med/max 3831 / 4136 / 4214
+   video_mem_mb     330 / 330 / 330
+   texture_mem_mb   112 / 112 / 112
+   driver_change_scene->driver_scene_ready      run1    3895 | runs2-5 3796 / 4096 / 4178 | 99.0%
+   driver_scene_ready->driver_end               run1      39 | runs2-5 35 / 37 / 41 |  0.9%
+   first frames after shown (ms): r1 [38.9, 11.8, 9.8, 11.9, 12.0, 16.4, 16.5, 16.7] ; r2 [34.8, 13.0, 13.0, 15.3, 16.6, 16.7, 16.7, 17.4] ; r3 [41.2, 13.1, 9.5, 24.3, 13.1, 9.2, 13.3, 13.2] ; r4 [39.0, 12.6, 13.5, 15.7, 16.6, 16.9, 16.7, 16.5] ; r5 [35.8, 13.3, 16.9, 16.2, 16.5, 16.9, 16.7, 16.7]
+
+== p05 WorldMap3D_Host_Test headless  total(change_scene->shown+2f) run1 8218 ms, runs2-5 min/med/max 8221 / 8257 / 8276
+   built_in_ms      4038 / 4056 / 4140
+   data_ms          10 / 10 / 11
+   terrain_ms       2800 / 2853 / 2901
+   ribbons_ms       1151 / 1180 / 1194
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->scene3d_load_start      run1    3903 | runs2-5 3834 / 3918 / 3974 | 47.4%
+   scene3d_load_start->scene3d_load_end         run1     123 | runs2-5 108 / 115 / 124 |  1.4%
+   scene3d_load_end->scene3d_instantiate_end    run1       2 | runs2-5 2 / 2 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   geo_load_start->geo_load_end                 run1       6 | runs2-5 6 / 6 / 7 |  0.1%
+   geo_load_end->data_end                       run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2187 | runs2-5 2144 / 2182 / 2236 | 26.4%
+   terrain_mesh_end->terrain_material_end       run1     638 | runs2-5 645 / 651 / 677 |  7.9%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 4 |  0.0%
+   terrain_end->sea_end                         run1       6 | runs2-5 4 / 5 / 6 |  0.1%
+   sea_end->river_parse_end                     run1      93 | runs2-5 90 / 91 / 92 |  1.1%
+   river_parse_end->river_mesh_end              run1    1060 | runs2-5 1050 / 1078 / 1093 | 13.1%
+   river_mesh_end->rivers_end                   run1       9 | runs2-5 8 / 9 / 13 |  0.1%
+   rivers_end->sea_routes_end                   run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   sea_routes_end->cities_end                   run1      29 | runs2-5 28 / 29 / 29 |  0.3%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   labels_end->camera_fill_end                  run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       2 | runs2-5 1 / 2 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     134 | runs2-5 126 / 134 / 145 |  1.6%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->driver_end                 run1       7 | runs2-5 7 / 7 / 21 |  0.1%
+   first frames after shown (ms): r1 [6.6, 20.7, 0.9, 15.1, 0.8, 15.0, 0.9, 14.7] ; r2 [6.5, 17.6, 0.9, 14.6, 0.8, 15.1, 0.8, 14.5] ; r3 [20.7, 17.8, 2.5, 14.1, 1.1, 13.6, 0.9, 15.3] ; r4 [6.6, 12.8, 1.0, 15.0, 1.2, 14.7, 0.9, 14.3] ; r5 [6.6, 13.5, 0.8, 14.7, 0.9, 14.8, 0.8, 14.6]
+
+== p05 WorldMap3D_Host_Test window  total(change_scene->shown+2f) run1 9562 ms, runs2-5 min/med/max 8765 / 8805 / 8860
+   built_in_ms      4261 / 4300 / 4367
+   data_ms          9 / 9 / 10
+   terrain_ms       3046 / 3078 / 3137
+   ribbons_ms       1137 / 1148 / 1159
+   video_mem_mb     1427 / 1427 / 1427
+   texture_mem_mb   702 / 702 / 702
+   driver_change_scene->scene3d_load_start      run1    3710 | runs2-5 3680 / 3689 / 3717 | 41.9%
+   scene3d_load_start->scene3d_load_end         run1     126 | runs2-5 104 / 107 / 107 |  1.2%
+   scene3d_load_end->scene3d_instantiate_end    run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 1 / 1 / 1 |  0.0%
+   geo_load_start->geo_load_end                 run1      14 | runs2-5 6 / 6 / 6 |  0.1%
+   geo_load_end->data_end                       run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2230 | runs2-5 2146 / 2151 / 2158 | 24.4%
+   terrain_mesh_end->terrain_material_end       run1    1225 | runs2-5 892 / 914 / 980 | 10.4%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   terrain_end->sea_end                         run1       6 | runs2-5 4 / 5 / 5 |  0.1%
+   sea_end->river_parse_end                     run1      94 | runs2-5 89 / 90 / 101 |  1.0%
+   river_parse_end->river_mesh_end              run1    1145 | runs2-5 1038 / 1044 / 1060 | 11.9%
+   river_mesh_end->rivers_end                   run1       9 | runs2-5 8 / 9 / 9 |  0.1%
+   rivers_end->sea_routes_end                   run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   sea_routes_end->cities_end                   run1      60 | runs2-5 57 / 57 / 59 |  0.7%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   labels_end->camera_fill_end                  run1       5 | runs2-5 3 / 3 / 3 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     658 | runs2-5 517 / 546 / 566 |  6.2%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->driver_end                 run1     256 | runs2-5 82 / 155 / 206 |  1.8%
+   first frames after shown (ms): r1 [256.4, 59.8, 13.9, 13.8, 14.2, 13.6, 13.5, 13.4] ; r2 [141.8, 13.2, 12.9, 13.3, 13.2, 13.2, 13.3, 13.8] ; r3 [168.5, 45.2, 13.7, 13.0, 13.5, 13.5, 13.6, 14.1] ; r4 [205.9, 64.4, 51.3, 13.4, 13.1, 13.2, 13.3, 12.9] ; r5 [82.4, 34.7, 35.6, 34.1, 13.3, 12.4, 13.2, 12.9]
+
+== p06 WorldMap headless  total(change_scene->shown+2f) run1 3873 ms, runs2-5 min/med/max 3879 / 3993 / 4129
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->driver_scene_ready      run1    3856 | runs2-5 3873 / 3986 / 4123 | 99.8%
+   driver_scene_ready->driver_end               run1      18 | runs2-5 6 / 7 / 7 |  0.2%
+   first frames after shown (ms): r1 [17.7, 1.6, 13.5, 0.4, 15.1, 0.4, 15.4, 0.6] ; r2 [6.6, 15.7, 0.4, 15.2, 0.5, 15.6, 0.5, 15.4] ; r3 [6.6, 14.5, 0.5, 15.1, 0.5, 15.5, 0.5, 14.7] ; r4 [6.6, 6.9, 14.9, 0.6, 15.5, 0.5, 14.3, 0.5] ; r5 [6.4, 16.0, 0.4, 14.7, 0.5, 15.6, 0.5, 14.8]
+
+== p06 WorldMap window  total(change_scene->shown+2f) run1 3934 ms, runs2-5 min/med/max 3851 / 3904 / 4056
+   video_mem_mb     330 / 330 / 330
+   texture_mem_mb   112 / 112 / 112
+   driver_change_scene->driver_scene_ready      run1    3867 | runs2-5 3811 / 3861 / 4021 | 98.9%
+   driver_scene_ready->driver_end               run1      67 | runs2-5 34 / 39 / 50 |  1.0%
+   first frames after shown (ms): r1 [67.5, 27.3, 12.4, 3.4, 16.9, 16.7, 16.7, 16.7] ; r2 [40.7, 12.1, 9.7, 11.7, 12.4, 14.9, 15.8, 17.0] ; r3 [36.5, 12.1, 15.7, 14.2, 16.1, 16.7, 17.3, 16.1] ; r4 [49.6, 13.8, 24.4, 12.8, 15.1, 21.0, 13.7, 15.1] ; r5 [34.4, 29.1, 16.8, 29.5, 19.9, 21.4, 12.2, 13.4]
+
+== p06 WorldMap3D_Host_Test headless  total(change_scene->shown+2f) run1 13116 ms, runs2-5 min/med/max 12815 / 13002 / 13532
+   built_in_ms      8639 / 8818 / 9309
+   data_ms          10 / 11 / 11
+   terrain_ms       2850 / 2948 / 3399
+   ribbons_ms       5702 / 5827 / 5899
+   road_build_ms    3291 / 3343 / 3406
+   sea_build_ms     1205 / 1219 / 1272
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->scene3d_load_start      run1    3745 | runs2-5 3854 / 3923 / 3972 | 30.2%
+   scene3d_load_start->scene3d_load_end         run1     116 | runs2-5 121 / 123 / 132 |  0.9%
+   scene3d_load_end->scene3d_instantiate_end    run1       2 | runs2-5 1 / 2 / 2 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   geo_load_start->geo_load_end                 run1       7 | runs2-5 6 / 6 / 7 |  0.0%
+   geo_load_end->data_end                       run1       3 | runs2-5 3 / 3 / 4 |  0.0%
+   data_end->env_end                            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2201 | runs2-5 2167 / 2247 / 2340 | 17.3%
+   terrain_mesh_end->terrain_material_end       run1     657 | runs2-5 655 / 671 / 1109 |  5.2%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 4 |  0.0%
+   terrain_end->sea_end                         run1       5 | runs2-5 4 / 5 / 6 |  0.0%
+   sea_end->river_parse_end                     run1      93 | runs2-5 91 / 95 / 99 |  0.7%
+   river_parse_end->river_mesh_end              run1    1148 | runs2-5 1087 / 1130 / 1185 |  8.7%
+   river_mesh_end->rivers_end                   run1       9 | runs2-5 8 / 9 / 9 |  0.1%
+   rivers_end->road_paths_end                   run1    3301 | runs2-5 3040 / 3086 / 3148 | 23.7%
+   road_paths_end->roads_end                    run1     274 | runs2-5 251 / 255 / 265 |  2.0%
+   roads_end->sea_paths_end                     run1    1253 | runs2-5 1084 / 1097 / 1149 |  8.4%
+   sea_paths_end->sea_routes_end                run1     119 | runs2-5 119 / 123 / 128 |  0.9%
+   sea_routes_end->cities_end                   run1      28 | runs2-5 28 / 30 / 32 |  0.2%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   labels_end->camera_fill_end                  run1       3 | runs2-5 2 / 2 / 2 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       2 | runs2-5 1 / 2 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     131 | runs2-5 131 / 133 / 136 |  1.0%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->driver_end                 run1       7 | runs2-5 7 / 7 / 7 |  0.1%
+   first frames after shown (ms): r1 [6.6, 18.2, 0.8, 14.8, 0.8, 13.8, 0.9, 14.6] ; r2 [6.6, 14.4, 0.8, 14.8, 0.8, 15.3, 0.9, 13.5] ; r3 [6.6, 9.4, 15.1, 0.9, 15.2, 0.8, 14.3, 0.8] ; r4 [6.6, 9.1, 15.3, 1.2, 15.0, 1.5, 14.4, 1.1] ; r5 [6.6, 11.7, 2.1, 14.0, 0.9, 14.2, 1.0, 14.8]
+
+== p06 WorldMap3D_Host_Test window  total(change_scene->shown+2f) run1 13106 ms, runs2-5 min/med/max 12995 / 13085 / 13300
+   built_in_ms      8582 / 8631 / 8822
+   data_ms          9 / 9 / 10
+   terrain_ms       3040 / 3068 / 3099
+   ribbons_ms       5468 / 5486 / 5647
+   road_build_ms    3144 / 3174 / 3196
+   sea_build_ms     1165 / 1178 / 1312
+   video_mem_mb     1427 / 1427 / 1427
+   texture_mem_mb   702 / 702 / 702
+   driver_change_scene->scene3d_load_start      run1    3691 | runs2-5 3663 / 3675 / 3768 | 28.1%
+   scene3d_load_start->scene3d_load_end         run1     126 | runs2-5 114 / 117 / 121 |  0.9%
+   scene3d_load_end->scene3d_instantiate_end    run1       5 | runs2-5 3 / 4 / 4 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       2 | runs2-5 1 / 1 / 1 |  0.0%
+   root_ready->geo_load_start                   run1       3 | runs2-5 1 / 2 / 2 |  0.0%
+   geo_load_start->geo_load_end                 run1      13 | runs2-5 6 / 6 / 6 |  0.0%
+   geo_load_end->data_end                       run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       5 | runs2-5 3 / 3 / 4 |  0.0%
+   env_end->terrain_mesh_end                    run1    2130 | runs2-5 2129 / 2150 / 2194 | 16.4%
+   terrain_mesh_end->terrain_material_end       run1     931 | runs2-5 898 / 902 / 919 |  6.9%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   terrain_end->sea_end                         run1       6 | runs2-5 4 / 5 / 5 |  0.0%
+   sea_end->river_parse_end                     run1      92 | runs2-5 88 / 89 / 95 |  0.7%
+   river_parse_end->river_mesh_end              run1    1043 | runs2-5 1025 / 1038 / 1055 |  7.9%
+   river_mesh_end->rivers_end                   run1       8 | runs2-5 8 / 8 / 12 |  0.1%
+   rivers_end->road_paths_end                   run1    2896 | runs2-5 2907 / 2928 / 2959 | 22.4%
+   road_paths_end->roads_end                    run1     239 | runs2-5 237 / 240 / 252 |  1.8%
+   roads_end->sea_paths_end                     run1    1049 | runs2-5 1049 / 1064 / 1190 |  8.1%
+   sea_paths_end->sea_routes_end                run1     116 | runs2-5 115 / 117 / 124 |  0.9%
+   sea_routes_end->cities_end                   run1      58 | runs2-5 56 / 60 / 64 |  0.5%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   labels_end->camera_fill_end                  run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     439 | runs2-5 434 / 440 / 461 |  3.4%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->driver_end                 run1     236 | runs2-5 141 / 176 / 248 |  1.3%
+   first frames after shown (ms): r1 [236.2, 12.7, 14.2, 13.4, 13.2, 13.5, 13.9, 16.6] ; r2 [140.8, 12.8, 13.6, 13.5, 13.3, 13.3, 15.3, 16.7] ; r3 [199.4, 14.0, 13.1, 13.8, 13.3, 12.9, 13.3, 13.1] ; r4 [248.4, 14.1, 13.0, 13.9, 13.7, 13.0, 13.5, 13.1] ; r5 [153.5, 66.5, 53.8, 13.0, 13.5, 13.0, 13.4, 13.1]
+
+== pnow WorldMap headless  total(change_scene->shown+2f) run1 12492 ms, runs2-5 min/med/max 12796 / 12881 / 13659
+   built_in_ms      8404 / 8462 / 8703
+   data_ms          10 / 11 / 14
+   terrain_ms       2787 / 2856 / 2898
+   ribbons_ms       5468 / 5612 / 5758
+   road_build_ms    3170 / 3209 / 3326
+   sea_build_ms     1164 / 1195 / 1359
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->host_ready              run1    2710 | runs2-5 2684 / 2912 / 3506 | 22.6%
+   host_ready->main_ready                       run1    1069 | runs2-5 1092 / 1224 / 1486 |  9.5%
+   main_ready->create_layer_start               run1       2 | runs2-5 2 / 2 / 10 |  0.0%
+   create_layer_start->scene3d_load_start       run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   scene3d_load_start->scene3d_load_end         run1     114 | runs2-5 117 / 123 / 125 |  1.0%
+   scene3d_load_end->scene3d_instantiate_end    run1       2 | runs2-5 1 / 2 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 2 / 5 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 2 / 3 / 39 |  0.0%
+   geo_load_start->geo_load_end                 run1       6 | runs2-5 6 / 6 / 9 |  0.1%
+   geo_load_end->data_end                       run1       3 | runs2-5 3 / 3 / 4 |  0.0%
+   data_end->env_end                            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2127 | runs2-5 2152 / 2193 / 2236 | 17.0%
+   terrain_mesh_end->terrain_material_end       run1     634 | runs2-5 626 / 638 / 672 |  4.9%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 18 |  0.0%
+   terrain_end->sea_end                         run1       5 | runs2-5 4 / 5 / 5 |  0.0%
+   sea_end->river_parse_end                     run1      92 | runs2-5 89 / 90 / 91 |  0.7%
+   river_parse_end->river_mesh_end              run1    1027 | runs2-5 1034 / 1060 / 1068 |  8.2%
+   river_mesh_end->rivers_end                   run1       8 | runs2-5 7 / 8 / 8 |  0.1%
+   rivers_end->road_paths_end                   run1    3019 | runs2-5 2930 / 2963 / 3066 | 23.0%
+   road_paths_end->roads_end                    run1     246 | runs2-5 241 / 247 / 261 |  1.9%
+   roads_end->sea_paths_end                     run1    1086 | runs2-5 1051 / 1078 / 1238 |  8.4%
+   sea_paths_end->sea_routes_end                run1     146 | runs2-5 115 / 118 / 123 |  0.9%
+   sea_routes_end->cities_end                   run1      30 | runs2-5 27 / 28 / 31 |  0.2%
+   cities_end->labels_end                       run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   labels_end->camera_fill_end                  run1       4 | runs2-5 2 / 2 / 3 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       1 | runs2-5 1 / 2 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       2 | runs2-5 1 / 2 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     136 | runs2-5 122 / 130 / 146 |  1.0%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->two_frames_end             run1       5 | runs2-5 4 / 6 / 6 |  0.0%
+   two_frames_end->driver_end                   run1       3 | runs2-5 2 / 3 / 3 |  0.0%
+   first frames after shown (ms): r1 [7.7, 13.7, 1.1, 14.4, 1.1, 14.6, 0.9, 15.1] ; r2 [8.7, 17.5, 0.8, 14.4, 0.8, 14.4, 0.9, 15.3] ; r3 [8.0, 12.6, 0.8, 14.5, 0.9, 14.6, 0.8, 15.2] ; r4 [7.0, 12.3, 1.1, 15.1, 2.7, 12.4, 1.0, 14.2] ; r5 [8.3, 9.9, 2.2, 13.0, 0.8, 14.7, 0.8, 14.6]
+
+== pnow WorldMap window  total(change_scene->shown+2f) run1 13440 ms, runs2-5 min/med/max 13020 / 13144 / 13194
+   built_in_ms      8561 / 8650 / 8817
+   data_ms          9 / 9 / 9
+   terrain_ms       3056 / 3079 / 3163
+   ribbons_ms       5425 / 5499 / 5581
+   road_build_ms    3120 / 3172 / 3192
+   sea_build_ms     1172 / 1187 / 1201
+   video_mem_mb     1427 / 1427 / 1427
+   texture_mem_mb   702 / 702 / 702
+   driver_change_scene->host_ready              run1    2807 | runs2-5 2645 / 2658 / 2670 | 20.2%
+   host_ready->main_ready                       run1    1087 | runs2-5 1023 / 1053 / 1087 |  8.0%
+   main_ready->create_layer_start               run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   create_layer_start->scene3d_load_start       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   scene3d_load_start->scene3d_load_end         run1     114 | runs2-5 112 / 112 / 112 |  0.9%
+   scene3d_load_end->scene3d_instantiate_end    run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   geo_load_start->geo_load_end                 run1       6 | runs2-5 5 / 6 / 6 |  0.0%
+   geo_load_end->data_end                       run1       4 | runs2-5 2 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2166 | runs2-5 2147 / 2155 / 2176 | 16.4%
+   terrain_mesh_end->terrain_material_end       run1     922 | runs2-5 901 / 916 / 978 |  7.0%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   terrain_end->sea_end                         run1       5 | runs2-5 4 / 5 / 5 |  0.0%
+   sea_end->river_parse_end                     run1      94 | runs2-5 89 / 90 / 92 |  0.7%
+   river_parse_end->river_mesh_end              run1    1060 | runs2-5 1030 / 1039 / 1085 |  7.9%
+   river_mesh_end->rivers_end                   run1       8 | runs2-5 8 / 8 / 8 |  0.1%
+   rivers_end->road_paths_end                   run1    2973 | runs2-5 2881 / 2928 / 2953 | 22.3%
+   road_paths_end->roads_end                    run1     244 | runs2-5 240 / 241 / 248 |  1.8%
+   roads_end->sea_paths_end                     run1    1080 | runs2-5 1056 / 1069 / 1083 |  8.1%
+   sea_paths_end->sea_routes_end                run1     119 | runs2-5 117 / 118 / 123 |  0.9%
+   sea_routes_end->cities_end                   run1      62 | runs2-5 56 / 58 / 63 |  0.4%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 3 |  0.0%
+   labels_end->camera_fill_end                  run1       3 | runs2-5 2 / 3 / 3 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   switch_end->driver_scene_ready               run1     462 | runs2-5 441 / 487 / 526 |  3.7%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->two_frames_end             run1     183 | runs2-5 17 / 122 / 157 |  0.9%
+   two_frames_end->driver_end                   run1      18 | runs2-5 7 / 31 / 58 |  0.2%
+   first frames after shown (ms): r1 [201.0, 12.8, 13.4, 14.4, 14.2, 14.1, 14.0, 12.8] ; r2 [145.4, 56.3, 61.4, 38.9, 12.9, 13.5, 13.5, 13.3] ; r3 [205.4, 12.5, 13.8, 13.9, 13.5, 14.0, 13.4, 13.5] ; r4 [30.4, 13.2, 13.3, 13.0, 13.2, 13.1, 13.2, 12.7] ; r5 [164.0, 63.1, 13.4, 13.4, 13.2, 12.9, 16.2, 16.9]
+
+== pnow WorldMap3D_Host_Test headless  total(change_scene->shown+2f) run1 12249 ms, runs2-5 min/med/max 12582 / 12770 / 12955
+   built_in_ms      8476 / 8600 / 8772
+   data_ms          10 / 10 / 11
+   terrain_ms       2800 / 2886 / 3018
+   ribbons_ms       5555 / 5647 / 5829
+   road_build_ms    3231 / 3249 / 3295
+   sea_build_ms     1166 / 1214 / 1371
+   video_mem_mb     0 / 0 / 0
+   texture_mem_mb   0 / 0 / 0
+   driver_change_scene->host_ready              run1    2588 | runs2-5 2631 / 2818 / 2863 | 22.1%
+   host_ready->main_ready                       run1    1013 | runs2-5 1064 / 1104 / 1142 |  8.6%
+   main_ready->create_layer_start               run1       3 | runs2-5 2 / 2 / 3 |  0.0%
+   create_layer_start->scene3d_load_start       run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   scene3d_load_start->scene3d_load_end         run1     110 | runs2-5 115 / 120 / 122 |  0.9%
+   scene3d_load_end->scene3d_instantiate_end    run1       2 | runs2-5 2 / 2 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 2 / 2 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 2 / 2 / 3 |  0.0%
+   geo_load_start->geo_load_end                 run1       7 | runs2-5 6 / 6 / 7 |  0.1%
+   geo_load_end->data_end                       run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2128 | runs2-5 2151 / 2197 / 2345 | 17.2%
+   terrain_mesh_end->terrain_material_end       run1     623 | runs2-5 640 / 660 / 707 |  5.2%
+   terrain_material_end->terrain_end            run1       3 | runs2-5 3 / 3 / 3 |  0.0%
+   terrain_end->sea_end                         run1       5 | runs2-5 4 / 5 / 5 |  0.0%
+   sea_end->river_parse_end                     run1      89 | runs2-5 89 / 92 / 94 |  0.7%
+   river_parse_end->river_mesh_end              run1    1019 | runs2-5 1058 / 1066 / 1089 |  8.4%
+   river_mesh_end->rivers_end                   run1       7 | runs2-5 8 / 8 / 9 |  0.1%
+   rivers_end->road_paths_end                   run1    2978 | runs2-5 2992 / 3006 / 3038 | 23.5%
+   road_paths_end->roads_end                    run1     245 | runs2-5 239 / 244 / 258 |  1.9%
+   roads_end->sea_paths_end                     run1    1091 | runs2-5 1051 / 1083 / 1174 |  8.5%
+   sea_paths_end->sea_routes_end                run1     121 | runs2-5 116 / 132 / 199 |  1.0%
+   sea_routes_end->cities_end                   run1      26 | runs2-5 26 / 29 / 32 |  0.2%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   labels_end->camera_fill_end                  run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       2 | runs2-5 1 / 2 / 2 |  0.0%
+   switch_end->host_ready                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   host_ready->driver_scene_ready               run1     165 | runs2-5 124 / 126 / 142 |  1.0%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->two_frames_end             run1       4 | runs2-5 5 / 5 / 5 |  0.0%
+   two_frames_end->driver_end                   run1       2 | runs2-5 2 / 3 / 3 |  0.0%
+   first frames after shown (ms): r1 [6.4, 17.8, 1.3, 13.3, 0.8, 15.3, 1.0, 13.6] ; r2 [7.9, 8.3, 15.9, 1.5, 14.3, 0.9, 15.1, 0.8] ; r3 [6.9, 8.5, 15.8, 0.8, 15.2, 1.0, 14.6, 1.3] ; r4 [7.3, 14.3, 0.9, 14.5, 0.8, 15.3, 0.8, 14.2] ; r5 [7.5, 13.9, 0.8, 15.0, 0.8, 14.4, 0.8, 14.9]
+
+== pnow WorldMap3D_Host_Test window  total(change_scene->shown+2f) run1 13311 ms, runs2-5 min/med/max 13049 / 13090 / 13364
+   built_in_ms      8592 / 8626 / 8798
+   data_ms          9 / 9 / 9
+   terrain_ms       3050 / 3059 / 3125
+   ribbons_ms       5467 / 5492 / 5592
+   road_build_ms    3151 / 3158 / 3229
+   sea_build_ms     1172 / 1179 / 1183
+   video_mem_mb     1427 / 1427 / 1427
+   texture_mem_mb   702 / 702 / 702
+   driver_change_scene->host_ready              run1    2724 | runs2-5 2659 / 2674 / 2742 | 20.4%
+   host_ready->main_ready                       run1    1062 | runs2-5 1039 / 1048 / 1083 |  8.0%
+   main_ready->create_layer_start               run1       2 | runs2-5 2 / 2 / 2 |  0.0%
+   create_layer_start->scene3d_load_start       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   scene3d_load_start->scene3d_load_end         run1     115 | runs2-5 111 / 113 / 114 |  0.9%
+   scene3d_load_end->scene3d_instantiate_end    run1       4 | runs2-5 2 / 3 / 3 |  0.0%
+   scene3d_instantiate_end->root_ready          run1       1 | runs2-5 1 / 1 / 2 |  0.0%
+   root_ready->geo_load_start                   run1       2 | runs2-5 1 / 1 / 2 |  0.0%
+   geo_load_start->geo_load_end                 run1       6 | runs2-5 5 / 6 / 6 |  0.0%
+   geo_load_end->data_end                       run1       3 | runs2-5 2 / 3 / 3 |  0.0%
+   data_end->env_end                            run1       4 | runs2-5 3 / 3 / 3 |  0.0%
+   env_end->terrain_mesh_end                    run1    2151 | runs2-5 2128 / 2140 / 2208 | 16.4%
+   terrain_mesh_end->terrain_material_end       run1     920 | runs2-5 905 / 908 / 924 |  6.9%
+   terrain_material_end->terrain_end            run1       2 | runs2-5 2 / 3 / 3 |  0.0%
+   terrain_end->sea_end                         run1       5 | runs2-5 5 / 5 / 5 |  0.0%
+   sea_end->river_parse_end                     run1      91 | runs2-5 89 / 92 / 98 |  0.7%
+   river_parse_end->river_mesh_end              run1    1122 | runs2-5 1032 / 1052 / 1081 |  8.0%
+   river_mesh_end->rivers_end                   run1       9 | runs2-5 8 / 9 / 9 |  0.1%
+   rivers_end->road_paths_end                   run1    2996 | runs2-5 2912 / 2917 / 2989 | 22.3%
+   road_paths_end->roads_end                    run1     243 | runs2-5 239 / 242 / 244 |  1.8%
+   roads_end->sea_paths_end                     run1    1055 | runs2-5 1056 / 1064 / 1069 |  8.1%
+   sea_paths_end->sea_routes_end                run1     118 | runs2-5 116 / 117 / 118 |  0.9%
+   sea_routes_end->cities_end                   run1      69 | runs2-5 58 / 61 / 64 |  0.5%
+   cities_end->labels_end                       run1       1 | runs2-5 1 / 1 / 3 |  0.0%
+   labels_end->camera_fill_end                  run1       3 | runs2-5 2 / 3 / 3 |  0.0%
+   camera_fill_end->scene3d_add_child_end       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   scene3d_add_child_end->create_layer_end      run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   create_layer_end->set_markers_end            run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   set_markers_end->switch_end                  run1       1 | runs2-5 1 / 2 / 2 |  0.0%
+   switch_end->host_ready                       run1       1 | runs2-5 1 / 1 / 1 |  0.0%
+   host_ready->driver_scene_ready               run1     450 | runs2-5 429 / 441 / 449 |  3.4%
+   driver_scene_ready->driver_root_seen         run1       0 | runs2-5 0 / 0 / 0 |  0.0%
+   driver_root_seen->two_frames_end             run1      87 | runs2-5 87 / 122 / 187 |  0.9%
+   two_frames_end->driver_end                   run1      58 | runs2-5 36 / 54 / 67 |  0.4%
+   first frames after shown (ms): r1 [144.7, 56.8, 56.5, 45.5, 13.4, 13.3, 13.8, 12.6] ; r2 [223.3, 13.9, 14.4, 14.0, 14.1, 12.3, 13.5, 13.6] ; r3 [222.2, 13.2, 13.8, 13.6, 13.6, 13.3, 15.3, 16.7] ; r4 [138.5, 12.8, 13.7, 13.7, 13.4, 12.8, 16.6, 16.8] ; r5 [143.0, 56.3, 57.7, 33.5, 13.3, 12.9, 13.6, 13.3]

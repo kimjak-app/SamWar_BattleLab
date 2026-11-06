@@ -1,0 +1,25 @@
+# PERF2 road / sea path sub-steps (pnow ab9b739 + temporary markers in worldmap_roads.gd), WorldMap.tscn headless, 3 runs
+## sub_1
+[PERF2] rivers_end 8264628
+[PERF2] road_astar_update_end 8351676
+[PERF2] road_weights_end 10980713
+[PERF2] road_paths_end 11264527
+[PERF2] roads_end 11513289
+[PERF2] sea_weights_end 12336214
+[PERF2] sea_paths_end 12590044
+## sub_2
+[PERF2] rivers_end 8282616
+[PERF2] road_astar_update_end 8367409
+[PERF2] road_weights_end 11003210
+[PERF2] road_paths_end 11316918
+[PERF2] roads_end 11719494
+[PERF2] sea_weights_end 12542196
+[PERF2] sea_paths_end 12782793
+## sub_3
+[PERF2] rivers_end 7926746
+[PERF2] road_astar_update_end 8010734
+[PERF2] road_weights_end 10624134
+[PERF2] road_paths_end 10907226
+[PERF2] roads_end 11153894
+[PERF2] sea_weights_end 11970345
+[PERF2] sea_paths_end 12218806
