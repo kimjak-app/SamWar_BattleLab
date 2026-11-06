@@ -1,0 +1,100 @@
+extends SceneTree
+# HUDFIX evidence capture (windowed Godot, real renderer). Writes PNGs + a text log to OUT (cmdline user arg).
+const NEW_COMPASS := "res://scripts/worldmap/worldmap_turn_compass.gd"
+const OLD_COMPASS := "res://tests/scripts/_cap_old_compass.gd"   # origin/main copy without class_name (temporary)
+const STATES := [[0.0, "day"], [0.25, "dusk"], [0.5, "night"], [0.75, "dawn"], [0.125, "day_to_dusk_mid"]]
+var out := ""
+var log_lines: PackedStringArray = []
+
+
+func _initialize() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--out="):
+			out = a.substr(6)
+	run.call_deferred()
+
+
+func say(s: String) -> void:
+	print(s)
+	log_lines.append(s)
+
+
+func run() -> void:
+	say("renderer=%s display=%s" % [str(ProjectSettings.get_setting("rendering/renderer/rendering_method")), DisplayServer.get_name()])
+	await compass_shots(NEW_COMPASS, "after")
+	await compass_shots(OLD_COMPASS, "before")
+	await city_window_shot()
+	var f := FileAccess.open(out.path_join("capture_log.txt"), FileAccess.WRITE)
+	f.store_string("\n".join(log_lines) + "\n")
+	f.close()
+	quit(0)
+
+
+func compass_shots(script_path: String, tag: String) -> void:
+	var vp := SubViewport.new()
+	vp.size = Vector2i(240, 240)
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var bg := ColorRect.new()
+	bg.size = Vector2(240, 240)
+	vp.add_child(bg)
+	root.add_child(vp)
+	var compass: Control = load(script_path).new()
+	compass.set("use_daynight_turn_button", true)
+	vp.add_child(compass)
+	for i in 4: await process_frame
+	compass.set_process(false)
+	compass.position = Vector2.ZERO
+	var sky: Control = compass.get_node("SkyA")
+	say("%s: SkyA position=%s size=%s" % [tag, str(sky.position), str(sky.size)])
+	for state in STATES:
+		compass.call("_apply_sky_progress", state[0])
+		var shots := []
+		for color in [Color(1, 0, 1), Color(0, 1, 0)]:
+			bg.color = color
+			for i in 3: await process_frame
+			await RenderingServer.frame_post_draw
+			shots.append(vp.get_texture().get_image())
+		var count := 0
+		for y in 240:
+			for x in 240:
+				if Vector2(x + 0.5, y + 0.5).distance_to(Vector2(120.0, 119.0625)) > 78.44:
+					continue
+				var a: Color = shots[0].get_pixel(x, y)
+				var b: Color = shots[1].get_pixel(x, y)
+				if maxf(absf(a.r - b.r), maxf(absf(a.g - b.g), absf(a.b - b.b))) >= 1.5 / 255.0:
+					count += 1
+		say("%s %s (progress %.3f): rendered seam pixels inside hole+10px = %d" % [tag, state[1], state[0], count])
+		if tag == "after" and state[1] != "day_to_dusk_mid" or tag == "before" and state[1] == "day":
+			var big: Image = shots[0].duplicate()
+			big.resize(960, 960, Image.INTERPOLATE_NEAREST)
+			big.save_png(out.path_join("turnbtn_%s_%s_magenta_x4.png" % [tag, state[1]]))
+	vp.queue_free()
+	await process_frame
+
+
+func city_window_shot() -> void:
+	root.size = Vector2i(1920, 1080)
+	change_scene_to_file("res://WorldMap.tscn")
+	for i in 30: await process_frame
+	var wm := current_scene
+	var host := wm.get_node_or_null("WorldMap3DHost")
+	say("map view 3d=%s" % str(host != null and bool(host.get("active"))))
+	var ctl := wm.get_node("WorldMapCityInteriorController")
+	var opened := bool(ctl.call("try_open", "hanseong"))
+	say("try_open hanseong=%s reason=%s" % [str(opened), str(ctl.get("last_reject_reason"))])
+	for i in 20: await process_frame
+	await RenderingServer.frame_post_draw
+	var img := root.get_texture().get_image()
+	img.save_png(out.path_join("citywin_hanseong_1920.png"))
+	var w: Control = ctl.call("get_window_panel")
+	var rect := w.get_global_rect()
+	say("window rect=%s picture=%s" % [str(rect), str((ctl.call("get_interior_area") as Control).get_global_rect())])
+	var pad := 24
+	var crop := Rect2i(Vector2i(rect.position) - Vector2i(pad, pad), Vector2i(rect.size) + Vector2i(pad * 2, pad * 2)).intersection(Rect2i(Vector2i.ZERO, img.get_size()))
+	img.get_region(crop).save_png(out.path_join("citywin_hanseong_crop.png"))
+	var compass := wm.find_child("TurnEndCompass", true, false) as Control
+	if compass != null:
+		var cr := Rect2i(compass.get_global_rect()).intersection(Rect2i(Vector2i.ZERO, img.get_size()))
+		var c := img.get_region(cr)
+		c.resize(c.get_width() * 4, c.get_height() * 4, Image.INTERPOLATE_NEAREST)
+		c.save_png(out.path_join("turnbtn_ingame_after_x4.png"))

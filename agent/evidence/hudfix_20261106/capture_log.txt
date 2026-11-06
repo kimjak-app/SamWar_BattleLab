@@ -1,0 +1,16 @@
+renderer=forward_plus display=Windows
+after: SkyA position=(48.5625, 47.625) size=(142.875, 142.875)
+after day (progress 0.000): rendered seam pixels inside hole+10px = 0
+after dusk (progress 0.250): rendered seam pixels inside hole+10px = 0
+after night (progress 0.500): rendered seam pixels inside hole+10px = 0
+after dawn (progress 0.750): rendered seam pixels inside hole+10px = 0
+after day_to_dusk_mid (progress 0.125): rendered seam pixels inside hole+10px = 0
+before: SkyA position=(52.14844, 53.32031) size=(135.0, 135.0)
+before day (progress 0.000): rendered seam pixels inside hole+10px = 849
+before dusk (progress 0.250): rendered seam pixels inside hole+10px = 849
+before night (progress 0.500): rendered seam pixels inside hole+10px = 848
+before dawn (progress 0.750): rendered seam pixels inside hole+10px = 849
+before day_to_dusk_mid (progress 0.125): rendered seam pixels inside hole+10px = 762
+map view 3d=true
+try_open hanseong=true reason=
+window rect=[P: (380.0, 155.52), S: (589.44, 353.664)] picture=[P: (380.0, 155.52), S: (589.44, 353.664)]

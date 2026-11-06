@@ -1,0 +1,14 @@
+[TURN_SEAM] frame hole @240: center=(120.0, 119.0625) radius=(67.500, 68.438) bbox512=[(112, 108), (399, 399)]
+[TURN_SEAM] SkyA rect=(48.5625, 47.625) size=(142.875, 142.875)
+[TURN_SEAM] progress=0.000 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.125 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.250 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.375 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.500 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.625 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.750 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.875 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] progress=0.990 seam_pixels=0 max_bg=0.0000 checked=19292 first=<null>
+[TURN_SEAM] headless: rendered check skipped, composited check only
+[TURN_SEAM] total_seam_pixels=0
+[TURN_SEAM] checks=18 failures=[]

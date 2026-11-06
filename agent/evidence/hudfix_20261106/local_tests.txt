@@ -1,0 +1,11 @@
+test_worldmap_turn_compass_seam exit=0 secs=2 | [TURN_SEAM] checks=18 failures=[]
+test_worldmap_turn_button_daynight exit=0 secs=8 | [TURN_BUTTON_DAYNIGHT] checks=43 failures=[]
+test_worldmap_city_interior_window exit=0 secs=16 | [CITY_INTERIOR] checks=125 failures=[]
+test_worldmap_city_interior_layouts exit=0 secs=14 | [CITY_INTERIOR_LAYOUT] checks=93 failures=[]
+test_worldmap_left_panel_grip exit=0 secs=13 | [LEFT_PANEL_GRIP] checks=28 failures=[]
+test_worldmap_integrated_hud_smoke exit=0 secs=16 | [INTEGRATED_HUD_SMOKE] checks=12 failures=0
+validate_p1b1_worldmap_visual_baseline.py exit=0 | P-1B-1 WorldMap visual baseline static validation: PASS
+validate_p1b2_worldmap_production_hud.py exit=0 | P-1B-2 Production WorldMap HUD static validation: PASS
+validate_p1b3_worldmap_interaction_presentation.py exit=0 | P-1B-3 Production WorldMap interaction/presentation static validation: PASS
+validate_p1b4_worldmap_territory_final_hud.py exit=0 | P-1B-4 territory/final HUD production validation: PASS
+validate_p1b_16x9_functional_parity.py exit=0 | P-1B 16:9 functional parity validation: PASS (real-tech exception enforced)
