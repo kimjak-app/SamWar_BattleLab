@@ -26,6 +26,7 @@
 [ext_resource type="Script" uid="uid://cwuec8hllnb4l" path="res://scripts/worldmap/ui/worldmap_character_speech_controller.gd" id="26_character_speech"]
 [ext_resource type="Script" uid="uid://b0b5t7tlst25s" path="res://scripts/worldmap/map3d/worldmap_3d_host.gd" id="27_worldmap3d_host"]
 [ext_resource type="Script" uid="uid://buk2hh5gvlbhg" path="res://scripts/worldmap/ui/worldmap_city_interior_controller.gd" id="28_city_interior"]
+[ext_resource type="Script" uid="uid://dgk4ismn34a1n" path="res://scripts/worldmap/ui/worldmap_left_panel_grip_controller.gd" id="29_left_panel_grip"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -2348,3 +2349,6 @@ main_path = NodePath("..")
 [node name="WorldMapCityInteriorController" type="Node" parent="." unique_id=1843906217]
 script = ExtResource("28_city_interior")
 main_path = NodePath("..")
+
+[node name="WorldMapLeftPanelGripController" type="Node" parent="." unique_id=1290417733]
+script = ExtResource("29_left_panel_grip")
