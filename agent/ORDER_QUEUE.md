@@ -34,6 +34,8 @@
 | 18 | `agent/ORDER_TURNBTN_RESKIN_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-turnbtn-20261106`(시작 `main` `ab9b739`). 턴 종료 버튼 겉모습만 교체(노드·시그널 불변). 에셋 `agent/assets/turnbtn_512/` 9장. 17번 뒤 |
 | 19 | `agent/ORDER_WM3D_PERF2_STARTUP_PROFILE_20261106.md` | 준비됨 — **읽기 전용 측정**. 새 가지 `feature/wm3d-perf-20261106`(시작 `main` `ab9b739`). 3D 시작 ~10초를 단계별로 쪼개고 구울 수 있는지 판정. 코드·설정 수정 금지. 18번 뒤(맨 뒤) |
 | 20 | `agent/ORDER_HUD_CAPTURE_20261106.md` | 준비됨 — **읽기 전용 증거 수집**. 새 가지 `feature/wm3d-evidence-20261106`(시작 `cityhud` 끝). **16번 끝난 직후, 17번보다 먼저**(허드 리뉴얼용 전체 캡처 4장 + 창 위치 JSON, 김작 11-06 11:42) |
+| 21 | `agent/ORDER_INTEGRATE_F6_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-integrate-20261106`(시작 `main` `ab9b739`). cityhud·m7prep·turnbtn 3개 가지를 합쳐 김작이 F6 한 번으로 확인. 충돌은 `verify-c-track.yml` 하나만 예상. `main` 병합 금지. **먼저 한다** |
+| 22 | `agent/ORDER_WM3D_PERF3_BAKE_PATHS_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-bake-20261106`(시작 `main` `ab9b739`). 도로·바닷길 경로를 미리 구워 시작 약 4초 단축(결과 완전 일치가 조건). 21번과 독립, 21번 뒤 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
