@@ -3,14 +3,14 @@
 
 # 지시서 — CITY-HUD CH-4: 성 안 건물을 테크 완료와 연동
 
-- 작성: 클코치, 2026-11-06 20:40. **상태: 보류** — 큐 27번. 김작이 25번(HUDFIX) F6를 합격시키고 `main`에 합류한 뒤 "준비됨"으로 바꾼다. 그 전에는 시작하지 않는다.
+- 작성: 클코치, 2026-11-06 20:40. **상태: 준비됨** (11-06 22:35, 큐 27번). HUDFIX 합류 확인: 원격 `main` = `a9e3b84229f63286bbdc784d78826b0e2cdb792d`(김작 F6 합격·병합 승인, 28번 보고서 확인). **새 가지 `feature/wm3d-cityhud4-20261106`은 이 `a9e3b84`에서 딴다.**
 - **김작 결정 [사실]**: 11-05 "생활 5종은 새 테크 연동(전까지 기본 표시)", "시장 3단계 그림 교체", "항구→무역항 교체(조선소 별도 슬롯)", CH-3 D1~D7 록비서 추천대로; **11-06 20:18 "창고 B 추천대로" = 창고는 생활 건물(장식)이며 항상 표시**(상업 테크 아님).
 - 시작 전제(어긋나면 멈춤, 1절): 컨트롤러에 `TitleLabel`·`CloseButton`이 없다(25번 반영). `main` 정본에 이 지시서가 쓰는 파일이 있다.
 
 ## 0. 규칙
 큐 10절·상시 규칙. **`worldmap_main.gd`·`worldmap3d/` 수정 0줄**(읽기 호출만). 허용 파일: `scripts/worldmap/ui/worldmap_city_interior_controller.gd`, 같은 폴더의 `worldmap_city_interior_layouts.gd`(필요 시에만), 아래 테스트들. 그림 그리기 좌표·도킹·창 겉틀·닫기 규칙(25번)은 **바꾸지 않는다.** 허용 오차 조정·재실행으로 때우기 금지. 막히면 `agent/REPORT_CITYHUD_CH4_STOP_20261106.md`로 멈춘다(이 항목만).
 
-## 1. 클코치가 미리 확인한 것 [사실, `origin/main` 042b070 기준]
+## 1. 클코치가 미리 확인한 것 [사실, `origin/main` 042b070 기준 — 클코치가 `a9e3b84`에서 배치표(해시 동일)와 컨트롤러 함수 위치를 다시 확인함. 그래도 시작 때 1절을 `a9e3b84`로 다시 대조하고, 어긋나면 멈춤]
 - 배치표 `assets/worldmap/city_buildings/city_layouts.json`: 5성(`hanseong`·`pyeongyang`·`jianye`·`edo`·`kyoto`), 항목마다 `kind`(`building`/`decoration`), `building_key`, **`tech_id`**(건물 25종은 카탈로그 id와 같고, **생활 5종(`life_office`·`life_storehouse`·`life_smithy`·`life_academy`·`life_temple`)은 빈 문자열 `""`**), `slot_candidates`(시장: `[commerce_grand_market, commerce_permanent_market, commerce_street_market]`, 교토 항구 자리: `[commerce_trade_port, commerce_port]`, 앞일수록 높은 단계), `coastal_only`, `compare_only`, `draw_as`(`sprite`/`overlay_piece`), `ax/ay/scale/x/y/w/h`.
 - 테크 완료 읽기: `main.call("_get_completed_city_domestic_tech_snapshot_mvp", city_id)` → `Dictionary {tech_id: bool}`(복사본). 단건: `_is_city_domestic_tech_completed_mvp(city_id, tech_id)`. 완료 **전용 신호는 없다**.
 - `_draw_city(city_id)`는 지금 `items_for_city(city_id, coastal)`(compare_only와, 비해안의 coastal_only 제외)를 전부 그린다. 컨트롤러는 열려 있는 동안 매 프레임 `_process`가 `_update_dock()`을 돈다.
