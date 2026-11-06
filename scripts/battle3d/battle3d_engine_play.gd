@@ -786,6 +786,11 @@ func _ally_command_block_reason(command: String) -> String:
 	if Adapter.to_view(active).has_acted: return "%s 불가 · 이미 행동한 부대입니다" % command
 	return ""
 
+func request_return_to_worldmap() -> void:
+	# M7-2: the engine's own return (result meta, then the worldmap scene). Engine write 17 (15 + set_blocked_cells + this);
+	# the engine itself refuses without a context or a finished battle (log only, no scene change).
+	engine.call("_return_to_worldmap_with_result")
+
 func request_wait() -> void:
 	if not ready_for_input or _input_locked(): return
 	var reason := _wait_block_reason()

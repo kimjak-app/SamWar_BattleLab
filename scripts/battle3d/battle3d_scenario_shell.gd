@@ -13,6 +13,7 @@ const SETUP_KEY := "samwar_battle_setup"
 # M7-1: a worldmap battle context waiting in this meta starts the lab at once (no start panel). The engine reads and
 # removes it in its _ready (the shell never reads or removes it) and applies it before the lab draws the units.
 const CONTEXT_KEY := "samwar_worldmap_battle_context"
+const RESULT_KEY := "samwar_worldmap_battle_result" # M7-2: set by the engine on its return
 const WIN_PRACTICE_RATIO := 0.25
 const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_demo", "enemy_reinforce_02_test_unit"]
 const SCENARIO_ORDER := ["default", "win_practice"]
@@ -26,6 +27,7 @@ var result_panel: VBoxContainer
 var result_label: Label
 var restart_button: Button
 var choose_button: Button
+var worldmap_button: Button # M7-2: back to the worldmap with the result (context mode only)
 var result_text := ""
 var lab_count := 0
 var worldmap_context_mode := false # M7-1: the lab was started from a worldmap battle context (M7-2 takes it over)
@@ -193,6 +195,11 @@ func _ready() -> void:
 	choose_button.custom_minimum_size = Vector2(160,44)
 	choose_button.pressed.connect(choose_scenario)
 	row.add_child(choose_button)
+	worldmap_button = Button.new()
+	worldmap_button.text = "월드맵으로"
+	worldmap_button.custom_minimum_size = Vector2(160,44)
+	worldmap_button.pressed.connect(return_to_worldmap)
+	row.add_child(worldmap_button)
 	if Engine.has_meta(CONTEXT_KEY): start_worldmap_context()
 
 func create_lab() -> Node:
@@ -243,6 +250,8 @@ func worldmap_context_applied() -> bool:
 func _show_result_buttons() -> void:
 	restart_button.visible = not worldmap_context_mode
 	choose_button.visible = not worldmap_context_mode
+	worldmap_button.visible = worldmap_context_mode
+	worldmap_button.disabled = false
 
 func _open_lab() -> void:
 	_show_result_buttons()
@@ -258,6 +267,15 @@ func _open_lab() -> void:
 func restart() -> void:
 	if worldmap_context_mode: return # the context was consumed by the engine
 	start_scenario(scenario)
+
+func return_to_worldmap() -> void:
+	# M7-2: one press, one engine return. The engine sets the result meta and changes the scene in the same call, or only
+	# logs and stays (no context / no result): then the button is usable again.
+	if not worldmap_context_mode or worldmap_button.disabled or lab == null or not is_instance_valid(lab): return
+	worldmap_button.disabled = true
+	var before = Engine.get_meta(RESULT_KEY) if Engine.has_meta(RESULT_KEY) else null
+	lab.request_return_to_worldmap()
+	if not Engine.has_meta(RESULT_KEY) or Engine.get_meta(RESULT_KEY) == before: worldmap_button.disabled = false
 
 func choose_scenario() -> void:
 	_close_lab()

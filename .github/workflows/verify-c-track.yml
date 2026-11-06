@@ -411,6 +411,7 @@ jobs:
             tests/scripts/test_worldmap_spy_routing.gd
             tests/scripts/test_worldmap_spy_controller_extraction.gd
             tests/scripts/test_battle3d_worldmap_context_entry.gd
+            tests/scripts/test_battle3d_worldmap_result_return.gd
           )
           index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do
