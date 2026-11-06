@@ -6,13 +6,23 @@ extends Node
 ## pick emit the same signal) with CONNECT_DEFERRED, so main's own handler has already run. Opens only for the
 ## player's own city when no target / turn / modal state is active; otherwise records why in last_reject_reason.
 ## Reads main state only (get()/call()), never writes it. Main is held as a plain Node; no WorldMap3D* classes are named.
-## The window is built in code. CH-3: a city with a castle layout (WorldMapCityInteriorLayouts) is drawn from it on a
-## 1280x768 canvas scaled into the window's body; other cities keep the CH-2 placeholder. Tech-driven visibility is CH-4.
+## The window is built in code and is not modal (CH-2b): it docks to the right of main's left world status panel, top
+## edges aligned, and everything outside it (map drag, wheel, other city clicks, camera keys) still reaches the map.
+## CH-3: a city with a castle layout (WorldMapCityInteriorLayouts) is drawn from it on a 1280x768 canvas scaled into
+## the window's body; other cities keep the CH-2 placeholder. Tech-driven visibility is CH-4.
 
 const MAIN_META := "wm_city_interior_controller"
 const WINDOW_LAYER := 50   # free between TopNav (40) and the tech tree overlay (60)
 const TURN_PHASE_PLAYER := "player"
-const WINDOW_SIZE := Vector2(960, 600)
+## CH-2b dock rule: width = viewport width x WINDOW_WIDTH_RATIO (at least MIN_WINDOW_WIDTH); the body keeps the 1280:768
+## canvas ratio. Placed DOCK_GAP right of the left status panel; shrinks (not below the minimum) to clear the right panel.
+const WINDOW_WIDTH_RATIO := 0.307
+const DOCK_GAP := 12.0
+const MIN_WINDOW_WIDTH := 400.0
+const BODY_ASPECT := 768.0 / 1280.0
+const FALLBACK_POSITION := Vector2(12, 12)   # the left panel is missing or hidden
+const LEFT_PANEL_MEMBER := "left_world_status_panel"    # main, read only
+const RIGHT_PANEL_MEMBER := "city_info_panel_control"   # main, read only
 const PLACEHOLDER_TEXT := "건물 그림은 다음 단계에서 연결됩니다"
 const BUILDING_ASSETS_PATH := "res://scripts/worldmap/ui/worldmap_city_building_assets.gd"
 const LAYOUTS_PATH := "res://scripts/worldmap/ui/worldmap_city_interior_layouts.gd"
@@ -44,8 +54,8 @@ const MODAL_GUARDS := [
 ]
 ## Other main members this controller relies on (the test checks they still exist).
 const MAIN_MEMBERS := [
-	"_city_markers_by_id", "_camera_controller", "_is_city_owned_by_player_mvp", "_ensure_camera_controller",
-	"_normalize_turn_phase", COASTAL_CHECK,
+	"_city_markers_by_id", "_is_city_owned_by_player_mvp", "_ensure_camera_controller",
+	"_normalize_turn_phase", COASTAL_CHECK, LEFT_PANEL_MEMBER, RIGHT_PANEL_MEMBER,
 ]
 
 @export var main_path: NodePath = NodePath("..")
@@ -54,8 +64,9 @@ var main: Node = null
 var last_reject_reason := ""
 var _open_city_id := ""
 var _connected_markers: Array = []
-var _blocked_camera_controller: Object = null   # the one controller whose input_blocked we set (one boolean, no count)
 var _layer: CanvasLayer = null
+var _window: PanelContainer = null
+var _dock_rect := Rect2()             # the last applied window rect (position, size)
 var _title_label: Label = null
 var _close_button: Button = null
 var _building_assets: Script = null
@@ -85,7 +96,6 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	_unblock_camera_input()
 	if main != null and is_instance_valid(main) and main.has_meta(MAIN_META) and main.get_meta(MAIN_META) == self:
 		main.remove_meta(MAIN_META)
 
@@ -122,6 +132,27 @@ func get_placeholder() -> Label:
 	return _placeholder
 
 
+func get_window_panel() -> PanelContainer:
+	return _window
+
+
+## The window rect the dock rule gives now: {position, width, body_width}. Width is the window's outer width.
+func compute_dock() -> Dictionary:
+	var viewport_size := get_viewport().get_visible_rect().size
+	var width := maxf(viewport_size.x * WINDOW_WIDTH_RATIO, MIN_WINDOW_WIDTH)
+	var position := FALLBACK_POSITION
+	var left_panel := _main_control(LEFT_PANEL_MEMBER)
+	if left_panel != null:
+		var left_rect := left_panel.get_global_rect()
+		position = Vector2(left_rect.end.x + DOCK_GAP, left_rect.position.y)
+	var right_panel := _main_control(RIGHT_PANEL_MEMBER)
+	if right_panel != null:
+		var limit := right_panel.get_global_rect().position.x - DOCK_GAP
+		if position.x + width > limit:
+			width = maxf(limit - position.x, MIN_WINDOW_WIDTH)   # still overlapping at the minimum: left as is (M6)
+	return {"position": position, "width": width, "body_width": width - _window_padding().x}
+
+
 ## The layout item of each drawn canvas node (background excluded), in draw order.
 func get_drawn_items() -> Array:
 	return _drawn_items.duplicate()
@@ -147,7 +178,7 @@ func try_open(city_id: String) -> bool:
 	_title_label.text = "%s — 성 안" % _city_display_name(city_id)
 	_draw_city(city_id)
 	_layer.visible = true
-	_block_camera_input()
+	_update_dock()
 	return true
 
 
@@ -180,7 +211,12 @@ func close() -> void:
 	if _layer != null:
 		_layer.visible = false
 	_clear_canvas()   # lets the textures go
-	_unblock_camera_input()
+
+
+## Follows the left panel (dragged) and the viewport size while open; applies only when the rect changed.
+func _process(_delta: float) -> void:
+	if is_open():
+		_update_dock()
 
 
 func _input(event: InputEvent) -> void:
@@ -208,7 +244,8 @@ func _connect_markers() -> void:
 func _on_city_selected(marker: Node) -> void:
 	if marker == null or not is_instance_valid(marker):
 		return
-	try_open(str(marker.get("city_id")))
+	if not try_open(str(marker.get("city_id"))) and last_reject_reason == "not_own_city":
+		close()   # CH-2b: a city that is not the player's closes the open window
 
 
 func _guard_active(guard: Array) -> bool:
@@ -260,23 +297,34 @@ func _marker_for(city_id: String) -> Node:
 	return null
 
 
-## Existing mechanism only: the 3D camera controller's input_blocked flag (keyboard axes). Mouse wheel / drag / picks
-## never reach the map because the full-screen blocker below eats them in the GUI stage. The 2D camera controller has
-## no such flag, so 2D keyboard panning is not blocked here (see the CH-2 report).
-func _block_camera_input() -> void:
-	var camera_controller = main.get("_camera_controller")
-	if camera_controller == _blocked_camera_controller:
+## A visible main Control (read only), else null.
+func _main_control(member: String) -> Control:
+	var node = main.get(member) if main != null and is_instance_valid(main) else null
+	if node is Control and is_instance_valid(node) and (node as Control).is_visible_in_tree():
+		return node
+	return null
+
+
+## The window panel's own padding (style box content margins), so the body is the window width minus this.
+func _window_padding() -> Vector2:
+	if _window == null:
+		return Vector2.ZERO
+	var style := _window.get_theme_stylebox("panel")
+	return style.get_minimum_size() if style != null else Vector2.ZERO
+
+
+func _update_dock() -> void:
+	if _window == null:
 		return
-	_unblock_camera_input()
-	if camera_controller != null and is_instance_valid(camera_controller) and "input_blocked" in camera_controller:
-		camera_controller.set("input_blocked", true)
-		_blocked_camera_controller = camera_controller
-
-
-func _unblock_camera_input() -> void:
-	if _blocked_camera_controller != null and is_instance_valid(_blocked_camera_controller):
-		_blocked_camera_controller.set("input_blocked", false)
-	_blocked_camera_controller = null
+	var dock := compute_dock()
+	var body_width := float(dock.body_width)
+	var rect := Rect2(dock.position, Vector2(float(dock.width), 0.0))
+	if rect.position == _dock_rect.position and is_equal_approx(rect.size.x, _dock_rect.size.x):
+		return
+	_dock_rect = rect
+	_interior_area.custom_minimum_size = Vector2(body_width, body_width * BODY_ASPECT)
+	_window.position = rect.position
+	_window.reset_size()   # the minimum size the body and header give: the dock width
 
 
 func _ensure_window() -> void:
@@ -287,26 +335,19 @@ func _ensure_window() -> void:
 	_layer.layer = WINDOW_LAYER
 	_layer.visible = false
 	add_child(_layer)
-	var blocker := Control.new()
-	blocker.name = "InputBlocker"
-	blocker.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	blocker.mouse_filter = Control.MOUSE_FILTER_STOP   # clicks outside the window do nothing (and never reach the map)
-	_layer.add_child(blocker)
-	var panel := PanelContainer.new()
-	panel.name = "Window"
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -WINDOW_SIZE.x * 0.5
-	panel.offset_top = -WINDOW_SIZE.y * 0.5
-	panel.offset_right = WINDOW_SIZE.x * 0.5
-	panel.offset_bottom = WINDOW_SIZE.y * 0.5
-	blocker.add_child(panel)
+	# No full-screen blocker (CH-2b): the window eats clicks on itself only (PanelContainer default STOP).
+	_window = PanelContainer.new()
+	_window.name = "Window"
+	_window.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_layer.add_child(_window)
 	var column := VBoxContainer.new()
-	panel.add_child(column)
+	_window.add_child(column)
 	var header := HBoxContainer.new()
 	column.add_child(header)
 	_title_label = Label.new()
 	_title_label.name = "TitleLabel"
 	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_title_label.clip_text = true   # a long name never widens the window past the dock width
 	header.add_child(_title_label)
 	_close_button = Button.new()
 	_close_button.name = "CloseButton"

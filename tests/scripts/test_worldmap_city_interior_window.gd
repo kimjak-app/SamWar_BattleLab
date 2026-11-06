@@ -4,8 +4,10 @@ extends SceneTree
 # to WorldMap.tscn as a root child outside worldmap_main.gd. Runs on the real WorldMap.tscn in the 2D map view.
 # 1. open-condition table (own / enemy / Karakorum no_art / every busy guard / battle-entry handoff / modals)
 # 2. main state unchanged by the controller   3. close button + Esc (Esc consumed only while open)
-# 4. 3D camera input_blocked set while open, cleared on close and on _exit_tree
+# 4. CH-2b: not modal - no InputBlocker, the 3D camera input_blocked is never set (open, close, _exit_tree)
 # 5. the main member names the controller relies on still exist   6. one connection per marker, one window, retarget
+# 7. CH-2b dock: right of the left status panel, top aligned (1 px); width = ratio / minimum rule; follows the moved
+#    left panel; shrinks to clear the right city panel but never below the minimum; an enemy city click closes it
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const CONTROLLER_NODE := "WorldMapCityInteriorController"
@@ -14,6 +16,7 @@ const OWN_CITY := "hanseong"
 const SECOND_CITY := "gyeongju"
 const ENEMY_CITY := "pyeongyang"
 const NO_ART_CITY := "karakorum"
+const TEST_VIEWPORT_SIZE := Vector2i(1920, 1080)
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -82,6 +85,8 @@ func _run() -> void:
 	_expect(str(worldmap.get("selected_city_id")) == OWN_CITY, "main processed the click (selected_city_id)")
 	var display_name := str(markers[OWN_CITY].get("display_name"))
 	_expect(str(ctl.call("get_title_text")) == "%s — 성 안" % display_name, "title shows the city name")
+	await process_frame
+	await _check_dock(ctl, worldmap)
 
 	# 6. same city again: still one window, not reopened
 	await _click(markers[OWN_CITY])
@@ -92,6 +97,11 @@ func _run() -> void:
 	# 1b. enemy city click (real signal path)
 	await _click(markers[ENEMY_CITY])
 	_expect(not bool(ctl.call("is_open")) and str(ctl.get("last_reject_reason")) == "not_own_city", "enemy city click -> not_own_city")
+	# 7. CH-2b: an enemy city click closes the open window
+	ctl.call("try_open", OWN_CITY)
+	await _click(markers[ENEMY_CITY])
+	_expect(not bool(ctl.call("is_open")) and str(ctl.get("last_reject_reason")) == "not_own_city", "enemy city click closes the open window")
+	_expect((ctl.call("get_canvas") as Control).get_child_count() == 0, "closed by an enemy click: textures released")
 
 	# 2. main state snapshot after main's own click handling; no more clicks below, only controller operations
 	var player_state: Dictionary = worldmap.get("_player_state")
@@ -124,19 +134,19 @@ func _run() -> void:
 		_expect(not help_modal.visible, "Esc while closed reaches main (help modal closed by main)")
 	_expect(not bool(ctl.call("is_open")), "Esc while closed keeps it closed")
 
-	# 4. 3D camera input block (fake 3D camera controller swapped in, no camera attached)
+	# 4. CH-2b: the 3D camera input is never blocked (fake 3D camera controller swapped in, no camera attached)
 	var original_camera_controller = worldmap.get("_camera_controller")
 	if "input_blocked" in original_camera_controller:
 		ctl.call("try_open", OWN_CITY)
-		_expect(bool(original_camera_controller.get("input_blocked")), "real 3D camera controller blocked while open")
+		_expect(not bool(original_camera_controller.get("input_blocked")), "real 3D camera controller not blocked while open")
 		ctl.call("close")
-		_expect(not bool(original_camera_controller.get("input_blocked")), "real 3D camera controller unblocked after close")
+		_expect(not bool(original_camera_controller.get("input_blocked")), "real 3D camera controller not blocked after close")
 	var fake_3d: Node = load(CAMERA_3D_CONTROLLER_PATH).new()
 	worldmap.set("_camera_controller", fake_3d)
 	ctl.call("try_open", OWN_CITY)
-	_expect(bool(fake_3d.get("input_blocked")), "3D camera input blocked while open")
+	_expect(not bool(fake_3d.get("input_blocked")), "3D camera input not blocked while open")
 	ctl.call("close")
-	_expect(not bool(fake_3d.get("input_blocked")), "3D camera input unblocked after close")
+	_expect(not bool(fake_3d.get("input_blocked")), "3D camera input not blocked after close")
 	fake_3d.set("_battle_entry_handoff_in_progress", true)
 	_expect_reject(ctl, OWN_CITY, "battle_entry_handoff", "battle-entry handoff")
 	fake_3d.set("_battle_entry_handoff_in_progress", false)
@@ -197,17 +207,96 @@ func _run() -> void:
 	var after := [str(worldmap.get("selected_city_id")), str(player_state.get("selected_city_id", "")), str(player_state.get("origin_city_id", ""))]
 	_expect(after == snapshot, "main selection state unchanged by the controller %s -> %s" % [str(snapshot), str(after)])
 
-	# 4. _exit_tree releases the block
+	# 4. _exit_tree while open: the 3D camera input stays unblocked
 	worldmap.set("_camera_controller", fake_3d)
 	ctl.call("try_open", OWN_CITY)
-	_expect(bool(fake_3d.get("input_blocked")), "blocked before scene removal")
+	_expect(not bool(fake_3d.get("input_blocked")), "not blocked before scene removal")
 	worldmap.remove_child(ctl)
-	_expect(not bool(fake_3d.get("input_blocked")), "_exit_tree releases the 3D camera input block")
+	_expect(not bool(fake_3d.get("input_blocked")), "_exit_tree leaves the 3D camera input unblocked")
 	_expect(not worldmap.has_meta("wm_city_interior_controller"), "_exit_tree releases the main claim")
 	worldmap.set("_camera_controller", original_camera_controller)
 	ctl.free()
 	fake_3d.free()
 	_finish()
+
+
+## 7. CH-2b dock rule on the open window (the real left / right panels of main, moved and restored here).
+func _check_dock(ctl: Node, worldmap: Node) -> void:
+	var window: Control = ctl.call("get_window_panel")
+	_expect(window != null and window.get_parent() is CanvasLayer, "the window is a direct child of the window layer")
+	if window == null:
+		return
+	var layer := window.get_parent()
+	_expect(layer.get_node_or_null("InputBlocker") == null and layer.get_child_count() == 1, "no InputBlocker: only the window on the layer")
+	_expect(window.mouse_filter == Control.MOUSE_FILTER_STOP, "the window itself takes clicks on it")
+	var left = worldmap.get("left_world_status_panel")
+	var right = worldmap.get("city_info_panel_control")
+	_expect(left is Control and right is Control, "main panels readable (left_world_status_panel, city_info_panel_control)")
+	if not (left is Control and right is Control):
+		return
+	var viewport_size_before := root.size
+	root.size = TEST_VIEWPORT_SIZE   # headless starts with a small window; the dock rule is checked at 1920x1080
+	var right_visible_before: bool = right.visible
+	right.visible = false   # the dock rule without the right panel first
+	await _settle()
+	var viewport_width := window.get_viewport().get_visible_rect().size.x
+	var want_width := maxf(viewport_width * 0.307, 400.0)
+	_expect(is_equal_approx(ctl.WINDOW_WIDTH_RATIO, 0.307) and is_equal_approx(ctl.MIN_WINDOW_WIDTH, 400.0) and is_equal_approx(ctl.DOCK_GAP, 12.0),
+		"dock constants 0.307 / 400 / 12")
+	_expect(is_equal_approx(viewport_width, TEST_VIEWPORT_SIZE.x) and absf(want_width - 589.44) <= 0.01, "viewport %d -> width %.2f" % [int(viewport_width), want_width])
+	_expect_dock(ctl, window, left, want_width, "docked right of the left panel")
+	# the body keeps 1280:768 and the canvas k follows the body width
+	var area: Control = ctl.call("get_interior_area")
+	_expect(absf(area.size.y - area.size.x * 768.0 / 1280.0) <= 1.0, "body ratio 1280:768 (%s)" % str(area.size))
+	var canvas: Control = ctl.call("get_canvas")
+	if canvas.visible:
+		_expect(absf(canvas.scale.x - area.size.x / 1280.0) <= 0.001, "canvas k = body width / 1280 (%.4f)" % canvas.scale.x)
+	# follows the moved left panel
+	var left_before: Vector2 = left.position
+	left.position = left_before + Vector2(40, 30)
+	await _settle()
+	_expect(left.position.is_equal_approx(left_before + Vector2(40, 30)), "the left panel stays where it was moved (%s)" % str(left.position))
+	_expect_dock(ctl, window, left, want_width, "follows the moved left panel")
+	left.position = left_before
+	await _settle()
+	_expect_dock(ctl, window, left, want_width, "follows the left panel back")
+	# the right panel overlapping: shrink to clear it, never below the minimum
+	var right_before: Vector2 = right.global_position
+	right.visible = true
+	var dock_x: float = left.get_global_rect().end.x + ctl.DOCK_GAP
+	right.global_position = Vector2(dock_x + 450.0 + ctl.DOCK_GAP, right_before.y)   # room for 450 px
+	await _settle()
+	_expect(absf(window.size.x - 450.0) <= 1.0 and absf(window.global_position.x - dock_x) <= 1.0, "shrinks to clear the right panel (%.1f, want 450)" % window.size.x)
+	right.global_position = Vector2(dock_x + 200.0 + ctl.DOCK_GAP, right_before.y)   # room for 200 px only
+	await _settle()
+	_expect(absf(window.size.x - ctl.MIN_WINDOW_WIDTH) <= 1.0, "never below the minimum width (%.1f)" % window.size.x)
+	right.global_position = right_before
+	# the left panel hidden: the fallback corner
+	right.visible = false
+	left.visible = false
+	await _settle()
+	_expect(window.global_position.distance_to(ctl.FALLBACK_POSITION) <= 1.0, "left panel hidden: window at the fallback corner (%s)" % str(window.global_position))
+	left.visible = true
+	# a narrow viewport: 1000 x 0.307 < 400 -> the minimum width
+	root.size = Vector2i(1000, 700)
+	await _settle()
+	_expect_dock(ctl, window, left, 400.0, "narrow viewport -> minimum width")
+	right.visible = right_visible_before
+	root.size = viewport_size_before
+	await _settle()
+
+
+## Two frames: the SceneTree process_frame signal fires before the nodes' _process of that frame.
+func _settle() -> void:
+	await process_frame
+	await process_frame
+
+
+func _expect_dock(ctl: Node, window: Control, left: Control, want_width: float, label: String) -> void:
+	var left_rect := left.get_global_rect()
+	var want_position := Vector2(left_rect.end.x + ctl.DOCK_GAP, left_rect.position.y)
+	_expect(window.global_position.distance_to(want_position) <= 1.0 and absf(window.size.x - want_width) <= 1.0,
+		"%s: window %s size %s, want %s width %.1f" % [label, str(window.global_position), str(window.size), str(want_position), want_width])
 
 
 func _click(marker: Node) -> void:
