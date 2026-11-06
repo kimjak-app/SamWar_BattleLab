@@ -22,6 +22,17 @@ const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/C
 const TURN_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/TurnLabel"
 const CALENDAR_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/CalendarLabel"
 const MAX_INSTALL_ATTEMPTS := 6
+# Day/night turn button (TURNBTN reskin): the same node, signal and serialized turn flow; only the drawn layers and the
+# click shape differ. The 512 set is loaded (load(), not preload) only when the flag is on.
+const USE_DAYNIGHT_TURN_BUTTON := true
+const TURN_BUTTON_DIR := "res://assets/ui/turn_button/"
+const SKY_TEXTURE_PATHS := ["sky_1_day.png", "sky_2_dusk.png", "sky_3_night.png", "sky_4_dawn.png"]
+const MASTER_SIZE := 1024.0                             # the art's master canvas
+const WINDOW_CENTER_MASTER := Vector2(510.5, 515.5)     # the sky window's centre on the master canvas
+const WINDOW_DIAMETER_MASTER := 576.0                   # the sky window's diameter on the master canvas
+const CYCLE_SEC := 1.4                                  # day -> dusk -> night -> dawn -> day, 0.35 s each
+const SKY_PRESSED_MODULATE := 0.92
+const TURN_END_TOOLTIP := "턴 종료"
 
 var _world_scene: Node = null
 var _turn_end_button: Button = null
@@ -37,6 +48,17 @@ var _pressed_wrapper_installed := false
 var _install_attempts := 0
 var _serializing_turn_end := false
 var _plaque_hovered := false
+var use_daynight_turn_button := USE_DAYNIGHT_TURN_BUTTON   # set before _ready to draw the old compass (tests)
+var _sky_a: TextureRect = null
+var _sky_b: TextureRect = null
+var _frame_layer: TextureRect = null
+var _center_layer: TextureRect = null
+var _hit_area: TextureButton = null
+var _sky_textures: Array[Texture2D] = []
+var _center_textures := {}
+var _sky_progress := 0.0
+var _hit_hovered := false
+var _hit_pressed := false
 
 
 func _ready() -> void:
@@ -48,8 +70,11 @@ func _ready() -> void:
 	rotation = 0.0
 	z_index = 20
 	set_process(true)
-	_build_compass_layers()
-	_build_turn_end_plaque()
+	if use_daynight_turn_button:
+		_build_daynight_layers()
+	else:
+		_build_compass_layers()
+		_build_turn_end_plaque()
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_layout_compass):
 		viewport.size_changed.connect(_layout_compass)
@@ -59,6 +84,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	_hide_legacy_turn_end_button()
 	_refresh_plaque_availability()
+	_refresh_hit_area_availability()
 
 
 func _build_compass_layers() -> void:
@@ -69,6 +95,123 @@ func _build_compass_layers() -> void:
 	add_child(_needle_layer)
 	_cap_layer = _create_layer("Cap", COMPASS_CAP_TEXTURE)
 	add_child(_cap_layer)
+
+
+func _build_daynight_layers() -> void:
+	for file_name in SKY_TEXTURE_PATHS:
+		_sky_textures.append(load(TURN_BUTTON_DIR + file_name) as Texture2D)
+	for key in ["normal", "hover", "pressed"]:
+		_center_textures[key] = load(TURN_BUTTON_DIR + ("turn_btn_center.png" if key == "normal" else "turn_btn_center_%s.png" % key)) as Texture2D
+	_sky_a = _create_layer("SkyA", _sky_textures[0])
+	add_child(_sky_a)
+	_sky_b = _create_layer("SkyB", _sky_textures[1])
+	_sky_b.modulate.a = 0.0
+	add_child(_sky_b)
+	_frame_layer = _create_layer("Frame", load(TURN_BUTTON_DIR + "turn_btn_frame.png") as Texture2D)
+	add_child(_frame_layer)
+	_center_layer = _create_layer("Center", _center_textures.normal)
+	add_child(_center_layer)
+	# The click shape: the whole sky window circle (TextureButton click mask), so the frame and the control's corners
+	# never take a map click. Same availability rule and the same press handler as the old plaque button.
+	_hit_area = TextureButton.new()
+	_hit_area.name = "TurnEndHitArea"
+	_hit_area.focus_mode = Control.FOCUS_NONE
+	_hit_area.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_hit_area.tooltip_text = TURN_END_TOOLTIP
+	_hit_area.visible = false
+	_hit_area.mouse_entered.connect(_on_hit_area_hover.bind(true))
+	_hit_area.mouse_exited.connect(_on_hit_area_hover.bind(false))
+	_hit_area.button_down.connect(_on_hit_area_down.bind(true))
+	_hit_area.button_up.connect(_on_hit_area_down.bind(false))
+	_hit_area.pressed.connect(_on_plaque_pressed)
+	add_child(_hit_area)
+	_apply_sky_progress(0.0)
+	_layout_daynight_layers()
+
+
+## The sky window on this control: centre and radius in local pixels (COMPASS_SIZE canvas).
+func get_window_circle() -> Dictionary:
+	var scale_factor := COMPASS_SIZE.x / MASTER_SIZE
+	return {"center": WINDOW_CENTER_MASTER * scale_factor, "radius": WINDOW_DIAMETER_MASTER * scale_factor * 0.5}
+
+
+func _layout_daynight_layers() -> void:
+	var circle := get_window_circle()
+	var window_size := Vector2.ONE * float(circle.radius) * 2.0
+	for layer in [_sky_a, _sky_b]:
+		if layer != null and is_instance_valid(layer):
+			layer.position = (circle.center as Vector2) - window_size * 0.5
+			layer.size = window_size
+	for layer in [_frame_layer, _center_layer]:
+		if layer != null and is_instance_valid(layer):
+			layer.position = Vector2.ZERO
+			layer.size = COMPASS_SIZE
+	if _hit_area != null and is_instance_valid(_hit_area):
+		_hit_area.position = Vector2.ZERO
+		_hit_area.size = COMPASS_SIZE
+		if _hit_area.texture_click_mask == null:
+			_hit_area.texture_click_mask = _window_click_mask(circle)
+
+
+func _window_click_mask(circle: Dictionary) -> BitMap:
+	var mask := BitMap.new()
+	var size_i := Vector2i(COMPASS_SIZE)
+	mask.create(size_i)
+	var center: Vector2 = circle.center
+	var radius: float = circle.radius
+	for y in size_i.y:
+		for x in size_i.x:
+			if Vector2(x + 0.5, y + 0.5).distance_to(center) <= radius:
+				mask.set_bit(x, y, true)
+	return mask
+
+
+func _on_hit_area_hover(hovered: bool) -> void:
+	_hit_hovered = hovered
+	_refresh_center_texture()
+
+
+func _on_hit_area_down(down: bool) -> void:
+	_hit_pressed = down
+	_refresh_center_texture()
+
+
+func _refresh_center_texture() -> void:
+	if _center_layer == null:
+		return
+	if _serializing_turn_end:
+		return   # no swap during the turn presentation
+	var key := "pressed" if _hit_pressed else ("hover" if _hit_hovered else "normal")
+	_center_layer.texture = _center_textures[key]
+	var shade := SKY_PRESSED_MODULATE if _hit_pressed else 1.0
+	for layer in [_sky_a, _sky_b]:
+		if layer != null:
+			layer.self_modulate = Color(shade, shade, shade, 1.0)
+
+
+func _refresh_hit_area_availability() -> void:
+	if _hit_area == null:
+		return
+	var available := _is_actual_turn_end_available()
+	if _hit_area.visible != available:
+		_hit_area.visible = available
+		if not available:
+			_hit_hovered = false
+			_hit_pressed = false
+			_refresh_center_texture()
+
+
+## Sky cycle progress 0..1: four sections (day, dusk, night, dawn); SkyA is the section's sky, SkyB the next one fading in.
+func _apply_sky_progress(progress: float) -> void:
+	if _sky_a == null or _sky_b == null or _sky_textures.size() < 4:
+		return
+	_sky_progress = clampf(progress, 0.0, 1.0)
+	var scaled := _sky_progress * 4.0
+	var section := floori(scaled) % 4
+	var t := scaled - floorf(scaled)
+	_sky_a.texture = _sky_textures[section]
+	_sky_b.texture = _sky_textures[(section + 1) % 4]
+	_sky_b.modulate.a = -(cos(PI * t) - 1.0) * 0.5   # ease in-out sine
 
 
 func _build_turn_end_plaque() -> void:
@@ -206,6 +349,9 @@ func _on_turn_button_pressed_serialized() -> void:
 func _start_continuous_spin() -> void:
 	if _spin_tween != null and _spin_tween.is_valid():
 		_spin_tween.kill()
+	if use_daynight_turn_button:
+		_start_sky_cycle()
+		return
 	if _needle_layer == null or not is_instance_valid(_needle_layer):
 		return
 	_needle_layer.rotation = 0.0
@@ -244,6 +390,9 @@ func _wait_for_completed_turn(pre_turn_token: String) -> void:
 
 
 func _finish_spin_cleanly() -> void:
+	if use_daynight_turn_button:
+		await _finish_sky_cycle()
+		return
 	if _needle_layer == null or not is_instance_valid(_needle_layer):
 		return
 	if _spin_tween != null and _spin_tween.is_valid():
@@ -264,6 +413,39 @@ func _finish_spin_cleanly() -> void:
 	if _spin_tween == tween:
 		_needle_layer.rotation = 0.0
 		_spin_tween = null
+
+
+func _start_sky_cycle() -> void:
+	if _sky_a == null or not is_instance_valid(_sky_a):
+		return
+	_apply_sky_progress(0.0)
+	var tween := create_tween()
+	_spin_tween = tween
+	tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+	tween.set_loops()
+	tween.tween_method(_apply_sky_progress, 0.0, 1.0, CYCLE_SEC).set_trans(Tween.TRANS_LINEAR)
+
+
+## Runs on to the next day (progress 1.0) from where the cycle is, then rests on day (SkyA day, SkyB clear).
+func _finish_sky_cycle() -> void:
+	if _spin_tween != null and _spin_tween.is_valid():
+		_spin_tween.kill()
+	_spin_tween = null
+	if _sky_a == null or not is_instance_valid(_sky_a):
+		return
+	var progress := _sky_progress
+	if progress > 0.002 and 1.0 - progress > 0.002:
+		var duration := maxf(0.08, CYCLE_SEC * (1.0 - progress))
+		var tween := create_tween()
+		_spin_tween = tween
+		tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+		tween.tween_method(_apply_sky_progress, progress, 1.0, duration).set_trans(Tween.TRANS_LINEAR)
+		await tween.finished
+		if _spin_tween != tween:
+			return
+		_spin_tween = null
+	_apply_sky_progress(0.0)
+	_refresh_center_texture()
 
 
 func _apply_spin_progress(progress: float) -> void:
@@ -338,6 +520,8 @@ func _hide_plaque_immediately() -> void:
 		_apply_plaque_alpha(0.0)
 	if _plaque_button != null:
 		_plaque_button.visible = false
+	if _hit_area != null:
+		_hit_area.visible = false
 
 
 func _on_plaque_mouse_entered() -> void:
@@ -397,3 +581,5 @@ func _layout_compass() -> void:
 	if _plaque_button != null and is_instance_valid(_plaque_button):
 		_plaque_button.position = (COMPASS_SIZE - PLAQUE_SIZE) * 0.5
 		_plaque_button.size = PLAQUE_SIZE
+	if use_daynight_turn_button:
+		_layout_daynight_layers()
