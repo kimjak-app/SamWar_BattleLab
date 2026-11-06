@@ -27,8 +27,10 @@
 | 11 | `agent/ORDER_M7_1_CONTEXT_ENTRY_20261105.md` + 답신 `agent/ORDER_M7_1_REPLY_1_20261105.md` | **완료**(`a051d5a`·`8b139b4`, 보고서 `ae49670`, C-track success) |
 | 12 | `agent/ORDER_CITYHUD_CH3_LAYOUT_20261105.md` | **완료**(`328ee04`·`a63e137`, 보고서 `ced058f`) |
 | 13 | `agent/ORDER_CITYHUD_CH2B_DOCK_20261106.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`(이어서 커밋, 시작 `ced058f`). **김작 F6(11-06 09:08) 지적: 성 안 창을 좌측 정보창 옆으로. M7보다 먼저** |
-| 14 | `agent/ORDER_M7_2_RESULT_RETURN_20261106.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이어서 커밋, 시작 `ae49670`). 엔진 쓰기 +1(17) |
-| 15 | `agent/ORDER_M7_4_RETREAT_20261106.md` | 준비됨 — M7 가지, 14번 뒤. 엔진 쓰기 +1(18). M7-3(월드맵→3D 전장)은 별도 지시서(클코치 작성 예정) |
+| 14 | `agent/ORDER_CITYHUD_CH2C_LEFT_PANEL_GRIP_20261106.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`, 13번 뒤. 좌측 정보창 이동 손잡이(main 수정 0, 불가하면 멈춤) |
+| 15 | `agent/ORDER_WM3D_PERF_CSV_READ_20261106.md` | 준비됨 — **읽기 전용**(코드·설정 수정 금지). 김작 PC `wm3d_mem_log.csv` 숫자 요약 + 증거 CSV 커밋 |
+| 16 | `agent/ORDER_M7_2_RESULT_RETURN_20261106.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이어서 커밋, 시작 `ae49670`). 엔진 쓰기 +1(17) |
+| 17 | `agent/ORDER_M7_4_RETREAT_20261106.md` | 준비됨 — M7 가지, 16번 뒤. 엔진 쓰기 +1(18). M7-3(월드맵→3D 전장)은 별도 지시서(클코치 작성 예정) |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
