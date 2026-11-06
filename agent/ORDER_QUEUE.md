@@ -41,7 +41,7 @@
 | 25 | `agent/ORDER_HUDFIX_REPLY_1_20261106.md` | 준비됨 — **24번 STOP 답신**(가지 `feature/wm3d-hudfix-20261106`에서 이어서). 턴 버튼 테스트 72행 한 줄 수정 허용(선택 A), 창 밖 클릭 규칙 확정(드래그는 닫지 않음). 24번을 이 답신대로 끝낸다 |
 | 26 | `agent/ORDER_WM3D_PERF3_REPLY_1_20261106.md` | 준비됨 — **22번 STOP 답신**(`feature/wm3d-bake-20261106`). 조건부 합격 문구 한 줄만 보고서에 추가(문서만, `[skip ci]`). 코드·CI 변경 0. 25번 뒤 |
 | 27 | `agent/ORDER_CITYHUD_CH4_TECH_LINK_20261106.md` | **보류 — 시작하지 않는다.** 김작이 25번 F6 합격 + `main` 합류 뒤 "준비됨"으로 바꿀 때까지 대기. 새 가지 `feature/wm3d-cityhud4-20261106`(시작: 그때의 `origin/main`). 성 안 건물을 테크 완료와 연동(생활 5종·민가 항상, 시장 최고 단계 하나, 항구→무역항). `main` 수정 0줄 |
-| 28 | `agent/ORDER_MERGE_MAIN_HUDFIX_20261106.md` | **보류 — 시작하지 않는다.** 김작이 "병합해"라고 승인할 때까지 대기. HUDFIX(`a9e3b84`)를 `main`에 fast-forward 1회 + 백업 태그 1회. 보고서는 새 가지 `feature/wm3d-mergereport2-20261106`. 27번(CH-4)보다 **먼저** 한다 |
+| 28 | `agent/ORDER_MERGE_MAIN_HUDFIX_20261106.md` | 준비됨 — **김작 승인 11-06 21:16 "병합해!"**. HUDFIX(`a9e3b84`)를 `main`에 fast-forward 1회 + 백업 태그 1회. 보고서는 새 가지 `feature/wm3d-mergereport2-20261106`. 27번(CH-4)보다 **먼저** 한다 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
