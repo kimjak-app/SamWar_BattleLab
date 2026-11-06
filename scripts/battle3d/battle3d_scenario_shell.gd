@@ -30,6 +30,7 @@ var choose_button: Button
 var worldmap_button: Button # M7-2: back to the worldmap with the result (context mode only)
 var result_text := ""
 var lab_count := 0
+var retreat_pressed_frame := -1 # M7-4: the frame of the last retreat press (one frame off after it)
 var worldmap_context_mode := false # M7-1: the lab was started from a worldmap battle context (M7-2 takes it over)
 # HUD spike: the 2D top HUD as an overlay (layer 5, under the shell's layer 10).
 # It shows the lab's momentum_display and current_round only (no engine call).
@@ -136,6 +137,7 @@ func _ready() -> void:
 	top_commands.on_speed = func(): lab.cycle_speed()
 	top_commands.on_auto = func(): lab.request_auto()
 	top_commands.on_end_turn = func(): lab.request_wait()
+	top_commands.on_retreat = retreat # M7-4
 	add_child(top_commands)
 	log_hud = load(LOG_HUD_SCENE).instantiate()
 	log_hud.visible = false
@@ -268,6 +270,18 @@ func restart() -> void:
 	if worldmap_context_mode: return # the context was consumed by the engine
 	start_scenario(scenario)
 
+func retreat_available() -> bool:
+	# M7-4: context mode, the engine's attack-context rule with no result yet, and not in the frame of a press.
+	return worldmap_context_mode and lab != null and is_instance_valid(lab) and lab.hud_retreat_available() 		and Engine.get_process_frames() != retreat_pressed_frame
+
+func retreat() -> void:
+	# M7-4: one press, one engine retreat. The engine returns to the worldmap in the same call, or only logs (then the
+	# button comes back on the next frame's refresh).
+	if not retreat_available(): return
+	retreat_pressed_frame = Engine.get_process_frames()
+	top_commands.show_retreat_state(false)
+	lab.request_retreat()
+
 func return_to_worldmap() -> void:
 	# M7-2: one press, one engine return. The engine sets the result meta and changes the scene in the same call, or only
 	# logs and stays (no context / no result): then the button is usable again.
@@ -339,6 +353,7 @@ func _refresh_top_commands() -> void:
 	var wait_tip: String = lab.wait_button.tooltip_text
 	top_commands.show_state(lab.engine.get("is_full_auto_battle_enabled"), lab.auto_button.disabled, lab.wait_button.disabled,
 		"턴 종료" if not lab.wait_button.disabled else wait_tip, int(lab.SPEED_STEPS[lab.speed_index]))
+	top_commands.show_retreat_state(retreat_available()) # M7-4
 
 func _place_lab_commands() -> void:
 	# The lab builds these once and never moves them again.

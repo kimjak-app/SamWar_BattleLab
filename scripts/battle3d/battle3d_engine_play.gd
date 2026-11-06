@@ -791,6 +791,17 @@ func request_return_to_worldmap() -> void:
 	# the engine itself refuses without a context or a finished battle (log only, no scene change).
 	engine.call("_return_to_worldmap_with_result")
 
+func request_retreat() -> void:
+	# M7-4: the engine's own retreat (result "retreat", then its worldmap return). Engine write 18; the engine refuses
+	# outside a worldmap attack context or after the result (log only).
+	engine.call("_on_retreat_button_pressed")
+
+func hud_retreat_available() -> bool:
+	# M7-4: the engine's rule, read only (one source): a worldmap attack context and no result yet.
+	var context = engine.get("worldmap_battle_context")
+	if not context is Dictionary or (context as Dictionary).is_empty() or not battle_result.is_empty(): return false
+	return bool(engine.call("_is_worldmap_player_attack_context", context))
+
 func request_wait() -> void:
 	if not ready_for_input or _input_locked(): return
 	var reason := _wait_block_reason()

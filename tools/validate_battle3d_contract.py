@@ -24,9 +24,11 @@ assert 'var query_mode := true' in view
 CONTEXT_ENTRY_TEST=ROOT/'tests/scripts/test_battle3d_worldmap_context_entry.gd'
 # M7-2: the result return test also builds the context and returns to WorldMap.tscn (named once, in the test only).
 RESULT_RETURN_TEST=ROOT/'tests/scripts/test_battle3d_worldmap_result_return.gd'
+# M7-4: the retreat test as well.
+RETREAT_TEST=ROOT/'tests/scripts/test_battle3d_worldmap_retreat.gd'
 for file in list(S.glob('*.gd'))+list((ROOT/'tests/scripts').glob('test_battle3d_*.gd')):
     text=file.read_text(encoding='utf8')
-    if file in (CONTEXT_ENTRY_TEST, RESULT_RETURN_TEST):
+    if file in (CONTEXT_ENTRY_TEST, RESULT_RETURN_TEST, RETREAT_TEST):
         assert text.count('WorldMap.tscn') == 1, f'{file.name}: WorldMap.tscn once'
     else:
         assert 'WorldMap.tscn' not in text

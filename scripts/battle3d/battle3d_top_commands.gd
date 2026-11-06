@@ -7,8 +7,8 @@ extends CanvasLayer
 # which this row no longer uses. Auto shows on/off by a brighter gold border and
 # text (its text never changes); a disabled button is dimmed. The buttons only
 # call the shell's callables (the lab's own functions); this node reads nothing
-# from the engine and writes nothing. Retreat is disabled with no handler until
-# the world-map link (M7).
+# from the engine and writes nothing. Retreat (M7-4) calls on_retreat; the shell
+# turns it on only in a worldmap attack context (show_retreat_state).
 const BUTTON_SIZE := Vector2(68.0, 68.0)
 const BUTTON_GAP := 18.0
 const ROW_Y := 27.0
@@ -16,7 +16,8 @@ const FIRST_X := 1435.0 # option, speed, auto, end turn, retreat (the 2D auto si
 const HOVER_SCALE := Vector2(1.07, 1.07)
 const PRESS_SCALE := Vector2(0.94, 0.94)
 const TWEEN_DURATION := 0.11
-const RETREAT_TOOLTIP := "월드맵 연결 후 사용"
+const RETREAT_TOOLTIP := "월드맵 공격전에서만 후퇴할 수 있습니다." # off
+const RETREAT_ON_TOOLTIP := "후퇴 · 생존 병력과 남은 보급을 출발 도시로 복귀"
 const FONT_SIZE := 16
 # Temporary style (no art yet): a plain frame and text.
 const TEMP_FILL := Color(0.10, 0.09, 0.07, 0.92)
@@ -36,6 +37,7 @@ var on_option := Callable()
 var on_speed := Callable()
 var on_auto := Callable()
 var on_end_turn := Callable()
+var on_retreat := Callable()
 var _tweens := {}
 
 func _ready() -> void:
@@ -48,8 +50,8 @@ func _ready() -> void:
 	end_turn_button = _temp_button("턴 종료", 3)
 	end_turn_button.pressed.connect(func(): if on_end_turn.is_valid(): on_end_turn.call())
 	retreat_button = _temp_button("후퇴", 4)
-	retreat_button.disabled = true
-	retreat_button.tooltip_text = RETREAT_TOOLTIP
+	retreat_button.pressed.connect(func(): if on_retreat.is_valid(): on_retreat.call())
+	show_retreat_state(false)
 
 func slot_rect(index: int) -> Rect2:
 	return Rect2(Vector2(FIRST_X + index * (BUTTON_SIZE.x + BUTTON_GAP), ROW_Y), BUTTON_SIZE)
@@ -113,3 +115,8 @@ func show_state(auto_on: bool, auto_disabled: bool, end_turn_disabled: bool, end
 	end_turn_button.disabled = end_turn_disabled
 	end_turn_button.tooltip_text = end_turn_tooltip
 	speed_button.text = "속도\n×%d" % speed
+
+func show_retreat_state(enabled: bool) -> void:
+	# M7-4: on only when the shell says so (worldmap attack context, no result); the tooltip follows.
+	retreat_button.disabled = not enabled
+	retreat_button.tooltip_text = RETREAT_ON_TOOLTIP if enabled else RETREAT_TOOLTIP
