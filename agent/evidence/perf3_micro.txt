@@ -1,0 +1,14 @@
+[PERF3_MICRO] baked file res://worldmap3d/maps/eastasia/baked_paths.json size 47756 bytes
+[PERF3_MICRO] run 1: one section key 34.8 ms, file read+parse 2.1 ms | build_paths baked 43.2 (baked) live 2926.7 | build_sea_paths baked 38.1 (baked) live 1071.4
+[PERF3_MICRO] run 2: one section key 35.2 ms, file read+parse 2.2 ms | build_paths baked 43.2 (baked) live 2986.1 | build_sea_paths baked 38.4 (baked) live 1093.9
+[PERF3_MICRO] run 3: one section key 35.4 ms, file read+parse 2.4 ms | build_paths baked 43.3 (baked) live 2925.4 | build_sea_paths baked 38.5 (baked) live 1085.4
+[PERF3_2E] terrain tiles build 2061 ms, 109 tiles, lod0 tris 2639484
+[PERF3_2E] terrain plain: 109 files 70.4 MB, save 172 ms, load run 1 55 ms
+[PERF3_2E] terrain plain: 109 files 70.4 MB, save 172 ms, load run 2 57 ms
+[PERF3_2E] terrain compressed: 109 files 20.3 MB, save 650 ms, load run 1 201 ms
+[PERF3_2E] terrain compressed: 109 files 20.3 MB, save 650 ms, load run 2 204 ms
+[PERF3_2E] river mesh rebuild 1103 ms, tris 404966
+[PERF3_2E] river plain: 17.1 MB, load run 1 18 ms
+[PERF3_2E] river plain: 17.1 MB, load run 2 13 ms
+[PERF3_2E] river compressed: 5.2 MB, load run 1 46 ms
+[PERF3_2E] river compressed: 5.2 MB, load run 2 42 ms

@@ -1,0 +1,121 @@
+[PASS] the EastAsia root points WorldMapRoads at res://worldmap3d/maps/eastasia/baked_paths.json
+[PASS] the real scene used the baked cells (roads baked, sea baked)
+[PASS] baked: 13 road + 5 sea cell lists (13, 5)
+[BAKED_PATHS] live A* + smoothing 4096 ms
+[PASS] a fresh WorldMapRoads without baked_file routes live
+[PASS] a roads: 13 entries == 13
+[PASS] a roads chengdu-jianye: 443 cells equal (live 443)
+[PASS] a roads chengdu-luoyang: 313 cells equal (live 313)
+[PASS] a roads edo-kyoto: 151 cells equal (live 151)
+[PASS] a roads gyeongju-hanseong: 111 cells equal (live 111)
+[PASS] a roads gyeongju-sabi: 87 cells equal (live 87)
+[PASS] a roads hanseong-pyeongyang: 77 cells equal (live 77)
+[PASS] a roads hanseong-sabi: 55 cells equal (live 55)
+[PASS] a roads jianye-luoyang: 179 cells equal (live 179)
+[PASS] a roads jianye-yecheng: 152 cells equal (live 152)
+[PASS] a roads karakorum-pyeongyang: 928 cells equal (live 928)
+[PASS] a roads karakorum-yecheng: 486 cells equal (live 486)
+[PASS] a roads kyoto-osaka: 16 cells equal (live 16)
+[PASS] a roads luoyang-yecheng: 79 cells equal (live 79)
+[BAKED_PATHS] a roads: 3077 cells compared
+[PASS] a sea: 5 entries == 5
+[PASS] a sea gyeongju-kyoto: 395 cells equal (live 395)
+[PASS] a sea gyeongju-osaka: 393 cells equal (live 393)
+[PASS] a sea jianye-sabi: 159 cells equal (live 159)
+[PASS] a sea kyushu-osaka: 276 cells equal (live 276)
+[PASS] a sea kyushu-sabi: 230 cells equal (live 230)
+[BAKED_PATHS] a sea: 1453 cells compared
+[PASS] a: path counts equal (13/13, 5/5)
+[PASS] a: smoothed paths, sea paths and sea_links identical
+[PASS] baked_paths.json parses
+[PASS] d: committed version == fresh bake (1)
+[PASS] d: committed key == fresh bake (e32e7021d813652c)
+[PASS] d: committed roads_key == fresh bake (25865fba5603f5a9)
+[PASS] d: committed sea_routes_key == fresh bake (1d3bb6e0cb07685b)
+[PASS] d: committed road cells == fresh bake
+[PASS] d: committed sea cells == fresh bake
+[PASS] d: committed file text == fresh bake text
+[PASS] b: chengdu moved to another grid cell
+WARNING: WorldMapRoads: roads: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd) -> live A*
+[PASS] b moved chengdu: roads fall back live (roads: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd))
+WARNING: WorldMapRoads: sea_routes: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd) -> live A*
+[PASS] b moved chengdu: sea routes fall back live (sea_routes: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd))
+[PASS] b moved chengdu roads: 13 entries == 13
+[PASS] b moved chengdu roads chengdu-jianye: 442 cells equal (live 442)
+[PASS] b moved chengdu roads chengdu-luoyang: 312 cells equal (live 312)
+[PASS] b moved chengdu roads edo-kyoto: 151 cells equal (live 151)
+[PASS] b moved chengdu roads gyeongju-hanseong: 111 cells equal (live 111)
+[PASS] b moved chengdu roads gyeongju-sabi: 87 cells equal (live 87)
+[PASS] b moved chengdu roads hanseong-pyeongyang: 77 cells equal (live 77)
+[PASS] b moved chengdu roads hanseong-sabi: 55 cells equal (live 55)
+[PASS] b moved chengdu roads jianye-luoyang: 179 cells equal (live 179)
+[PASS] b moved chengdu roads jianye-yecheng: 152 cells equal (live 152)
+[PASS] b moved chengdu roads karakorum-pyeongyang: 928 cells equal (live 928)
+[PASS] b moved chengdu roads karakorum-yecheng: 486 cells equal (live 486)
+[PASS] b moved chengdu roads kyoto-osaka: 16 cells equal (live 16)
+[PASS] b moved chengdu roads luoyang-yecheng: 79 cells equal (live 79)
+[BAKED_PATHS] b moved chengdu roads: 3075 cells compared
+[PASS] b moved chengdu sea: 5 entries == 5
+[PASS] b moved chengdu sea gyeongju-kyoto: 395 cells equal (live 395)
+[PASS] b moved chengdu sea gyeongju-osaka: 393 cells equal (live 393)
+[PASS] b moved chengdu sea jianye-sabi: 159 cells equal (live 159)
+[PASS] b moved chengdu sea kyushu-osaka: 276 cells equal (live 276)
+[PASS] b moved chengdu sea kyushu-sabi: 230 cells equal (live 230)
+[BAKED_PATHS] b moved chengdu sea: 1453 cells compared
+[PASS] b moved chengdu: path counts equal (13/13, 5/5)
+[PASS] b moved chengdu: smoothed paths, sea paths and sea_links identical
+WARNING: WorldMapRoads: roads: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd) -> live A*
+[PASS] b link removed: roads fall back live (roads: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd))
+WARNING: WorldMapRoads: sea_routes: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd) -> live A*
+[PASS] b link removed: sea routes fall back live (sea_routes: baked file res://worldmap3d/maps/eastasia/baked_paths.json is stale (inputs changed; re-run tools/bake_worldmap3d_paths.gd))
+[PASS] b link removed roads: 12 entries == 12
+[PASS] b link removed roads chengdu-luoyang: 313 cells equal (live 313)
+[PASS] b link removed roads edo-kyoto: 151 cells equal (live 151)
+[PASS] b link removed roads gyeongju-hanseong: 111 cells equal (live 111)
+[PASS] b link removed roads gyeongju-sabi: 87 cells equal (live 87)
+[PASS] b link removed roads hanseong-pyeongyang: 77 cells equal (live 77)
+[PASS] b link removed roads hanseong-sabi: 55 cells equal (live 55)
+[PASS] b link removed roads jianye-luoyang: 179 cells equal (live 179)
+[PASS] b link removed roads jianye-yecheng: 152 cells equal (live 152)
+[PASS] b link removed roads karakorum-pyeongyang: 928 cells equal (live 928)
+[PASS] b link removed roads karakorum-yecheng: 486 cells equal (live 486)
+[PASS] b link removed roads kyoto-osaka: 16 cells equal (live 16)
+[PASS] b link removed roads luoyang-yecheng: 79 cells equal (live 79)
+[BAKED_PATHS] b link removed roads: 2634 cells compared
+[PASS] b link removed sea: 4 entries == 4
+[PASS] b link removed sea gyeongju-osaka: 393 cells equal (live 393)
+[PASS] b link removed sea jianye-sabi: 159 cells equal (live 159)
+[PASS] b link removed sea kyushu-osaka: 276 cells equal (live 276)
+[PASS] b link removed sea kyushu-sabi: 230 cells equal (live 230)
+[BAKED_PATHS] b link removed sea: 1058 cells compared
+[PASS] b link removed: path counts equal (12/12, 4/4)
+[PASS] b link removed: smoothed paths, sea paths and sea_links identical
+WARNING: WorldMapRoads: roads: baked file res://worldmap3d/maps/eastasia/__no_baked_paths__.json is missing or unreadable -> live A*
+[PASS] c missing: roads fall back live (roads: baked file res://worldmap3d/maps/eastasia/__no_baked_paths__.json is missing or unreadable)
+WARNING: WorldMapRoads: sea_routes: baked file res://worldmap3d/maps/eastasia/__no_baked_paths__.json is missing or unreadable -> live A*
+[PASS] c missing: sea routes fall back live (sea_routes: baked file res://worldmap3d/maps/eastasia/__no_baked_paths__.json is missing or unreadable)
+[PASS] c missing roads: 13 entries == 13
+[PASS] c missing roads chengdu-jianye: 443 cells equal (live 443)
+[PASS] c missing roads chengdu-luoyang: 313 cells equal (live 313)
+[PASS] c missing roads edo-kyoto: 151 cells equal (live 151)
+[PASS] c missing roads gyeongju-hanseong: 111 cells equal (live 111)
+[PASS] c missing roads gyeongju-sabi: 87 cells equal (live 87)
+[PASS] c missing roads hanseong-pyeongyang: 77 cells equal (live 77)
+[PASS] c missing roads hanseong-sabi: 55 cells equal (live 55)
+[PASS] c missing roads jianye-luoyang: 179 cells equal (live 179)
+[PASS] c missing roads jianye-yecheng: 152 cells equal (live 152)
+[PASS] c missing roads karakorum-pyeongyang: 928 cells equal (live 928)
+[PASS] c missing roads karakorum-yecheng: 486 cells equal (live 486)
+[PASS] c missing roads kyoto-osaka: 16 cells equal (live 16)
+[PASS] c missing roads luoyang-yecheng: 79 cells equal (live 79)
+[BAKED_PATHS] c missing roads: 3077 cells compared
+[PASS] c missing sea: 5 entries == 5
+[PASS] c missing sea gyeongju-kyoto: 395 cells equal (live 395)
+[PASS] c missing sea gyeongju-osaka: 393 cells equal (live 393)
+[PASS] c missing sea jianye-sabi: 159 cells equal (live 159)
+[PASS] c missing sea kyushu-osaka: 276 cells equal (live 276)
+[PASS] c missing sea kyushu-sabi: 230 cells equal (live 230)
+[BAKED_PATHS] c missing sea: 1453 cells compared
+[PASS] c missing: path counts equal (13/13, 5/5)
+[PASS] c missing: smoothed paths, sea paths and sea_links identical
+[BAKED_PATHS] checks=105 failures=0

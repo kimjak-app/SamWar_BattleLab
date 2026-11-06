@@ -1,0 +1,1 @@
+[BAKE_PATHS] wrote res://worldmap3d/maps/eastasia/baked_paths.json: 13 roads, 5 sea routes, 4530 cells, key e32e7021d813652cc5fd85f4fbfa16c4013c776e25bf3740d22774892a51ae09 (4095 ms)

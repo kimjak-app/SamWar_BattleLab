@@ -1,0 +1,126 @@
+# runner (outside the repository)
+#!/bin/bash
+# PERF3: before (origin/main) / after (bake) x window / headless x 5 runs of WorldMap.tscn with the PERF2 driver.
+P="$1"; D="$2"; G=/c/Users/seong/Desktop/godot/Godot_v4.6.2-stable_win64_console.exe
+mkdir -p "$P/logs"
+for w in before after; do
+  dir=/c/eastwar_tmp/pbefore; [ $w = after ] && dir=/c/eastwar_tmp/bake
+  for mode in window headless; do
+    ud="$P/ud_${w}_${mode}"; rm -rf "$ud"; mkdir -p "$ud"
+    for run in 1 2 3 4 5; do
+      log="$P/logs/${w}_WorldMap.tscn_${mode}_${run}.log"
+      flag=""; [ "$mode" = headless ] && flag="--headless"
+      (cd "$dir" && APPDATA="$(cygpath -w "$ud")" timeout 240 "$G" $flag --path . --resolution 1920x1080 --script "$D" -- "res://WorldMap.tscn" "${w}_${mode}_${run}" > "$log" 2>&1)
+      echo "$w $mode $run exit=$? $(grep -o '"end_ms":[0-9.]*\|"road_build_ms":[0-9.]*\|"sea_build_ms":[0-9.]*\|"built_in_ms":[0-9.]*' "$log" | tr '\n' ' ')"
+    done
+  done
+done
+echo ALLDONE
+
+# driver = the PERF2 driver (agent/evidence/perf2_method.txt on feature/wm3d-perf-20261106), unchanged
+
+# micro / 2-E script (outside the repository)
+extends SceneTree
+
+# PERF3 micro measurements (outside the repository). args after "--": <out dir for .res trials>
+# 1. baked path read: section keys, file parse, build_paths / build_sea_paths baked vs live (3 runs each)
+# 2-E. terrain tiles / river mesh: build time vs .res file size and load time (plain and compressed); files are not committed
+
+const SCENE_3D := "res://worldmap3d/scenes/worldmap3d_eastasia.tscn"
+
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+
+func _ms(t: int) -> float:
+	return (Time.get_ticks_usec() - t) / 1000.0
+
+
+func _run() -> void:
+	var out_dir: String = OS.get_cmdline_user_args()[0]
+	DirAccess.make_dir_recursive_absolute(out_dir)
+	var map_root = (load(SCENE_3D) as PackedScene).instantiate()
+	map_root.set("show_roads", false)
+	map_root.set("show_markers", false)
+	map_root.set("show_region_labels", false)
+	get_root().add_child(map_root)
+	await process_frame
+	var geo: WorldMapGeo = map_root.get("geo")
+	var xz: Dictionary = map_root.get("marker_xz")
+	var rules: Dictionary = map_root.get("rules")
+	var baked: String = map_root.get("roads").baked_file
+	print("[PERF3_MICRO] baked file %s size %d bytes" % [baked, FileAccess.get_file_as_bytes(baked).size()])
+	for run in 3:
+		var t := Time.get_ticks_usec()
+		WorldMapRoads.section_key("roads", geo, xz, rules.roads)
+		var key_ms := _ms(t)
+		t = Time.get_ticks_usec()
+		JSON.parse_string(FileAccess.get_file_as_string(baked))
+		var parse_ms := _ms(t)
+		var r := WorldMapRoads.new()
+		r.baked_file = baked
+		t = Time.get_ticks_usec()
+		r.build_paths(geo, xz, rules.roads)
+		var road_baked := _ms(t)
+		t = Time.get_ticks_usec()
+		r.build_sea_paths(geo, xz, rules.sea_routes)
+		var sea_baked := _ms(t)
+		var l := WorldMapRoads.new()
+		t = Time.get_ticks_usec()
+		l.build_paths(geo, xz, rules.roads)
+		var road_live := _ms(t)
+		t = Time.get_ticks_usec()
+		l.build_sea_paths(geo, xz, rules.sea_routes)
+		var sea_live := _ms(t)
+		print("[PERF3_MICRO] run %d: one section key %.1f ms, file read+parse %.1f ms | build_paths baked %.1f (%s) live %.1f | build_sea_paths baked %.1f (%s) live %.1f" % [
+			run + 1, key_ms, parse_ms, road_baked, r.last_road_source, road_live, sea_baked, r.last_sea_source, sea_live])
+
+	# 2-E terrain tiles
+	var tcfg: Dictionary = map_root.get("cfg").raw.get("terrain", {})
+	var lp: String = map_root.get("cfg")._res(String(tcfg.get("lod_errors", "terrain/tile_lod.json")))
+	var lod_err: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(lp)).get("errors", {}) if FileAccess.file_exists(lp) else {}
+	var t2 := Time.get_ticks_usec()
+	var tiles: Array = geo.build_terrain_tiles(int(tcfg.get("tile_cells", 128)), tcfg.get("lod_strides", [2, 4, 8]), float(tcfg.get("skirt_km", 6.0)), lod_err)
+	var build_ms := _ms(t2)
+	var tris := 0
+	for t in tiles:
+		tris += int(t.tris)
+	print("[PERF3_2E] terrain tiles build %.0f ms, %d tiles, lod0 tris %d" % [build_ms, tiles.size(), tris])
+	for flag in [0, ResourceSaver.FLAG_COMPRESS]:
+		var tag := "compressed" if flag else "plain"
+		var bytes := 0
+		var paths := []
+		var ts := Time.get_ticks_usec()
+		for t in tiles:
+			var p := out_dir.path_join("terrain_%s_%d_%d.res" % [tag, t.tile.x, t.tile.y])
+			ResourceSaver.save(t.mesh, p, flag)
+			paths.append(p)
+		var save_ms := _ms(ts)
+		for p in paths:
+			bytes += FileAccess.get_file_as_bytes(p).size()
+		for run in 2:
+			var tl := Time.get_ticks_usec()
+			for p in paths:
+				ResourceLoader.load(p, "", ResourceLoader.CACHE_MODE_IGNORE)
+			print("[PERF3_2E] terrain %s: %d files %.1f MB, save %.0f ms, load run %d %.0f ms" % [tag, paths.size(), bytes / 1048576.0, save_ms, run + 1, _ms(tl)])
+
+	# 2-E rivers (the root's own mesh)
+	var river_node: MeshInstance3D = map_root.get("river_node")
+	var t3 := Time.get_ticks_usec()
+	map_root.call("_build_rivers")
+	var river_ms := _ms(t3)
+	var rmesh: Mesh = river_node.mesh if river_node != null else null
+	print("[PERF3_2E] river mesh rebuild %.0f ms, tris %d" % [river_ms, int(map_root.get("stats").get("river_tris", 0))])
+	if rmesh != null:
+		for flag in [0, ResourceSaver.FLAG_COMPRESS]:
+			var tag := "compressed" if flag else "plain"
+			var p := out_dir.path_join("river_%s.res" % tag)
+			ResourceSaver.save(rmesh, p, flag)
+			for run in 2:
+				var tl := Time.get_ticks_usec()
+				ResourceLoader.load(p, "", ResourceLoader.CACHE_MODE_IGNORE)
+				print("[PERF3_2E] river %s: %.1f MB, load run %d %.0f ms" % [tag, FileAccess.get_file_as_bytes(p).size() / 1048576.0, run + 1, _ms(tl)])
+	map_root.queue_free()
+	await process_frame
+	quit(0)

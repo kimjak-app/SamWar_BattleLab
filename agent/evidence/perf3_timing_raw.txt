@@ -1,0 +1,22 @@
+# PERF3 before (origin/main ab9b739) / after (feature/wm3d-bake-20261106 cb121b0), WorldMap.tscn, PERF2 driver, 5 runs each, fresh temporary APPDATA per point+mode
+before window 1 exit=0 "built_in_ms":8606.4 "end_ms":12975.6 "road_build_ms":3159.2 "sea_build_ms":1175.5
+before window 2 exit=0 "built_in_ms":8771.3 "end_ms":13126.0 "road_build_ms":3203.9 "sea_build_ms":1286.3
+before window 3 exit=0 "built_in_ms":8617.6 "end_ms":12971.2 "road_build_ms":3190.5 "sea_build_ms":1168.9
+before window 4 exit=0 "built_in_ms":8644.3 "end_ms":12987.2 "road_build_ms":3156.6 "sea_build_ms":1176.2
+before window 5 exit=0 "built_in_ms":8742.8 "end_ms":13116.9 "road_build_ms":3315.0 "sea_build_ms":1199.9
+before headless 1 exit=0 "built_in_ms":8566.2 "end_ms":12452.4 "road_build_ms":3301.1 "sea_build_ms":1172.1
+before headless 2 exit=0 "built_in_ms":8302.9 "end_ms":12166.3 "road_build_ms":3207.7 "sea_build_ms":1195.7
+before headless 3 exit=0 "built_in_ms":8345.8 "end_ms":12164.5 "road_build_ms":3197.4 "sea_build_ms":1198.2
+before headless 4 exit=0 "built_in_ms":8365.9 "end_ms":12475.6 "road_build_ms":3157.4 "sea_build_ms":1233.8
+before headless 5 exit=0 "built_in_ms":8175.0 "end_ms":11985.0 "road_build_ms":3138.3 "sea_build_ms":1153.8
+after window 1 exit=0 "built_in_ms":4716.6 "end_ms":9105.5 "road_build_ms":296.0 "sea_build_ms":153.5
+after window 2 exit=0 "built_in_ms":4730.3 "end_ms":9186.8 "road_build_ms":293.6 "sea_build_ms":151.9
+after window 3 exit=0 "built_in_ms":4680.8 "end_ms":9005.2 "road_build_ms":297.1 "sea_build_ms":151.5
+after window 4 exit=0 "built_in_ms":4735.4 "end_ms":9097.3 "road_build_ms":300.1 "sea_build_ms":153.9
+after window 5 exit=0 "built_in_ms":4720.1 "end_ms":9127.0 "road_build_ms":293.3 "sea_build_ms":151.0
+after headless 1 exit=0 "built_in_ms":4355.6 "end_ms":8180.0 "road_build_ms":280.8 "sea_build_ms":157.0
+after headless 2 exit=0 "built_in_ms":4266.0 "end_ms":8027.8 "road_build_ms":277.1 "sea_build_ms":149.0
+after headless 3 exit=0 "built_in_ms":4285.4 "end_ms":8065.6 "road_build_ms":283.2 "sea_build_ms":152.6
+after headless 4 exit=0 "built_in_ms":4290.4 "end_ms":8067.9 "road_build_ms":279.3 "sea_build_ms":150.0
+after headless 5 exit=0 "built_in_ms":4306.1 "end_ms":8080.1 "road_build_ms":281.7 "sea_build_ms":153.6
+ALLDONE
