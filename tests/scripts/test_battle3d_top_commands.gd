@@ -9,7 +9,7 @@ extends SceneTree
 #   end turn -> the engine's _end_ally_turn_by_wait for the active ally (the
 #     same engine function as the 2D [턴 종료]); with no active ally the lab and
 #     the engine both do nothing;
-#   retreat -> disabled, no handler: a click changes nothing.
+#   retreat -> disabled outside a worldmap attack context, its one handler on_retreat: a click changes nothing.
 # Also: the row's rects; all five one plain text-button style (polish 1-B, the 2D
 # round icons not used), each text fitting 68x68, retreat visibly dimmed, auto
 # lit (brighter gold border and text) while on; the lab's auto/speed buttons moved
@@ -103,10 +103,12 @@ func run() -> void:
 		await click(cmd.speed_button)
 		steps.append([lab.speed_index, Engine.time_scale, cmd.speed_button.text.replace("\n", " ")])
 	h.expect(steps == [[1, 2.0, "속도 ×2"], [2, 4.0, "속도 ×4"], [0, 1.0, "속도 ×1"]], "speed steps %s" % str(steps))
-	# Retreat: disabled, no handler; a click changes nothing.
-	h.expect(cmd.retreat_button.disabled and cmd.retreat_button.tooltip_text == "월드맵 연결 후 사용" and handlers(cmd.retreat_button).is_empty(), "retreat: disabled, tooltip, no handler (%s, '%s', %s)" % [cmd.retreat_button.disabled, cmd.retreat_button.tooltip_text, handlers(cmd.retreat_button)])
+	# Retreat (M7-4): scenario mode, so disabled with the off tooltip; its one handler is the row's on_retreat; a click
+	# and a direct on_retreat call change nothing.
+	h.expect(cmd.retreat_button.disabled and cmd.retreat_button.tooltip_text == "월드맵 공격전에서만 후퇴할 수 있습니다." and handlers(cmd.retreat_button).size() == 1 and handlers(cmd.retreat_button)[0].callable.get_object() == cmd, "retreat: disabled, tooltip, one on_retreat handler (%s, '%s', %s)" % [cmd.retreat_button.disabled, cmd.retreat_button.tooltip_text, handlers(cmd.retreat_button)])
 	var before := engine_state(b)
 	await click(cmd.retreat_button)
+	cmd.on_retreat.call()
 	h.expect(engine_state(b) == before and h.shell.result_panel.visible == false and b.call("_get_battle_result_state") == "", "retreat click: engine unchanged, no result")
 	# End turn: the active ally's wait (the 2D [턴 종료] calls the same _end_ally_turn_by_wait).
 	var active: BattleUnitState = b.active_unit_state

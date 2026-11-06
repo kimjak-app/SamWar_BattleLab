@@ -10,6 +10,10 @@ const LAB_SCENE := "res://scenes/battle3d/Battle3D_EnginePlayLab.tscn"
 const TOP_HUD_SCENE := "res://scenes/battle3d/Battle3D_TopHud.tscn"
 const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
 const SETUP_KEY := "samwar_battle_setup"
+# M7-1: a worldmap battle context waiting in this meta starts the lab at once (no start panel). The engine reads and
+# removes it in its _ready (the shell never reads or removes it) and applies it before the lab draws the units.
+const CONTEXT_KEY := "samwar_worldmap_battle_context"
+const RESULT_KEY := "samwar_worldmap_battle_result" # M7-2: set by the engine on its return
 const WIN_PRACTICE_RATIO := 0.25
 const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_demo", "enemy_reinforce_02_test_unit"]
 const SCENARIO_ORDER := ["default", "win_practice"]
@@ -23,8 +27,11 @@ var result_panel: VBoxContainer
 var result_label: Label
 var restart_button: Button
 var choose_button: Button
+var worldmap_button: Button # M7-2: back to the worldmap with the result (context mode only)
 var result_text := ""
 var lab_count := 0
+var retreat_pressed_frame := -1 # M7-4: the frame of the last retreat press (one frame off after it)
+var worldmap_context_mode := false # M7-1: the lab was started from a worldmap battle context (M7-2 takes it over)
 # HUD spike: the 2D top HUD as an overlay (layer 5, under the shell's layer 10).
 # It shows the lab's momentum_display and current_round only (no engine call).
 # The lab's own round/momentum text labels sat in the same screen area; the
@@ -130,6 +137,7 @@ func _ready() -> void:
 	top_commands.on_speed = func(): lab.cycle_speed()
 	top_commands.on_auto = func(): lab.request_auto()
 	top_commands.on_end_turn = func(): lab.request_wait()
+	top_commands.on_retreat = retreat # M7-4
 	add_child(top_commands)
 	log_hud = load(LOG_HUD_SCENE).instantiate()
 	log_hud.visible = false
@@ -189,6 +197,12 @@ func _ready() -> void:
 	choose_button.custom_minimum_size = Vector2(160,44)
 	choose_button.pressed.connect(choose_scenario)
 	row.add_child(choose_button)
+	worldmap_button = Button.new()
+	worldmap_button.text = "월드맵으로"
+	worldmap_button.custom_minimum_size = Vector2(160,44)
+	worldmap_button.pressed.connect(return_to_worldmap)
+	row.add_child(worldmap_button)
+	if Engine.has_meta(CONTEXT_KEY): start_worldmap_context()
 
 func create_lab() -> Node:
 	# Test shells may swap the lab's engine host for an observing one before it enters the tree.
@@ -205,8 +219,44 @@ func start_scenario(id: String) -> void:
 	if not SCENARIO_LABELS.has(id): return
 	_close_lab()
 	scenario = id
+	worldmap_context_mode = false
 	var setup := scenario_setup(id)
 	if not setup.is_empty(): Engine.set_meta(SETUP_KEY, setup) # read and removed by the engine in its _ready
+	_open_lab()
+
+func start_worldmap_context() -> void:
+	# M7-1: never a scenario setup here (the engine reads a setup after the context and could override its troops).
+	# The new battle / scenario buttons are hidden: the context meta is consumed, so it cannot be restarted.
+	_close_lab() # also drops a stale setup meta
+	scenario = ""
+	worldmap_context_mode = true
+	_open_lab()
+	if worldmap_context_applied(): return
+	push_warning("[BATTLE3D_CONTEXT] worldmap battle context not applied; back to the start panel")
+	worldmap_context_mode = false
+	_close_lab()
+	_show_result_buttons()
+	start_panel.visible = true
+
+func worldmap_context_applied() -> bool:
+	# Engine reads only: the context it kept, and both sides of its context roster filled from context heroes (an empty or
+	# broken context leaves the engine on its own test battle, which the shell cannot tell apart otherwise).
+	var context = lab.engine.get("worldmap_battle_context")
+	var summary = lab.engine.get("worldmap_context_roster_summary")
+	if not context is Dictionary or context.is_empty() or not summary is Dictionary: return false
+	for side in ["ally", "enemy"]:
+		var roster: Dictionary = summary.get(side, {})
+		if (roster.get("requested_hero_ids", []) as Array).is_empty() or int(roster.get("resolved_count", 0)) <= 0: return false
+	return true
+
+func _show_result_buttons() -> void:
+	restart_button.visible = not worldmap_context_mode
+	choose_button.visible = not worldmap_context_mode
+	worldmap_button.visible = worldmap_context_mode
+	worldmap_button.disabled = false
+
+func _open_lab() -> void:
+	_show_result_buttons()
 	lab = create_lab()
 	lab.hud_cutin_enabled = true
 	lab.edge_scrolled.connect(_on_edge_scrolled) # block 4-4
@@ -217,7 +267,29 @@ func start_scenario(id: String) -> void:
 	result_text = ""
 
 func restart() -> void:
+	if worldmap_context_mode: return # the context was consumed by the engine
 	start_scenario(scenario)
+
+func retreat_available() -> bool:
+	# M7-4: context mode, the engine's attack-context rule with no result yet, and not in the frame of a press.
+	return worldmap_context_mode and lab != null and is_instance_valid(lab) and lab.hud_retreat_available() 		and Engine.get_process_frames() != retreat_pressed_frame
+
+func retreat() -> void:
+	# M7-4: one press, one engine retreat. The engine returns to the worldmap in the same call, or only logs (then the
+	# button comes back on the next frame's refresh).
+	if not retreat_available(): return
+	retreat_pressed_frame = Engine.get_process_frames()
+	top_commands.show_retreat_state(false)
+	lab.request_retreat()
+
+func return_to_worldmap() -> void:
+	# M7-2: one press, one engine return. The engine sets the result meta and changes the scene in the same call, or only
+	# logs and stays (no context / no result): then the button is usable again.
+	if not worldmap_context_mode or worldmap_button.disabled or lab == null or not is_instance_valid(lab): return
+	worldmap_button.disabled = true
+	var before = Engine.get_meta(RESULT_KEY) if Engine.has_meta(RESULT_KEY) else null
+	lab.request_return_to_worldmap()
+	if not Engine.has_meta(RESULT_KEY) or Engine.get_meta(RESULT_KEY) == before: worldmap_button.disabled = false
 
 func choose_scenario() -> void:
 	_close_lab()
@@ -281,6 +353,7 @@ func _refresh_top_commands() -> void:
 	var wait_tip: String = lab.wait_button.tooltip_text
 	top_commands.show_state(lab.engine.get("is_full_auto_battle_enabled"), lab.auto_button.disabled, lab.wait_button.disabled,
 		"턴 종료" if not lab.wait_button.disabled else wait_tip, int(lab.SPEED_STEPS[lab.speed_index]))
+	top_commands.show_retreat_state(retreat_available()) # M7-4
 
 func _place_lab_commands() -> void:
 	# The lab builds these once and never moves them again.

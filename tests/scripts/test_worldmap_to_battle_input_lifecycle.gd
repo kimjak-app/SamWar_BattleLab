@@ -4,6 +4,8 @@ extends SceneTree
 const WORLDMAP_SCENE := preload("res://WorldMap.tscn")
 const BATTLE_SCENE_PATH := "res://scenes/battle/Battle_Main.tscn"
 
+var _failures := 0
+
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -19,7 +21,7 @@ func _run() -> void:
 
 	worldmap.call("_handoff_battle_context_to_battle_scene", _build_context())
 	await process_frame
-	_expect(bool(worldmap.get("_worldmap_battle_entry_handoff_in_progress")), "battle handoff entered once")
+	_expect(worldmap.call("_ensure_camera_controller").is_battle_entry_handoff_in_progress(), "battle handoff entered once")
 
 	var skip_event := InputEventKey.new()
 	skip_event.pressed = true
@@ -40,14 +42,25 @@ func _run() -> void:
 	_expect(battle != null and battle.scene_file_path == BATTLE_SCENE_PATH, "single input handoff enters Battle_Main")
 	_expect(not Engine.has_meta("samwar_worldmap_battle_context"), "context consumed exactly once")
 	_expect(battle.get("battle_supply_runtime") != null, "BattleSupplyRuntime configured")
-	var supply_panel := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Control
-	_expect(supply_panel != null and supply_panel.visible, "runtime supply panel visible")
+	# Battle_Main shows the production BattleSupplyHud when it exists and hides the legacy T02 panel;
+	# without the production HUD the legacy panel is the runtime supply view
+	# (battle_web_import_test.gd _refresh_battle_supply_visibility).
+	var production_supply_hud := battle.get_node_or_null("BattleUI/ProductionHudRoot/BattleSupplyHud") as Control
+	var legacy_supply_panel := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Control
+	if production_supply_hud != null:
+		_expect(production_supply_hud.visible and (legacy_supply_panel == null or not legacy_supply_panel.visible), "runtime supply panel visible")
+	else:
+		_expect(legacy_supply_panel != null and legacy_supply_panel.visible, "runtime supply panel visible")
 	var retreat_button := battle.get_node_or_null("BattleUI/CommandBar/RetreatButton") as BaseButton
 	_expect(retreat_button != null and not retreat_button.disabled, "player-attack retreat button enabled")
 	var ally_roster_names := _visible_production_roster_names(battle, "Ally")
 	var enemy_roster_names := _visible_production_roster_names(battle, "Enemy")
 	_expect(ally_roster_names == ["이순신"], "production ally roster hides inactive test fixtures")
 	_expect(enemy_roster_names == ["광개토대왕"], "production enemy roster hides inactive test fixtures")
+	if _failures > 0:
+		print("[WORLDMAP_INPUT_LIFECYCLE] FAIL: %d failures" % _failures)
+		quit(1)
+		return
 	print("[WORLDMAP_INPUT_LIFECYCLE] PASS")
 	quit(0)
 
@@ -90,5 +103,5 @@ func _expect(condition: bool, label: String) -> void:
 	if condition:
 		print("[WORLDMAP_INPUT_LIFECYCLE_PASS] %s" % label)
 		return
+	_failures += 1
 	push_error("[WORLDMAP_INPUT_LIFECYCLE_FAIL] %s" % label)
-	quit(1)

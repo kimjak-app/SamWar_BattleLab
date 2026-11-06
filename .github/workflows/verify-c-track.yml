@@ -410,6 +410,9 @@ jobs:
             tests/scripts/test_worldmap_internal_trade_transfer_extraction.gd
             tests/scripts/test_worldmap_spy_routing.gd
             tests/scripts/test_worldmap_spy_controller_extraction.gd
+            tests/scripts/test_battle3d_worldmap_context_entry.gd
+            tests/scripts/test_battle3d_worldmap_result_return.gd
+            tests/scripts/test_battle3d_worldmap_retreat.gd
             tests/scripts/test_worldmap_city_building_assets.gd
             tests/scripts/test_worldmap_city_interior_window.gd
             tests/scripts/test_worldmap_city_interior_layouts.gd

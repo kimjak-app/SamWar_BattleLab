@@ -102,7 +102,7 @@ var last_phase := ""
 # M3: enemy-turn playback. Third independent cursor; never merged with the
 # movement (event_cursor) or ally action (action_cursor) sequences.
 const WAIT_TEXT := {"wait":"대기","confused":"혼란","no_path":"경로 없음","path_blocked":"경로 막힘","no_target":"대상 없음"}
-const RESULT_TEXT := {"victory":"승리","defeat":"패배"}
+const RESULT_TEXT := {"victory":"승리","defeat":"패배","retreat":"후퇴"}
 var enemy_cursor := 0
 var enemy_queue: Array = [] # Presentation only; the engine state stays the truth.
 var enemy_slot: Array = []
@@ -785,6 +785,22 @@ func _ally_command_block_reason(command: String) -> String:
 	if active == null: return "%s 불가 · 먼저 아군을 선택하세요" % command
 	if Adapter.to_view(active).has_acted: return "%s 불가 · 이미 행동한 부대입니다" % command
 	return ""
+
+func request_return_to_worldmap() -> void:
+	# M7-2: the engine's own return (result meta, then the worldmap scene). Engine write 17 (15 + set_blocked_cells + this);
+	# the engine itself refuses without a context or a finished battle (log only, no scene change).
+	engine.call("_return_to_worldmap_with_result")
+
+func request_retreat() -> void:
+	# M7-4: the engine's own retreat (result "retreat", then its worldmap return). Engine write 18; the engine refuses
+	# outside a worldmap attack context or after the result (log only).
+	engine.call("_on_retreat_button_pressed")
+
+func hud_retreat_available() -> bool:
+	# M7-4: the engine's rule, read only (one source): a worldmap attack context and no result yet.
+	var context = engine.get("worldmap_battle_context")
+	if not context is Dictionary or (context as Dictionary).is_empty() or not battle_result.is_empty(): return false
+	return bool(engine.call("_is_worldmap_player_attack_context", context))
 
 func request_wait() -> void:
 	if not ready_for_input or _input_locked(): return
