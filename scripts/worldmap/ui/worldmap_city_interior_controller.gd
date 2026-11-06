@@ -14,7 +14,13 @@ extends Node
 ## release have passed. A click that selects a city keeps the CH-2b city rules; a drag of CLICK_MOVE_LIMIT px or more
 ## (camera move) never closes.
 ## CH-3: a city with a castle layout (WorldMapCityInteriorLayouts) is drawn from it on a 1280x768 canvas scaled into
-## the window's body; other cities keep the CH-2 placeholder. Tech-driven visibility is CH-4.
+## the window's body; other cities keep the CH-2 placeholder.
+## CH-4: which items are drawn follows the open city's completed city techs (main's completed snapshot, read only).
+## Houses (decoration), life buildings (tech_id "") and the background always; a slot with slot_candidates draws the
+## first completed candidate only (highest stage first), on the same foot point at that candidate's own image size;
+## any other building only when its tech_id is completed. While open, _process compares the open city's snapshot with
+## the one last drawn and redraws only when it changed. debug_show_all (debug builds: Ctrl+Shift+K while open) draws
+## the whole layout as in CH-3.
 
 const MAIN_META := "wm_city_interior_controller"
 const WINDOW_LAYER := 50   # free between TopNav (40) and the tech tree overlay (60)
@@ -34,6 +40,8 @@ const LAYOUTS_PATH := "res://scripts/worldmap/ui/worldmap_city_interior_layouts.
 const COASTAL_CHECK := "_is_city_coastal_for_city_tech"   # main, read only
 const CLICK_MOVE_LIMIT := 6.0               # px; the same limit as the 3D map's click-to-select (worldmap_camera.gd)
 const OUTSIDE_CLICK_SETTLE_FRAMES := 2      # frames after the release for a city pick of the same click to arrive
+const COMPLETED_SNAPSHOT := "_get_completed_city_domestic_tech_snapshot_mvp"   # main, read only: {tech_id: bool} copy
+const DEBUG_SHOW_ALL_KEY := KEY_K           # with Ctrl+Shift, debug builds only, while open (no other use of K in the game)
 
 ## Checked in this order after "own city". [kind, main member name]. Kinds: flag = bool true blocks,
 ## text = non-empty String blocks, visible = node visible blocks, method_true = call() true blocks,
@@ -62,10 +70,18 @@ const MODAL_GUARDS := [
 ## Other main members this controller relies on (the test checks they still exist).
 const MAIN_MEMBERS := [
 	"_city_markers_by_id", "_is_city_owned_by_player_mvp", "_ensure_camera_controller",
-	"_normalize_turn_phase", COASTAL_CHECK, LEFT_PANEL_MEMBER, RIGHT_PANEL_MEMBER,
+	"_normalize_turn_phase", COASTAL_CHECK, LEFT_PANEL_MEMBER, RIGHT_PANEL_MEMBER, COMPLETED_SNAPSHOT,
 ]
 
 @export var main_path: NodePath = NodePath("..")
+## CH-4 developer switch: true draws every layout item (CH-3), ignoring the tech link. Redraws the open city when set.
+var debug_show_all := false:
+	set(value):
+		if debug_show_all == value:
+			return
+		debug_show_all = value
+		if is_open():
+			_draw_city(_open_city_id)
 
 var main: Node = null
 var last_reject_reason := ""
@@ -84,6 +100,8 @@ var _placeholder: Label = null
 var _interior_area: Control = null   # the window body; the canvas is scaled and centred in it
 var _canvas: Control = null          # "InteriorCanvas", 1280x768 layout pixels
 var _drawn_items: Array = []         # the layout item of each drawn node, in draw order (tests)
+var _drawn_completed: Dictionary = {}   # the open city's completed snapshot the canvas was last drawn from
+var _draw_count := 0                 # canvas draws so far (tests: no redraw while the snapshot is unchanged)
 
 
 func _ready() -> void:
@@ -159,6 +177,25 @@ func get_drawn_items() -> Array:
 	return _drawn_items.duplicate()
 
 
+func get_draw_count() -> int:
+	return _draw_count
+
+
+## CH-4: the building key to draw for a layout item of city_id given that city's completed snapshot, "" = not drawn.
+## compare_only and (inland) coastal_only items are already left out by WorldMapCityInteriorLayouts.items_for_city.
+static func building_key_to_draw(item: Dictionary, completed: Dictionary, show_all: bool) -> String:
+	var key := str(item.get("building_key", ""))
+	if show_all or str(item.get("kind", "")) != "building" or str(item.get("tech_id", "")).is_empty():
+		return key   # houses and life buildings always; everything with the debug switch
+	var candidates: Variant = item.get("slot_candidates", null)
+	if candidates is Array and not (candidates as Array).is_empty():
+		for candidate in candidates:   # highest stage first
+			if bool(completed.get(str(candidate), false)):
+				return str(candidate)
+		return ""   # no stage completed: the slot stays empty
+	return key if bool(completed.get(str(item.get("tech_id", "")), false)) else ""
+
+
 ## Scales and centres the 1280x768 canvas in an area of this size (k = min(W/1280, H/768)).
 func apply_canvas_transform(area_size: Vector2) -> void:
 	if _canvas == null or _layouts == null:
@@ -218,6 +255,8 @@ func close() -> void:
 func _process(_delta: float) -> void:
 	if is_open():
 		_update_dock()
+		if not debug_show_all and _completed_snapshot(_open_city_id) != _drawn_completed:
+			_draw_city(_open_city_id)   # a tech of the open city was completed (or lost) while open
 		if _outside_settle_frames >= 0:
 			_outside_settle_frames -= 1
 			if _outside_settle_frames < 0:
@@ -233,6 +272,11 @@ func _input(event: InputEvent) -> void:
 	var key := event as InputEventKey
 	if event.is_action_pressed("ui_cancel") or (key != null and key.pressed and not key.echo and key.keycode == KEY_ESCAPE):
 		close()
+		get_viewport().set_input_as_handled()
+		return
+	if key != null and key.pressed and not key.echo and key.keycode == DEBUG_SHOW_ALL_KEY and key.ctrl_pressed and key.shift_pressed \
+			and OS.is_debug_build():
+		debug_show_all = not debug_show_all
 		get_viewport().set_input_as_handled()
 		return
 	# The release of a map press: seen here (never consumed) wherever the pointer is now.
@@ -398,6 +442,8 @@ func _ensure_window() -> void:
 ## The castle layout when the city has one (background, then items in layout order), else the CH-2 placeholder.
 func _draw_city(city_id: String) -> void:
 	_clear_canvas()
+	_draw_count += 1
+	_drawn_completed = _completed_snapshot(city_id)
 	var has_layout := _layouts != null and bool(_layouts.has_layout(city_id))
 	_placeholder.visible = not has_layout
 	_canvas.visible = has_layout
@@ -410,21 +456,39 @@ func _draw_city(city_id: String) -> void:
 	var coastal := bool(main.call(COASTAL_CHECK, city_id))
 	var region_style := str(layout.get("region_style", ""))
 	for item in _layouts.items_for_city(city_id, coastal):
+		var key := building_key_to_draw(item, _drawn_completed, debug_show_all)
+		if key.is_empty():
+			continue   # CH-4: tech not completed (or no slot stage yet)
 		var texture: Texture2D = null
 		if str(item.get("kind", "")) == "building":
 			if _building_assets != null:
-				texture = _building_assets.load_texture(str(item.get("building_key", "")), region_style)
+				texture = _building_assets.load_texture(key, region_style)
 		else:
 			var path := str(item.get("texture", ""))
 			if ResourceLoader.exists(path):
 				texture = load(path)
 		if texture == null:
 			continue   # missing art: skip the slot quietly
-		var node := _add_canvas_texture("Item_%d_%s" % [int(item.get("z", 0)), str(item.get("building_key", ""))], texture,
-			_layouts.item_top_left(item), Vector2(float(item.get("w", 0)), float(item.get("h", 0))), bool(item.get("flip_h", false)))
+		var top_left: Vector2 = _layouts.item_top_left(item)
+		var size := Vector2(float(item.get("w", 0)), float(item.get("h", 0)))
+		if key != str(item.get("building_key", "")):
+			# another stage of the slot: its own image size x the layout scale, on the same foot point (ax, ay)
+			size = texture.get_size() * float(item.get("scale", 1.0))
+			top_left = Vector2(float(item.get("ax", 0)) - size.x * 0.5, float(item.get("ay", 0)) - size.y)
+		var node := _add_canvas_texture("Item_%d_%s" % [int(item.get("z", 0)), key], texture, top_left, size,
+			bool(item.get("flip_h", false)))
 		node.set_meta("layout_item", item)
+		node.set_meta("drawn_key", key)
 		_drawn_items.append(item)
 	apply_canvas_transform(_interior_area.size)
+
+
+## main's completed city techs of city_id (a copy), {} when main does not answer.
+func _completed_snapshot(city_id: String) -> Dictionary:
+	if main == null or not is_instance_valid(main) or city_id.is_empty() or not main.has_method(COMPLETED_SNAPSHOT):
+		return {}
+	var value = main.call(COMPLETED_SNAPSHOT, city_id)
+	return value if value is Dictionary else {}
 
 
 func _add_canvas_texture(node_name: String, texture: Texture2D, top_left: Vector2, size: Vector2, flip: bool) -> TextureRect:

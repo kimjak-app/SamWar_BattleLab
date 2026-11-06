@@ -8,6 +8,7 @@ extends SceneTree
 # 6. no-layout cities: gyeongju opens with the CH-2 placeholder, karakorum stays no_art
 # 7. coastal_only only for a coastal city (main's coastal check, read only); compare_only never drawn
 # 8. close button / Esc close the window and drop the drawn nodes
+# (CH-4) run with debug_show_all = true, so every count here is the full CH-3 layout regardless of completed techs
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const CONTROLLER_NODE := "WorldMapCityInteriorController"
@@ -52,6 +53,7 @@ func _run() -> void:
 	if not ctl.has_method("get_canvas"):
 		_finish()
 		return
+	ctl.set("debug_show_all", true)   # CH-4: the CH-3 counts below are the whole layout (tech link off)
 	var markers: Dictionary = worldmap.get("_city_markers_by_id")
 	var player_faction := str(worldmap.call("_get_current_player_faction_id"))
 
