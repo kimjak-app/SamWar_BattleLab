@@ -1,0 +1,105 @@
+{
+  "controls": [
+    {
+      "class": "PanelContainer",
+      "h": 599.0,
+      "path": "LeftWorldStatusPanel",
+      "w": 320.0,
+      "x": 48.0,
+      "y": 155.520004272461
+    },
+    {
+      "class": "MarginContainer",
+      "h": 597.0,
+      "path": "LeftWorldStatusPanel/MarginContainer",
+      "w": 318.0,
+      "x": 49.0,
+      "y": 156.520004272461
+    },
+    {
+      "class": "PanelContainer",
+      "h": 615.0,
+      "path": "CityInfoPanel",
+      "w": 308.0,
+      "x": 1564.0,
+      "y": 155.520004272461
+    },
+    {
+      "class": "MarginContainer",
+      "h": 613.0,
+      "path": "CityInfoPanel/MarginContainer",
+      "w": 306.0,
+      "x": 1565.0,
+      "y": 156.520004272461
+    },
+    {
+      "class": "TextureRect",
+      "h": 240.0,
+      "path": "TurnEndCompass",
+      "w": 240.0,
+      "x": 1580.00061035156,
+      "y": 806.0
+    },
+    {
+      "class": "TextureRect",
+      "h": 240.0,
+      "path": "TurnEndCompass/Base",
+      "w": 240.0,
+      "x": 1580.00061035156,
+      "y": 806.0
+    },
+    {
+      "class": "TextureRect",
+      "h": 240.0,
+      "path": "TurnEndCompass/Needle",
+      "w": 240.0,
+      "x": 1580.00061035156,
+      "y": 806.0
+    },
+    {
+      "class": "TextureRect",
+      "h": 240.0,
+      "path": "TurnEndCompass/Cap",
+      "w": 240.0,
+      "x": 1580.00061035156,
+      "y": 806.0
+    },
+    {
+      "class": "TextureRect",
+      "h": 60.0,
+      "path": "TurnEndCompass/TurnEndPlaque",
+      "w": 180.0,
+      "x": 1610.00061035156,
+      "y": 896.0
+    },
+    {
+      "class": "Button",
+      "h": 60.0,
+      "path": "TurnEndCompass/TurnEndPlaqueButton",
+      "w": 180.0,
+      "x": 1610.00061035156,
+      "y": 896.0
+    },
+    {
+      "class": "PanelContainer",
+      "h": 388.0,
+      "path": "WorldMapCityInteriorController/CityInteriorCanvas/Window",
+      "w": 589.0,
+      "x": 380.0,
+      "y": 155.520004272461
+    },
+    {
+      "class": "Control",
+      "h": 353.664001464844,
+      "path": "WorldMapCityInteriorController/CityInteriorCanvas/Window/@VBoxContainer@1027/InteriorArea",
+      "w": 589.440002441406,
+      "x": 380.0,
+      "y": 190.520004272461
+    }
+  ],
+  "name": "hud_3d_city_interior_1920",
+  "viewport": [
+    1920,
+    1080
+  ]
+}
