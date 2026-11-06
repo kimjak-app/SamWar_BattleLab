@@ -38,6 +38,8 @@ const SEA_ROUTE_MIN_PX := 2.0
 const SEA_ROUTE_RENDER_PRIORITY := 2   # roads 1, rivers 0
 
 const SHADERS := "res://worldmap3d/shaders/"
+const BAKED_PATHS_FILE := "baked_paths.json"   # PERF3: A* cells baked by tools/bake_worldmap3d_paths.gd, next to map_config
+const BAKED_PATHS_MAPS := ["eastasia"]          # maps that ship one; every other map routes live (no warning)
 const TEX := "res://worldmap3d/textures/"
 var cfg := WorldMapConfig.new()
 var geo := WorldMapGeo.new()
@@ -73,6 +75,8 @@ func _ready() -> void:
 		return
 	if not geo.load_data(cfg):
 		return
+	if BAKED_PATHS_MAPS.has(cfg.map_id):
+		roads.baked_file = map_config_path.get_base_dir().path_join(BAKED_PATHS_FILE)
 	var rp := rule_data_path if rule_data_path != "" else cfg.rule_data_path
 	rules = JSON.parse_string(FileAccess.get_file_as_string(rp))
 	# v2.2: colours = map palette (map_config territory.faction_palette) unless palette_source == "rules"
