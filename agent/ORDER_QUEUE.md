@@ -31,6 +31,7 @@
 | 15 | `agent/ORDER_WM3D_PERF_CSV_READ_20261106.md` | 준비됨 — **읽기 전용**(코드·설정 수정 금지). 김작 PC `wm3d_mem_log.csv` 숫자 요약 + 증거 CSV 커밋 |
 | 16 | `agent/ORDER_M7_2_RESULT_RETURN_20261106.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이어서 커밋, 시작 `ae49670`). 엔진 쓰기 +1(17) |
 | 17 | `agent/ORDER_M7_4_RETREAT_20261106.md` | 준비됨 — M7 가지, 16번 뒤. 엔진 쓰기 +1(18). M7-3(월드맵→3D 전장)은 별도 지시서(클코치 작성 예정) |
+| 18 | `agent/ORDER_TURNBTN_RESKIN_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-turnbtn-20261106`(시작 `main` `ab9b739`). 턴 종료 버튼 겉모습만 교체(노드·시그널 불변). 에셋 `agent/assets/turnbtn_512/` 9장. 17번 뒤 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
