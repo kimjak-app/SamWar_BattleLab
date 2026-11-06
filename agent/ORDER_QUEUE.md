@@ -30,7 +30,7 @@
 | 14 | `agent/ORDER_CITYHUD_CH2C_LEFT_PANEL_GRIP_20261106.md` | 준비됨 — 가지 `feature/wm3d-cityhud-20261105`, 13번 뒤. 좌측 정보창 이동 손잡이(main 수정 0, 불가하면 멈춤) |
 | 15 | `agent/ORDER_WM3D_PERF_CSV_READ_20261106.md` | 준비됨 — **읽기 전용**(코드·설정 수정 금지). 김작 PC `wm3d_mem_log.csv` 숫자 요약 + 증거 CSV 커밋 |
 | 16 | `agent/ORDER_M7_2_RESULT_RETURN_20261106.md` | 준비됨 — 가지 `feature/wm3d-m7prep-20261105`(이어서 커밋, 시작 `ae49670`). 엔진 쓰기 +1(17) |
-| 17 | `agent/ORDER_M7_4_RETREAT_20261106.md` | 준비됨 — M7 가지, 16번 뒤. 엔진 쓰기 +1(18). M7-3(월드맵→3D 전장)은 별도 지시서(클코치 작성 예정) |
+| 17 | `agent/ORDER_M7_4_RETREAT_20261106.md` + **답신 `agent/ORDER_M7_4_REPLY_1_20261106.md`** | **멈춤→답신(A안)으로 재개**(준비됨 상태 복귀). 18·19번은 다른 가지라 **멈추지 않고 진행**(답신 3절) — M7 가지, 16번 뒤. 엔진 쓰기 +1(18). M7-3(월드맵→3D 전장)은 별도 지시서(클코치 작성 예정) |
 | 18 | `agent/ORDER_TURNBTN_RESKIN_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-turnbtn-20261106`(시작 `main` `ab9b739`). 턴 종료 버튼 겉모습만 교체(노드·시그널 불변). 에셋 `agent/assets/turnbtn_512/` 9장. 17번 뒤 |
 | 19 | `agent/ORDER_WM3D_PERF2_STARTUP_PROFILE_20261106.md` | 준비됨 — **읽기 전용 측정**. 새 가지 `feature/wm3d-perf-20261106`(시작 `main` `ab9b739`). 3D 시작 ~10초를 단계별로 쪼개고 구울 수 있는지 판정. 코드·설정 수정 금지. 18번 뒤(맨 뒤) |
 | 20 | `agent/ORDER_HUD_CAPTURE_20261106.md` | 준비됨 — **읽기 전용 증거 수집**. 새 가지 `feature/wm3d-evidence-20261106`(시작 `cityhud` 끝). **16번 끝난 직후, 17번보다 먼저**(허드 리뉴얼용 전체 캡처 4장 + 창 위치 JSON, 김작 11-06 11:42) |
