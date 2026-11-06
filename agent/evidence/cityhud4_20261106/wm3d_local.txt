@@ -1,0 +1,8 @@
+test_worldmap3d_adapter exit=0 secs=10 | 
+test_worldmap3d_camera_controller exit=0 secs=4 | 
+test_worldmap3d_camera_external_input exit=0 secs=1 | 
+test_worldmap3d_color_parity exit=0 secs=1 | [WM3D_COLOR_PARITY] checks=57 failures=[]
+test_worldmap3d_host exit=0 secs=19 | ERROR: Failed to load script "res://scripts/ui/cutin/hero_cutin_presentation.gd" with error "Compilation failed".
+test_worldmap3d_mem_probe exit=0 secs=1 | [WM3D_MEM_PROBE] checks=37 failures=[]
+test_worldmap3d_production exit=0 secs=27 | [WM3D_PRODUCTION] checks=28 failures=[]
+test_worldmap3d_roads exit=0 secs=10 | [WM3D_ROADS] checks=121 failures=[]

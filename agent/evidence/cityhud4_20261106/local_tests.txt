@@ -1,0 +1,7 @@
+test_worldmap_city_interior_layouts exit=0 secs=16 | [CITY_INTERIOR_LAYOUT] checks=93 failures=[]
+test_worldmap_city_interior_window exit=0 secs=17 | [CITY_INTERIOR] checks=126 failures=[]
+test_worldmap_integrated_hud_smoke exit=0 secs=17 | [INTEGRATED_HUD_SMOKE] checks=12 failures=0
+test_worldmap_left_panel_grip exit=0 secs=15 | [LEFT_PANEL_GRIP] checks=28 failures=[]
+test_worldmap_city_interior_tech_link exit=0 secs=16 | [CITY_INTERIOR_TECH_LINK] checks=75 failures=[]
+test_worldmap_turn_button_daynight exit=0 secs=8 | [TURN_BUTTON_DAYNIGHT] checks=43 failures=[]
+test_worldmap_city_building_assets exit=0 secs=1 | [CITY_BUILDING_ASSETS] checks=482 failures=[]

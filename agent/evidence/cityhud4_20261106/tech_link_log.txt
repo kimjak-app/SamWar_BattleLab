@@ -1,0 +1,7 @@
+[CITY_INTERIOR_TECH_LINK] start completed hanseong = {  }
+[CITY_INTERIOR_TECH_LINK] start completed pyeongyang = {  }
+[CITY_INTERIOR_TECH_LINK] start completed jianye = {  }
+[CITY_INTERIOR_TECH_LINK] start completed edo = {  }
+[CITY_INTERIOR_TECH_LINK] start completed kyoto = {  }
+[CITY_INTERIOR_TECH_LINK] per-frame check (snapshot copy + Dictionary compare, open city only) = 799.1 us avg over 1000
+[CITY_INTERIOR_TECH_LINK] checks=75 failures=[]
