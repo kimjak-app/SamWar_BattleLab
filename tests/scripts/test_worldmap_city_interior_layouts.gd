@@ -82,9 +82,9 @@ func _run() -> void:
 	_expect(str(ctl.call("get_open_city_id")) == "edo" and drawn.size() == EXPECTED_DRAWN.edo and canvas.get_child_count() == EXPECTED_DRAWN.edo + 1,
 		"retarget hanseong -> edo redraws edo only (%d items, %d nodes)" % [drawn.size(), canvas.get_child_count()])
 
-	# 8. close button and Esc drop the drawn nodes
-	(ctl.call("get_close_button") as Button).emit_signal("pressed")
-	_expect(not bool(ctl.call("is_open")) and canvas.get_child_count() == 0 and (ctl.call("get_drawn_items") as Array).is_empty(), "close button closes and frees the drawn nodes")
+	# 8. close() and Esc drop the drawn nodes
+	ctl.call("close")
+	_expect(not bool(ctl.call("is_open")) and canvas.get_child_count() == 0 and (ctl.call("get_drawn_items") as Array).is_empty(), "close() closes and frees the drawn nodes")
 	ctl.call("try_open", "edo")
 	await process_frame
 	root.push_input(_esc())

@@ -8,6 +8,11 @@ extends Node
 ## Reads main state only (get()/call()), never writes it. Main is held as a plain Node; no WorldMap3D* classes are named.
 ## The window is built in code and is not modal (CH-2b): it docks to the right of main's left world status panel, top
 ## edges aligned, and everything outside it (map drag, wheel, other city clicks, camera keys) still reaches the map.
+## HUDFIX: the window is the castle picture only (no title bar, close button or panel style). It closes on Esc or on a
+## left click on the empty map: a left press that no HUD control took (it reaches _unhandled_input), released within
+## CLICK_MOVE_LIMIT px of the press, that did not select a city by the time OUTSIDE_CLICK_SETTLE_FRAMES frames after the
+## release have passed. A click that selects a city keeps the CH-2b city rules; a drag of CLICK_MOVE_LIMIT px or more
+## (camera move) never closes.
 ## CH-3: a city with a castle layout (WorldMapCityInteriorLayouts) is drawn from it on a 1280x768 canvas scaled into
 ## the window's body; other cities keep the CH-2 placeholder. Tech-driven visibility is CH-4.
 
@@ -27,6 +32,8 @@ const PLACEHOLDER_TEXT := "건물 그림은 다음 단계에서 연결됩니다"
 const BUILDING_ASSETS_PATH := "res://scripts/worldmap/ui/worldmap_city_building_assets.gd"
 const LAYOUTS_PATH := "res://scripts/worldmap/ui/worldmap_city_interior_layouts.gd"
 const COASTAL_CHECK := "_is_city_coastal_for_city_tech"   # main, read only
+const CLICK_MOVE_LIMIT := 6.0               # px; the same limit as the 3D map's click-to-select (worldmap_camera.gd)
+const OUTSIDE_CLICK_SETTLE_FRAMES := 2      # frames after the release for a city pick of the same click to arrive
 
 ## Checked in this order after "own city". [kind, main member name]. Kinds: flag = bool true blocks,
 ## text = non-empty String blocks, visible = node visible blocks, method_true = call() true blocks,
@@ -67,8 +74,10 @@ var _connected_markers: Array = []
 var _layer: CanvasLayer = null
 var _window: PanelContainer = null
 var _dock_rect := Rect2()             # the last applied window rect (position, size)
-var _title_label: Label = null
-var _close_button: Button = null
+var _outside_press := false            # a left press reached the map while open; waiting for its release
+var _outside_press_at := Vector2.ZERO
+var _city_picked_since_press := false
+var _outside_settle_frames := -1       # >= 0: counting down to the close decision of a released map click
 var _building_assets: Script = null
 var _layouts: Script = null
 var _placeholder: Label = null
@@ -106,14 +115,6 @@ func is_open() -> bool:
 
 func get_open_city_id() -> String:
 	return _open_city_id
-
-
-func get_title_text() -> String:
-	return _title_label.text if _title_label != null else ""
-
-
-func get_close_button() -> Button:
-	return _close_button
 
 
 func get_connected_marker_count() -> int:
@@ -175,7 +176,6 @@ func try_open(city_id: String) -> bool:
 		return false
 	_open_city_id = city_id
 	_ensure_window()
-	_title_label.text = "%s — 성 안" % _city_display_name(city_id)
 	_draw_city(city_id)
 	_layer.visible = true
 	_update_dock()
@@ -208,6 +208,7 @@ func close() -> void:
 	if not is_open():
 		return
 	_open_city_id = ""
+	_reset_outside_click()
 	if _layer != null:
 		_layer.visible = false
 	_clear_canvas()   # lets the textures go
@@ -217,6 +218,13 @@ func close() -> void:
 func _process(_delta: float) -> void:
 	if is_open():
 		_update_dock()
+		if _outside_settle_frames >= 0:
+			_outside_settle_frames -= 1
+			if _outside_settle_frames < 0:
+				var picked := _city_picked_since_press
+				_reset_outside_click()
+				if not picked:
+					close()
 
 
 func _input(event: InputEvent) -> void:
@@ -226,6 +234,33 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (key != null and key.pressed and not key.echo and key.keycode == KEY_ESCAPE):
 		close()
 		get_viewport().set_input_as_handled()
+		return
+	# The release of a map press: seen here (never consumed) wherever the pointer is now.
+	var button := event as InputEventMouseButton
+	if _outside_press and button != null and button.button_index == MOUSE_BUTTON_LEFT and not button.pressed:
+		_outside_press = false
+		if button.position.distance_to(_outside_press_at) < CLICK_MOVE_LIMIT:
+			_outside_settle_frames = OUTSIDE_CLICK_SETTLE_FRAMES
+		# a drag (camera move) of CLICK_MOVE_LIMIT px or more: not a click, the window stays
+
+
+## A left press that no HUD control (the window, panels, top menu, turn button) took: a press on the map. Not consumed,
+## so the map still does what the press does (city pick, camera).
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_open():
+		return
+	var button := event as InputEventMouseButton
+	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+		_outside_press = true
+		_outside_press_at = button.position
+		_city_picked_since_press = false
+		_outside_settle_frames = -1
+
+
+func _reset_outside_click() -> void:
+	_outside_press = false
+	_city_picked_since_press = false
+	_outside_settle_frames = -1
 
 
 func _connect_markers() -> void:
@@ -244,6 +279,7 @@ func _connect_markers() -> void:
 func _on_city_selected(marker: Node) -> void:
 	if marker == null or not is_instance_valid(marker):
 		return
+	_city_picked_since_press = true   # this click picked a city: the city rules below decide, not the empty-map close
 	if not try_open(str(marker.get("city_id"))) and last_reject_reason == "not_own_city":
 		close()   # CH-2b: a city that is not the player's closes the open window
 
@@ -282,12 +318,6 @@ func _region_style(city_id: String) -> String:
 	return str(_building_assets.region_style_for_region_key(region_key))
 
 
-func _city_display_name(city_id: String) -> String:
-	var marker = _marker_for(city_id)
-	var display_name := str(marker.get("display_name")) if marker != null else ""
-	return display_name if not display_name.is_empty() else city_id
-
-
 func _marker_for(city_id: String) -> Node:
 	var markers = main.get("_city_markers_by_id")
 	if markers is Dictionary:
@@ -324,7 +354,7 @@ func _update_dock() -> void:
 	_dock_rect = rect
 	_interior_area.custom_minimum_size = Vector2(body_width, body_width * BODY_ASPECT)
 	_window.position = rect.position
-	_window.reset_size()   # the minimum size the body and header give: the dock width
+	_window.reset_size()   # the minimum size the body gives: the dock width
 
 
 func _ensure_window() -> void:
@@ -336,31 +366,19 @@ func _ensure_window() -> void:
 	_layer.visible = false
 	add_child(_layer)
 	# No full-screen blocker (CH-2b): the window eats clicks on itself only (PanelContainer default STOP).
+	# HUDFIX: an empty panel style (no margin, border or background), so the window is exactly the castle picture.
 	_window = PanelContainer.new()
 	_window.name = "Window"
 	_window.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_window.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_layer.add_child(_window)
-	var column := VBoxContainer.new()
-	_window.add_child(column)
-	var header := HBoxContainer.new()
-	column.add_child(header)
-	_title_label = Label.new()
-	_title_label.name = "TitleLabel"
-	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_title_label.clip_text = true   # a long name never widens the window past the dock width
-	header.add_child(_title_label)
-	_close_button = Button.new()
-	_close_button.name = "CloseButton"
-	_close_button.text = "닫기"
-	_close_button.pressed.connect(close)
-	header.add_child(_close_button)
 	_interior_area = Control.new()
 	_interior_area.name = "InteriorArea"
 	_interior_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_interior_area.clip_contents = true
 	_interior_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_interior_area.resized.connect(func(): apply_canvas_transform(_interior_area.size))
-	column.add_child(_interior_area)
+	_window.add_child(_interior_area)
 	_placeholder = Label.new()
 	_placeholder.name = "PlaceholderLabel"
 	_placeholder.text = PLACEHOLDER_TEXT

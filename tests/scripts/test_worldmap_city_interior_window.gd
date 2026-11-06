@@ -3,11 +3,15 @@ extends SceneTree
 # CITY-HUD CH-2: the city interior window frame (scripts/worldmap/ui/worldmap_city_interior_controller.gd), attached
 # to WorldMap.tscn as a root child outside worldmap_main.gd. Runs on the real WorldMap.tscn in the 2D map view.
 # 1. open-condition table (own / enemy / Karakorum no_art / every busy guard / battle-entry handoff / modals)
-# 2. main state unchanged by the controller   3. close button + Esc (Esc consumed only while open)
+# 2. main state unchanged by the controller   3. close() + Esc (Esc consumed only while open)
 # 4. CH-2b: not modal - no InputBlocker, the 3D camera input_blocked is never set (open, close, _exit_tree)
 # 5. the main member names the controller relies on still exist   6. one connection per marker, one window, retarget
 # 7. CH-2b dock: right of the left status panel, top aligned (1 px); width = ratio / minimum rule; follows the moved
 #    left panel; shrinks to clear the right city panel but never below the minimum; an enemy city click closes it
+# 8. HUDFIX: the window is the picture only (no TitleLabel / CloseButton, empty panel style, window = InteriorArea);
+#    real mouse events through the viewport: an empty-map click (< 6 px) closes; a drag of 6 px or more keeps it; a map
+#    click that picks an own city keeps it / retargets, an enemy city closes; presses on the window, the left panel grip,
+#    the left panel, the right panel, a top menu button and the turn button keep it open
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const CONTROLLER_NODE := "WorldMapCityInteriorController"
@@ -17,6 +21,7 @@ const SECOND_CITY := "gyeongju"
 const ENEMY_CITY := "pyeongyang"
 const NO_ART_CITY := "karakorum"
 const TEST_VIEWPORT_SIZE := Vector2i(1920, 1080)
+const EMPTY_MAP_POINT := Vector2(1000, 760)   # 2D map at 1920x1080: no HUD control, no city marker
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -83,10 +88,11 @@ func _run() -> void:
 	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "own city click opens the window")
 	_expect(str(ctl.get("last_reject_reason")) == "", "own city: no reject reason")
 	_expect(str(worldmap.get("selected_city_id")) == OWN_CITY, "main processed the click (selected_city_id)")
-	var display_name := str(markers[OWN_CITY].get("display_name"))
-	_expect(str(ctl.call("get_title_text")) == "%s — 성 안" % display_name, "title shows the city name")
+	_expect_picture_only(ctl, OWN_CITY, "own city click")
 	await process_frame
 	await _check_dock(ctl, worldmap)
+	await _check_outside_click(ctl, worldmap, markers, player_faction)
+	ctl.call("try_open", OWN_CITY)   # back to the state before section 8 (open on the own city)
 
 	# 6. same city again: still one window, not reopened
 	await _click(markers[OWN_CITY])
@@ -112,13 +118,13 @@ func _run() -> void:
 	var second_owner := str(markers[SECOND_CITY].get("owner_faction_id"))
 	markers[SECOND_CITY].set("owner_faction_id", player_faction)
 	_expect(bool(ctl.call("try_open", SECOND_CITY)) and str(ctl.call("get_open_city_id")) == SECOND_CITY, "another own city retargets the open window")
-	_expect(str(ctl.call("get_title_text")).begins_with(str(markers[SECOND_CITY].get("display_name"))), "title retargets")
+	_expect_picture_only(ctl, SECOND_CITY, "retarget")
 	_expect(_count_layers(ctl) == 1, "still one window layer after retarget")
 	markers[SECOND_CITY].set("owner_faction_id", second_owner)
 
-	# 3. close button
-	(ctl.call("get_close_button") as Button).pressed.emit()
-	_expect(not bool(ctl.call("is_open")), "close button closes")
+	# 3. close()
+	ctl.call("close")
+	_expect(not bool(ctl.call("is_open")), "close() closes")
 	# 3. Esc while open closes (through the viewport input pipeline)
 	ctl.call("try_open", OWN_CITY)
 	root.push_input(_esc())
@@ -284,6 +290,140 @@ func _check_dock(ctl: Node, worldmap: Node) -> void:
 	right.visible = right_visible_before
 	root.size = viewport_size_before
 	await _settle()
+
+
+## 8. HUDFIX: no title bar or close button; the window is exactly the picture area; the right city is open.
+func _expect_picture_only(ctl: Node, city_id: String, label: String) -> void:
+	var window: Control = ctl.call("get_window_panel")
+	var area: Control = ctl.call("get_interior_area")
+	_expect(window != null and window.find_child("TitleLabel", true, false) == null and window.find_child("CloseButton", true, false) == null
+		and not ctl.has_method("get_title_text") and not ctl.has_method("get_close_button"), "%s: no title bar, no close button" % label)
+	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == city_id, "%s: open on %s (%s)" % [label, city_id, str(ctl.call("get_open_city_id"))])
+	if window == null or area == null:
+		return
+	var style := window.get_theme_stylebox("panel")
+	_expect(style is StyleBoxEmpty and style.get_minimum_size() == Vector2.ZERO and window.get_child_count() == 1 and area.get_parent() == window,
+		"%s: empty panel style, the picture area is the window's only child" % label)
+
+
+## 8. HUDFIX: closing by a click on the empty map (real mouse events pushed through the viewport, 2D map view).
+func _check_outside_click(ctl: Node, worldmap: Node, markers: Dictionary, player_faction: String) -> void:
+	var viewport_size_before := root.size
+	root.size = TEST_VIEWPORT_SIZE
+	await _settle()
+	var window: Control = ctl.call("get_window_panel")
+	var area: Control = ctl.call("get_interior_area")
+	_expect(window.size.is_equal_approx(area.size) and window.global_position.is_equal_approx(area.global_position) and area.size.x > 300.0,
+		"window rect = picture rect, zero padding (window %s %s, picture %s %s)" % [str(window.global_position), str(window.size), str(area.global_position), str(area.size)])
+	_expect(is_equal_approx(ctl.CLICK_MOVE_LIMIT, 6.0) and ctl.OUTSIDE_CLICK_SETTLE_FRAMES == 2, "click limit 6 px, 2 settle frames")
+	var empty := EMPTY_MAP_POINT
+	# empty map click (< 6 px): closes
+	await _mouse_press(empty, true)
+	_expect(bool(ctl.get("_outside_press")), "an empty-map press reaches the controller (no HUD control took it)")
+	await _mouse_press(empty + Vector2(3, 2), false)
+	await _settle()
+	await process_frame
+	_expect(not bool(ctl.call("is_open")), "empty-map click (3.6 px move) closes the window")
+	# drag of 6 px or more, then release: stays open
+	ctl.call("try_open", OWN_CITY)
+	await _settle()
+	await _mouse_press(empty, true)
+	await _mouse_motion(empty + Vector2(30, 10))
+	await _mouse_press(empty + Vector2(30, 10), false)
+	await _settle()
+	await process_frame
+	_expect(bool(ctl.call("is_open")), "map drag (31.6 px) then release keeps the window open")
+	await _mouse_press(empty, true)
+	await _mouse_press(empty + Vector2(6, 0), false)
+	await _settle()
+	await process_frame
+	_expect(bool(ctl.call("is_open")), "exactly 6 px between press and release is a drag: stays open")
+	# a map click that picks a city (the pick lands between the press and the release, as a 2D marker / 3D region pick)
+	var second_owner := str(markers[SECOND_CITY].get("owner_faction_id"))
+	markers[SECOND_CITY].set("owner_faction_id", player_faction)
+	for case in [[OWN_CITY, true, OWN_CITY, "same own city"], [SECOND_CITY, true, SECOND_CITY, "another own city retargets"], [ENEMY_CITY, false, "", "enemy city closes"]]:
+		ctl.call("try_open", OWN_CITY)
+		await _settle()
+		await _mouse_press(empty, true)
+		markers[case[0]].emit_signal("city_selected", markers[case[0]])
+		await process_frame
+		await _mouse_press(empty, false)
+		await _settle()
+		await process_frame
+		_expect(bool(ctl.call("is_open")) == case[1] and str(ctl.call("get_open_city_id")) == case[2],
+			"map click picking %s: %s (open %s, city %s)" % [case[0], case[3], str(ctl.call("is_open")), str(ctl.call("get_open_city_id"))])
+	markers[SECOND_CITY].set("owner_faction_id", second_owner)
+	# presses on HUD controls never close: press there, release elsewhere on the map (no button fires)
+	var targets: Array = [["the window", window]]
+	var grip_ctl := worldmap.get_node_or_null("WorldMapLeftPanelGripController")
+	targets.append(["the left panel grip", grip_ctl.call("get_grip") if grip_ctl != null else null])
+	targets.append(["the left panel", worldmap.get("left_world_status_panel")])
+	targets.append(["the right panel", worldmap.get("city_info_panel_control")])
+	targets.append(["a top menu button", _first_visible_button(worldmap.get_node_or_null("TopNavCanvas"))])
+	var compass := worldmap.find_child("TurnEndCompass", true, false)
+	targets.append(["the turn button", compass.get_node_or_null("TurnEndHitArea") if compass != null else null])
+	for target in targets:
+		ctl.call("try_open", OWN_CITY)
+		await _settle()
+		var node := target[1] as Control
+		_expect(node != null and node.is_visible_in_tree(), "%s exists and is visible" % target[0])
+		if node == null or not node.is_visible_in_tree():
+			continue
+		var at := _hud_point(node, window)
+		await _mouse_motion(at)
+		await _mouse_press(at, true)
+		_expect(not bool(ctl.get("_outside_press")), "a press on %s does not reach the map (%s)" % [target[0], str(at)])
+		await _mouse_motion(empty)
+		await _mouse_press(empty, false)
+		await _settle()
+		await process_frame
+		_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "a press on %s keeps the window open" % target[0])
+	# Esc still closes
+	root.push_input(_esc())
+	await process_frame
+	_expect(not bool(ctl.call("is_open")), "Esc closes (picture-only window)")
+	root.size = viewport_size_before
+	await _settle()
+
+
+## A point on the control that no other HUD control covers: its centre, or for a control under the window a point
+## beside the window (the left panel's top part sits left of the window).
+func _hud_point(node: Control, window: Control) -> Vector2:
+	var rect := node.get_global_rect()
+	var point := rect.get_center()
+	if node != window and window.get_global_rect().has_point(point):
+		point = Vector2(rect.position.x + minf(20.0, rect.size.x * 0.5), rect.get_center().y)
+	return point
+
+
+func _first_visible_button(node: Node) -> Control:
+	if node == null:
+		return null
+	if node is BaseButton and (node as Control).is_visible_in_tree() and (node as Control).mouse_filter == Control.MOUSE_FILTER_STOP:
+		return node
+	for child in node.get_children():
+		var found := _first_visible_button(child)
+		if found != null:
+			return found
+	return null
+
+
+func _mouse_press(at: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = pressed
+	event.position = at
+	event.global_position = at
+	root.push_input(event)
+	await process_frame
+
+
+func _mouse_motion(at: Vector2) -> void:
+	var event := InputEventMouseMotion.new()
+	event.position = at
+	event.global_position = at
+	root.push_input(event)
+	await process_frame
 
 
 ## Two frames: the SceneTree process_frame signal fires before the nodes' _process of that frame.

@@ -419,6 +419,7 @@ jobs:
             tests/scripts/test_worldmap_left_panel_grip.gd
             tests/scripts/test_worldmap_turn_button_daynight.gd
             tests/scripts/test_worldmap_integrated_hud_smoke.gd
+            tests/scripts/test_worldmap_turn_compass_seam.gd
           )
           index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do

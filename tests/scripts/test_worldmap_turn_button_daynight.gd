@@ -69,7 +69,7 @@ func run_flag(daynight: bool) -> void:
 		var circle: Dictionary = compass.call("get_window_circle")
 		expect((circle.center as Vector2).distance_to(Vector2(119.63, 120.82)) < 0.05 and absf(float(circle.radius) - 67.5) < 0.01, "daynight: window circle %s r %.2f" % [str(circle.center), float(circle.radius)])
 		var sky: Control = compass.get_node("SkyA")
-		expect(sky.position.distance_to(Vector2(119.63, 120.82) - Vector2(67.5, 67.5)) < 0.05 and sky.size.is_equal_approx(Vector2(135, 135)), "daynight: sky fitted to the window (%s %s)" % [str(sky.position), str(sky.size)])
+		var sky_circle: Dictionary = compass.call("get_sky_circle"); var hole: Dictionary = compass.call("get_frame_hole"); expect(bool(hole.measured) and (hole.center as Vector2).distance_to(Vector2(120.0, 119.0625)) < 0.05 and (sky_circle.center as Vector2).distance_to(hole.center) < 0.05 and absf(float(sky_circle.radius) - 71.4375) < 0.01 and float(sky_circle.radius) >= maxf((hole.radius as Vector2).x, (hole.radius as Vector2).y) + 3.0 - 0.001 and sky.position.distance_to((sky_circle.center as Vector2) - Vector2.ONE * float(sky_circle.radius)) < 0.05 and sky.size.is_equal_approx(Vector2.ONE * float(sky_circle.radius) * 2.0), "daynight: sky on the measured frame hole + 3 px (%s %s, hole %s %s)" % [str(sky.position), str(sky.size), str(hole.center), str(hole.radius)])
 		expect((compass.get_node("Frame") as Control).size.is_equal_approx(Vector2(240, 240)), "daynight: frame on the 240 canvas")
 		expect((compass.get_node("SkyA") as TextureRect).texture.resource_path == DAY_SKY and is_zero_approx((compass.get_node("SkyB") as Control).modulate.a), "daynight: rests on day")
 		# c. click circle, by the GUI's own hover pick

@@ -30,6 +30,8 @@ const SKY_TEXTURE_PATHS := ["sky_1_day.png", "sky_2_dusk.png", "sky_3_night.png"
 const MASTER_SIZE := 1024.0                             # the art's master canvas
 const WINDOW_CENTER_MASTER := Vector2(510.5, 515.5)     # the sky window's centre on the master canvas
 const WINDOW_DIAMETER_MASTER := 576.0                   # the sky window's diameter on the master canvas
+const FRAME_TEXTURE_PATH := TURN_BUTTON_DIR + "turn_btn_frame.png"
+const SKY_OVERLAP_PX := 3.0                             # the sky reaches this far under the frame ring (COMPASS_SIZE px)
 const CYCLE_SEC := 1.4                                  # day -> dusk -> night -> dawn -> day, 0.35 s each
 const SKY_PRESSED_MODULATE := 0.92
 const TURN_END_TOOLTIP := "턴 종료"
@@ -59,6 +61,7 @@ var _center_textures := {}
 var _sky_progress := 0.0
 var _hit_hovered := false
 var _hit_pressed := false
+static var _frame_hole_cache := {}   # HUDFIX: the frame hole measured once from FRAME_TEXTURE_PATH
 
 
 func _ready() -> void:
@@ -107,7 +110,7 @@ func _build_daynight_layers() -> void:
 	_sky_b = _create_layer("SkyB", _sky_textures[1])
 	_sky_b.modulate.a = 0.0
 	add_child(_sky_b)
-	_frame_layer = _create_layer("Frame", load(TURN_BUTTON_DIR + "turn_btn_frame.png") as Texture2D)
+	_frame_layer = _create_layer("Frame", load(FRAME_TEXTURE_PATH) as Texture2D)
 	add_child(_frame_layer)
 	_center_layer = _create_layer("Center", _center_textures.normal)
 	add_child(_center_layer)
@@ -135,13 +138,61 @@ func get_window_circle() -> Dictionary:
 	return {"center": WINDOW_CENTER_MASTER * scale_factor, "radius": WINDOW_DIAMETER_MASTER * scale_factor * 0.5}
 
 
+## The frame's see-through hole on this control (COMPASS_SIZE canvas), measured from the frame art: the alpha < 0.5 area
+## joined to the centre, its bounding box -> centre and {x, y} half sizes. Measured once and cached. Falls back to the
+## sky window circle when the art has no readable image.
+static func get_frame_hole() -> Dictionary:
+	if not _frame_hole_cache.is_empty():
+		return _frame_hole_cache
+	var texture := load(FRAME_TEXTURE_PATH) as Texture2D
+	var img: Image = texture.get_image() if texture != null else null
+	if img == null or img.is_empty():
+		var scale_factor := COMPASS_SIZE.x / MASTER_SIZE
+		var r := WINDOW_DIAMETER_MASTER * scale_factor * 0.5
+		return {"center": WINDOW_CENTER_MASTER * scale_factor, "radius": Vector2(r, r), "measured": false}
+	if img.is_compressed():
+		img.decompress()
+	var w := img.get_width()
+	var h := img.get_height()
+	var seen := PackedByteArray()
+	seen.resize(w * h)
+	var stack: Array[Vector2i] = [Vector2i(w / 2, h / 2)]
+	var lo := Vector2i(w, h)
+	var hi := Vector2i(-1, -1)
+	while not stack.is_empty():
+		var p: Vector2i = stack.pop_back()
+		if p.x < 0 or p.y < 0 or p.x >= w or p.y >= h or seen[p.y * w + p.x] != 0:
+			continue
+		seen[p.y * w + p.x] = 1
+		if img.get_pixel(p.x, p.y).a >= 0.5:
+			continue
+		lo = Vector2i(mini(lo.x, p.x), mini(lo.y, p.y))
+		hi = Vector2i(maxi(hi.x, p.x), maxi(hi.y, p.y))
+		stack.append(p + Vector2i.RIGHT)
+		stack.append(p + Vector2i.LEFT)
+		stack.append(p + Vector2i.DOWN)
+		stack.append(p + Vector2i.UP)
+	var k := COMPASS_SIZE.x / float(w)
+	_frame_hole_cache = {"center": (Vector2(lo) + Vector2(hi) + Vector2.ONE) * 0.5 * k, "radius": Vector2(hi - lo + Vector2i.ONE) * 0.5 * k, "measured": true}
+	return _frame_hole_cache
+
+
+## Where SkyA / SkyB are drawn: centred on the frame hole, radius = the hole's larger half size + SKY_OVERLAP_PX, so the
+## sky's soft edge sits under the frame ring. Only the sky layers use it; the click shape stays get_window_circle().
+func get_sky_circle() -> Dictionary:
+	var hole := get_frame_hole()
+	var half: Vector2 = hole.radius
+	return {"center": hole.center, "radius": maxf(half.x, half.y) + SKY_OVERLAP_PX}
+
+
 func _layout_daynight_layers() -> void:
 	var circle := get_window_circle()
-	var window_size := Vector2.ONE * float(circle.radius) * 2.0
+	var sky := get_sky_circle()
+	var sky_size := Vector2.ONE * float(sky.radius) * 2.0
 	for layer in [_sky_a, _sky_b]:
 		if layer != null and is_instance_valid(layer):
-			layer.position = (circle.center as Vector2) - window_size * 0.5
-			layer.size = window_size
+			layer.position = (sky.center as Vector2) - sky_size * 0.5
+			layer.size = sky_size
 	for layer in [_frame_layer, _center_layer]:
 		if layer != null and is_instance_valid(layer):
 			layer.position = Vector2.ZERO
