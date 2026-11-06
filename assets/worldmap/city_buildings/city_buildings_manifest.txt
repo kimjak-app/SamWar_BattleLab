@@ -1,0 +1,91 @@
+file,kind,group,name_ko,region,size_px,bytes,md5
+bld_commerce_street_market_kr.png,game,1 상업·병영,노점시장,kr,128x128,20853,45a0398cd4547f5849211da7f9f32f15
+bld_commerce_street_market_cn.png,game,1 상업·병영,노점시장,cn,128x128,19112,a81443bc62ba436dae573d40ec7f5e46
+bld_commerce_street_market_jp.png,game,1 상업·병영,노점시장,jp,128x128,21024,f0e906db7ba3e7f264f8876053f6039e
+bld_commerce_permanent_market_kr.png,game,1 상업·병영,상설시장,kr,128x128,18101,17bee5e656c4c71b29de34b3ac6a97e0
+bld_commerce_permanent_market_cn.png,game,1 상업·병영,상설시장,cn,128x128,19397,dd580c9fec7508b4283f153c7d19cbb1
+bld_commerce_permanent_market_jp.png,game,1 상업·병영,상설시장,jp,128x128,18926,c9c810c10d810df52724284eae69ec72
+bld_commerce_grand_market_kr.png,game,1 상업·병영,대형시장,kr,192x128,30732,200fb08ece079b391dd4e30cd77659b8
+bld_commerce_grand_market_cn.png,game,1 상업·병영,대형시장,cn,192x128,25738,18214cdc906fe497beecc343fe651bab
+bld_commerce_grand_market_jp.png,game,1 상업·병영,대형시장,jp,192x128,30156,0c696b8f148d6c357b57bf9e635c6428
+bld_commerce_merchant_guild_kr.png,game,1 상업·병영,대상단,kr,128x128,25436,6f270cb93fcd1380079b6b064dbe7119
+bld_commerce_merchant_guild_cn.png,game,1 상업·병영,대상단,cn,128x128,23705,0f2ea7b051f6480e08034453a23755f1
+bld_commerce_merchant_guild_jp.png,game,1 상업·병영,대상단,jp,128x128,25455,0bf7249cccaaad37bd8f62375adebbbb
+bld_commerce_mint_kr.png,game,1 상업·병영,조폐소,kr,128x128,22962,bdab92ae96c5a6410f093c829250445a
+bld_commerce_mint_cn.png,game,1 상업·병영,조폐소,cn,128x128,22322,90e73030d08cf22ee31176732026421b
+bld_commerce_mint_jp.png,game,1 상업·병영,조폐소,jp,128x128,21921,25b976c2746cd9c8db6b2985e10d0c17
+bld_mil_barracks_kr.png,game,1 상업·병영,병영,kr,192x128,32471,df16807c03e08dd2f11fb5ee342e5312
+bld_mil_barracks_cn.png,game,1 상업·병영,병영,cn,192x128,30264,ce3573e3bddcf195d17aedbc124c0427
+bld_mil_barracks_jp.png,game,1 상업·병영,병영,jp,192x128,31488,3f0e54289ea323cd1b9be0715bac5108
+bld_mil_wall_upgrade_kr.png,game,2 성곽,성벽 강화,kr,256x128,30862,8c632bec655bf4cceaa334d4ddcbdf17
+bld_mil_wall_upgrade_cn.png,game,2 성곽,성벽 강화,cn,256x128,28121,79b7722535417eb22cec071f62b98b78
+bld_mil_wall_upgrade_jp.png,game,2 성곽,성벽 강화,jp,256x128,25862,6c5acbd94cc3a3cd9485b75a72313b46
+bld_mil_iron_gate_kr.png,game,2 성곽,철문,kr,128x128,26699,19bd3de361a5c2da552f7dd42f1043f4
+bld_mil_iron_gate_cn.png,game,2 성곽,철문,cn,128x128,24392,3aa72953b98a5f177ad5141b6ff11fdd
+bld_mil_iron_gate_jp.png,game,2 성곽,철문,jp,128x128,25853,587754a7907a7f68fad303ad521fa45f
+bld_mil_watchtower_kr.png,game,2 성곽,망루,kr,64x128,13388,27fc81710e8f9fe0f924392626ba49fc
+bld_mil_watchtower_cn.png,game,2 성곽,망루,cn,64x128,11400,0234b02e68936e51a8c00c2bfb364946
+bld_mil_watchtower_jp.png,game,2 성곽,망루,jp,64x128,11732,2b1c0ec220e6d1b95c4ad946b7a993ff
+bld_mil_beacon_kr.png,game,2 성곽,봉화대,kr,64x128,10714,f69dc0c70f55a1e768ad9fffbeda6118
+bld_mil_beacon_cn.png,game,2 성곽,봉화대,cn,64x128,10832,0850e7f5c5ed95371a19674560a19d20
+bld_mil_beacon_jp.png,game,2 성곽,봉화대,jp,64x128,12923,d97caaebfe157d782e6fcdb8b28f560e
+bld_mil_iron_fortress_kr.png,game,2 성곽,철옹성,kr,256x256,86988,7cac3632c46eb1290f6d0e616404191a
+bld_mil_iron_fortress_cn.png,game,2 성곽,철옹성,cn,256x256,76628,b7842ce5663a806778fd4bab3c750d6e
+bld_mil_iron_fortress_jp.png,game,2 성곽,철옹성,jp,256x256,83810,281ef25734f85ca236b0c330fa1615a5
+bld_mil_moat_kr.png,game,2 성곽,해자,kr,256x64,8138,fc9bd923d3cdba050afd76d70e3b8f54
+bld_mil_moat_cn.png,game,2 성곽,해자,cn,256x64,6909,2e409d7e739039f74a1110dce3e4512f
+bld_mil_moat_jp.png,game,2 성곽,해자,jp,256x64,8721,70ede807efec89b2b2910914cd281bb9
+bld_mil_double_moat_kr.png,game,2 성곽,이중 해자,kr,256x64,11133,9b82a2d76d307ad983e8b6a912cab55c
+bld_mil_double_moat_cn.png,game,2 성곽,이중 해자,cn,256x64,9812,f37ba4e4a2437493b3c8221aac372810
+bld_mil_double_moat_jp.png,game,2 성곽,이중 해자,jp,256x64,10893,3b372b2e4c78d5e4e5cf92ceeca3afae
+bld_agri_irrigation_kr.png,game,3 들판,관개수로,kr,256x128,37890,e370f96c24c72d3a6ec2289808176498
+bld_agri_irrigation_cn.png,game,3 들판,관개수로,cn,256x128,36516,0828940e419a9032027447532d170f85
+bld_agri_irrigation_jp.png,game,3 들판,관개수로,jp,256x128,37755,b86491df69dc9d0f3bdccd09e394b3cc
+bld_agri_reservoir_kr.png,game,3 들판,저수지,kr,192x128,40577,ef296ec2b1286ad5152048b5e9c9a972
+bld_agri_reservoir_cn.png,game,3 들판,저수지,cn,192x128,28857,50cd1b108ae88940a2629e8b54a1836d
+bld_agri_reservoir_jp.png,game,3 들판,저수지,jp,192x128,36547,843406b226dd6948dddb5ad1f2ace857
+bld_agri_granary_zone_kr.png,game,3 들판,곡창지대,kr,256x128,43927,454575a95bf7637e00c3902b665d4fc2
+bld_agri_granary_zone_cn.png,game,3 들판,곡창지대,cn,256x128,41845,db986d74be6fbca7ef748285e0d16a1c
+bld_agri_granary_zone_jp.png,game,3 들판,곡창지대,jp,256x128,41341,d6f113531c67f6f497768cb663b9a750
+bld_agri_pasture_kr.png,game,3 들판,목초지,kr,192x128,31676,66ef3ecbfdd288567d5d5c28d5f593da
+bld_agri_pasture_cn.png,game,3 들판,목초지,cn,192x128,31547,460383d00099f1fa745d95c344f8d372
+bld_agri_pasture_jp.png,game,3 들판,목초지,jp,192x128,31964,b87fdfe3be56cbb7b5149ddf3b3bf737
+bld_agri_ranch_kr.png,game,3 들판,목장,kr,192x128,30021,24ead59a4c915089740cbec100036f83
+bld_agri_ranch_cn.png,game,3 들판,목장,cn,192x128,29162,04623efee2aa636b3ef040bba8ef050e
+bld_agri_ranch_jp.png,game,3 들판,목장,jp,192x128,31074,fc2652817b94f37ad81a678d8e5884b0
+bld_fish_village_kr.png,game,4 해안,어촌,kr,192x128,33739,281ce299cf3672e32094235ddfedaa92
+bld_fish_village_cn.png,game,4 해안,어촌,cn,192x128,33614,e73d7fd621a2c6b039830953f5dcf009
+bld_fish_village_jp.png,game,4 해안,어촌,jp,192x128,34821,f6ea9a3fed0bed1f4740a8e397988c5f
+bld_fish_salt_field_kr.png,game,4 해안,염전,kr,192x128,29688,b310a86bce164549f225588464f37af6
+bld_fish_salt_field_cn.png,game,4 해안,염전,cn,192x128,31984,d6c5b10bf77a2227e3b69b932ed41ca8
+bld_fish_salt_field_jp.png,game,4 해안,염전,jp,192x128,32464,a76e08d2b274690f625114922ebaff02
+bld_fish_salt_warehouse_kr.png,game,4 해안,소금창고,kr,128x128,24419,7f7e859795c0d9ee80afbca05c249589
+bld_fish_salt_warehouse_cn.png,game,4 해안,소금창고,cn,128x128,24098,7b93ac92460177a3a6af9e02cdcc43e9
+bld_fish_salt_warehouse_jp.png,game,4 해안,소금창고,jp,128x128,24363,2b97b848903c1c5f94e2813019b59ddf
+bld_fish_dried_supply_base_kr.png,game,4 해안,건어물 보급기지,kr,128x128,21741,9f205732f0f525746ceb5c607237dd57
+bld_fish_dried_supply_base_cn.png,game,4 해안,건어물 보급기지,cn,128x128,23708,f5048deb4d783de4ee23794dab8a3c16
+bld_fish_dried_supply_base_jp.png,game,4 해안,건어물 보급기지,jp,128x128,23264,4bd2ac3a0d585d0b4a3eeea2de003004
+bld_commerce_port_kr.png,game,4 해안,항구,kr,192x128,31476,0a86ba017deff0a8732c4795d959e5bc
+bld_commerce_port_cn.png,game,4 해안,항구,cn,192x128,29494,a63b34542cc64510c0b3724b902dd53f
+bld_commerce_port_jp.png,game,4 해안,항구,jp,192x128,28357,313b644c0b06e8e668ff1ba3ae6aa852
+bld_commerce_shipyard_kr.png,game,4 해안,조선소,kr,192x128,40128,a09ce980f09884111b82954b0a249f93
+bld_commerce_shipyard_cn.png,game,4 해안,조선소,cn,192x128,35118,6eddd0a71ef35d2467efb97b04a9d7c6
+bld_commerce_shipyard_jp.png,game,4 해안,조선소,jp,192x128,31029,ba6beb005942a3262daabae025db2c30
+bld_commerce_trade_port_kr.png,game,4 해안,무역항,kr,256x128,44159,e6cbd5f6ce6daf16e8d7f5b88655a0d8
+bld_commerce_trade_port_cn.png,game,4 해안,무역항,cn,256x128,40564,141109b22d8959b9c326302df3a05c38
+bld_commerce_trade_port_jp.png,game,4 해안,무역항,jp,256x128,34426,d7fad4765ac64ce821c6b05e3c8dfc79
+anchors/bld_life_office_kr.png,game,5 생활,관청(앵커),kr,192x192,53246,53052ef2b5d4a76dbf8900c088bb079a
+anchors/bld_life_office_cn.png,game,5 생활,관청(앵커),cn,192x192,54222,5ab6afff70e60ff0b8c522c0be34949a
+anchors/bld_life_office_jp.png,game,5 생활,관청(앵커),jp,192x192,51968,2a7d9fd32ae5404117fc429944e5842a
+bld_life_storehouse_kr.png,game,5 생활,창고,kr,128x128,25535,4794738ed715d2f96da04c6f4d155e29
+bld_life_storehouse_cn.png,game,5 생활,창고,cn,128x128,23301,420f2ca69d0f1a1e4342849a0e9e6a46
+bld_life_storehouse_jp.png,game,5 생활,창고,jp,128x128,24577,84f19e1fe8e181234b6b051389b8aaf4
+bld_life_smithy_kr.png,game,5 생활,대장간,kr,128x128,25691,fefbbf3237da907c5185414fd65e77fc
+bld_life_smithy_cn.png,game,5 생활,대장간,cn,128x128,21568,585c8a0fdfe4060991908889fe18a4c4
+bld_life_smithy_jp.png,game,5 생활,대장간,jp,128x128,22039,f7997f29a548f53f804aab826e9b6c1d
+bld_life_academy_kr.png,game,5 생활,학당,kr,128x128,26780,35816d3e7ee1d57c758492b8629f2351
+bld_life_academy_cn.png,game,5 생활,학당,cn,128x128,22954,4184bb65d806d552ff81b9a2d04e2781
+bld_life_academy_jp.png,game,5 생활,학당,jp,128x128,19226,950a09b1c25fe8d121849549ec0f89c8
+bld_life_temple_kr.png,game,5 생활,사찰,kr,128x192,17874,2bf230278e640e6578291578b0965fbc
+bld_life_temple_cn.png,game,5 생활,사찰,cn,128x192,26383,27c65c1e34205a239ea435404350189c
+bld_life_temple_jp.png,game,5 생활,사찰,jp,128x192,26146,a1e7abe35e16412b39596d2935b3ef5e
