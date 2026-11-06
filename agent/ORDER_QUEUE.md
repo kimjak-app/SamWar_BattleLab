@@ -37,6 +37,7 @@
 | 21 | `agent/ORDER_INTEGRATE_F6_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-integrate-20261106`(시작 `main` `ab9b739`). cityhud·m7prep·turnbtn 3개 가지를 합쳐 김작이 F6 한 번으로 확인. 충돌은 `verify-c-track.yml` 하나만 예상. `main` 병합 금지. **먼저 한다** |
 | 22 | `agent/ORDER_WM3D_PERF3_BAKE_PATHS_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-bake-20261106`(시작 `main` `ab9b739`). 도로·바닷길 경로를 미리 구워 시작 약 4초 단축(결과 완전 일치가 조건). 21번과 독립, 21번 뒤 |
 | 23 | `agent/ORDER_MERGE_MAIN_INTEGRATE_20261106.md` | 준비됨 — **`main` fast-forward 1회 + 백업 태그 1회**(김작 승인 11-06, 조건부 합격·F6 미확인). integrate 끝 `042b070`을 `main`에 합류. PERF3는 제외. 보고서는 새 가지 `feature/wm3d-mergereport-20261106`. 22번과 독립 — **22번을 기다리지 말고 지금 진행해도 된다**(다른 가지). 멈추면 이 항목만 막는다 |
+| 24 | `agent/ORDER_HUDFIX_CITYWIN_TURNBTN_20261106.md` | 준비됨 — **새 가지** `feature/wm3d-hudfix-20261106`(시작 `main` `042b070`). 도시 내부창을 성 그림만(제목줄·닫기 삭제, ESC/창 밖 빈 지도 클릭으로 닫기) + 턴 버튼 하늘/테두리 틈 원인 수정(구멍 실측 중심에 맞추고 +3px 겹침). `main` 푸시 금지. 22번과 독립 — 22번 멈춤을 기다리지 말고 진행 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
