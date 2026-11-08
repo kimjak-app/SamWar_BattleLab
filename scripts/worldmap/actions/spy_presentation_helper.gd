@@ -6,6 +6,7 @@ const ACTIONS := ["gather_info", "public_support_disrupt", "loyalty_disrupt", "r
 
 var _host: Node
 var _controller: RefCounted
+var debug_intel_provider: Callable = Callable()   # set only by WorldMapDebugCheatsController (queue 30 ③)
 
 
 func configure(host: Node, controller: RefCounted) -> void:
@@ -48,6 +49,10 @@ func get_city_intel_payload(entry: Dictionary) -> Dictionary:
 
 
 func get_city_intel_entry(city_id: String) -> Dictionary:
+	if debug_intel_provider.is_valid():   # queue 30 debug cheat ③ (debug builds only): read-time entry, never saved
+		var debug_entry: Variant = debug_intel_provider.call(city_id)
+		if debug_entry is Dictionary and not (debug_entry as Dictionary).is_empty():
+			return debug_entry as Dictionary
 	var state: Dictionary = _host.get("_player_state")
 	var registry: Dictionary = _controller.call("normalize_city_intel_registry", state.get("city_intel", {}))
 	var raw: Variant = registry.get(city_id, {})

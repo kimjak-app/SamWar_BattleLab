@@ -27,6 +27,7 @@
 [ext_resource type="Script" uid="uid://b0b5t7tlst25s" path="res://scripts/worldmap/map3d/worldmap_3d_host.gd" id="27_worldmap3d_host"]
 [ext_resource type="Script" uid="uid://buk2hh5gvlbhg" path="res://scripts/worldmap/ui/worldmap_city_interior_controller.gd" id="28_city_interior"]
 [ext_resource type="Script" uid="uid://dgk4ismn34a1n" path="res://scripts/worldmap/ui/worldmap_left_panel_grip_controller.gd" id="29_left_panel_grip"]
+[ext_resource type="Script" uid="uid://d1ai70c1jgf4g" path="res://scripts/worldmap/ui/worldmap_debug_cheats_controller.gd" id="30_debug_cheats"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_worldmap_v2_a1"]
 atlas = ExtResource("2_worldmap_v2_master")
@@ -2352,3 +2353,7 @@ main_path = NodePath("..")
 
 [node name="WorldMapLeftPanelGripController" type="Node" parent="." unique_id=1290417733]
 script = ExtResource("29_left_panel_grip")
+
+[node name="WorldMapDebugCheatsController" type="Node" parent="." unique_id=1509427733]
+script = ExtResource("30_debug_cheats")
+main_path = NodePath("..")
