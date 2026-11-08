@@ -123,3 +123,16 @@
 3. 푸시: 이 가지에 `dc63ec8`(STOP 보고서) → `5a51ebf`(코드) → `0e849ee`(테스트 `.uid`) → 이 보고서 커밋(`[skip ci]`). `main`·다른 가지 푸시 없음. 로컬 = 원격.
 4. CI: 최종 코드 커밋 `0e849ee`에서 C-track 4 shard success. `Verify WorldMap3D`는 `5a51ebf`에서 Diff check만 실패(`.uid`, continue-on-error), `0e849ee`에서는 트리거되지 않아 로컬 재현으로 대신했다(7절).
 5. 김작이 결정할 것: F6 체크리스트 1~5 합격/불합격, 이 가지의 `main` 합류 여부와 시기(CH-4와 같이 합칠지).
+
+## 추가 — 경고 2개 정리 (큐 31번 답신 1 §2, 2026-11-08)
+- **원인**: 이 가지에서 김작 F6를 돌리면 디버거 Errors 탭 경고가 14개였다. 그중 2개가 이 단계에서 클코드가 만든 컨트롤러에서 나왔다(31번 STOP 보고서 2-2절):
+  - 250행 지역 변수 `owner`가 `Node.owner`를 가림.
+  - 291행 매개변수 `name`이 `Node.name`을 가림.
+- **수정** (코드 커밋 `c2c674030aacb3855e39b4547a1f8a679fc760fc`, 바뀐 파일은 `scripts/worldmap/ui/worldmap_debug_cheats_controller.gd` 1개):
+  - `owner` → `owner_faction_id`(같은 함수 안 사용처 2곳).
+  - `name` → `constant_name`(함수 안 사용처 2곳). 호출처 3곳은 위치 인자라 그대로 둔다.
+  - 동작 변화 0. 테스트 파일은 이 이름을 참조하지 않아 바꾸지 않았다. 새 `.uid` 없음. `git diff a9e3b84 -- scripts/worldmap/worldmap_main.gd tools/p1_exact_delta.py` 0줄.
+- **경고 수**: 31번 STOP 때와 같은 방법(창 모드 F6와 같은 장면 + 디버거 수신기)으로 셌다. **14 → 12**, 컨트롤러 경고 0. 남은 12개는 `main`에 있는 파일들이고, 31번 가지(`feature/wm3d-warnfix-20261108`)에서 0으로 만든다. 두 가지가 `main`에 합쳐지면 0이 된다.
+- **로컬**: `[DEBUG_CHEATS] checks=61 failures=[]`. `test_worldmap_spy_controller_extraction` 49/0, `test_worldmap3d_host` 58/0, `test_worldmap_left_panel_grip` 28/0. 검증기 72개 PASS(`validate_worldmap_trade_phase2_extraction.py`는 커밋 뒤 PASS, 커밋 전 실패 이유는 6절과 같음).
+- **CI** `Verify C-track refactor` run `42484972498`: **success** — shard 0 `128744757376`, 1 `128744757017`, 2 `128744757246`, 3 `128744757333`. CI 로그 원문: `[DEBUG_CHEATS] checks=61 failures=[]`. `Verify WorldMap3D`는 경로 조건에 걸리지 않아 트리거되지 않았다(컨트롤러만 바뀜).
+- **F6 영향**: 이 가지에서 F6를 누르면 Errors 탭이 14 → 12가 되는지만 보면 된다. 치트 체크리스트(8절)는 그대로다.
