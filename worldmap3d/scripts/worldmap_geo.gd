@@ -193,6 +193,8 @@ func build_terrain_tiles(tile_cells := 128, strides := [2, 4, 8], skirt_km := 6.
 			norms.resize(verts.size())
 			norms.fill(Vector3.UP)      # lighting uses the baked normal texture; vertex normals only feed shadow bias
 			var idx0 := _tile_indices(nx, nz, 1, keep, full)
+			# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+			@warning_ignore("integer_division")
 			tris0 += idx0.size() / 3
 			var lods := {}
 			var errs: Array = lod_errors.get("%d,%d" % [ti, tj], [])
@@ -216,6 +218,8 @@ func build_terrain_tiles(tile_cells := 128, strides := [2, 4, 8], skirt_km := 6.
 			arr[Mesh.ARRAY_INDEX] = idx0
 			var mesh := ArrayMesh.new()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, [], lods)
+			# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+			@warning_ignore("integer_division")
 			out.append({"mesh": mesh, "tile": Vector2i(ti, tj), "tris": idx0.size() / 3})
 	tile_stats = {"tiles": out.size(), "tiles_skipped_sea": skipped, "tris_lod0": tris0, "tile_cells": tile_cells}
 	return out

@@ -144,8 +144,8 @@ func get_window_circle() -> Dictionary:
 static func get_frame_hole() -> Dictionary:
 	if not _frame_hole_cache.is_empty():
 		return _frame_hole_cache
-	var texture := load(FRAME_TEXTURE_PATH) as Texture2D
-	var img: Image = texture.get_image() if texture != null else null
+	var frame_texture := load(FRAME_TEXTURE_PATH) as Texture2D
+	var img: Image = frame_texture.get_image() if frame_texture != null else null
 	if img == null or img.is_empty():
 		var scale_factor := COMPASS_SIZE.x / MASTER_SIZE
 		var r := WINDOW_DIAMETER_MASTER * scale_factor * 0.5
@@ -156,6 +156,8 @@ static func get_frame_hole() -> Dictionary:
 	var h := img.get_height()
 	var seen := PackedByteArray()
 	seen.resize(w * h)
+	# 의도된 버림: 채우기 시작 픽셀(그림 가운데, 정수 좌표)
+	@warning_ignore("integer_division")
 	var stack: Array[Vector2i] = [Vector2i(w / 2, h / 2)]
 	var lo := Vector2i(w, h)
 	var hi := Vector2i(-1, -1)

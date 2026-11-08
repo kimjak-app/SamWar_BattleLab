@@ -205,6 +205,8 @@ func _build_terrain() -> void:
 		get_viewport().mesh_lod_threshold = float(tcfg.get("lod_threshold_px", 1.0))
 	else:
 		mesh = geo.build_terrain_mesh()
+		# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+		@warning_ignore("integer_division")
 		stats.terrain_tris = mesh.surface_get_array_index_len(0) / 3
 	terrain_mat = ShaderMaterial.new()
 	terrain_mat.shader = load(SHADERS + "worldmap_terrain.gdshader")
@@ -323,6 +325,8 @@ func _build_rivers() -> void:
 		lines.append(pts)
 		widths.append(ws)
 	var mesh := WorldMapRibbons.build(geo, lines, widths, 1.2)
+	# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+	@warning_ignore("integer_division")
 	stats.river_tris = mesh.surface_get_array_index_len(0) / 3 if mesh.get_surface_count() > 0 else 0
 	river_mat = ShaderMaterial.new()
 	river_mat.shader = load(SHADERS + "worldmap_ribbon.gdshader")
@@ -343,6 +347,8 @@ func _build_roads() -> void:
 	roads.build_paths(geo, marker_xz, rules.roads)
 	var mesh := WorldMapRibbons.build(geo, roads.paths, [], 0.8)
 	stats.road_build_ms = (Time.get_ticks_usec() - t) / 1000.0
+	# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+	@warning_ignore("integer_division")
 	stats.road_tris = mesh.surface_get_array_index_len(0) / 3 if mesh.get_surface_count() > 0 else 0
 	stats.road_count = roads.paths.size()
 	if road_mat == null:
@@ -367,6 +373,8 @@ func _build_sea_routes() -> void:
 	roads.build_sea_paths(geo, marker_xz, rules.get("sea_routes", []))
 	var mesh := WorldMapRibbons.build(geo, roads.sea_paths, [], 0.8)
 	stats.sea_build_ms = (Time.get_ticks_usec() - t) / 1000.0
+	# 의도된 버림: 삼각형 수 = 인덱스 수 / 3(항상 나누어떨어짐)
+	@warning_ignore("integer_division")
 	stats.sea_route_tris = mesh.surface_get_array_index_len(0) / 3 if mesh.get_surface_count() > 0 else 0
 	stats.sea_route_count = roads.sea_paths.size()
 	if sea_route_mat == null:
@@ -563,8 +571,8 @@ func set_marker_position(city_id: String, xz: Vector2, rebuild_roads := true) ->
 		_build_roads()
 		_build_sea_routes()
 
-func set_fill_preset(name: String) -> void:
-	_preset = cfg.fill_preset(name)
+func set_fill_preset(preset_name: String) -> void:
+	_preset = cfg.fill_preset(preset_name)
 	if camera:
 		update_zoom_params()
 

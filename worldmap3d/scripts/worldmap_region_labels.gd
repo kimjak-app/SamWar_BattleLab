@@ -72,6 +72,8 @@ static func _centroids(img: Image, xz_of_uv: Callable) -> Dictionary:
 	var cnt := {}
 	var w := img.get_width()
 	var h := img.get_height()
+	# 의도된 버림: 샘플 간격(정수 픽셀)
+	@warning_ignore("integer_division")
 	var step := maxi(1, w / 384)
 	for y in range(0, h, step):
 		for x in range(0, w, step):
@@ -94,7 +96,7 @@ func update_for_camera(cam: Camera3D) -> void:
 	var right := fwd.cross(Vector3.UP).normalized()
 	var a := deg_to_rad(float(style.get("tilt_deg", 35.0)))
 	var up_dir := (fwd * cos(a) + Vector3.UP * sin(a)).normalized()
-	var basis := Basis(right, up_dir, right.cross(up_dir))
+	var label_basis := Basis(right, up_dir, right.cross(up_dir))
 	var k := float(style.get("screen_scale", 0.03))
 	var hmin := float(style.get("min_km", 8.0))
 	var hmax := float(style.get("max_km", 160.0))
@@ -107,7 +109,7 @@ func update_for_camera(cam: Camera3D) -> void:
 		var dist := cam.global_position.distance_to(l.global_position)
 		var sc := lerpf(1.0, float(_scale[rid]), smoothstep(sf0, sf1, dist))
 		var hh := clampf(dist * k, hmin, hmax) * sc
-		l.global_transform = Transform3D(basis.scaled(Vector3(hh, hh, hh)), l.global_position)
+		l.global_transform = Transform3D(label_basis.scaled(Vector3(hh, hh, hh)), l.global_position)
 		var al := smoothstep(f0, f1, dist) * _base_alpha
 		l.modulate.a = al
 		l.outline_modulate.a = al * 0.88
