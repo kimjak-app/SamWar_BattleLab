@@ -247,8 +247,8 @@ func set_intel_reveal(on: bool) -> Dictionary:
 func build_revealed_intel_entry(city_id: String) -> Dictionary:
 	if not _intel_reveal or not is_active():
 		return {}
-	var owner := str(main.call("_get_city_owner_faction_id_for_trade_display", city_id))
-	if owner == str(main.call("_get_current_player_faction_id")):
+	var owner_faction_id := str(main.call("_get_city_owner_faction_id_for_trade_display", city_id))
+	if owner_faction_id == str(main.call("_get_current_player_faction_id")):
 		return {}
 	var spy_controller = main.call("_ensure_spy_controller")
 	var service = spy_controller.get("_service")
@@ -288,9 +288,9 @@ func _status(message: String) -> void:
 	main.call("_set_save_management_status", STATUS_PREFIX + message)
 
 
-func _get_main_constant(name: String, fallback: Variant) -> Variant:
+func _get_main_constant(constant_name: String, fallback: Variant) -> Variant:
 	var script := main.get_script() as Script
 	if script == null:
 		return fallback
 	var constants := script.get_script_constant_map()
-	return constants.get(name, fallback)
+	return constants.get(constant_name, fallback)
