@@ -43,7 +43,7 @@
 | 27 | `agent/ORDER_CITYHUD_CH4_TECH_LINK_20261106.md` | **준비됨** — 28번 합류 확인(`main` = `a9e3b84`). 새 가지 `feature/wm3d-cityhud4-20261106`(시작: `origin/main` `a9e3b84229f63286bbdc784d78826b0e2cdb792d`). 성 안 건물을 테크 완료와 연동(생활 5종·민가 항상, 시장 최고 단계 하나, 항구→무역항). `main` 수정 0줄 |
 | 28 | `agent/ORDER_MERGE_MAIN_HUDFIX_20261106.md` | 준비됨 — **김작 승인 11-06 21:16 "병합해!"**. HUDFIX(`a9e3b84`)를 `main`에 fast-forward 1회 + 백업 태그 1회. 보고서는 새 가지 `feature/wm3d-mergereport2-20261106`. 27번(CH-4)보다 **먼저** 한다 |
 | 29 | `agent/ORDER_ARCHIVE_PUSH_BACKUP_BRANCHES_20261107.md` | 준비됨 — **김작 승인 11-07 10:23 "푸시해줘"**. 로컬 전용 가지 15개(정본 `preserve/grok-terrain-20261029` 1 + 백업_1026 가지 14)를 `archive/<원래 이름>`으로 GitHub에 백업 푸시. `main` 병합 아님, 삭제 0, 강제 푸시 0. 27번(CH-4)과 독립. 보고서는 새 가지 `feature/wm3d-archivereport-20261107` |
-| 30 | `agent/ORDER_DEBUG_CHEATS_20261108.md` | 준비됨 — **새 가지** `feature/wm3d-debugcheats-20261108`(시작 `main` `a9e3b84`). 디버그 빌드 전용 치트 3개(자원 9999 채움 / 선택 테크 즉시 완료 / 첩보 없이 적 성 정보). `main` 수정은 생성 연결 몇 줄만, 푸시는 이 가지에만. 27번(CH-4)과 독립 |
+| 30 | `agent/ORDER_DEBUG_CHEATS_20261108.md` | 준비됨 — **새 가지** `feature/wm3d-debugcheats-20261108`(시작 `main` `a9e3b84`). 디버그 빌드 전용 치트 3개(자원 9999 채움 / 선택 테크 즉시 완료 / 첩보 없이 적 성 정보). **STOP→답신 `agent/ORDER_DEBUG_CHEATS_REPLY_1_20261108.md`로 재개(A안): `worldmap_main.gd` 수정 0줄, 컨트롤러는 `WorldMap.tscn` 자식 노드 1개**, 푸시는 이 가지에만. 27번(CH-4)과 독립 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
