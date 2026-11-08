@@ -8,6 +8,14 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-08 — 큐 31번 WARNFIX 멈춤 (코드 0)
+- 현재 단계: 31번 `agent/ORDER_WARNFIX_20261108.md`, 가지 `feature/wm3d-warnfix-20261108`(시작 `main` `a9e3b84`)
+- 마지막 코드 커밋: 없음(코드는 `a9e3b84`와 같음)
+- 마지막 보고서: `agent/REPORT_WARNFIX_STOP_20261108.md`
+- CI: 실행 0(`[skip ci]` 보고서만)
+- 다음 할 일: 클코치 답신 대기(A: 31번은 main 12개 + 30번 가지에서 컨트롤러 2개 / B / C)
+- 멈춘 이유: `main`에서 경고 12개(지시서는 14개). 나머지 2개는 30번 `worldmap_debug_cheats_controller.gd`(31번 수정 금지 파일). 지시서 1절
+
 ### 2026-11-08 — 큐 30번 DEBUG-CHEATS 완료 (답신 1 A안)
 - 현재 단계: 30번 완료, 가지 `feature/wm3d-debugcheats-20261108`
 - 마지막 코드 커밋: `0e849ee49398b0f26ecc480496b74758a095f017`(테스트 `.uid`), 그 앞 `5a51ebf`(치트 본체)

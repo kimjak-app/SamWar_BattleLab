@@ -1,0 +1,32 @@
+extends SceneTree
+# Minimal stand-in for the editor debugger: accepts one remote-debug connection and prints every "error"
+# message (the Errors tab content, warnings included) as one line. Stops after the game disconnects or 120 s.
+var server := TCPServer.new()
+var peer: StreamPeerTCP
+var buf := PackedByteArray()
+var t := 0.0
+func _initialize() -> void:
+	var port := int(OS.get_environment("DBG_PORT"))
+	print("LISTEN ", server.listen(port, "127.0.0.1"), " port ", port)
+func _process(delta: float) -> bool:
+	t += delta
+	if peer == null and server.is_connection_available():
+		peer = server.take_connection()
+		print("CONNECTED")
+	if peer != null:
+		peer.poll()
+		var avail := peer.get_available_bytes()
+		if avail > 0:
+			buf.append_array(peer.get_data(avail)[1])
+		while buf.size() >= 4:
+			var n := buf.decode_u32(0)
+			if buf.size() < 4 + n:
+				break
+			var msg = bytes_to_var(buf.slice(4, 4 + n))
+			buf = buf.slice(4 + n)
+			if msg is Array and msg.size() >= 3 and str(msg[0]) == "error":
+				print("ERRMSG ", JSON.stringify(msg[2]))
+		if peer.get_status() != StreamPeerTCP.STATUS_CONNECTED:
+			print("DISCONNECTED")
+			return true
+	return t > 120.0
