@@ -8,6 +8,14 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-08 — 큐 31번 WARNFIX 완료 (답신 1 A안) + 30번 경고 2개 정리
+- 31번: 가지 `feature/wm3d-warnfix-20261108`, 코드 `645ffcf5b9a7ed8aa0954428abce9c3ed5d551c1`, 보고서 `agent/REPORT_WARNFIX_20261108.md`. 경고 12 → 0
+- 31번 CI(`645ffcf`): Verify C-track refactor `42488036136` 4 shard success, Verify WorldMap3D `42488036103` success
+- 30번: `feature/wm3d-debugcheats-20261108` 코드 `c2c6740`(이름 2개), 보고서 덧붙임 `3e391b1`. C-track `42484972498` success. 경고 14 → 12(나머지 12는 31번 몫)
+- 금지 파일(`worldmap_main.gd`·`battle_settlement_applier.gd`·`p1_exact_delta.py`·`project.godot`) 변경 0
+- 다음 할 일: 김작 F6(30번 8절, 31번 6절), 30·31번 `main` 합류 결정. 정본 폴더는 30번 가지로 체크아웃
+- 멈춘 이유: 없음(정상 완료)
+
 ### 2026-11-08 — 큐 31번 WARNFIX 멈춤 (코드 0)
 - 현재 단계: 31번 `agent/ORDER_WARNFIX_20261108.md`, 가지 `feature/wm3d-warnfix-20261108`(시작 `main` `a9e3b84`)
 - 마지막 코드 커밋: 없음(코드는 `a9e3b84`와 같음)
