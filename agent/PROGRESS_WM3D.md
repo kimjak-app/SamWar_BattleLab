@@ -8,6 +8,14 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-08 — 큐 30번 DEBUG-CHEATS 멈춤 (코드 0)
+- 현재 단계: 30번 `agent/ORDER_DEBUG_CHEATS_20261108.md`, 가지 `feature/wm3d-debugcheats-20261108`(시작 `main` `a9e3b84`)
+- 마지막 코드 커밋: 없음(코드는 `a9e3b84`과 같음)
+- 마지막 보고서: `agent/REPORT_DEBUG_CHEATS_STOP_20261108.md`
+- CI: 실행 0(`[skip ci]` 보고서만)
+- 다음 할 일: 클코치 답신(A: `WorldMap.tscn` 루트 자식, main 0줄 / B: main 몇 줄 + `p1_exact_delta.py` 재고정 / C) 대기
+- 멈춘 이유: `worldmap_main.gd`가 `9b2cd8e`와 바이트 단위로 고정(`validate_worldmap_diplomacy_routing.py` → `p1_exact_delta.py`), 연결 몇 줄도 실패. 큐 4절 3·4번
+
 ### 2026-11-05 — 큐 5번 CITY-HUD 감사 완료, 큐 끝
 - CITY-HUD 감사 완료: `agent/REPORT_AUDIT_CITYHUD_20261105.md` (읽기 전용, 코드·에셋 변경 0)
 - 다음 할 일: 없음(큐 1~5 모두 완료). 김작 F6(06·07·08), M7·CITY-HUD 결정, 구현 지시서 대기
