@@ -8,6 +8,15 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-08 — 큐 30번 DEBUG-CHEATS 완료 (답신 1 A안)
+- 현재 단계: 30번 완료, 가지 `feature/wm3d-debugcheats-20261108`
+- 마지막 코드 커밋: `0e849ee49398b0f26ecc480496b74758a095f017`(테스트 `.uid`), 그 앞 `5a51ebf`(치트 본체)
+- 마지막 보고서: `agent/REPORT_DEBUG_CHEATS_20261108.md`
+- CI(`0e849ee`): Verify C-track refactor `42475007954` 4 shard success. Verify WorldMap3D는 미트리거(경로 조건) → 로컬 재현. `5a51ebf`는 `.uid` 미커밋으로 Diff check 실패
+- `worldmap_main.gd`·`tools/p1_exact_delta.py` 변경 0줄
+- 다음 할 일: 김작 F6(보고서 8절 1~5), `main` 합류 결정. 큐에 다른 '준비됨' 항목이 오면 이어서
+- 멈춘 이유: 없음(정상 완료)
+
 ### 2026-11-08 — 큐 30번 DEBUG-CHEATS 멈춤 (코드 0)
 - 현재 단계: 30번 `agent/ORDER_DEBUG_CHEATS_20261108.md`, 가지 `feature/wm3d-debugcheats-20261108`(시작 `main` `a9e3b84`)
 - 마지막 코드 커밋: 없음(코드는 `a9e3b84`과 같음)

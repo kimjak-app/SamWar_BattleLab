@@ -1,0 +1,217 @@
+alternating_battle_action_order_test rc=0 :: ALTERNATING BATTLE ACTION ORDER GODOT PASS 
+test_battle3d_acted_ally_click rc=0 :: [ACTED] checks=7 failures=[] 
+test_battle3d_ally_roster_actor rc=0 :: [ALLY_ACTOR] checks=104 failures=[] 
+test_battle3d_auto_equivalence_seed_1 rc=0 :: [M5A_AUTO_CASE] seed 1 result=defeat round=11 writes=45 quiet=10 ms=57992 failures=0 [M5A_AUTO_EQUIVALENCE] checks=70 display_checks=822 failures=[] 
+test_battle3d_auto_equivalence_seed_2 rc=0 :: [M5A_AUTO_CASE] seed 2 result=defeat round=11 writes=45 quiet=9 ms=57986 failures=0 [M5A_AUTO_EQUIVALENCE] checks=70 display_checks=771 failures=[] 
+test_battle3d_auto_equivalence_seed_3 rc=0 :: [M5A_AUTO_CASE] seed 3 result=defeat round=11 writes=45 quiet=9 ms=61944 failures=0 [M5A_AUTO_EQUIVALENCE] checks=70 display_checks=715 failures=[] 
+test_battle3d_auto_hold_1x_seed_1 rc=0 :: [AUTO_HOLD] checks=24 failures=[] 
+test_battle3d_auto_hold_1x_seed_2 rc=0 :: [AUTO_HOLD] checks=24 failures=[] 
+test_battle3d_auto_hold_1x_seed_3 rc=0 :: [AUTO_HOLD] checks=24 failures=[] 
+test_battle3d_auto_hold_release rc=0 :: [AUTO_HOLD_RELEASE] checks=9 failures=[] 
+test_battle3d_auto_hold_seed_1 rc=0 :: [AUTO_HOLD] checks=59 failures=[] 
+test_battle3d_auto_hold_seed_2 rc=0 :: [AUTO_HOLD] checks=59 failures=[] 
+test_battle3d_auto_hold_seed_3 rc=0 :: [AUTO_HOLD] checks=59 failures=[] 
+test_battle3d_auto_speed rc=0 :: [M5A_SPEED] checks=20 failures=[] 
+test_battle3d_auto_stop_rejections rc=0 :: [M5A_AUTO_STOP_REJECTIONS] checks=61 failures=[] 
+test_battle3d_block46_debug_text rc=0 :: [BLOCK46_DEBUG_TEXT] checks=9 failures=[] 
+test_battle3d_block46_facing_ground rc=0 :: [BLOCK46_FACING] checks=4 failures=[] 
+test_battle3d_block46_marker_mouse rc=0 :: [BLOCK46_MOUSE] checks=5 failures=[] 
+test_battle3d_block46_unit_markers rc=0 :: [BLOCK46_MARKERS] checks=12 failures=[] shown 6 
+test_battle3d_block46b_arrow_look rc=0 :: [BLOCK46B_ARROW] checks=8 failures=[] fill length/width [0.80000001192093, 1.01999998092651] 
+test_battle3d_block46b_marker_layout rc=0 :: [BLOCK46B_LAYOUT] checks=4 failures=[] marker views 29 expected / shown by view { "42/0": [6, 6], "30/0": [6, 6], "20/0": [4, 4], "42/90": [6, 6], "30/90": [5, 5], "20/90": [2, 2] } cell_px by zoom/turn { "42/0": 77.142822265625, "30/0": 108.0, "20/0": 162.0, "42/90": 77.142822265625, "30/90": 108.0, "20/90": 162.0 } 
+test_battle3d_block46b_panel_avoid rc=0 :: [BLOCK46B_PANEL] checks=3 failures=[] cases [[42.0, "yi_sunsin", true, true, false, true], [42.0, "jeong_dojeon", true, true, false, true], [42.0, "gwon_yul", true, true, false, true], [30.0, "yi_sunsin", true, true, false, true], [30.0, "jeong_dojeon", true, true, false, true], [30.0, "gwon_yul", true, true, false, true], [20.0, "yi_sunsin", true, true, false, true], [20.0, "jeong_dojeon", true, true, false, true], [20.0, "gwon_yul", true, true, false, true]] overlaps without avoidance 3 
+test_battle3d_block46c_acted rc=0 :: [BLOCK46C_ACTED] checks=3 failures=[] acted 1 
+test_battle3d_block46c_chip rc=0 :: [BLOCK46C_CHIP] checks=2 failures=[] chips 29 [cell_px, chip side] by zoom/turn { "42/0": [77.1, 32.0], "30/0": [108.0, 45.0], "20/0": [162.0, 64.0], "42/90": [77.1, 32.0], "30/90": [108.0, 45.0], "20/90": [162.0, 64.0] } arrow centres covered 0 of 116 [] 
+test_battle3d_block46c_panel_hud rc=0 :: [BLOCK46C_PANEL_HUD] checks=4 failures=[] cases 12 covering a roster without the HUD avoidance { "42 left": true, "42 left 4-6 rule": false, "42 right": false, "42 right 4-6 rule": false, "42 far right": false, "42 far right 4-6 rule": false, "42 top": false, "42 top 4-6 rule": false, "42 bottom": false, "42 bottom 4-6 rule": false, "42 centre": false, "42 centre 4-6 rule": false, "20 left": true, "20 left 4-6 rule": false, "20 right": false, "20 right 4-6 rule": false, "20 far right": false, "20 far right 4-6 rule": true, "20 top": false, "20 top 4-6 rule": false, "20 bottom": false, "20 bottom 4-6 rule": false, "20 centre": false, "20 centre 4-6 rule": false } 
+test_battle3d_block46d_panel_sweep rc=0 :: [BLOCK46D_PANEL_SWEEP] checks=5 failures=[] steps 318 largest move 301 px at 20 jeong_dojeon step 19 anchor (468.8024, 416.7391) steps used { "42 yi_sunsin": { "2": 24, "3": 9, "3b": 8 }, "30 yi_sunsin": { "2": 20, "3": 7, "3b": 5 }, "20 yi_sunsin": { "2": 17, "3": 5, "3b": 3 }, "42 jeong_dojeon": { "2": 30, "3": 8, "3b": 9 }, "30 jeong_dojeon": { "2": 26, "3": 6, "3b": 6 }, "20 jeong_dojeon": { "3b": 5, "3": 5, "2": 17 }, "42 gwon_yul": { "2": 28, "3": 9, "3b": 8 }, "30 gwon_yul": { "2": 24, "3": 6, "3b": 6 }, "20 gwon_yul": { "3b": 5, "3": 5, "2": 17 } } left out [["42 yi_sunsin", 41, "panel hidden (the ally off screen)"], ["30 yi_sunsin", 32, "panel hidden (the ally off screen)"], ["20 yi_sunsin", 25, "panel hidden (the ally off screen)"], ["42 jeong_dojeon", 47, "panel hidden (the ally off screen)"], ["30 jeong_dojeon", 38, "panel hidden (the ally off screen)"], ["20 jeong_dojeon", 27, "panel hidden (the ally off screen)"], ["42 gwon_yul", 45, "panel hidden (the ally off screen)"], ["30 gwon_yul", 36, "panel hidden (the ally off screen)"], ["20 gwon_yul", 27, "panel hidden (the ally off screen)"]] control (block 4-6c rule) largest jump by zoom { "42 yi_sunsin": [1515.072265625, "step 24 anchor (512.122, 480.3956): (344.9792, 244.3956) -> (1732.0, 854.0)"], "30 yi_sunsin": [1519.37341308594, "step 20 anchor (505.7708, 456.5539): (350.9708, 220.554) -> (1732.0, 854.0)"], "20 yi_sunsin": [1547.22924804688, "step 17 anchor (473.0561, 414.8308): (339.856, 178.8307) -> (1732.0, 854.0)"], "42 jeong_dojeon": [1534.185546875, "step 30 anchor (497.6992, 465.7556): (330.5564, 229.7556) -> (1732.0, 854.0)"], "30 jeong_dojeon": [1546.30554199219, "step 26 anchor (485.5789, 436.0578): (330.7789, 200.0578) -> (1732.0, 854.0)"], "20 jeong_dojeon": [1550.22802734375, "step 19 anchor (468.8024, 416.7391): (335.6023, 180.7391) -> (1732.0, 854.0)"], "42 gwon_yul": [1550.13171386719, "step 28 anchor (510.4534, 401.1968): (343.3105, 165.1968) -> (1732.0, 854.0)"], "30 gwon_yul": [1569.60998535156, "step 24 anchor (478.8442, 396.2162): (324.0443, 160.2162) -> (1732.0, 854.0)"], "20 gwon_yul": [1550.22326660156, "step 19 anchor (468.807, 416.7399): (335.6072, 180.7399) -> (1732.0, 854.0)"] } 
+test_battle3d_block6a_option_box rc=0 :: [BLOCK6A_OPTION] checks=10 failures=[] 
+test_battle3d_block6a_panel_body_gap rc=0 :: [BLOCK6A_PANEL_BODY_GAP] checks=5 failures=[] steps 318 placed by step 3 / 3b 115 steps used { "42 yi_sunsin": { "2": 24, "3": 9, "3b": 8 }, "30 yi_sunsin": { "2": 20, "3": 7, "3b": 5 }, "20 yi_sunsin": { "2": 17, "3": 5, "3b": 3 }, "42 jeong_dojeon": { "2": 30, "3": 8, "3b": 9 }, "30 jeong_dojeon": { "2": 26, "3": 6, "3b": 6 }, "20 jeong_dojeon": { "3b": 5, "3": 5, "2": 17 }, "42 gwon_yul": { "2": 28, "3": 9, "3b": 8 }, "30 gwon_yul": { "2": 24, "3": 6, "3b": 6 }, "20 gwon_yul": { "3b": 5, "3": 5, "2": 17 } } left out [["42 yi_sunsin", 41, "panel hidden (the ally off screen)"], ["30 yi_sunsin", 32, "panel hidden (the ally off screen)"], ["20 yi_sunsin", 25, "panel hidden (the ally off screen)"], ["42 jeong_dojeon", 47, "panel hidden (the ally off screen)"], ["30 jeong_dojeon", 38, "panel hidden (the ally off screen)"], ["20 jeong_dojeon", 27, "panel hidden (the ally off screen)"], ["42 gwon_yul", 45, "panel hidden (the ally off screen)"], ["30 gwon_yul", 36, "panel hidden (the ally off screen)"], ["20 gwon_yul", 27, "panel hidden (the ally off screen)"]] steps 1-2 over the body box by zoom [steps, largest overlap px, where] { "20": [51, (32.00003, 9.630646), "20 jeong_dojeon step 18 anchor (533.6023, 416.7391)"] } 
+test_battle3d_block6a_roster_fold rc=0 :: [BLOCK6A_FOLD] checks=14 failures=[] folded ally [P: (1.0, 117.0), S: (78.0, 521.0)] 2D root (-3.0, 2.0) 
+test_battle3d_block6a_roster_retreat rc=0 :: [BLOCK6A_RETREAT] checks=4 failures=[] retreated ["jeong_dojeon", "guan_yu"] cards [3, 3] -> [3, 3] [{ "visible": true, "modulate": (0.62, 0.62, 0.62, 0.72), "text": true }, { "visible": true, "modulate": (0.62, 0.62, 0.62, 0.72), "text": true }] 
+test_battle3d_block7_board_data rc=0 :: [BLOCK7_BOARD_DATA] PASS: 13 checks, 0 failures; types { "plain": 295, "hill": 27, "river": 34, "forest": 28, "mountain": 12, "ford": 2, "fort": 2 } 
+test_battle3d_block7_defaults rc=0 :: [BLOCK7_DEFAULTS] checks=24 failures=[] forest cells=12 trees=32 
+test_battle3d_block7_foot_height rc=0 :: [BLOCK7_FOOT_HEIGHT] checks=3 failures=[] points=1000 worst=0.00005752353288 
+test_battle3d_block7_ford_demo_moves rc=0 :: [BLOCK7_FORD_DEMO] PASS: 24 checks, 0 failures; fords [(8, 5), (9, 5)], river cells 15 
+test_battle3d_block7_old_play_area rc=0 :: [BLOCK7_OLD_PLAY_AREA] PASS: 6 checks, 0 failures; types 180, heights 180 + 400, worst 0.00000000 m 
+test_battle3d_block7_outside_cells rc=0 :: [BLOCK7_OUTSIDE] checks=7 failures=[] outside clicks=9 
+test_battle3d_block7_triangle_budget rc=0 :: [BLOCK7_TRIANGLES] PASS: 5 checks, 0 failures; { "Terrain": 28800, "OutOfBoundsVista": 9920, "tree": 495, "trees": 15840, "tree_instances": 32, "Ford": 12, "RiverWaterPlane": 4120, "WoodenLogBridges": 816 } 
+test_battle3d_camera_center rc=0 :: [CAMERA] checks=24 failures=[] 
+test_battle3d_command_panel rc=0 :: [COMMAND_PANEL] checks=63 failures=[] 
+test_battle3d_command_panel_checks rc=0 :: [COMMAND_PANEL_CHECKS] checks=9 failures=[] 
+test_battle3d_cutin_result_toast rc=0 :: [CUTIN] checks=16 failures=[] 
+test_battle3d_defend_default_round rc=0 :: [M4A_DEFAULT_ROUND] checks=77 display_checks=4205 failures=[] 
+test_battle3d_defend_equivalence rc=0 :: [M4A_DEFEND_CASE] D7_defend_enemy_moves_waits_default defender=yi_sunsin recovered=0 writes=["_select_ally_unit", "_select_ally_unit", "_on_defend_button_pressed", "_select_ally_unit"] enemy_events=["enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed"] round=1 ms=7746 failures=0 [M4A_DEFEND_EQUIVALENCE] checks=248 display_checks=7047 failures=[] 
+test_battle3d_defend_rejections rc=0 :: [M4A_DEFEND_REJECTIONS] checks=75 failures=[] 
+test_battle3d_edge_scroll_direction rc=0 :: [EDGE_DIRECTION] PASS: 7 checks, 0 failures 
+test_battle3d_edge_scroll_gates rc=0 :: [EDGE_GATES] checks=14 failures=[] 
+test_battle3d_edge_scroll_limits rc=0 :: [EDGE_LIMITS] checks=5 failures=[] 
+test_battle3d_enemy_roster rc=0 :: [ENEMY_ROSTER] checks=39 failures=[] 
+test_battle3d_enemy_skill_default_round rc=0 :: [M4C2_DEFAULT_ROUND] checks=11 order_failures=0 failures=[] 
+test_battle3d_enemy_skill_equivalence rc=0 :: [M4C2_CASE] C7_charge_advance enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_skill_used", "enemy_action_completed", "round_started"] effects=["damage", "momentum"] ms=9142 failures=0 [M4C2_ENEMY_SKILL_EQUIVALENCE] effect_kinds=["damage", "momentum", "status"] checks=248 order_failures=0 failures=[] 
+test_battle3d_enemy_skill_mixed_log rc=0 :: [M4C2_MIXED_LOG] checks=9 order_failures=0 failures=[] 
+test_battle3d_enemy_strategy_replay rc=0 :: [ENEMY_STRATEGY_REPLAY] checks=35 failures=[] 
+test_battle3d_enemy_turn_default_layout rc=0 :: [M3_DEFAULT_LAYOUT] checks=68 failures=[] 
+test_battle3d_enemy_turn_equivalence_shard_1 rc=0 :: [M3_EQUIVALENCE_CASE] M6_infantry_attack enemy_events=["enemy_turn_started", "enemy_actor_selected", "enemy_attack_resolved", "enemy_action_completed", "round_started"] round=2 result= ms=8825 failures=0 [M3_EQUIVALENCE] checks=147 failures=[] 
+test_battle3d_enemy_turn_equivalence_shard_2 rc=0 :: [M3_EQUIVALENCE_CASE] M12_ally_wipe_defeat enemy_events=["enemy_turn_started", "enemy_actor_selected", "enemy_attack_resolved", "battle_ended"] round=1 result=defeat ms=8133 failures=0 [M3_EQUIVALENCE] checks=136 failures=[] 
+test_battle3d_enemy_turn_equivalence_shard_3 rc=0 :: [M3_EQUIVALENCE_CASE] M18_ally_move_then_attack enemy_events=["enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_attack_resolved", "enemy_action_completed", "round_started"] round=2 result= ms=11387 failures=0 [M3_EQUIVALENCE] checks=135 failures=[] 
+test_battle3d_enemy_turn_locks rc=0 :: [M3_LOCKS] checks=59 failures=[] 
+test_battle3d_engine_attack_rejections rc=0 :: [M2_REJECTION_CASE] isolation failures=0 M2_REJECTIONS checks=110 failures=[] 
+test_battle3d_engine_attack_shard_1 rc=0 :: [M2_ATTACK_CASE] A2_back failures=0 M2_ATTACK_SHARD_1 checks=1542 failures=[] 
+test_battle3d_engine_attack_shard_2 rc=0 :: [M2_ATTACK_CASE] A8 failures=0 M2_ATTACK_SHARD_2 checks=1543 failures=[] 
+test_battle3d_engine_attack_shard_3 rc=0 :: [M2_ATTACK_CASE] A10 failures=0 M2_ATTACK_SHARD_3 checks=1535 failures=[] 
+test_battle3d_engine_attack_sync rc=0 :: M2_SYNC checks=504 failures=[] 
+test_battle3d_engine_move_integration rc=0 :: M1B integration checks=144 failures=[] 
+test_battle3d_facing_arrows rc=0 :: [ARROWS] checks=15 failures=[] 
+test_battle3d_lab_roster_label_offscreen rc=0 :: [LAB_ROSTER_OFFSCREEN] checks=5 failures=[] 
+test_battle3d_log_hud rc=0 :: [LOG_HUD] checks=16 failures=[] 
+test_battle3d_look12_forest_fade rc=0 :: 
+test_battle3d_look12_tree_height rc=0 :: [LOOK12_TREE_HEIGHT] PASS: 3 checks, 0 failures; trees 32, mesh height 3.4500 m, bound 3.9675 m, headless: per-instance check not possible 
+test_battle3d_modes rc=0 :: [BATTLE3D_MODES] PASS: 20 checks, 0 failures 
+test_battle3d_movement_parity rc=0 :: SCENARIO PASS enclosed budget=3 [BATTLE3D_PARITY] PASS: 66149 checks, 0 failures; scenarios=15; visible_rays=540 
+test_battle3d_oblique_click rc=0 :: [BATTLE3D_OBLIQUE] PASS: 1522 checks, 0 failures; cameras=9; visible=1494; flat_different=177 
+test_battle3d_option_ai_level rc=0 :: [OPTION_AI_LEVEL] checks=29 failures=[] 
+test_battle3d_option_ai_level_auto rc=0 :: [OPTION_AI_LEVEL_AUTO] checks=9 failures=[] 
+test_battle3d_option_strategy_gaps rc=0 :: [OPTION_STRATEGY_GAPS] checks=5 failures=[] 
+test_battle3d_panel_drag rc=0 :: [DRAG] checks=8 failures=[] 
+test_battle3d_reinforce_blocking rc=0 :: [M4D_REINFORCE_BLOCKING] checks=31 failures=[] 
+test_battle3d_reinforce_default_rounds rc=0 :: [M4D_DEFAULT_ROUNDS] checks=63 display_checks=1397 failures=[] 
+test_battle3d_reinforce_mixed_log rc=0 :: [M4D_MIXED_LOG] checks=7 failures=[] 
+test_battle3d_scenario_defeat rc=0 :: [SCENARIO_DEFEAT] checks=13 failures=[] 
+test_battle3d_scenario_gaps rc=0 :: [SCENARIO_GAPS] checks=7 failures=[] 
+test_battle3d_scenario_new_battle rc=0 :: [SCENARIO_NEW_BATTLE] nodes_delta=0.0 checks=31 failures=[] 
+test_battle3d_scenario_start rc=0 :: [SCENARIO_START] checks=24 failures=[] 
+test_battle3d_scenario_victory_seed_1 rc=0 :: [SCENARIO_VICTORY] checks=12 failures=[] 
+test_battle3d_scenario_victory_seed_2 rc=0 :: [SCENARIO_VICTORY] checks=12 failures=[] 
+test_battle3d_scenario_victory_seed_3 rc=0 :: [SCENARIO_VICTORY] checks=12 failures=[] 
+test_battle3d_skill_default_round rc=0 :: [M4C1_DEFAULT_ROUND] checks=36 display_checks=1872 momentum_checks=646 failures=[] 
+test_battle3d_skill_equivalence_shard_1 rc=0 :: [M4C1_SKILL_CASE] K_encirclement_debuff mode=enemy_area effects=["status", "status", "status", "status", "status", "status", "status", "status", "status"] tactic=["skill_cast", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_finished", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] writes=["_select_ally_unit", "_select_ally_unit", "_on_unique_skill_button_pressed", "_try_use_unique_skill_on_target", "_select_ally_unit"] ms=10357 failures=0 [M4C1_SKILL_EQUIVALENCE] modes=["enemy_adjacent", "ally_area", "enemy_area", "single_enemy", "enemy_line"] effect_kinds=["damage", "momentum", "status"] checks=428 display_checks=6948 momentum_checks=1330 failures=[] 
+test_battle3d_skill_equivalence_shard_2 rc=0 :: [M4C1_SKILL_CASE] K_prediction_debuff mode=single_enemy effects=["status", "status", "momentum"] tactic=["skill_cast", "skill_effect", "skill_effect", "skill_effect", "skill_finished", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] writes=["_select_ally_unit", "_select_ally_unit", "_on_unique_skill_button_pressed", "_try_use_unique_skill_on_target", "_select_ally_unit"] ms=9202 failures=0 [M4C1_SKILL_EQUIVALENCE] modes=["self_area_enemy", "enemy_area", "single_enemy", "self_area", "enemy_line"] effect_kinds=["status", "damage", "momentum"] checks=385 display_checks=5946 momentum_checks=1184 failures=[] 
+test_battle3d_skill_equivalence_shard_3 rc=0 :: [M4C1_SKILL_CASE] K_team_action_buff mode=self_area effects=["status", "status", "status", "status", "status", "status", "status", "status"] tactic=["skill_cast", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_effect", "skill_finished", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] writes=["_select_ally_unit", "_select_ally_unit", "_on_unique_skill_button_pressed", "_try_use_unique_skill_on_target", "_select_ally_unit"] ms=9824 failures=0 [M4C1_SKILL_EQUIVALENCE] modes=["ally_area", "self", "single_enemy", "self_area"] effect_kinds=["heal", "cleanse", "status", "move", "damage", "momentum"] checks=388 display_checks=5964 momentum_checks=1211 failures=[] 
+test_battle3d_skill_equivalence_shard_4 rc=0 :: [M4C1_SKILL_CASE] X_enemy_skill_in_slot mode=single_enemy effects=["status", "status"] tactic=["skill_cast", "skill_effect", "skill_effect", "skill_finished", "skill_cast", "skill_effect", "skill_effect", "skill_effect", "skill_finished", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] writes=["_select_ally_unit", "_select_ally_unit", "_on_unique_skill_button_pressed", "_try_use_unique_skill_on_target", "_select_ally_unit"] ms=12298 failures=0 [M4C1_SKILL_EQUIVALENCE] modes=["self_area", "enemy_area", "single_enemy"] effect_kinds=["status", "momentum", "damage"] checks=390 display_checks=5514 momentum_checks=1053 failures=[] 
+test_battle3d_skill_mixed_log rc=0 :: [M4C1_MIXED_LOG] checks=14 failures=[] 
+test_battle3d_skill_rejections rc=0 :: [M4C1_SKILL_REJECTIONS] checks=104 failures=[] 
+test_battle3d_strategy_default_round rc=0 :: [M4B_DEFAULT_ROUND] checks=47 failures=[] 
+test_battle3d_strategy_equivalence rc=0 :: [M4B_STRATEGY_CASE] G10_burning_caster_ticks tactic=["strategy_cast", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] writes=["_select_ally_unit", "_select_ally_unit", "_on_strategy_button_pressed", "_try_use_strategy_on_target", "_select_ally_unit"] ms=6179 failures=0 [M4B_STRATEGY_EQUIVALENCE] checks=391 display_checks=2628 failures=[] 
+test_battle3d_strategy_mixed_log rc=0 :: [M4B_MIXED_LOG] checks=9 failures=[] 
+test_battle3d_strategy_rejections rc=0 :: [M4B_STRATEGY_REJECTIONS] checks=61 failures=[] 
+test_battle3d_t1_blocked_cells rc=0 :: [T1_3D_BLOCKED] checks=5 failures=[] forest 12 start (7, 0) drawn 13 raw forest [(6, 1), (5, 1), (6, 2)] clicked (6, 1) then (8, 0) 
+test_battle3d_t2_forest_groves rc=0 :: [T2_FOREST_GROVES] PASS: 40 checks, 0 failures; { "C4b": { "routes": [[(3, 8), (14, 2), 17, 17], [(14, 2), (3, 8), 17, 17]], "trees": 32, "tris": 15840, "worst_overhang": 0.495, "per_cell": [3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 2] }, "C4": { "routes": [[(3, 8), (14, 2), 17, 17], [(14, 2), (3, 8), 17, 17]], "trees": 32, "tris": 15840, "worst_overhang": 0.497, "per_cell": [3, 2, 3, 2, 3, 3, 3, 3, 2, 3, 2, 3] }, "C1": { "routes": [[(3, 8), (14, 2), 17, 17], [(14, 2), (3, 8), 17, 17]], "trees": 32, "tris": 15840, "worst_overhang": 0.498, "per_cell": [3, 3, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2] } } 
+test_battle3d_t3_blocked_paths rc=0 :: [T3_3D_BLOCKED_PATHS] checks=12 failures=[] forest 12 redeploy 18 arrivals [["ally_reinforce_01_demo", (3, 9)], ["ally_reinforce_02_test_unit", (1, 7)], ["enemy_reinforce_01_demo", (14, 1)], ["enemy_reinforce_02_test_unit", (16, 3)]] 
+test_battle3d_top_commands rc=0 :: [TOP_COMMANDS] checks=39 failures=[] 
+test_battle3d_top_hud rc=0 :: [TOP_HUD] checks=27 failures=[] 
+test_battle3d_wait_default_round rc=0 :: [M3B_DEFAULT_ROUND] checks=71 failures=[] 
+test_battle3d_wait_equivalence rc=0 :: [M3B_WAIT_CASE] W6_wait_enemy_confused writes=["_select_ally_unit", "_select_ally_unit", "_end_ally_turn_by_wait", "_select_ally_unit"] enemy_events=["enemy_turn_started", "enemy_actor_selected", "enemy_waited", "enemy_action_completed", "round_started"] round=2 ms=5410 failures=0 [M3B_WAIT_EQUIVALENCE] checks=178 failures=[] 
+test_battle3d_wait_rejections rc=0 :: [M3B_WAIT_REJECTIONS] checks=71 failures=[] 
+test_battle3d_worldmap_context_entry rc=0 :: [BATTLE3D_CONTEXT_ENTRY] checks=35 failures=[] 
+test_battle3d_worldmap_result_return rc=0 :: [BATTLE3D_RESULT_RETURN] checks=194 failures=[] 
+test_battle3d_worldmap_retreat rc=0 :: [BATTLE3D_RETREAT] checks=99 failures=[] 
+test_battle3d_zoom_limit rc=0 :: [ZOOM_LIMIT] checks=5 failures=[] 
+test_battle_action_lock_state_service rc=0 :: [BATTLE_ACTION_LOCK_STATE_SERVICE] PASS: 61 checks, 0 failures 
+test_battle_ally_move_event_parity rc=0 :: [BATTLE_ALLY_MOVE_EVENTS] PASS: 117 checks, 0 failures 
+test_battle_ally_move_state_service rc=0 :: [BATTLE_ALLY_MOVE_STATE] PASS: 25 checks, 0 failures 
+test_battle_attack_event_parity rc=0 :: [ATTACK_EVENT_CASE] A11 failures=0 [ATTACK_EVENTS] checks=213 failures=[] 
+test_battle_attack_oracle_shard_1 rc=0 :: [ATTACK_ORACLE_CASE] A6b PASS runs=2 [ATTACK_ORACLE] checks=128 failures=[] 
+test_battle_attack_oracle_shard_2 rc=0 :: [ATTACK_ORACLE_CASE] A11 PASS runs=2 [ATTACK_ORACLE] checks=106 failures=[] 
+test_battle_attack_state_service rc=0 :: [ATTACK_STATE] checks=70 failures=[] 
+test_battle_auto_presentation_hold_s4_3 rc=0 :: [AUTO_PRESENTATION_HOLD] checks=12 failures=[] 
+test_battle_auto_presentation_latch rc=0 :: [AUTO_PRESENTATION_LATCH] checks=12 failures=[] 
+test_battle_blocked_cells rc=0 :: [T1_BLOCKED_CELLS] PASS: 8 checks, 0 failures; forest 12 
+test_battle_combat_query_service rc=0 :: [BATTLE_COMBAT_QUERY_SERVICE] PASS: 29 checks, 0 failures 
+test_battle_damage_formula_service rc=0 :: [BATTLE_DAMAGE_FORMULA_SERVICE] PASS: 33 checks, 0 failures 
+test_battle_enemy_ai_level_mid_default rc=0 :: [ENEMY_AI_LEVEL_MID] checks=4 failures=[] 
+test_battle_enemy_ai_level_s4_3 rc=0 :: [ENEMY_AI_LEVEL] checks=19 failures=[] 
+test_battle_enemy_ai_reservation_state_service rc=0 :: [BATTLE_ENEMY_AI_RESERVATION_STATE_SERVICE] PASS: 29 checks, 0 failures 
+test_battle_enemy_event_log_service rc=0 :: [ENEMY_EVENT_LOG] checks=37 failures=[] 
+test_battle_enemy_rules_ally_parity_shard_1 rc=0 :: [ENEMY_RULES_ALLY_PARITY_CASE] K_charge_aoe ms=3273 failures=0 [ENEMY_RULES_ALLY_PARITY] checks=59 failures=[] 
+test_battle_enemy_rules_ally_parity_shard_2 rc=0 :: [ENEMY_RULES_ALLY_PARITY_CASE] K_naval_team_buff ms=3452 failures=0 [ENEMY_RULES_ALLY_PARITY] checks=67 failures=[] 
+test_battle_enemy_rules_ally_parity_shard_3 rc=0 :: [ENEMY_RULES_ALLY_PARITY_CASE] K_team_guard ms=3165 failures=0 [ENEMY_RULES_ALLY_PARITY] checks=67 failures=[] 
+test_battle_enemy_rules_ally_parity_shard_4 rc=0 :: [ENEMY_RULES_ALLY_PARITY_CASE] K_commit_failure ms=1779 failures=0 [ENEMY_RULES_ALLY_PARITY] checks=44 failures=[] 
+test_battle_enemy_skill_cap_behavior rc=0 :: [ENEMY_SKILL_CAP_CASE] CP08_flag_off_no_cap skills=["xiahou_dun"] caps=[["xiahou_dun", false, true]] counts={ "xiahou_dun": 2 } ms=3400 failures=0 [ENEMY_SKILL_CAP_BEHAVIOR] checks=26 failures=[] 
+test_battle_enemy_skill_spread_base_parity rc=0 :: [ENEMY_SKILL_SPREAD_BASE_PARITY_CASE] SP07_yield_then_blocked enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_skill_used", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_attack_resolved", "enemy_action_completed", "round_started"] ms=3667 failures=0 [ENEMY_SKILL_SPREAD_BASE_PARITY] checks=11 failures=[] 
+test_battle_enemy_skill_spread_behavior rc=0 :: [ENEMY_SKILL_ROTATION_CASE] RT05_ally_auto_untouched skills=["xiahou_dun"] decisions=[["yi_sunsin", false, true, 2], ["xiahou_dun", false, true, 2]] history={ "yi_sunsin": 1, "xiahou_dun": 1 } ms=8532 failures=0 [ENEMY_SKILL_ROTATION_BEHAVIOR] checks=59 failures=[] 
+test_battle_enemy_strategy_base_parity_shard_1 rc=0 :: [ENEMY_STRATEGY_BASE_PARITY_CASE] ES17_basic_fail enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_attack_resolved", "enemy_action_completed"] ms=2225 failures=0 [ENEMY_STRATEGY_BASE_PARITY] checks=21 failures=[] 
+test_battle_enemy_strategy_base_parity_shard_2 rc=0 :: [ENEMY_STRATEGY_BASE_PARITY_CASE] BATTLE_seed_3 enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "round_started", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_skill_used", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_attack_resolved", "enemy_action_completed"] ms=22368 failures=0 [ENEMY_STRATEGY_BASE_PARITY] checks=4 failures=[] 
+test_battle_enemy_strategy_base_parity_shard_3 rc=0 :: [ENEMY_STRATEGY_BASE_PARITY_CASE] BATTLE_seed_6 enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "round_started", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_waited", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_skill_used", "enemy_action_completed", "enemy_turn_started", "enemy_actor_selected", "enemy_moved", "enemy_attack_resolved", "enemy_action_completed"] ms=22777 failures=0 [ENEMY_STRATEGY_BASE_PARITY] checks=4 failures=[] 
+test_battle_enemy_strategy_behavior rc=0 :: [ENEMY_STRATEGY_BEHAVIOR_CASE] ES17_basic_fail enemy=["enemy_turn_started", "enemy_actor_selected", "enemy_strategy_used", "enemy_action_completed"] choices=[["guan_yu", "yi_sunsin", "yi_sunsin"]] ms=1423 failures=0 [ENEMY_STRATEGY_BEHAVIOR] checks=151 failures=[] 
+test_battle_enemy_tactic_rules_service rc=0 :: [ENEMY_TACTIC_RULES] checks=43 failures=[] 
+test_battle_enemy_turn_event_semantics rc=0 :: [ENEMY_EVENT_CASE] E20_enemy_unique_skill events=4 failures=0 [ENEMY_EVENTS] checks=525 failures=[] 
+test_battle_enemy_turn_oracle_shard_1 rc=0 :: [ENEMY_TURN_ORACLE_CASE] E10_mounted_archer_approach runs=2 failures=0 [ENEMY_TURN_ORACLE] checks=64 failures=[] 
+test_battle_enemy_turn_oracle_shard_2 rc=0 :: [ENEMY_TURN_ORACLE_CASE] E20_enemy_unique_skill runs=2 failures=0 [ENEMY_TURN_ORACLE] checks=64 failures=[] 
+test_battle_event_log_service rc=0 :: [BATTLE_EVENT_LOG] PASS: 20 checks, 0 failures 
+test_battle_move_oracle_baseline rc=0 :: [MOVE_ORACLE_GOLDEN] PASS: unchanged baseline [BATTLE_MOVE_ORACLE] PASS: 283 checks, 0 failures; scenarios=5; cases=7; runs=14 
+test_battle_movement_query_service rc=0 :: [BATTLE_MOVEMENT_QUERY_SERVICE] PASS: 30 checks, 0 failures 
+test_battle_roster_ready_icon rc=0 :: [ROSTER_ICON] checks=29 failures=[] 
+test_battle_setup_port_base_parity_shard_1 rc=0 :: [SETUP_BASE_PARITY] checks=36 failures=[] 
+test_battle_setup_port_base_parity_shard_2 rc=0 :: [SETUP_BASE_PARITY] checks=36 failures=[] 
+test_battle_setup_port_s4_3 rc=0 :: [BATTLE_SETUP_PORT] checks=58 failures=[] 
+test_battle_state_fingerprint_service rc=0 :: [BATTLE_STATE_FINGERPRINT] PASS: 53 checks, 0 failures 
+test_battle_t1_enemy_ai_blocked rc=0 :: [T1_ENEMY_AI_BLOCKED] PASS: 3 checks, 0 failures; { 1: { "free_moves": 7, "free_cells": [(10, 2), (9, 3), (9, 4), (6, 2), (6, 3), (5, 4), (11, 1)], "blocked": 18, "blocked_moves": 7, "into_blocked": [], "round": 3 }, 2: { "free_moves": 7, "free_cells": [(10, 2), (9, 3), (9, 4), (6, 2), (6, 3), (5, 4), (11, 1)], "blocked": 18, "blocked_moves": 7, "into_blocked": [], "round": 3 }, 3: { "free_moves": 7, "free_cells": [(10, 2), (9, 3), (9, 4), (6, 2), (6, 3), (5, 4), (11, 1)], "blocked": 18, "blocked_moves": 7, "into_blocked": [], "round": 3 } } 
+test_battle_t3_blocked_paths rc=0 :: [T3_BLOCKED_PATHS] checks=16 failures=0 forest [(4, 1), (5, 1), (6, 1), (4, 2), (5, 2), (6, 2), (11, 7), (12, 7), (13, 7), (11, 8), (12, 8), (13, 8)] redeploy 18/24 
+test_battle_tactic_dice_hook rc=0 :: [TACTIC_DICE_HOOK] checks=96 failures=[] 
+test_battle_tactic_event_log_service rc=0 :: [TACTIC_LOG_SERVICE] checks=15 failures=[] 
+test_battle_tactic_event_semantics rc=0 :: [TACTIC_SEMANTICS_CASE] R1_default_reinforcements_round3 tactic=["reinforcement_arrived", "reinforcement_arrived", "reinforcement_arrived", "reinforcement_arrived"] failures=0 [TACTIC_SEMANTICS] checks=188 failures=[] 
+test_battle_tactic_oracle_shard_1 rc=0 :: [TACTIC_ORACLE_CASE] K_charge_aoe runs=1 ms=3190 failures=0 [TACTIC_ORACLE] checks=60 failures=[] 
+test_battle_tactic_oracle_shard_2 rc=0 :: [TACTIC_ORACLE_CASE] K_naval_team_buff runs=1 ms=3281 failures=0 [TACTIC_ORACLE] checks=68 failures=[] 
+test_battle_tactic_oracle_shard_3 rc=0 :: [TACTIC_ORACLE_CASE] K_team_guard runs=1 ms=3183 failures=0 [TACTIC_ORACLE] checks=68 failures=[] 
+test_battle_tactic_oracle_shard_4 rc=0 :: [TACTIC_ORACLE_CASE] R1_default_reinforcements_round3 runs=1 ms=7967 failures=0 [TACTIC_ORACLE] checks=48 failures=[] 
+test_battle_tactic_skill_semantics_shard_1 rc=0 :: [TACTIC_SKILL_SEMANTICS_CASE] K_rally_restore tactic=["skill_cast", "heal", "cleanse", "status", "heal", "cleanse", "status", "skill_finished", "status_tick", "reinforcement_arrived", "reinforcement_arrived"] failures=0 [TACTIC_SKILL_SEMANTICS] effect kinds seen=["damage", "momentum", "status", "heal", "cleanse"] checks=664 failures=[] 
+test_battle_tactic_skill_semantics_shard_2 rc=0 :: [TACTIC_SKILL_SEMANTICS_CASE] K_advance_on_kill tactic=["skill_cast", "damage", "momentum", "skill_finished", "reinforcement_arrived", "reinforcement_arrived"] failures=0 [TACTIC_SKILL_SEMANTICS] effect kinds seen=["move", "status", "damage", "momentum"] checks=603 failures=[] 
+test_battle_unique_skill_cooldown_state_service rc=0 :: [BATTLE_UNIQUE_SKILL_COOLDOWN_STATE_SERVICE] PASS: 22 checks, 0 failures 
+test_night3_gaps_engine rc=0 :: [NIGHT3_GAPS_ENGINE] checks=7 failures=[] 
+test_single_side_exhaustion_turn_order rc=0 :: [ONE_SIDE_EXHAUSTION_TURN_PASS] 1v1 opens next round for ally [ONE_SIDE_EXHAUSTION_TURN] PASS 
+test_unit3d_run_carry rc=0 :: [UNIT3D_RUN_CARRY] PASS switch off: no visuals layer [UNIT3D_RUN_CARRY] PASS switch off: 0 new-model units, 0 AnimationPlayers with run_carry 
+test_world_calendar_service_extraction rc=0 :: [WORLD_CALENDAR_SERVICE] PASS: 10 checks, 0 failures 
+test_world_turn_economy_service_extraction rc=0 :: [WORLD_TURN_ECONOMY_SERVICE] PASS: 10 checks, 0 failures 
+test_world_turn_state_service_extraction rc=0 :: [WORLD_TURN_STATE_SERVICE] PASS: 10 checks, 0 failures 
+test_worldmap3d_adapter rc=0 :: [WORLDMAP3D_ADAPTER] PASS: 56 checks, 0 failures 
+test_worldmap3d_camera_controller rc=0 :: [WORLDMAP3D_CAMERA_CONTROLLER] PASS: 61 checks, 0 failures 
+test_worldmap3d_camera_external_input rc=0 :: [WORLDMAP3D_CAMERA_EXTERNAL_INPUT] PASS: 20 checks, 0 failures 
+test_worldmap3d_color_parity rc=0 :: [WM3D_COLOR_PARITY] checks=57 failures=[] 
+test_worldmap3d_host rc=0 :: [WORLDMAP3D_HOST] PASS: 58 checks, 0 failures 
+test_worldmap3d_mem_probe rc=0 :: [WM3D_MEM_PROBE] checks=37 failures=[] 
+test_worldmap3d_production rc=0 :: [WM3D_PRODUCTION] checks=28 failures=[] 
+test_worldmap3d_roads rc=0 :: [WM3D_ROADS] checks=121 failures=[] 
+test_worldmap_battle_context_service_extraction rc=0 :: [BATTLE_CONTEXT_SERVICE] PASS: 29 checks, 0 failures 
+test_worldmap_battle_result_service_extraction rc=0 :: [BATTLE_RESULT_SERVICE] PASS: 31 checks, 0 failures 
+test_worldmap_battle_settlement_applier_extraction rc=0 :: [BATTLE_SETTLEMENT_APPLIER] PASS: 28 checks, 0 failures 
+test_worldmap_camera_controller_extraction rc=0 :: [WORLDMAP_CAMERA_CONTROLLER] PASS: 8 checks, 0 failures 
+test_worldmap_camera_keyboard_guard rc=0 :: [WORLDMAP_CAMERA_KEYBOARD_GUARD] PASS: 7 checks, 0 failures 
+test_worldmap_city_administration_service_extraction rc=0 :: [CITY_ADMINISTRATION_SERVICE] PASS: 22 checks, 0 failures 
+test_worldmap_city_building_assets rc=0 :: [CITY_BUILDING_ASSETS] checks=482 failures=[] 
+test_worldmap_city_detail_presentation_extraction rc=0 :: [CITY_DETAIL_PRESENTATION] PASS: 20 checks, 0 failures 
+test_worldmap_city_interior_layouts rc=0 :: [CITY_INTERIOR_LAYOUT] checks=93 failures=[] 
+test_worldmap_city_interior_window rc=0 :: [CITY_INTERIOR] checks=125 failures=[] 
+test_worldmap_city_resource_service_extraction rc=0 :: [CITY_RESOURCE_SERVICE] PASS: 26 checks, 0 failures 
+test_worldmap_debug_cheats rc=0 :: [DEBUG_CHEATS] checks=61 failures=[] 
+test_worldmap_diplomacy_alliance_extraction rc=0 :: [DIPLOMACY_ALLIANCE_2C2] PASS: 52 checks, 0 failures 
+test_worldmap_diplomacy_controller_extraction rc=0 :: [DIPLOMACY_CONTROLLER_2F] PASS: 131 checks, 0 failures 
+test_worldmap_diplomacy_mutation_extraction rc=0 :: [DIPLOMACY_MUTATION_2B] PASS: 67 checks, 0 failures 
+test_worldmap_diplomacy_routing rc=0 :: [DIPLOMACY_ROUTING] PASS: 172 checks, 0 failures 
+test_worldmap_diplomacy_state_extraction rc=0 :: [DIPLOMACY_STATE_2C1] PASS: 50 checks, 0 failures 
+test_worldmap_diplomacy_validation_extraction rc=0 :: [DIPLOMACY_VALIDATION_2A] PASS: 54 checks, 0 failures 
+test_worldmap_domestic_tech_catalog_extraction rc=0 :: [DOMESTIC_TECH_CATALOG] PASS: 19 checks, 0 failures 
+test_worldmap_domestic_tech_completion_presentation_extraction rc=0 :: [DOMESTIC_TECH_COMPLETION_PRESENTATION] PASS: 22 checks, 0 failures 
+test_worldmap_domestic_tech_effect_provider_extraction rc=0 :: [DOMESTIC_TECH_EFFECT_PROVIDER] PASS: 34 checks, 0 failures 
+test_worldmap_domestic_tech_research_rules_extraction rc=0 :: [DOMESTIC_TECH_RULES] PASS: 17 checks, 0 failures 
+test_worldmap_domestic_tech_research_service_extraction rc=0 :: [DOMESTIC_TECH_RESEARCH_SERVICE] PASS: 35 checks, 0 failures 
+test_worldmap_domestic_tech_tree_presentation_extraction rc=0 :: [DOMESTIC_TECH_TREE_PRESENTATION] PASS: 25 checks, 0 failures 
+test_worldmap_enemy_warfare_service_extraction rc=0 :: [ENEMY_WARFARE_SERVICE] PASS: 20 checks, 0 failures 
+test_worldmap_hud_controller_extraction rc=0 :: [WORLDMAP_HUD_CONTROLLER] PASS: 5 checks, 0 failures 
+test_worldmap_integrated_hud_smoke rc=0 :: [PASS] still exactly one turn_end_requested after the turn (1) [INTEGRATED_HUD_SMOKE] checks=12 failures=0 
+test_worldmap_internal_trade_transfer_extraction rc=0 :: [INTERNAL_TRADE_TRANSFER] PASS: 21 checks, 0 failures 
+test_worldmap_left_panel_grip rc=0 :: [LEFT_PANEL_GRIP] checks=28 failures=[] 
+test_worldmap_military_controller_extraction rc=0 :: [MILITARY_CONTROLLER] PASS: 17 checks, 0 failures 
+test_worldmap_player_attack_deployment_service_extraction rc=0 :: [DEPLOYMENT_PASS] rollback is idempotent [PLAYER_ATTACK_DEPLOYMENT] PASS: 39 checks, 0 failures 
+test_worldmap_shared_ui_controller_extraction rc=0 :: [WORLDMAP_SHARED_UI_CONTROLLER] PASS: 5 checks, 0 failures 
+test_worldmap_spy_controller_extraction rc=0 :: [SPY_CONTROLLER] PASS: 49 checks, 0 failures 
+test_worldmap_spy_routing rc=0 :: [SPY_ROUTING] PASS: 71 checks, 0 failures 
+test_worldmap_t03_battle_presentation_extraction rc=0 :: [T03_PRESENTATION_PASS] presentation reset clears transient state [T03_PRESENTATION] PASS: 26 checks, 0 failures 
+test_worldmap_t03_strategic_battle_transaction_extraction rc=0 :: [T03_TRANSACTION_PASS] partial or invalid request fails structurally [T03_TRANSACTION_SERVICE] PASS: 30 checks, 0 failures 
+test_worldmap_trade_automation_extraction rc=0 :: [TRADE_AUTOMATION] PASS: 15 checks, 0 failures 
+test_worldmap_trade_controller_extraction rc=0 :: [TRADE_CONTROLLER] PASS: 32 checks, 0 failures 
+test_worldmap_trade_routing rc=0 :: [TRADE_ROUTING] PASS: 73 checks, 0 failures 
+test_worldmap_troop_rebalance_service_extraction rc=0 :: [REBALANCE_PASS] invalid move is rejected [TROOP_REBALANCE] PASS: 7 checks, 0 failures 
+test_worldmap_turn_button_daynight rc=0 :: [TURN_BUTTON_DAYNIGHT] checks=43 failures=[] 
+test_worldmap_turn_compass_seam rc=0 :: [TURN_SEAM] checks=18 failures=[] 
+test_worldmap_turn_controller_extraction rc=0 :: [WORLDMAP_TURN_CONTROLLER] PASS: 11 checks, 0 failures 
+test_worldmap_wounded_recovery_service_extraction rc=0 :: [WOUNDED_RECOVERY_PASS] forty world turns preserve twelve-month calendar mapping [WOUNDED_RECOVERY_SERVICE] PASS: 32 checks, 0 failures 

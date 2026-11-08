@@ -1,0 +1,13 @@
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+[PLAYER_ATTACK_SUPPLY_DEFAULT] city=hanseong resources={ "rice": 200, "barley": 200, "seafood": 68, "gold": 650, "salt": 40 }
+[PLAYER_ATTACK_SUPPLY_DEFAULT] city=pyeongyang resources={ "rice": 219, "barley": 219, "seafood": 74, "gold": 420, "salt": 20 }
+[PLAYER_ATTACK_SUPPLY_DEFAULT] city=gyeongju resources={ "rice": 165, "barley": 110, "seafood": 167, "gold": 580, "salt": 40 }
+[PLAYER_ATTACK_SUPPLY_DEFAULT] city=sabi resources={ "rice": 155, "barley": 103, "seafood": 156, "gold": 620, "salt": 60 }
+[WorldMap3D] map 'eastasia' built in 9067 ms (data 8, terrain 2915, ribbons 6111) terrain tris 2639484, road tris 98438, river tris 404966, regions 13, roads 13, sea routes 5, sea route tris 47632, sea build 1280 ms
+[REGISTERED_HERO_CITY_SEED] seeded={ "hanseong": ["gwak_jae_u", "go_gyeong_myeong", "kim_deok_ryeong"] }
+[DEBUG_CHEATS] checks=61 failures=[]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

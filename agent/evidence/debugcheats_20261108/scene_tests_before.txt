@@ -1,0 +1,5 @@
+test_worldmap3d_host rc=0 :: [WORLDMAP3D_HOST] PASS: 58 checks, 0 failures 
+test_worldmap3d_production rc=0 :: [WM3D_PRODUCTION] checks=28 failures=[] 
+test_worldmap_city_interior_window rc=0 :: [CITY_INTERIOR] checks=125 failures=[] 
+test_worldmap_left_panel_grip rc=0 :: [LEFT_PANEL_GRIP] checks=28 failures=[] 
+test_worldmap_spy_controller_extraction rc=0 :: [SPY_CONTROLLER] PASS: 49 checks, 0 failures 
