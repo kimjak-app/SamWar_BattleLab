@@ -8,6 +8,15 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-09 11:59 +0900 — 큐 34번 CLEANUP-MERGED-BRANCHES 완료
+- 현재 단계: 34번 완료. `main`에 통째로 들어간 `feature/wm3d-*` 7개(`ci-prep`·`cityhud`·`hudfix`·`intake`·`integrate`·`m7prep`·`turnbtn`) 원격·로컬 삭제(원격 가지 63 → 56, 태그·PR 변화 0)
+- 마지막 코드 커밋: 없음(`main` = `8cc0640b741447151eebb7ed98d3193136a5ad59` 그대로)
+- 마지막 보고서: `agent/REPORT_CLEANUP_MERGED_BRANCHES_20261109.md`(가지 `feature/wm3d-cleanupreport-20261109`)
+- CI: 해당 없음(코드 변경 0)
+- 복구: `C:\dev\_archive\cleanup_20261029\deleted_remote_merged_20261109.tsv`(해시가 모두 `main` 안, `git branch <이름> <해시>`)
+- 다음 할 일: 큐에 '준비됨' 항목 없음. 김작 F6(32번)
+- 멈춘 이유: 없음(정상 완료)
+
 ### 2026-11-09 11:14 +0900 — 큐 33번 CLEANUP-BRANCHES 완료
 - 현재 단계: 33번 완료. 원격·로컬에서 `feature/wm3d-debugcheats-20261108`·`warnfix-20261108`·`warnmerge-20261109`·`warnmerge2-20261109` 삭제(원격 가지 66 → 62, 태그·PR 변화 0)
 - 마지막 코드 커밋: 없음(`main` = `8cc0640b741447151eebb7ed98d3193136a5ad59` 그대로)
