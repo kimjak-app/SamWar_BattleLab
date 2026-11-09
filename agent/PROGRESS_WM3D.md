@@ -8,6 +8,14 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-09 10:50 +0900 — 큐 32번 MERGE-MAIN-CHEATS-WARNFIX 완료 (STOP → 답신 1 A′)
+- 현재 단계: 32번 완료. `main` = `8cc0640b741447151eebb7ed98d3193136a5ad59`(fast-forward `a9e3b84..8cc0640`), 백업 태그 `baseline-pre-debugcheats-warnfix-20261109` = `a9e3b84`
+- 마지막 코드 커밋: `8cc0640b741447151eebb7ed98d3193136a5ad59`(합친 가지 `feature/wm3d-warnmerge2-20261109` 끝, 31번 `645ffcf` 복사본)
+- 마지막 보고서: `agent/REPORT_MERGE_MAIN_CHEATS_WARNFIX_20261109.md`(가지 `feature/wm3d-mergereport3-20261109`)
+- CI(`8cc0640`): Verify C-track refactor `42545277972` 4 shard success, Verify WorldMap3D `42545278007` success
+- 다음 할 일: 김작 F6(보고서 F6 체크리스트 1~5, `main`에서 Errors 0개). 큐에 남은 '준비됨' 항목이 있으면 이어서
+- 멈춘 이유: 없음(정상 완료)
+
 ### 2026-11-08 — 큐 31번 WARNFIX 완료 (답신 1 A안) + 30번 경고 2개 정리
 - 31번: 가지 `feature/wm3d-warnfix-20261108`, 코드 `645ffcf5b9a7ed8aa0954428abce9c3ed5d551c1`, 보고서 `agent/REPORT_WARNFIX_20261108.md`. 경고 12 → 0
 - 31번 CI(`645ffcf`): Verify C-track refactor `42488036136` 4 shard success, Verify WorldMap3D `42488036103` success
