@@ -10,9 +10,9 @@
 
 ### 2026-11-10 — 큐 35번 NAVAL-HANSANDO 완료 (답신 1 A안)
 - 현재 단계: 35번 완료, 가지 `feature/wm3d-naval-20261110`
-- 마지막 코드 커밋: @@CODE@@
+- 마지막 코드 커밋: `57bae9f`(시험 대기 방식 수정), 그 앞 `1165036`(수전 본체)
 - 마지막 보고서: `agent/REPORT_NAVAL_HANSANDO_20261110.md`
-- CI: @@CI@@
+- CI: Verify C-track refactor `42832011165`(`57bae9f`) 4 shard 전부 success. 첫 실행 `42828138719`(`1165036`)은 shard 2 실패 — 새 수전 시험이 결과 화면을 프레임 수로 기다린 한 줄 때문이었고, 시간으로 기다리게 고친 시험 커밋 `57bae9f`로 해결했다(제품 코드 변경 없음). Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 - `worldmap_main.gd`·`data/heroes/generated/*.json` 변경 0줄. 엔진은 시작 설정 세 자리 + preload 1줄 + `battle_type` 줄 2곳
 - 다음 할 일: 김작 F6(보고서 7절), 병력 숫자·배 모형·지형 칸 글자 결정(보고서 5절). `main` 합류 없음
 - 멈춘 이유: 없음(정상 완료)
