@@ -216,7 +216,9 @@ func run() -> void:
 	var started := Time.get_ticks_msec()
 	while lab.battle_result.is_empty() and Time.get_ticks_msec() - started < 240000:
 		await process_frame
-	await frames(240)
+	var ended := Time.get_ticks_msec() # the result panel comes after the shell's ending toast, however long a frame takes
+	while not shell.result_panel.visible and Time.get_ticks_msec() - ended < 60000: await process_frame
+	await frames(30)
 	expect(not lab.battle_result.is_empty() and ["victory", "defeat"].has(lab.battle_result), "the battle ends on auto: %s in round %d (%.0f s)" % [lab.battle_result, lab.current_round, (Time.get_ticks_msec() - started) / 1000.0])
 	expect(shell.result_panel.visible and not shell.choose_button.visible and shell.restart_button.visible, "result panel: restart only (%s)" % shell.result_text)
 	expect(visuals.records.size() >= 10 and visuals.records.all(func(r): return (rules[r.unit_type].weapons as Array).has(r.weapon)), "%d weapon effects during the battle, each from its ship type's weapons" % visuals.records.size())
