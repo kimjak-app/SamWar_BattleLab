@@ -8,6 +8,15 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-10 — 큐 35번 NAVAL-HANSANDO 완료 (답신 1 A안)
+- 현재 단계: 35번 완료, 가지 `feature/wm3d-naval-20261110`
+- 마지막 코드 커밋: @@CODE@@
+- 마지막 보고서: `agent/REPORT_NAVAL_HANSANDO_20261110.md`
+- CI: @@CI@@
+- `worldmap_main.gd`·`data/heroes/generated/*.json` 변경 0줄. 엔진은 시작 설정 세 자리 + preload 1줄 + `battle_type` 줄 2곳
+- 다음 할 일: 김작 F6(보고서 7절), 병력 숫자·배 모형·지형 칸 글자 결정(보고서 5절). `main` 합류 없음
+- 멈춘 이유: 없음(정상 완료)
+
 ### 2026-11-10 — 큐 35번 NAVAL-HANSANDO 멈춤 (코드 0, §4 조사만)
 - 현재 단계: 35번 `agent/ORDER_NAVAL_HANSANDO_LAB_20261110.md`(19:40판), 가지 `feature/wm3d-naval-20261110`(시작 `main` `8cc0640`)
 - 마지막 코드 커밋: 없음(코드는 `8cc0640`과 같음)

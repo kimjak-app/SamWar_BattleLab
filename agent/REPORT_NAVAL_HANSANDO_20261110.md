@@ -1,0 +1,142 @@
+기준 화면: 새 장면 `scenes/battle3d/Battle3D_NavalHansando.tscn` (F6) — 기존 3D 전투 셸을 수전 설정으로 연 것. 육전 `Battle3D_ScenarioShell.tscn`은 그대로.
+합격 기준: 지시서(큐 35, 19:40판)와 답신 1 맨 위 그대로. 김작이 F6로 바다 전장에서 배를 육전과 같은 조작으로 이동·공격하고, 얼굴 칩·병력 바가 보이고, 학익진을 쓰고, F9로 캡처가 저장되면 합격. 육전 F6는 이전과 같아야 한다.
+
+# REPORT_NAVAL_HANSANDO — 한산도 수전 시나리오 (클코드, 2026-11-10, 큐 35번 답신 1 A안)
+
+- **됐나**: 됐다(자동 검증 기준). 김작 F6 확인 전이다.
+- **가지**: `feature/wm3d-naval-20261110` (`main` `8cc0640`에서). `main` 푸시 없음.
+- **한 일**: 엔진 시작 설정에 수전 항목을 더했고(답신 1), 그 위에 바다 판·배 4종 규칙·배 모형·화포 연출·F9 캡처·수전 장면을 얹었다. 새 항목이 없으면 육전은 그대로다.
+- **김작이 정할 것 3가지** (5절): 병력 숫자(엔진 피해가 고정값이라 설계값을 1/25로 넘김), 배 모형(지금은 임시 모형), 화면 아래 지형 칸의 "평지" 글자.
+- STOP 조사표: `agent/REPORT_NAVAL_HANSANDO_STOP_20261110.md` 1절(`a0e43d5`). 조사 결과는 그대로 유효하다.
+
+## 1. §4 조사표 (STOP 보고서 1절 요약) + 답신 뒤 실제로 쓴 자리
+| # | 질문 | 조사 결과 | 실제 구현 |
+|---|---|---|---|
+| 1 | 수전 규칙을 추가로 읽을 자리 | `UnitTypeContract.is_supported()`·`get_rule()` | 그 두 함수 + 읽기 함수 `naval_rules()`·`is_naval()`. 5종은 수전 파일을 건드리지 않는다 |
+| 2 | 시나리오별 병종 지정 | 없었다(멈춤 사유) | 답신 1: 시작 설정 `unit_overrides[*].unit_type` 등 |
+| 3 | 막힌 칸을 시나리오별로 | 된다(`forest_cells()`) | `forest_cells()`가 `island`도 모은다 |
+| 4 | 학익진 수전/육상 구분 | 구분한다(`battle_type`) | 시작 설정 `battle_type`을 `build_plan`에 넘긴다(월드맵 문맥 우선) |
+| 5 | AI와 새 병종 | `ai_behavior_profile`은 어떤 코드도 읽지 않는다 | 그대로. 배도 육전과 같은 적 AI로 움직인다 |
+| 6 | 셸·땅 경로 | 고정 경로 | 셸 `naval_scenario_path`, `lab_heightfield.gd` `source_paths` |
+
+## 2. 만든 것
+### 2-1. 엔진 시작 설정의 수전 항목 (답신 1)
+새 서비스 `scripts/battle/services/battle_setup_naval_service.gd`가 전부 처리한다. 엔진은 부르기만 한다.
+- 최상위: `battle_type`("naval"/"land"), `arrival_round_overrides`, `blocked_cells`(아래 3절 ④).
+- `unit_overrides[unit_id]`: `unit_type`, `hero_id`, `troops`, `grid_cell`, `facing`. 새 키가 하나라도 있으면 `troops_ratio` 없이 적용한다.
+- 잘못된 값은 엔진의 기존 `[BATTLE_SETUP] ignored: …` 줄로 남기고 무시한다. 전투는 정상 시작한다.
+- `battle_type`은 엔진 노드의 메타에만 둔다. 월드맵 문맥(`worldmap_battle_context`)에는 쓰지 않는다.
+
+### 2-2. 수전 쪽 새 파일
+| 파일 | 내용 |
+|---|---|
+| `data/battle3d/naval_unit_type_rules.json` | 배 4종 규칙(육전 규칙 파일과 같은 칸 + `weapons`, `ship_length`) |
+| `data/battle3d/naval_hansando_scenario.json` | 한산도 대본: 배 10척의 병종·장수·병력·칸·방향, 바다 판 파일 경로 |
+| `assets/battle3d/naval/heightfield_hansando.json`, `terrain_types_hansando.json` | 바다 판(20×20, 바다 높이 0, 섬). `tools/build_naval_hansando_terrain.py`로 만든다 |
+| `scripts/battle3d/naval/battle3d_naval_scenario.gd` | 대본 읽기, 엔진 시작 설정 만들기 |
+| `scripts/battle3d/naval/battle3d_naval_lab_setup.gd` | 수전일 때 랩에 바다·배·캡처 노드를 꽂는다 |
+| `scripts/battle3d/naval/naval_sea_builder.gd` | 바다 판 그리기(강 물 셰이더 재사용), 섬, 섬 나무, 먼 섬 실루엣 |
+| `scripts/battle3d/naval/battle3d_ship_visuals.gd` | 배 모형·흔들림·무기 발사·피격·침몰 |
+| `scripts/battle3d/naval/battle3d_cannon_fx.gd` | 화포: 포구 섬광·연기, 포탄 호, 물기둥/피격 연기, 침몰 연기 |
+| `scripts/battle3d/naval/battle3d_naval_overlay.gd` | 제목 "한산도 대첩", F9 / Shift+F9 캡처 |
+| `scenes/battle3d/Battle3D_NavalHansando.tscn` | 셸 + `naval_scenario_path` |
+
+### 2-3. 바다 전장
+- 판 20×20 전부 바다. 강의 물 셰이더(`eastwar_terrain_20x20_water.gdshader`)를 그대로 써서 잔물결·섬 둘레 거품·경계선·판 밖 안개가 육전과 같은 방식이다.
+- 엔진이 움직이는 판(18×10) 안의 섬은 5덩어리 17칸(막힌 칸): 북쪽 물길을 만드는 섬 2개(5칸씩, 물길 폭 3칸), 가운데 작은 섬 2개(1칸·2칸), 남쪽 한산도(4칸). 판 밖에도 섬 6덩어리와 먼 실루엣 8개.
+- 섬은 자기 칸 안쪽 0.25 m에서만 솟는다. 옆 칸의 배와 겹치지 않는다. 지명 글자는 없다.
+
+### 2-4. 배
+- 배 1척 = 1칸. 길이는 규칙 파일의 `ship_length`(안택선 2.8 / 판옥선 2.6 / 거북선 2.4 / 관선 2.2 m).
+- `assets/battle3d/naval/<병종>.glb`가 있으면 그 모형을 쓰고 길이에 맞춰 자동으로 줄이거나 돌린다. **지금은 4종 모두 없어서 임시 모형**(상자 조합)이다.
+- 아군 푸른 깃발, 적 붉은 깃발. 롤·피치 ±2° 흔들림(배마다 위상 다름). 이동은 육전처럼 칸을 따라가며 뱃머리를 진행 방향으로 돌린다.
+- 무기는 규칙 파일 `weapons` 순서대로 0.45초 간격: 거북선 화포 / 판옥선 화포→화살 / 안택선 조총→화살 / 관선 조총.
+- 병력 0이면 그 자리에서 기울며 2.6초 동안 가라앉고 연기가 난다. 로스터 카드는 육전처럼 "퇴각"으로 남는다.
+
+### 2-5. 캡처
+- F9: 화면 그대로. Shift+F9: 2D(HUD·얼굴 칩·제목)를 끄고. 디버그·에디터 실행에서만.
+- 저장: `C:\eastwar_tmp\naval\captures\hansando_<날짜>_<시각>.png` (HUD 없는 것은 끝에 `_nohud`). 폴더를 못 만들면 `user://captures/`.
+
+## 3. 바꾼 기존 파일 (7개)
+| 파일 | 줄(바뀐 뒤) | 무엇을 | 기본값에서 안 바뀌는 근거 |
+|---|---|---|---|
+| `scripts/battle_web_import_test.gd` | 895 | 서비스 preload 한 줄 | 선언만 |
+| 〃 | 1543 | `_read_battle_setup_port()`: 유닛 덮어쓰기 뒤 `finish()` 호출 | 새 최상위 키와 대기 중인 칸이 없으면 `finish()`는 아무것도 쓰지도 찍지도 않는다 |
+| 〃 | 1559-1564 | `_apply_battle_setup_unit_override()`: 새 유닛 키가 있으면 적용, 없으면 기존 줄 그대로 | 새 키가 없으면 `has_naval_keys`가 거짓이라 기존 흐름·기존 로그와 같다 |
+| 〃 | 4553, 4735 | `build_plan`의 `battle_type` 인자 | 문맥에 값이 있으면 그 값, 없고 설정도 없으면 `"land"` — 이전 식과 같은 결과 |
+| `scripts/battle/unit_type_contract.gd` | 13-45 | 수전 규칙 파일을 추가로 읽기 | 5종은 먼저 걸러져 수전 파일을 읽지 않는다. 5종 값은 이전과 같은 함수에서 온다 |
+| `scripts/battle3d/lab_heightfield.gd` | 16-28 | 판 파일 경로를 `source_paths`로 바꿀 수 있게 | 기본 `{}`이면 이전 고정 경로 |
+| `scripts/battle3d/lab_presentation.gd` | 19-21, 50, 128 | 땅 만드는 스크립트·병사 모형 스크립트를 변수로 | 기본값이 이전 스크립트 |
+| `scripts/battle3d/battle3d_engine_play.gd` | 168, 182, 735 | 배는 병종 아이콘 없음 / 배 이름 표시 / `island`도 막힌 칸 | 5종은 `is_naval()`이 거짓. 육전 판에는 `island` 칸이 없다 |
+| `scripts/battle3d/battle3d_scenario_shell.gd` | 12-13, 23-29, 215, 228-243, 279, 285-288, 339, 471-472, 478 | `naval_scenario_path`, 수전 시작, 랩에 수전 설정 꽂기, 현재 행동 패널의 배 이름 | `naval_scenario_path` 기본 `""`이면 수전 가지로 들어가지 않는다 |
+| `.github/workflows/verify-c-track.yml` | 424-425 | 새 시험 2개를 마지막 목록 끝에 등록 | 끝에 붙여서 기존 시험의 shard 배정이 바뀌지 않는다 |
+
+- `worldmap_main.gd` 0줄. `data/heroes/generated/*.json` 0줄. `battle3d_ranged_fx.gd`·`battle3d_unit_markers.gd`·`terrain_board_builder.gd` 0줄. 기존 시험·검사기 기대값 변경 0.
+
+### 답신 1과 다르게 된 곳 (클코치 확인 필요)
+1. **엔진 수정 자리가 답신의 세 자리보다 2줄 많다.** ① 서비스 preload 한 줄(895). ② `build_plan`에 `battle_type`을 넘기는 줄이 한 곳이 아니라 **두 곳**(4553 점수 계산, 4735 실제 발동)이라 둘 다 바꿨다. 한 곳만 바꾸면 미리보기와 실제 범위가 달라진다.
+2. **적용 순서**: 답신은 병종 → 장수 순서였다. 장수를 넣으면 엔진이 그 장수의 병종·이동 거리로 다시 계산하므로, 병종 값은 먼저 검사하고 **장수를 적용한 뒤에** 병종을 적용했다. 결과는 답신이 뜻한 것과 같다(장수 + 덮어쓴 병종).
+3. **`arrival_round_overrides`**: `0`(시작부터 배치)은 증원 4슬롯 모두 된다. 0이 아닌 값은 `*_reinforce_02`만 된다. `*_reinforce_01`의 도착 라운드(2)는 엔진 함수 안에 숫자로 박혀 있어서(`_try_deploy_reinforce_01_pair`) 세 자리 밖이다. 이번 대본은 0만 쓴다.
+4. **최상위 키 `blocked_cells`를 하나 더 받는다.** 랩은 엔진 `_ready()`가 끝난 뒤에 막힌 칸을 넘기기 때문에, 시작 설정을 읽는 시점의 엔진은 섬을 모른다. "막힌 칸이면 무시"를 지키려고 섬 칸 목록을 설정에 같이 넣었다(검사에만 쓴다).
+5. **셸 수정이 "경로 받기"보다 넓다.** 현재 행동 패널이 병종 이름을 장수 데이터에서 읽어서(`current_actor()`), 배일 때는 유닛의 병종을 쓰도록 2줄을 더했다.
+
+## 4. 시험
+- 새 시험 2개 (C-track 등록):
+  - `tests/scripts/test_battle_setup_naval_keys.gd` — `[BATTLE_SETUP_NAVAL] checks=64 failures=[]` (답신 S1~S5, 엔진만)
+  - `tests/scripts/test_battle3d_naval_hansando.gd` — `[NAVAL_HANSANDO] checks=156 failures=[]` (지시서 1~8, 수전 장면)
+- 지시서·답신 항목별:
+  | 항목 | 결과 |
+  |---|---|
+  | 1 장면 로드, 배 10척, 장수 10명 존재 | 통과 |
+  | 2 / S3 배 4종 이동 거리 = 규칙 파일 | 통과(도달 칸 수를 시험이 따로 센 값과 비교) |
+  | 3 섬 진입 불가, 양쪽 도달 가능 | 통과(17칸 모두 경로 없음, 10척 모두 적 5척에 도달) |
+  | 4 무기 연출 | 통과(병종마다 규칙 순서대로, 화포·화살·조총 효과 기록) |
+  | 5 침몰, 승패 판정 | 통과 |
+  | 6 GLB 없을 때 임시 모형 | 통과. 받은 모형을 길이에 맞추는 것도 가짜 모형으로 확인 |
+  | 7 끝까지 자동 진행 + 학익진 | 통과. 학익진은 시험이 랩의 특기 명령으로 1회 발동(기세·적 위치만 시험이 배치). 대상에서 3칸 떨어진 배도 맞았다(수전 반경 3) |
+  | 8 / S1 수전 설정 없을 때 육전 불변 | 통과. `test_battle_setup_port_s4_3`(58)·`…base_parity_shard_1`(36)·`…shard_2`(36) 기대값 그대로 |
+  | S2 `battle_type` 우선순위 | 통과(문맥 > 설정 > land, 6가지 조합) |
+  | S4 잘못된 값 | 통과(13가지 모두 무시 + 로그, 전투 정상 시작) |
+  | S5 도착 라운드 0 | 통과(1라운드에 10척, 증원 이벤트 0) |
+- 전체 로컬 검사: `verify-c-track.yml`의 Godot 시험 210개(새 시험 2개 포함) 전부 통과(4개 동시 실행, 가장 오래 걸린 것 `test_battle3d_command_panel` 173초), 파이썬 검사기 72개 전부 통과. 새 스크립트의 GDScript 경고 0.
+- CI: @@CI@@
+
+## 5. 김작·클코치가 볼 것
+1. **병력 숫자.** 엔진의 기본 공격 피해는 고정값(아군 12, 적 8)이다. 지시서 표의 병력(2000~3500)을 그대로 넣으면 전투가 끝나지 않는다. 그래서 대본에 설계값(`troops_design`)을 남기고 **1/25(`troops_scale`)로 줄인 값**(80~140)을 엔진에 넘겼다. 화면에는 "병력 120 / 120"처럼 보인다. 3000으로 보이게 하려면 피해 식을 바꾸는 별도 작업이 필요하다.
+2. **배 모형은 임시다.** 록비서 모형 4개를 `assets/battle3d/naval/`에 부록 A 이름으로 넣으면 코드 수정 없이 바뀐다.
+3. **화면 아래 지형 칸이 "평지"로 나온다.** 현재 행동 패널의 지형 칸은 원래 고정 글자다(육전도 같다). 이번 범위에서 건드리지 않았다.
+4. 배는 한 칸(3 m)보다 작아서 가장 멀리 본 화면에서는 작게 보인다. 캡처는 휠로 당겨서 찍는 편이 낫다(증거 ③④⑥이 당긴 화면).
+5. 규칙 값(이동·사거리·피해 배율)은 지시서 표 그대로다. "근접 강함"은 주는 피해 +10%(거북선), +8%(안택선)로 넣었다. `data/battle3d/naval_unit_type_rules.json`에서 바꿀 수 있다.
+6. 판옥선은 사거리 2~3이라 **붙어 있는 적은 공격하지 못한다**(지시서 표 그대로).
+
+## 6. 증거 (창 모드 1920×1080 실제 실행, `agent/evidence/naval_hansando/`)
+| 파일 | 내용 |
+|---|---|
+| `01_overview.jpg` | ① 전장 전경(섬 포함), 시작 배치 |
+| `02_move_range.jpg` | ② 거북선 이동 범위 표시 |
+| `03_cannon_broadside.jpg`, `03b_arrows.jpg` | ③ 판옥선 화포 사격, 이어지는 화살 |
+| `04_turtle_ship_attack.jpg` | ④ 거북선 근접 공격 |
+| `05a_hakikjin_targets.jpg`, `05_hakikjin_cutin.jpg`, `05b_hakikjin_toast.jpg` | ⑤ 학익진 대상 선택·컷인·토스트 |
+| `06_sinking.jpg` | ⑥ 격파 뒤(로스터 "퇴각"). 가라앉는 순간은 화면 오른쪽 밖이라 이 장에는 잘 안 잡혔다 |
+| `07_overview_no_hud.jpg` | ⑦ HUD 뺀 전경(Shift+F9 방식) |
+| `08_auto_battle.jpg` | 자동 전투 중 |
+
+- 모두 장면의 F9 캡처 코드로 저장한 PNG를 JPG로 바꾼 것이다(PNG는 장당 2 MB 남짓). ③~⑥의 적 위치·병력·기세는 사진을 찍으려고 직접 배치했다.
+- 성능: 자동 전투 20초 평균 **44.1 fps** (1920×1080 창, GTX 1660, forward_plus). 측정만 했다.
+- 모바일 가로 비율(2400×1080) 캡처는 하지 않았다(선택 항목).
+
+## 7. 김작 F6 확인 순서
+1. `scenes/battle3d/Battle3D_NavalHansando.tscn`을 F6로 연다 → 시작 화면 없이 바다 전장이 바로 뜬다. 위에 "한산도 대첩".
+2. 아군 배를 눌러 이동 범위를 본다(거북선 4칸, 판옥선 3칸). 섬 칸은 범위에 없다.
+3. 이동 뒤 [기본공격] → 적 배 선택. 화포 연기·포탄, 판옥선은 이어서 화살.
+4. 이순신 차례에 기세 4 이상이면 [학익진].
+5. F9, Shift+F9 → `C:\eastwar_tmp\naval\captures\`에 PNG.
+6. `scenes/battle3d/Battle3D_ScenarioShell.tscn`을 F6로 열어 육전이 이전과 같은지 본다.
+
+## 8. 종료 루틴
+1. 정본 작업 폴더 `C:\dev\SamWar_BattleLab_cc`: 가지 `feature/wm3d-naval-20261110`, 커밋 뒤 `git status` 깨끗.
+2. 새로 생긴 것: 새 파일은 2-2절 표 + 시험 2개 + `tools/build_naval_hansando_terrain.py` + 증거 폴더. worktree·태그 0. 임시 파일은 `C:\eastwar_tmp
+aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
+3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음.
+4. CI: @@CI@@
+5. 김작/클코치가 결정할 것: 5절 1~3(병력 숫자, 배 모형, 지형 칸 글자), 3절 "답신 1과 다르게 된 곳" 5가지 확인, F6(7절).
