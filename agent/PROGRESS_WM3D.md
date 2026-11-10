@@ -8,6 +8,14 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-10 — 큐 35번 NAVAL-HANSANDO 멈춤 (코드 0, §4 조사만)
+- 현재 단계: 35번 `agent/ORDER_NAVAL_HANSANDO_LAB_20261110.md`(19:40판), 가지 `feature/wm3d-naval-20261110`(시작 `main` `8cc0640`)
+- 마지막 코드 커밋: 없음(코드는 `8cc0640`과 같음)
+- 마지막 보고서: `agent/REPORT_NAVAL_HANSANDO_STOP_20261110.md`
+- CI: 실행 0(`[skip ci]` 보고서만)
+- 다음 할 일: 클코치 답신 대기(A: 엔진 시작 설정에 수전 키 추가 / B: 랩이 엔진 상태에 직접 쓰기 / C: 범위 축소)
+- 멈춘 이유: 지시서 §4 멈춤 조건. 엔진에 시나리오별 병종·장수·시작 칸 입구가 없고(시작 설정은 `troops_ratio`·`enemy_ai_level`만), 학익진 반경 3은 월드맵 문맥 `battle_type`으로만 켜진다 → §3-1 허용 자리 밖 수정 필요
+
 ### 2026-11-08 — 큐 31번 WARNFIX 완료 (답신 1 A안) + 30번 경고 2개 정리
 - 31번: 가지 `feature/wm3d-warnfix-20261108`, 코드 `645ffcf5b9a7ed8aa0954428abce9c3ed5d551c1`, 보고서 `agent/REPORT_WARNFIX_20261108.md`. 경고 12 → 0
 - 31번 CI(`645ffcf`): Verify C-track refactor `42488036136` 4 shard success, Verify WorldMap3D `42488036103` success
