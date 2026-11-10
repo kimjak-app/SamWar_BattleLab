@@ -4,11 +4,15 @@ extends Node3D
 # islands rise inside their own cells. Built once in _ready:
 # - "Terrain": the heightfield mesh. The lab gives it the ground collision (clicks, like the land board); only its
 #   islands are drawn (the sea part is discarded by its shader).
-# - "Sea": one flat water surface at height 0 over the board and far past it, drawn with the land board's river shader
-#   (eastwar_terrain_20x20_water.gdshader: ripples, shore foam, the play area's border line, the haze outside).
+# - "Sea": one flat water surface at height 0 over the board and far past it, drawn with the sea's own shader
+#   (eastwar_sea_water.gdshader: small one-way waves, shore foam, the play area's border line, the haze outside).
 # - light trees on the islands (one MultiMesh) and a few far island silhouettes outside the board.
 # No gameplay rule lives here: the cells no ship may enter are the board's "island" cells (the lab hands them to the engine).
-const WaterShader = preload("res://scripts/battle3d/eastwar_terrain_20x20_water.gdshader")
+const SeaShader = preload("res://scripts/battle3d/naval/eastwar_sea_water.gdshader") # reply 2: the sea's own shader (the river's is untouched)
+const SEA_NUMBERS := ["flow_speed", "wave_size", "wave_strength", "sparkle_strength", "foam_width"]
+const SEA_COLORS := ["deep_color", "shallow_color"]
+# The scenario's `sea` block, set by the naval lab setup before the lab builds its ground; {} = the shader's defaults.
+static var sea_settings := {}
 const SEA_APRON_MIN := -156.0 # = the land builder's vista apron
 const SEA_APRON_MAX := 210.0
 const VISTA_MARGIN := 45.0
@@ -43,8 +47,7 @@ void fragment() {
 var outer_ground_texture: Texture2D
 var play_cells := Vector2i(18, 10)
 var haze_color := Color("8d897a") # = the lab's sky colour
-var water_shallow_color := Color(0.25, 0.40, 0.46)
-var water_deep_color := Color(0.10, 0.21, 0.30)
+var sea_values := {} # what apply_sea last set (shader uniform -> value), for checks and the F8 presets
 var board_ref = null
 var terrain_mesh_instance: MeshInstance3D
 var sea_mesh_instance: MeshInstance3D
@@ -118,10 +121,10 @@ func shore_distance(x: float, z: float) -> float:
 	return best
 
 func _sea_vertex(st: SurfaceTool, x: float, z: float, shore: float) -> void:
-	# The river shader's baked colour: R shore distance (0 at the shore), G ford (none), B depth, A visible.
+	# The baked colour the sea shader reads: R shore distance (0 at an island's shore, 1 in open water).
 	var near := clampf(shore / SHORE_REACH, 0.0, 1.0)
 	st.set_color(Color(near, 0.0, near, 1.0))
-	st.set_uv(Vector2(x / 6.0, z * 0.8)) # the river shader scales U by 2.2 and V by 0.55: even ripples about 3 m across
+	st.set_uv(Vector2(x / 6.0, z / 6.0)) # unused by the sea shader (it works in world metres)
 	st.set_normal(Vector3.UP)
 	st.add_vertex(Vector3(x, 0.0, z))
 
@@ -162,27 +165,33 @@ func _build_sea() -> void:
 	sea_mesh_instance.mesh = st.commit()
 	sea_mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := ShaderMaterial.new()
-	material.shader = WaterShader
+	material.shader = SeaShader
 	material.set_shader_parameter("play_rect", play_rect())
 	material.set_shader_parameter("vista_max_distance", VISTA_MARGIN)
 	material.set_shader_parameter("haze_color", Vector3(haze_color.r, haze_color.g, haze_color.b))
 	material.set_shader_parameter("show_border_line", true)
-	material.set_shader_parameter("water_flow_speed", 0.035)
-	material.set_shader_parameter("water_ripple_scale", 0.22)
-	material.set_shader_parameter("water_foam_width", 0.16)
-	material.set_shader_parameter("water_shallow_color", water_shallow_color)
-	material.set_shader_parameter("water_deep_color", water_deep_color)
-	var noise := FastNoiseLite.new()
-	noise.seed = TREE_SEED
-	noise.frequency = 0.02
-	var ripple := NoiseTexture2D.new()
-	ripple.width = 256
-	ripple.height = 256
-	ripple.seamless = true
-	ripple.noise = noise
-	material.set_shader_parameter("ripple_noise_tex", ripple)
 	sea_mesh_instance.material_override = material
 	add_child(sea_mesh_instance)
+	apply_sea(sea_settings)
+
+## Sets the sea's look from a scenario `sea` block (missing keys = the shader's defaults) and keeps what was applied.
+func apply_sea(settings: Dictionary) -> void:
+	sea_values.clear()
+	var material := sea_mesh_instance.material_override as ShaderMaterial
+	for key in SEA_NUMBERS:
+		var value: Variant = settings.get(key)
+		if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT: value = null
+		material.set_shader_parameter(key, value)
+		if value != null: sea_values[key] = float(value)
+	for key in SEA_COLORS:
+		var raw: Variant = settings.get(key)
+		var color: Variant = Color(float(raw[0]), float(raw[1]), float(raw[2])) if raw is Array and raw.size() >= 3 else null
+		material.set_shader_parameter(key, color)
+		if color != null: sea_values[key] = color
+	var flow: Variant = settings.get("flow_direction")
+	var direction: Variant = Vector2(float(flow[0]), float(flow[1])) if flow is Array and flow.size() == 2 else null
+	material.set_shader_parameter("flow_direction", direction)
+	if direction != null: sea_values["flow_direction"] = direction
 
 func _cone(st: SurfaceTool, base: Vector3, radius: float, height: float, color: Color, sides := 6) -> void:
 	for k in range(sides):

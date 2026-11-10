@@ -17,6 +17,8 @@ const NavalScenario := preload("res://scripts/battle3d/naval/battle3d_naval_scen
 const ShipVisuals := preload("res://scripts/battle3d/naval/battle3d_ship_visuals.gd")
 const Overlay := preload("res://scripts/battle3d/naval/battle3d_naval_overlay.gd")
 const HeroData := preload("res://scripts/worldmap/hero_definition_registry.gd")
+const RIVER_SHADER := "res://scripts/battle3d/eastwar_terrain_20x20_water.gdshader"
+const RIVER_SHADER_SHA256 := "f255d007614e13c4be1cef3e76c610ada1b660f0aa719b4e1755a213e938fa2e" # main 8cc0640 (LF)
 const TYPE_NAMES := {"turtle_ship":"거북선", "panokseon":"판옥선", "atakebune":"안택선", "sekibune":"관선"}
 const WEAPON_KINDS := {"cannon":"cannon", "arrow":"arrow", "gun":"shot"}
 var checks := 0
@@ -76,6 +78,25 @@ func run() -> void:
 	var visuals = lab.unit_visuals
 	expect(visuals is ShipVisuals and lab.get_node_or_null("NavalOverlay") != null, "ship models and the naval overlay are in the lab")
 	expect(lab.find_child("Sea", true, false) != null and lab.find_child("Terrain", true, false) != null and lab.find_child("RiverWaterPlane", true, false) == null, "the sea board is built (no land ground)")
+	# Reply 2: the sea has its own shader, set from the scenario's `sea` block; the river shader file is main's.
+	var sea_material := (lab.find_child("Sea", true, false) as MeshInstance3D).material_override as ShaderMaterial
+	var builder: Node = lab.find_child("Sea", true, false).get_parent()
+	expect(sea_material.shader.resource_path == "res://scripts/battle3d/naval/eastwar_sea_water.gdshader", "the sea uses its own shader (%s)" % sea_material.shader.resource_path)
+	expect(FileAccess.get_file_as_string(RIVER_SHADER).replace("\r\n", "\n").sha256_text() == RIVER_SHADER_SHA256, "the river shader file is unchanged (main 8cc0640)")
+	expect(builder.sea_values.get("flow_direction") == Vector2(0, 1) and is_equal_approx(builder.sea_values.get("flow_speed", 0.0), float(scenario.sea.flow_speed))
+		and is_equal_approx(builder.sea_values.get("wave_size", 0.0), float(scenario.sea.wave_size)) and float(scenario.sea.wave_size) < 2.2
+		and builder.sea_values.get("deep_color") == Color(scenario.sea.deep_color[0], scenario.sea.deep_color[1], scenario.sea.deep_color[2])
+		and sea_material.get_shader_parameter("flow_direction") == Vector2(0, 1) and is_equal_approx(sea_material.get_shader_parameter("wave_strength"), float(scenario.sea.wave_strength)),
+		"sea values come from the scenario: one flow direction (north to south), waves smaller than a ship (%s)" % str(builder.sea_values))
+	var preset_overlay: Node = lab.get_node("NavalOverlay")
+	var preset_names := []
+	for step in range(4):
+		preset_names.append(preset_overlay.show_sea_preset(preset_overlay.preset_index + 1))
+		expect(builder.sea_values.get("flow_direction") == Vector2(0, 1) and preset_overlay.preset_label.visible and preset_overlay.preset_label.text.contains(preset_names[-1]), "F8 preset %s: same flow direction, name shown" % preset_names[-1])
+	expect(scenario.sea.presets.size() == 3 and preset_names[2] == String(scenario.sea.presets[0].name) and preset_names[3] == preset_names[0] and is_equal_approx(builder.sea_values.wave_strength, float(scenario.sea.presets[1].wave_strength)),
+		"F8 steps through the three presets and wraps (%s)" % str(preset_names))
+	preset_overlay.show_sea_preset(0)
+	expect(is_equal_approx(builder.sea_values.wave_strength, float(scenario.sea.wave_strength)) and is_equal_approx(builder.sea_values.flow_speed, float(scenario.sea.flow_speed)), "preset 1 is the scenario's base sea")
 	expect(lab.board.terrain(Vector2i(0, 0)) == "sea" and lab.board.terrain(Vector2i(5, 1)) == "island" and is_zero_approx(lab.board.world(Vector2i(0, 0)).y) and lab.board.world(Vector2i(5, 1)).y > 0.5, "board: sea at height 0, islands above it")
 	expect(Naval.battle_type(engine, engine.worldmap_battle_context) == "naval" and engine.worldmap_battle_context.is_empty(), "engine battle_type naval, no worldmap context")
 	var by_hero := {}
@@ -150,12 +171,23 @@ func run() -> void:
 		expect(visuals.records.map(func(r): return r.weapon) == weapons and visuals.records.all(func(r): return r.attacker_id == unit.unit_id and r.target_id == foe and r.unit_type == unit.unit_type),
 			"%s attack: weapons %s in order" % [unit.unit_type, str(weapons)])
 		var kinds := {}
-		for record in visuals.cannon.records + visuals.fx.records: kinds[record.kind] = int(kinds.get(record.kind, 0)) + 1
+		for record in visuals.cannon.records + visuals.fx.records:
+			if record.kind != "splash": kinds[record.kind] = int(kinds.get(record.kind, 0)) + 1 # a splash belongs to its cannon shot
 		var want_kinds := {}
 		for weapon in weapons: want_kinds[WEAPON_KINDS[weapon]] = true
 		expect(kinds.keys().all(func(kind): return want_kinds.has(kind)) and want_kinds.keys().all(func(kind): return int(kinds.get(kind, 0)) >= 3),
 			"%s attack: effects %s (wanted %s)" % [unit.unit_type, str(kinds), str(want_kinds.keys())])
-	await create_timer(1.5).timeout
+	# Reply 2: a ball in the water makes a splash of drops (a column and a crown), rings and foam, about 1.5 s.
+	visuals.cannon.stop_all()
+	visuals.cannon.call("_land", null, Vector3(20.0, 0.0, 15.0), true)
+	await process_frame
+	var splash: Array = visuals.cannon.records.filter(func(r): return r.kind == "splash")
+	var bursts: Array = visuals.cannon.effects.get_children().filter(func(n): return n is CPUParticles3D)
+	var flats: Array = visuals.cannon.effects.get_children().filter(func(n): return n is MeshInstance3D and n.mesh is PlaneMesh)
+	expect(splash.size() == 1 and bursts.size() == 2 and flats.size() == 3 and bursts.all(func(b): return b.one_shot and b.amount <= 40 and b.gravity.y < 0.0) and bursts[0].amount + bursts[1].amount == int(splash[0].column) + int(splash[0].crown)
+		and int(splash[0].column) + int(splash[0].crown) < 60 and is_equal_approx(splash[0].seconds, 1.5), "splash: a column and a crown of drops (%d particles), two rings and foam" % (bursts[0].amount + bursts[1].amount if bursts.size() == 2 else -1))
+	expect(visuals.cannon.effects.get_children().all(func(n): return not (n is MeshInstance3D and n.mesh is CylinderMesh)), "no cylinder column any more")
+	await create_timer(2.6).timeout
 	expect(visuals.cannon.effect_count() == 0 and visuals.fx.effect_count() == 0, "the effects clean themselves up (%d + %d left)" % [visuals.cannon.effect_count(), visuals.fx.effect_count()])
 
 	# 6: a delivered model is fitted to the ship length whatever its size and direction.

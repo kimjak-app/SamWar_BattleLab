@@ -8,9 +8,12 @@ const Overlay := preload("res://scripts/battle3d/naval/battle3d_naval_overlay.gd
 
 static func apply(shell: Node, lab: Node, scenario: Dictionary) -> void:
 	lab.field_script = SEA_BUILDER
+	var sea: Dictionary = scenario.get("sea", {}) if scenario.get("sea") is Dictionary else {}
+	load(SEA_BUILDER).sea_settings = sea # read when the lab builds its ground
 	lab.unit_visuals_script = SHIP_VISUALS
 	var overlay := Overlay.new()
 	overlay.name = "NavalOverlay"
 	overlay.title = String(scenario.get("title", ""))
 	overlay.shell = shell
+	overlay.sea = sea
 	lab.add_child(overlay) # freed with the lab
