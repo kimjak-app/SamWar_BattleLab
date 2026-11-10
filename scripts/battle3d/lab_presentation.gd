@@ -16,6 +16,9 @@ static var debug_text_visible := false
 # Unit3D: the switch for the new rigged soldiers (battle3d_unit_visuals.gd), on by default. Off: the old models and behaviour.
 @export var unit3d_models := true
 var unit_visuals: RefCounted = null # loaded only when unit3d_models is on
+# Queue 35 (naval): set by the scenario shell before the lab enters the tree; the defaults are the land battle.
+var unit_visuals_script := "res://scripts/battle3d/battle3d_unit_visuals.gd" # the unit models (naval: the ships)
+var field_script := "" # the ground builder ("" = TerrainBuilder; naval: the sea builder)
 var help_label: Label
 var edge_mouse := Vector2(-1, -1) # the last mouse position seen (from motion events; unknown = no edge scroll)
 var mouse_in_window := true
@@ -44,7 +47,7 @@ func _ready() -> void:
 	log_file=FileAccess.open(ProjectSettings.globalize_path("res://").path_join("../EASTWAR_C0C3_Evidence/runtime_events.jsonl").simplify_path(),FileAccess.WRITE)
 	port.board=board
 	port.move_accepted.connect(_move_accepted)
-	var field = TerrainBuilder.new()
+	var field = TerrainBuilder.new() if field_script.is_empty() else load(field_script).new()
 	field.outer_ground_texture = OUTER_GROUND # block 8: the painted ground outside the play area (empty = a grey placeholder)
 	field.play_cells = board.PLAY_SIZE # block 4-4: the builder's border line and outside fade use the one play area definition
 	field.setup_from_board(board)
@@ -122,7 +125,7 @@ func _spawn_unit(u: Dictionary) -> void:
 	soldiers[u.unit_id]=[]
 	var cavalry: bool = u.unit_type=="cavalry"
 	if unit3d_models:
-		if unit_visuals == null: unit_visuals = load("res://scripts/battle3d/battle3d_unit_visuals.gd").new()
+		if unit_visuals == null: unit_visuals = load(unit_visuals_script).new()
 		if unit_visuals.handles(u):
 			root.set_meta("unit3d", true)
 			soldiers[u.unit_id] = unit_visuals.spawn_soldiers(u, root)

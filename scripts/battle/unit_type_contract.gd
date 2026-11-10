@@ -10,14 +10,39 @@ const CANONICAL_UNIT_TYPES := [
 ]
 
 
+# Queue 35 (naval): ship types come from their own rules file, read only when a type outside the five is asked for.
+# The five land types and their values never touch it.
+const NAVAL_RULES_PATH := "res://data/battle3d/naval_unit_type_rules.json"
+static var _naval_rules := {}
+static var _naval_rules_loaded := false
+
+
 static func is_supported(unit_type: String) -> bool:
-	return CANONICAL_UNIT_TYPES.has(unit_type)
+	return CANONICAL_UNIT_TYPES.has(unit_type) or naval_rules().has(unit_type)
 
 
 static func get_rule(unit_type: String) -> Dictionary:
-	if not is_supported(unit_type):
-		return {}
-	return HeroDesignDataRegistry.get_unit_type_rule(unit_type)
+	if CANONICAL_UNIT_TYPES.has(unit_type):
+		return HeroDesignDataRegistry.get_unit_type_rule(unit_type)
+	return (naval_rules().get(unit_type, {}) as Dictionary).duplicate(true)
+
+
+static func is_naval(unit_type: String) -> bool:
+	return not CANONICAL_UNIT_TYPES.has(unit_type) and naval_rules().has(unit_type)
+
+
+static func naval_rules() -> Dictionary:
+	if _naval_rules_loaded:
+		return _naval_rules
+	_naval_rules_loaded = true
+	if not FileAccess.file_exists(NAVAL_RULES_PATH):
+		return _naval_rules
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(NAVAL_RULES_PATH))
+	if parsed is Dictionary and (parsed as Dictionary).get("unit_types") is Array:
+		for entry in (parsed as Dictionary).get("unit_types"):
+			if entry is Dictionary and not CANONICAL_UNIT_TYPES.has(String(entry.get("unit_type", ""))) and not String(entry.get("unit_type", "")).is_empty():
+				_naval_rules[String(entry.get("unit_type"))] = entry
+	return _naval_rules
 
 
 static func get_display_name(unit_type: String, fallback: String = "") -> String:

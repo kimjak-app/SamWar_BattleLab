@@ -165,7 +165,7 @@ func hud_portrait(unit_id: String) -> Texture2D:
 func hud_troop_icon(unit_id: String) -> Texture2D:
 	# N3: engine _get_troop_icon_texture_for_visual_key("", unit), again only when [unit_id, facing] changes.
 	var unit := _hud_unit(unit_id)
-	if unit == null: return null
+	if unit == null or UnitTypeContract.is_naval(unit.unit_type): return null # queue 35: a ship has no troop icon (empty)
 	var cached = hud_troop_icons.get(unit_id)
 	if cached == null or cached[0] != unit.facing:
 		hud_troop_icons[unit_id] = [unit.facing, engine.call("_get_troop_icon_texture_for_visual_key", "", unit)]
@@ -179,6 +179,7 @@ func hud_status_summary(unit_id: String) -> String:
 	return hud_status_texts[unit_id]
 
 func hud_unit_type_name(unit_type: String) -> String:
+	if UnitTypeContract.is_naval(unit_type): return UnitTypeContract.get_display_name(unit_type, "부대") # queue 35: the four ship types, from the naval rules file
 	return HUD_UNIT_TYPE_NAMES.get(unit_type, "부대")
 
 # HUD block 4-1 (ally roster + current actor): the two approved new engine reads
@@ -731,7 +732,7 @@ func forest_cells() -> Array:
 	var cells := []
 	for y in range(board.PLAY_SIZE.y):
 		for x in range(board.PLAY_SIZE.x):
-			if board.terrain(Vector2i(x, y)) == "forest": cells.append(Vector2i(x, y))
+			if board.terrain(Vector2i(x, y)) in ["forest", "island"]: cells.append(Vector2i(x, y)) # queue 35: a sea board's island cells too
 	return cells
 
 func marker_geometry(ground: Vector3) -> Dictionary:

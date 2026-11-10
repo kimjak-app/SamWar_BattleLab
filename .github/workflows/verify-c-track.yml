@@ -421,6 +421,8 @@ jobs:
             tests/scripts/test_worldmap_integrated_hud_smoke.gd
             tests/scripts/test_worldmap_turn_compass_seam.gd
             tests/scripts/test_worldmap_debug_cheats.gd
+            tests/scripts/test_battle_setup_naval_keys.gd
+            tests/scripts/test_battle3d_naval_hansando.gd
           )
           index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do

@@ -892,6 +892,7 @@ var enemy_skill_use_count := {} # S4-2c addendum: unit_id -> unique skills used 
 var enemy_skill_last_any_use_round := -1 # S4-2c addendum: round of the enemy side's last unique skill (-1 = none).
 # S4-3: battle start setup port (separate from the WorldMap battle context) and the enemy AI level.
 const BattleSetupRulesServiceScript := preload("res://scripts/battle/services/battle_setup_rules_service.gd")
+const BattleSetupNavalServiceScript := preload("res://scripts/battle/services/battle_setup_naval_service.gd") # queue 35: optional naval setup keys
 const BATTLE_SETUP_META_KEY := "samwar_battle_setup"
 var enemy_ai_level := "low" # Applied level. Not in the resume snapshot.
 var enemy_ai_level_applied := false # False until a level is applied; until then the three flags are left alone.
@@ -1539,6 +1540,7 @@ func _read_battle_setup_port() -> void:
 			_apply_battle_setup_unit_override(str(unit_id), (overrides as Dictionary)[unit_id])
 	else:
 		_log_battle_setup_ignored("unit_overrides is not a Dictionary")
+	BattleSetupNavalServiceScript.finish(self, setup_dict) # queue 35: battle_type, start cells, arrival rounds; nothing without those keys
 	if setup_dict.has("enemy_ai_level"):
 		if set_enemy_ai_level(setup_dict.get("enemy_ai_level")):
 			_apply_pending_enemy_ai_level() # before the first ally turn
@@ -1554,8 +1556,12 @@ func _apply_battle_setup_unit_override(unit_id: String, override: Variant) -> vo
 	if target == null:
 		_log_battle_setup_ignored("unknown unit_id %s" % unit_id)
 		return
+	var has_naval_keys := BattleSetupNavalServiceScript.has_unit_keys(override) # queue 35: unit_type, hero_id, troops, grid_cell, facing
+	if has_naval_keys:
+		BattleSetupNavalServiceScript.apply_unit_keys(self, target, unit_id, override as Dictionary)
 	if not override is Dictionary or not (override as Dictionary).has("troops_ratio"):
-		_log_battle_setup_ignored("%s has no troops_ratio" % unit_id)
+		if not has_naval_keys:
+			_log_battle_setup_ignored("%s has no troops_ratio" % unit_id)
 		return
 	var ratio: Variant = (override as Dictionary).get("troops_ratio")
 	if not BattleSetupRulesServiceScript.is_valid_troops_ratio(ratio):
@@ -4544,7 +4550,7 @@ func _score_unique_skill_plan_for_actor(
 		_get_all_alive_unit_states_from_adapter(),
 		target_state,
 		battle_momentum.get_value(caster_state.side),
-		String(worldmap_battle_context.get("battle_type", "land"))
+		BattleSetupNavalServiceScript.battle_type(self, worldmap_battle_context)
 	)
 	var units_by_id := {}
 	for unit_state in _get_all_alive_unit_states_from_adapter():
@@ -4726,7 +4732,7 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 		_get_all_alive_unit_states_from_adapter(),
 		selected_target,
 		battle_momentum.get_value(caster_state.side),
-		String(worldmap_battle_context.get("battle_type", "land"))
+		BattleSetupNavalServiceScript.battle_type(self, worldmap_battle_context)
 	)
 	if not bool(plan.get("ok", false)):
 		_handle_unique_skill_commit_failure(caster_state, String(plan.get("reason", "resolver_rejected")))

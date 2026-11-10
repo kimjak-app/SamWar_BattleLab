@@ -13,10 +13,19 @@ var data: Dictionary
 var terrain_data: Dictionary
 var terrain_cells: Array
 
+# Queue 35 (naval): another board's files, read in place of the land board by every heightfield made while it is set
+# ({"heightfield": path, "terrain_types": path}). The scenario shell sets it right before it creates a lab and clears it
+# when it closes the lab; {} (the default) = the land board, as before.
+static var source_paths := {}
+
 func _init() -> void:
-	data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/heightfield.json"))
-	if FileAccess.file_exists("res://assets/battle3d/terrain_types.json"):
-		terrain_data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle3d/terrain_types.json"))
+	var heightfield_path := "res://assets/battle3d/heightfield.json"
+	var terrain_types_path := "res://assets/battle3d/terrain_types.json"
+	if not String(source_paths.get("heightfield", "")).is_empty(): heightfield_path = String(source_paths.heightfield)
+	if not String(source_paths.get("terrain_types", "")).is_empty(): terrain_types_path = String(source_paths.terrain_types)
+	data = JSON.parse_string(FileAccess.get_file_as_string(heightfield_path))
+	if FileAccess.file_exists(terrain_types_path):
+		terrain_data = JSON.parse_string(FileAccess.get_file_as_string(terrain_types_path))
 		terrain_cells = terrain_data.get("cells", [])
 	else:
 		terrain_data = {}

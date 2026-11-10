@@ -1,0 +1,151 @@
+{
+ "schema_version": 1,
+ "id": "naval_hansando",
+ "title": "한산도 대첩",
+ "battle_type": "naval",
+ "note": "큐 35. 엔진의 기본 10슬롯(쪽마다 주력 3 + 증원 2)에 배·장수·칸을 덮어쓴다. 엔진의 기본 공격 피해가 고정값(8~12)이라 병력은 설계값(troops_design)을 troops_scale로 나눈 값(troops)을 넘긴다.",
+ "heightfield": "res://assets/battle3d/naval/heightfield_hansando.json",
+ "terrain_types": "res://assets/battle3d/naval/terrain_types_hansando.json",
+ "unit_type_rules": "res://data/battle3d/naval_unit_type_rules.json",
+ "troops_scale": 25,
+ "arrival_round_overrides": {
+  "ally_reinforce_01": 0,
+  "enemy_reinforce_01": 0,
+  "ally_reinforce_02": 0,
+  "enemy_reinforce_02": 0
+ },
+ "ships": [
+  {
+   "engine_unit_id": "yi_sunsin",
+   "side": "ally",
+   "unit_type": "panokseon",
+   "hero_id": "yi_sun_sin",
+   "troops_design": 3000,
+   "troops": 120,
+   "grid_cell": [
+    8,
+    7
+   ],
+   "facing": "up",
+   "role": "기함"
+  },
+  {
+   "engine_unit_id": "jeong_dojeon",
+   "side": "ally",
+   "unit_type": "turtle_ship",
+   "hero_id": "kim_deok_ryeong",
+   "troops_design": 2000,
+   "troops": 80,
+   "grid_cell": [
+    10,
+    6
+   ],
+   "facing": "up"
+  },
+  {
+   "engine_unit_id": "gwon_yul",
+   "side": "ally",
+   "unit_type": "panokseon",
+   "hero_id": "jang_bo_go",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    5,
+    7
+   ],
+   "facing": "up"
+  },
+  {
+   "engine_unit_id": "ally_reinforce_01_demo",
+   "side": "ally",
+   "unit_type": "panokseon",
+   "hero_id": "gwak_jae_u",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    13,
+    7
+   ],
+   "facing": "up"
+  },
+  {
+   "engine_unit_id": "ally_reinforce_02_test_unit",
+   "side": "ally",
+   "unit_type": "panokseon",
+   "hero_id": "go_gyeong_myeong",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    3,
+    8
+   ],
+   "facing": "up"
+  },
+  {
+   "engine_unit_id": "guan_yu",
+   "side": "enemy",
+   "unit_type": "atakebune",
+   "hero_id": "kato_kiyomasa",
+   "troops_design": 3500,
+   "troops": 140,
+   "grid_cell": [
+    8,
+    1
+   ],
+   "facing": "down",
+   "role": "기함"
+  },
+  {
+   "engine_unit_id": "zhang_fei",
+   "side": "enemy",
+   "unit_type": "sekibune",
+   "hero_id": "konishi_yukinaga",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    7,
+    0
+   ],
+   "facing": "down"
+  },
+  {
+   "engine_unit_id": "xiahou_dun",
+   "side": "enemy",
+   "unit_type": "sekibune",
+   "hero_id": "kuroda_nagamasa",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    9,
+    0
+   ],
+   "facing": "down"
+  },
+  {
+   "engine_unit_id": "enemy_reinforce_01_demo",
+   "side": "enemy",
+   "unit_type": "sekibune",
+   "hero_id": "shimazu_yoshihiro",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    7,
+    2
+   ],
+   "facing": "down"
+  },
+  {
+   "engine_unit_id": "enemy_reinforce_02_test_unit",
+   "side": "enemy",
+   "unit_type": "sekibune",
+   "hero_id": "honda_tadakatsu",
+   "troops_design": 2500,
+   "troops": 100,
+   "grid_cell": [
+    9,
+    2
+   ],
+   "facing": "down"
+  }
+ ]
+}

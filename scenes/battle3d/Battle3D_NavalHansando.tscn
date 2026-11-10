@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bd0l4k7y1dlgx"]
+
+[ext_resource type="Script" uid="uid://diqilyam6gwhy" path="res://scripts/battle3d/battle3d_scenario_shell.gd" id="1"]
+
+[node name="Battle3D_NavalHansando" type="Node"]
+script = ExtResource("1")
+naval_scenario_path = "res://data/battle3d/naval_hansando_scenario.json"

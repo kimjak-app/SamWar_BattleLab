@@ -9,6 +9,8 @@ extends Node
 const LAB_SCENE := "res://scenes/battle3d/Battle3D_EnginePlayLab.tscn"
 const TOP_HUD_SCENE := "res://scenes/battle3d/Battle3D_TopHud.tscn"
 const Adapter = preload("res://scripts/battle3d/battle3d_unit_adapter.gd")
+const Board = preload("res://scripts/battle3d/lab_heightfield.gd") # queue 35: its source_paths only
+const NAVAL_LAB_SETUP := "res://scripts/battle3d/naval/battle3d_naval_lab_setup.gd" # queue 35: loaded only for a naval scenario
 const SETUP_KEY := "samwar_battle_setup"
 # M7-1: a worldmap battle context waiting in this meta starts the lab at once (no start panel). The engine reads and
 # removes it in its _ready (the shell never reads or removes it) and applies it before the lab draws the units.
@@ -18,6 +20,13 @@ const WIN_PRACTICE_RATIO := 0.25
 const ENEMY_IDS := ["guan_yu", "zhang_fei", "xiahou_dun", "enemy_reinforce_01_demo", "enemy_reinforce_02_test_unit"]
 const SCENARIO_ORDER := ["default", "win_practice"]
 const SCENARIO_LABELS := {"default":"기본 배치", "win_practice":"승리 연습 (적 병력 1/4)"}
+# Queue 35 (naval): a naval scenario file (data/battle3d/naval_*_scenario.json). "" (the default) = the land shell, as
+# before. Set (Battle3D_NavalHansando.tscn): the shell skips the start panel and opens the lab on the scenario's sea board
+# with ship models, its engine start setup (ship types, heroes, cells, battle_type) and the F9 capture node.
+@export var naval_scenario_path := ""
+const NavalScenario = preload("res://scripts/battle3d/naval/battle3d_naval_scenario.gd")
+const NAVAL_ID := "naval"
+var naval_scenario := {}
 var lab: Node = null
 var scenario := ""
 var layer: CanvasLayer
@@ -203,6 +212,7 @@ func _ready() -> void:
 	worldmap_button.pressed.connect(return_to_worldmap)
 	row.add_child(worldmap_button)
 	if Engine.has_meta(CONTEXT_KEY): start_worldmap_context()
+	elif not naval_scenario_path.is_empty(): start_naval()
 
 func create_lab() -> Node:
 	# Test shells may swap the lab's engine host for an observing one before it enters the tree.
@@ -215,7 +225,22 @@ static func scenario_setup(id: String) -> Dictionary:
 	for unit_id in ENEMY_IDS: overrides[unit_id] = {"troops_ratio":WIN_PRACTICE_RATIO}
 	return {"unit_overrides":overrides}
 
+func start_naval() -> void:
+	# Queue 35: the naval scenario's engine start setup, then a lab on its sea board (see _open_lab).
+	naval_scenario = NavalScenario.load_scenario(naval_scenario_path)
+	if naval_scenario.is_empty():
+		push_warning("[BATTLE3D_NAVAL] scenario not readable: %s" % naval_scenario_path)
+		return
+	_close_lab()
+	scenario = NAVAL_ID
+	worldmap_context_mode = false
+	Engine.set_meta(SETUP_KEY, NavalScenario.engine_setup(naval_scenario)) # read and removed by the engine in its _ready
+	_open_lab()
+
 func start_scenario(id: String) -> void:
+	if id == NAVAL_ID and not naval_scenario_path.is_empty():
+		start_naval()
+		return
 	if not SCENARIO_LABELS.has(id): return
 	_close_lab()
 	scenario = id
@@ -251,13 +276,16 @@ func worldmap_context_applied() -> bool:
 
 func _show_result_buttons() -> void:
 	restart_button.visible = not worldmap_context_mode
-	choose_button.visible = not worldmap_context_mode
+	choose_button.visible = not worldmap_context_mode and scenario != NAVAL_ID # queue 35: the naval scene has one scenario
 	worldmap_button.visible = worldmap_context_mode
 	worldmap_button.disabled = false
 
 func _open_lab() -> void:
 	_show_result_buttons()
+	var naval := scenario == NAVAL_ID
+	Board.source_paths = NavalScenario.board_paths(naval_scenario) if naval else {} # queue 35: read by every heightfield the lab makes
 	lab = create_lab()
+	if naval: load(NAVAL_LAB_SETUP).apply(self, lab, naval_scenario) # queue 35: sea builder, ship models, capture node
 	lab.hud_cutin_enabled = true
 	lab.edge_scrolled.connect(_on_edge_scrolled) # block 4-4
 	add_child(lab)
@@ -308,6 +336,7 @@ func _close_lab() -> void:
 	manual_camera_turn = ""
 	if is_instance_valid(camera_tween): camera_tween.kill()
 	if Engine.has_meta(SETUP_KEY): Engine.remove_meta(SETUP_KEY) # never left for the next battle
+	Board.source_paths = {} # queue 35: back to the land board for whatever is made next
 	if lab == null or not is_instance_valid(lab): return
 	var grid = lab.queries.grid # the engine's ISO grid projection lives outside the tree
 	remove_child(lab)
@@ -439,12 +468,14 @@ func current_actor() -> Dictionary:
 	var hero_id := HeroData.resolve_hero_id(lab.hud_hero_id(id), id)
 	var stats: Dictionary = HeroData.base_stats(hero_id).get("stats", {})
 	var unit_type := str(HeroData.battle_profile(hero_id).get("unit_type", value.get("unit_type", "")))
+	var ship := UnitTypeContract.is_naval(str(value.get("unit_type", ""))) # queue 35: a ship shows its own type, no troop icon
+	if ship: unit_type = str(value.unit_type)
 	var skill := HeroData.unique_skill_for_hero(hero_id)
 	if skill.is_empty(): skill = lab.hud_unique_skill(id)
 	var portrait: Texture2D = HeroData.current_actor_portrait(hero_id)
 	if portrait == null: portrait = lab.hud_portrait(id)
 	var country := HeroData.portrait_country(hero_id)
-	var troop_icon: Texture2D = null if country.is_empty() else lab.hud_troop_icon_for_key("%s_%s" % [country, unit_type])
+	var troop_icon: Texture2D = null if country.is_empty() or ship else lab.hud_troop_icon_for_key("%s_%s" % [country, unit_type])
 	if troop_icon == null: troop_icon = lab.hud_troop_icon(id)
 	var rows := []
 	for entry in lab.hud_status_entries(id):
