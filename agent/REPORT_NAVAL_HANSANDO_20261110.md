@@ -140,3 +140,60 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
 3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음.
 4. CI: Verify C-track refactor `42832011165`(`57bae9f`) 4 shard 전부 success. 첫 실행 `42828138719`(`1165036`)은 shard 2 실패 — 새 수전 시험이 결과 화면을 프레임 수로 기다린 한 줄 때문이었고, 시간으로 기다리게 고친 시험 커밋 `57bae9f`로 해결했다(제품 코드 변경 없음). Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 5. 김작/클코치가 결정할 것: 5절 1~3(병력 숫자, 배 모형, 지형 칸 글자), 3절 "답신 1과 다르게 된 곳" 5가지 확인, F6(7절).
+
+---
+
+# 답신 2 — 바다 전용 물 셰이더 + 포탄 물보라 (클코드, 2026-11-11)
+
+- **됐나**: 됐다(자동 검증 기준). 김작 F6 확인 전이다. 기준 화면·합격 기준은 답신 2 맨 위 그대로(바다에 "얼룩·오물처럼 흘러가는 느낌"이 없고, 포탄 물보라가 자연스러우면 합격).
+- **한 일**: 바다를 강 셰이더에서 떼어 전용 셰이더로 바꿨고, 빗나간 포탄의 흰 원기둥을 입자 물보라로 바꿨다. 강 셰이더 파일은 0줄(시험이 `main` 해시와 비교).
+
+## 답2-1. 바다
+- 새 셰이더 `scripts/battle3d/naval/eastwar_sea_water.gdshader`. 강 셰이더에서 가져온 것은 판 경계선·판 밖 안개·섬 둘레 얕은 물/거품뿐이다.
+- 바탕은 짙은 청록 한 색이고, 물결은 그 색을 조금만 밝고 어둡게 한다(기본 세기 0.22). 물결 한 개 폭은 1.3 m로 배(2.2~2.8 m)보다 작다. 노이즈 텍스처는 쓰지 않는다.
+- 흐름은 한 방향(북→남)이다. 물결 세 겹이 모두 `flow_direction`을 따라가고 크기·속도만 다르다. 방향과 속도는 uniform `flow_direction`·`flow_speed`이고, 나중에 조류 규칙이 같은 값을 읽을 수 있게 대본에 둔다.
+- 반짝임은 해 쪽으로 기운 물결에만 작은 점으로 뜬다. 흰 거품은 섬 둘레에만 있다. 카메라에서 멀수록 살짝 밝은 회청색이 된다.
+- 조절값은 대본 `data/battle3d/naval_hansando_scenario.json`의 `sea` 칸에서 읽는다: `flow_direction`, `flow_speed`, `deep_color`, `shallow_color`, `wave_size`, `wave_strength`, `sparkle_strength`, `foam_width`. 숫자만 바꾸고 F6를 다시 누르면 된다.
+- **F8**(디버그·에디터 실행): 바다 미리 설정 3개를 돌려 본다. ① 잔잔 (기본) ② 조금 더 물결 ③ 느린 흐름. 셋 다 같은 방향이다. 왼쪽 위에 이름이 2초 뜬다. 미리 설정도 대본 `sea.presets`에 있다.
+
+## 답2-2. 포탄 물보라 (`battle3d_cannon_fx.gd`)
+- 원기둥 메시를 없애고 한 발에 다음 네 가지를 낸다. 전체 1.5초.
+  1. 물기둥: 흰 물방울 28개가 위로 솟았다가(약 1.2~1.8 m) 중력으로 떨어진다.
+  2. 왕관 튀김: 물방울 16개가 바깥·위로 퍼진다.
+  3. 물 위 고리 2개: 수면에 붙은 흰 고리가 1초에 걸쳐 커지며 사라진다.
+  4. 남은 거품: 옅은 흰 거품이 1.5초 남았다 사라진다.
+- 입자는 한 발에 44개다. 명중 쪽(섬광·연기)은 그대로다.
+
+## 답2-3. 바꾼 파일
+| 파일 | 무엇을 |
+|---|---|
+| `scripts/battle3d/naval/eastwar_sea_water.gdshader` (새 파일) | 바다 전용 셰이더 |
+| `scripts/battle3d/naval/naval_sea_builder.gd` | 새 셰이더 사용, `apply_sea()`로 대본 값 적용(노이즈 텍스처 제거) |
+| `scripts/battle3d/naval/battle3d_naval_lab_setup.gd` | 대본 `sea` 칸을 빌더와 오버레이에 넘김 |
+| `scripts/battle3d/naval/battle3d_naval_overlay.gd` | F8 미리 설정 순환, 이름 표시 |
+| `scripts/battle3d/naval/battle3d_cannon_fx.gd` | 입자 물보라 |
+| `data/battle3d/naval_hansando_scenario.json` | `sea` 칸 추가 |
+| `tests/scripts/test_battle3d_naval_hansando.gd` | 확인 항목 11개 추가 |
+- 수전 전용 파일만 바꿨다. 육전·엔진·셸·랩 파일 0줄. `eastwar_terrain_20x20_water.gdshader` 0줄.
+
+## 답2-4. 시험
+- `[NAVAL_HANSANDO] checks=167 failures=[]` (156 → 167). 추가: 바다 재질이 새 셰이더인지, 강 셰이더 파일 SHA-256이 `main` `8cc0640`과 같은지, 대본 값이 재질에 들어갔는지(한 방향, 물결이 배보다 작음), F8 3개 순환(방향 불변), 물보라 구성(물방울 묶음 2개 + 고리 2개 + 거품, 원기둥 없음).
+- `[BATTLE_SETUP_NAVAL] checks=64 failures=[]` 그대로. 파이썬 검사기 72개 통과.
+- 육전 시험은 이번에 로컬에서 다시 돌리지 않았다(바꾼 파일이 전부 수전 전용). CI 4 shard가 전체를 돈다.
+- CI: @@CI2@@
+
+## 답2-5. 증거 (`agent/evidence/naval_hansando/`, 1920×1080 창 실행, HUD 포함)
+| 파일 | 내용 |
+|---|---|
+| `sea_before.jpg` / `sea_after.jpg` | 같은 카메라 위치의 바꾸기 전 / 후 |
+| `sea_preset_1.jpg`, `sea_preset_2.jpg`, `sea_preset_3.jpg` | F8 미리 설정 ① 잔잔 ② 조금 더 물결 ③ 느린 흐름 |
+| `splash_column_top.jpg`, `splash_rings.jpg` | 물기둥이 솟은 순간, 고리가 퍼지는 순간 (당긴 화면, 두 발) |
+- 성능: 자동 전투 20초 평균 **56.0 fps**(바꾸기 전 44.1). 측정만 했다.
+- 정지 화면에서 ③ 느린 흐름은 ①과 거의 같아 보인다. 차이는 움직임 속도라서 F8로 직접 봐야 한다.
+
+## 답2-6. 종료 루틴
+1. 정본 작업 폴더 `C:\dev\SamWar_BattleLab_cc`: 가지 `feature/wm3d-naval-20261110`, 커밋 뒤 `git status` 깨끗.
+2. 새로 생긴 것: 셰이더 1개(+`.uid`), 증거 7장. worktree·태그 0. 임시 파일은 `C:\eastwar_tmp\naval\`에만.
+3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음.
+4. CI: @@CI2@@
+5. 김작이 볼 것: F6에서 바다 느낌과 물보라, F8 세 설정 중 고르기. 숫자를 더 바꾸고 싶으면 대본 `sea` 칸.
