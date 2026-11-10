@@ -180,7 +180,7 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
 - `[NAVAL_HANSANDO] checks=167 failures=[]` (156 → 167). 추가: 바다 재질이 새 셰이더인지, 강 셰이더 파일 SHA-256이 `main` `8cc0640`과 같은지, 대본 값이 재질에 들어갔는지(한 방향, 물결이 배보다 작음), F8 3개 순환(방향 불변), 물보라 구성(물방울 묶음 2개 + 고리 2개 + 거품, 원기둥 없음).
 - `[BATTLE_SETUP_NAVAL] checks=64 failures=[]` 그대로. 파이썬 검사기 72개 통과.
 - 육전 시험은 이번에 로컬에서 다시 돌리지 않았다(바꾼 파일이 전부 수전 전용). CI 4 shard가 전체를 돈다.
-- CI: @@CI2@@
+- CI: Verify C-track refactor `42839927991`(`4dfcfca`) 4 shard 전부 success. 첫 시도에서 shard 0이 실패했는데, 로그가 육전 시험 `test_battle_attack_oracle_shard_2` 도중에 끊겨 원인을 알 수 없었다. 같은 커밋으로 그 shard만 다시 돌려 통과했다(코드 변경 없음, 일시적 실패로 본다). Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 
 ## 답2-5. 증거 (`agent/evidence/naval_hansando/`, 1920×1080 창 실행, HUD 포함)
 | 파일 | 내용 |
@@ -195,5 +195,5 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
 1. 정본 작업 폴더 `C:\dev\SamWar_BattleLab_cc`: 가지 `feature/wm3d-naval-20261110`, 커밋 뒤 `git status` 깨끗.
 2. 새로 생긴 것: 셰이더 1개(+`.uid`), 증거 7장. worktree·태그 0. 임시 파일은 `C:\eastwar_tmp\naval\`에만.
 3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음.
-4. CI: @@CI2@@
+4. CI: Verify C-track refactor `42839927991`(`4dfcfca`) 4 shard 전부 success. 첫 시도에서 shard 0이 실패했는데, 로그가 육전 시험 `test_battle_attack_oracle_shard_2` 도중에 끊겨 원인을 알 수 없었다. 같은 커밋으로 그 shard만 다시 돌려 통과했다(코드 변경 없음, 일시적 실패로 본다). Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 5. 김작이 볼 것: F6에서 바다 느낌과 물보라, F8 세 설정 중 고르기. 숫자를 더 바꾸고 싶으면 대본 `sea` 칸.
