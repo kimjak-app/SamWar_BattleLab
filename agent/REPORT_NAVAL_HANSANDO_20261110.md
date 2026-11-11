@@ -347,7 +347,7 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
 - 기존 정보창 시험 `test_battle3d_ally_roster_actor.gd`: `[ALLY_ACTOR] checks=104 failures=[]`, 기대값 그대로.
 - **전체 로컬 검사를 돌렸다**(이번에는 육전 공용 파일 2개를 바꿨다): `verify-c-track.yml`의 Godot 시험 210개 전부 통과(4개 동시 실행, 가장 오래 걸린 것 `test_battle3d_command_panel` 166초), 파이썬 검사기 72개 전부 통과.
 - 가져오기 뒤 `git status`에 고쳐진 파일 없음.
-- CI: @@CI4@@
+- CI: Verify C-track refactor `43049273888`(`06eabfc`) 4 shard 전부 success(첫 시도, 재실행 없음). shard 0의 컷인 길이 검사도 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=267 failures=[]`. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 
 ## 답4-6. 증거 (`agent/evidence/naval_hansando/`, 1920×1080 창 실행)
 | 파일 | 내용 |
@@ -359,5 +359,5 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
 1. 정본 작업 폴더 `C:\dev\SamWar_BattleLab_cc`: 가지 `feature/wm3d-naval-20261110`, 커밋 뒤 `git status` 깨끗.
 2. 새로 생긴 것: 표 파일 1개, 그림 1개와 `.import`, 증거 2장. worktree·태그 0. 임시 파일은 `C:\eastwar_tmp\naval\`에만.
 3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음. `gh`는 읽기 명령만.
-4. CI: @@CI4@@
+4. CI: Verify C-track refactor `43049273888`(`06eabfc`) 4 shard 전부 success(첫 시도, 재실행 없음). shard 0의 컷인 길이 검사도 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=267 failures=[]`. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 5. 김작이 볼 것: 수전 F6에서 지형 칸 "바다"와 그림, 이순신 병력 120. 육전 F6에서 "평지" 그대로. 클코치가 볼 것: 답4-3의 5가지(특히 1번 해시).

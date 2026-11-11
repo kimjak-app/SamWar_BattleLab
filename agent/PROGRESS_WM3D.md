@@ -10,9 +10,9 @@
 
 ### 2026-11-12 — 큐 35번 답신 4 (정보창 지형 칸 = 칸의 실제 지형, 이순신 병력 3000)
 - 현재 단계: 35번 답신 4, 가지 `feature/wm3d-naval-20261110`
-- 마지막 코드 커밋: @@CODE4@@
+- 마지막 코드 커밋: `06eabfcfdc6fad63bc3f8af071f05b75ea5267f3`
 - 마지막 보고서: `agent/REPORT_NAVAL_HANSANDO_20261110.md` "답신 4" 절
-- CI: @@CI4@@
+- CI: Verify C-track refactor `43049273888`(`06eabfc`) 4 shard 전부 success(첫 시도, 재실행 없음). shard 0의 컷인 길이 검사도 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=267 failures=[]`. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 - 바꾼 기존 파일: `battle3d_current_actor_hud.gd`, `battle3d_engine_play.gd`(읽기 함수 1개), 대본, 수전 시험. 셸·엔진 0줄
 - 바다 그림 해시가 지시서(`98619b95e602`)와 달랐다(실제 `bf1e2b8f30dd`). 김작이 2026-11-12 "그대로 사용"이라고 답해 진행했다
 - 다음 할 일: 김작 F6(수전 지형 칸 "바다", 이순신 병력 120, 육전 "평지" 그대로). 클코치 확인: 보고서 답4-3(5가지)
