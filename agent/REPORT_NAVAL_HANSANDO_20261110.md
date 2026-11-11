@@ -298,3 +298,66 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
   - 로컬 `[NAVAL_HANSANDO] checks=251 failures=[]` (249 → 251), `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`.
 - 바꾼 파일은 대본과 수전 시험 2개뿐이다. 증거 사진(`ships_*.jpg`)은 교체 전에 찍은 것이라 얼굴 칩이 이전 조합이다. 다시 찍지 않았다.
 - CI: Verify C-track refactor `43034877261`(`6156bc3`) 4 shard 전부 success(재실행 없음, 첫 시도). shard 0의 컷인 길이 검사도 이번에는 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=251 failures=[]`. 이 커밋은 답신 3 코드(`c727472`)를 포함한다. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
+
+---
+
+# 답신 4 — 정보창 지형 칸을 칸의 실제 지형으로 (수전 = 바다) + 이순신 병력 (클코드, 2026-11-12)
+
+- **됐나**: 됐다(자동 검증 기준). 김작 F6 확인 전이다. 기준 화면·합격 기준은 답신 4 맨 위 그대로(수전 정보창 오른쪽 끝이 "바다" 글자 + 바다 그림, 육전은 "평지"와 평지 그림 그대로).
+- **한 일**: 정보창 지형 칸이 현재 행동 유닛이 선 칸의 지형을 읽어 표(`data/battle3d/terrain_hud_labels.json`)에서 글자와 그림을 고른다. 이순신·김덕령의 병력을 맞바꾸고 기함 표시를 이순신 배로 옮겼다.
+- **지시서와 다른 사실 1개**: 바다 그림의 해시가 지시서 값과 달랐다(아래 답4-3 1번). 김작에게 물어 "그대로 사용" 답을 받고 진행했다.
+
+## 답4-1. 지형 칸
+- 표 파일 `data/battle3d/terrain_hud_labels.json`(새 파일): `sea` → 바다 + `terrain_sea.png`, `plain` → 평지 + `terrain_plain.png`, `hill` → 평지 + `terrain_plain.png`, `island` → 섬 + `terrain_plain.png`. 표에 없는 지형은 평지 글자와 평지 그림.
+- 랩 `battle3d_engine_play.gd`에 읽기 함수 하나: `hud_actor_terrain()` = 현재 행동 유닛이 선 칸의 판 지형(없으면 빈 글자). 엔진에서 읽는 것은 이미 쓰던 `active_unit_state`뿐이다.
+- 정보창 `battle3d_current_actor_hud.gd`: 매 프레임 자기가 붙어 있는 셸의 랩에 `hud_actor_terrain()`을 묻고, 값이 바뀔 때만 글자와 그림을 바꾼다(`show_terrain()`). 유닛이 바뀌거나 이동해 칸이 바뀌면 따라 바뀐다. 방어·이동 %는 0% 그대로다.
+- 바다 그림: `C:\eastwar_tmp\naval\icons\terrain_sea_300.png`(300×300)를 `assets/ui/battle/current_actor_icons/terrain_sea.png`로 복사했다. `.import`의 설정 칸은 `terrain_plain.png`와 같다(비교함).
+
+## 답4-2. 이순신 병력
+| 배 | 칸 | 장수 | 이전 병력(설계 / 화면) | 지금 병력 |
+|---|---|---|---|---|
+| 거북선(기함) | (10, 6) | 이순신 | 2000 / 80 | **3000 / 120** |
+| 판옥선 | (8, 7) | 김덕령 | 3000 / 120 | **2000 / 80** |
+- 대본의 `role: "기함"`을 판옥선 줄에서 이순신의 거북선 줄로 옮겼다. 배 종류와 시작 칸은 `6156bc3` 그대로다.
+
+## 답4-3. 답신 4와 다르거나 내가 정한 곳 (클코치 확인 필요)
+1. **바다 그림 해시가 다르다.** 지시서는 `terrain_sea_300.png`의 sha256 앞 12자리를 `98619b95e602`라고 했는데 실제 파일은 `bf1e2b8f30dd`다(전체 `bf1e2b8f30ddab55ec3c7d0b41667f3b9ab7cf8ead5dd1c91e16eaec49d3016a`). 파일 저장 시각(23:58:01)이 지시서 커밋(23:57:41)보다 뒤다. 그림은 300×300 금색 바다·배 그림이고 평지 그림과 같은 크기다. 큐 4절 4(사실 불일치)에 해당해서 김작에게 물었고, 김작이 2026-11-12 "그대로 사용"을 골랐다. 커밋한 파일은 `bf1e2b8f30dd`다.
+2. **바다 그림은 투명 채널이 없다.** `terrain_plain.png`는 RGBA, `terrain_sea.png`는 RGB(검은 바탕)다. 정보창 바탕이 어두워 화면에서는 차이가 보이지 않았다.
+3. **정보창이 지형을 받는 길(택한 해석)**: 지시서가 바꿀 수 있다고 한 파일은 정보창과 랩 둘뿐이라 셸은 고치지 않았다. 그래서 정보창이 부모(셸)의 `lab`을 직접 찾아 묻는다. 셸이 `show_actor()`에 지형을 같이 넘기는 쪽이 더 깔끔하지만 셸 수정이 필요하다.
+4. **행동 유닛이 없을 때**는 지형 칸을 바꾸지 않고 마지막 것을 그대로 둔다(수전에서 잠깐 "평지"로 깜빡이지 않게).
+5. **육전의 강·여울·숲 칸**은 표에 없어서 평지로 나온다(지금과 같다).
+
+## 답4-4. 바꾼 파일
+| 파일 | 무엇을 |
+|---|---|
+| `data/battle3d/terrain_hud_labels.json` (새 파일) | 지형 → 글자·그림 표 |
+| `assets/ui/battle/current_actor_icons/terrain_sea.png` + `.import` (새 파일) | 바다 그림 |
+| `scripts/battle3d/battle3d_current_actor_hud.gd` | 표 읽기, `show_terrain()`, 매 프레임 랩에 묻기. 고정 글자·평지 그림 상수와 기존 줄은 그대로(기본값으로 쓴다) |
+| `scripts/battle3d/battle3d_engine_play.gd` | `hud_actor_terrain()` 6줄 추가(삭제 0) |
+| `data/battle3d/naval_hansando_scenario.json` | 두 사람 병력 맞교환, 기함 표시 이동 |
+| `tests/scripts/test_battle3d_naval_hansando.gd` | 확인 항목 추가·수정 |
+- 셸·엔진·다른 HUD·기존 시험·검사기 0줄. 새 `.gd` 파일 없음.
+
+## 답4-5. 시험
+- `[NAVAL_HANSANDO] checks=267 failures=[]` (251 → 267). 추가·수정:
+  - 수전: 랩이 읽은 지형 `sea`, 정보창 글자 "바다", 그림 `terrain_sea.png`, 0% 두 줄 그대로
+  - 육전(같은 시험 끝의 육전 셸): 행동 유닛 칸에서 "평지" + 평지 그림. 육전 판에 있는 지형 전부와 표에 없는 이름을 하나씩 넣어도 "평지" + 평지 그림. `island`는 "섬", `sea`는 "바다" + 바다 그림. 빈 값이면 그대로. 다음 프레임에 유닛 칸 지형으로 돌아옴
+  - 표 파일: 4줄, 그림 4개 모두 있음
+  - 이순신 = 거북선 (10, 6) 병력 120, 김덕령 = 판옥선 (8, 7) 병력 80, 조선 기함 표시 = 이순신의 배(설계 3000)
+- 기존 정보창 시험 `test_battle3d_ally_roster_actor.gd`: `[ALLY_ACTOR] checks=104 failures=[]`, 기대값 그대로.
+- **전체 로컬 검사를 돌렸다**(이번에는 육전 공용 파일 2개를 바꿨다): `verify-c-track.yml`의 Godot 시험 210개 전부 통과(4개 동시 실행, 가장 오래 걸린 것 `test_battle3d_command_panel` 166초), 파이썬 검사기 72개 전부 통과.
+- 가져오기 뒤 `git status`에 고쳐진 파일 없음.
+- CI: @@CI4@@
+
+## 답4-6. 증거 (`agent/evidence/naval_hansando/`, 1920×1080 창 실행)
+| 파일 | 내용 |
+|---|---|
+| `terrain_sea_hud.jpg` | 수전, 이순신 차례: 거북선, 병력 120 / 120, 지형 칸 "바다" + 바다 그림 |
+| `terrain_plain_hud_land.jpg` | 육전 기본 시나리오: 지형 칸 "평지" + 평지 그림 |
+
+## 답4-7. 종료 루틴
+1. 정본 작업 폴더 `C:\dev\SamWar_BattleLab_cc`: 가지 `feature/wm3d-naval-20261110`, 커밋 뒤 `git status` 깨끗.
+2. 새로 생긴 것: 표 파일 1개, 그림 1개와 `.import`, 증거 2장. worktree·태그 0. 임시 파일은 `C:\eastwar_tmp\naval\`에만.
+3. 푸시: 이 가지에만. 문서 커밋(`[skip ci]`) 뒤 코드 커밋이 마지막. `main`·orders 가지 푸시 없음. `gh`는 읽기 명령만.
+4. CI: @@CI4@@
+5. 김작이 볼 것: 수전 F6에서 지형 칸 "바다"와 그림, 이순신 병력 120. 육전 F6에서 "평지" 그대로. 클코치가 볼 것: 답4-3의 5가지(특히 1번 해시).
