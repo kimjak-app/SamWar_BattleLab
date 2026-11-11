@@ -2,8 +2,12 @@ extends RefCounted
 # Queue 35: the ships of the naval 3D battle, as the lab's unit model layer (lab_presentation.gd `unit_visuals_script`).
 # It answers the same calls as battle3d_unit_visuals.gd (handles, spawn_soldiers, visible_count, show_soldier, update,
 # attack, hit), so the lab's code is unchanged: a unit is one ship (one "soldier" node in lab.soldiers[id]).
-# - Model: assets/battle3d/naval/<unit_type>.glb when it exists (fitted to the type's ship_length, bow to -Z), else a
-#   stand-in built here from boxes. Friendly ships fly a blue flag, enemy ships a red one.
+# - Model: the type rule's `model_path`, else assets/battle3d/naval/<unit_type>.glb, else a stand-in built here from
+#   boxes (friendly stand-ins fly a blue flag, enemy ones a red one). A delivered model is fitted by its `Hull` node to
+#   the type's ship_length (bow to -Z) and lowered so its `WaterLine` node lies on the sea.
+# - A delivered model's sails and oars (reply 3): at rest the sails are furled and the oars still; while the ship moves
+#   along its path the sails are open and the `Oar_Row` animation loops. Its sail cloth (`Sail_Mat`) is this ship's own
+#   copy in the rule's `sail_color`.
 # - Weapons come from the type's rule (data/battle3d/naval_unit_type_rules.json `weapons`), fired in order WEAPON_GAP
 #   apart: "cannon" (battle3d_cannon_fx.gd), "arrow" and "gun" (the land battle's battle3d_ranged_fx.gd, unchanged:
 #   its arrow from deck points, its gun volley from stand-in shooters on the deck).
@@ -12,6 +16,13 @@ extends RefCounted
 const RangedFx := preload("res://scripts/battle3d/battle3d_ranged_fx.gd")
 const CannonFx := preload("res://scripts/battle3d/naval/battle3d_cannon_fx.gd")
 const MODEL_PATH := "res://assets/battle3d/naval/%s.glb"
+const HULL_NODE := "Hull" # a delivered model's hull mesh: what its length, width and height are measured on
+const WATERLINE_NODE := "WaterLine" # an empty node at the height the sea should meet the hull
+const SAIL_MATERIAL := "Sail_Mat" # the sail cloth, the one material that takes the nation colour
+const OAR_ANIMATION := "Oar_Row"
+const GROUND_LIFT := 0.035 # m: the lab keeps a unit's model this far above its cell (lab_presentation.gd _ground_soldiers)
+const SAIL_TIME := 0.25 # s to open or furl the sails
+const SAIL_HIDDEN := 0.001 # a sail that is not shown is scaled to this, not hidden (the model's own convention)
 const FACING_YAW := {"up": 0.0, "down": PI, "left": PI / 2, "right": -PI / 2} # bow to -Z (the lab's old-model table)
 const TURN_RATE := 6.0 # 1/s: the bow turns toward its heading by 1 - exp(-TURN_RATE * delta) a frame
 const WEAPON_GAP := 0.45 # s between a ship's weapons in one attack
@@ -36,7 +47,8 @@ var records: Array = [] # one entry per weapon of each attack: {attacker_id, tar
 var sink_records: Array = [] # unit ids, in the order their ships started to sink
 var model_sources := {} # unit_id -> "glb" or "placeholder"
 var _materials := {} # colour -> shared material
-var _ships := {} # ship instance id -> {ship, body, kind, id, phase, guns_l, guns_r, shooters, hit_points, gunners}
+var _ships := {} # ship instance id -> {ship, body, kind, id, phase, guns_l, guns_r, guns_f, shooters, hit_points, gunners,
+	# sails_open, sails_furled, oars (AnimationPlayer or null), sail (0 furled .. 1 open), moving}
 var _queue: Array = [] # {t, call}: delayed shots, advanced by update
 var _rocks := {} # ship instance id -> {t, side}
 var _sinks := {} # ship instance id -> {t, smoke}
@@ -71,25 +83,33 @@ func spawn_soldiers(u: Dictionary, root: Node3D) -> Array:
 	var body := Node3D.new()
 	body.name = "Body"
 	ship.add_child(body)
-	var length := float(UnitTypeContract.get_rule(kind).get("ship_length", 2.4))
+	var rule := UnitTypeContract.get_rule(kind)
+	var length := float(rule.get("ship_length", 2.4))
 	var width := length * float(WIDTH_RATIO.get(kind, 0.36))
 	var deck := 0.3
-	if ResourceLoader.exists(MODEL_PATH % kind):
-		var model: Node3D = (load(MODEL_PATH % kind) as PackedScene).instantiate()
+	var rig := {"sails_open": [], "sails_furled": [], "oars": null}
+	var path := model_path(kind)
+	if not path.is_empty():
+		var model: Node3D = (load(path) as PackedScene).instantiate()
 		body.add_child(model)
 		var fitted := fit_model(model, length)
 		width = fitted.x
 		deck = fitted.y
+		rig = _rig(model, String(rule.get("sail_color", "")))
 		model_sources[u.unit_id] = "glb"
 	else:
 		deck = _placeholder(kind, side, body, length, width)
+		_flag(body, side, length, deck)
 		model_sources[u.unit_id] = "placeholder"
-	_flag(body, side, length, deck)
+	# Gun ports: the model's own cannon sockets (the turtle ship: left, right and bow), else its Gun_L / Gun_R marks,
+	# else points made here on the hull's sides.
+	var port := "CannonSocket_" if body.find_child("CannonSocket_*", true, false) != null else "Gun_"
 	var info := {"ship": ship, "body": body, "kind": kind, "id": String(u.unit_id), "phase": _rng.randf() * TAU,
-		"guns_l": _marks(body, "Gun_L", [Vector3(-width * 0.5, deck * 0.7, -length * 0.22), Vector3(-width * 0.5, deck * 0.7, 0), Vector3(-width * 0.5, deck * 0.7, length * 0.22)]),
-		"guns_r": _marks(body, "Gun_R", [Vector3(width * 0.5, deck * 0.7, -length * 0.22), Vector3(width * 0.5, deck * 0.7, 0), Vector3(width * 0.5, deck * 0.7, length * 0.22)]),
+		"guns_l": _marks(body, port + "L", [Vector3(-width * 0.5, deck * 0.7, -length * 0.22), Vector3(-width * 0.5, deck * 0.7, 0), Vector3(-width * 0.5, deck * 0.7, length * 0.22)]),
+		"guns_r": _marks(body, port + "R", [Vector3(width * 0.5, deck * 0.7, -length * 0.22), Vector3(width * 0.5, deck * 0.7, 0), Vector3(width * 0.5, deck * 0.7, length * 0.22)]),
+		"guns_f": body.find_children("CannonSocket_F*", "Node3D", true, false),
 		"shooters": _marks(body, "Shooter_", [Vector3(-width * 0.25, deck, -length * 0.2), Vector3(width * 0.25, deck, -length * 0.2), Vector3(-width * 0.25, deck, length * 0.15), Vector3(width * 0.25, deck, length * 0.15)]),
-		"hit_points": [], "gunners": []}
+		"hit_points": [], "gunners": [], "sails_open": rig.sails_open, "sails_furled": rig.sails_furled, "oars": rig.oars, "sail": 0.0, "moving": false}
 	for mark in info.shooters:
 		var point := Node3D.new() # where a shot at this ship lands (the ranged effects aim 0.7 m above a target node)
 		point.name = "HitPoint"
@@ -158,6 +178,7 @@ func update(lab: Node, delta: float) -> void:
 				else:
 					ship.rotation.y = yaw
 					_yaw_ready[key] = true
+			_sail(info, lab.playback.has(id) and not _sinks.has(key), delta)
 			var body: Node3D = info.body
 			var roll: float = sin(_time * 1.1 + info.phase) * ROLL
 			var pitch: float = sin(_time * 0.8 + info.phase * 1.7) * PITCH
@@ -191,6 +212,11 @@ func hit(lab: Node, attacker_id: String, target_id: String) -> void:
 	var away: Vector3 = target.global_position - ship.global_position
 	_rocks[target.get_instance_id()] = {"t": 0.0, "side": -1.0 if away.dot(target.global_basis.x) >= 0.0 else 1.0}
 
+## The ship's own record (model parts, sail and oar state), for checks. Empty when the unit has no ship.
+func ship_info(lab: Node, unit_id: String) -> Dictionary:
+	var ship := ship_of(lab, unit_id)
+	return _ships[ship.get_instance_id()] if ship != null else {}
+
 func ship_of(lab: Node, unit_id: String) -> Node3D:
 	if not lab.soldiers.has(unit_id) or (lab.soldiers[unit_id] as Array).is_empty(): return null
 	var ship = lab.soldiers[unit_id][0]
@@ -202,8 +228,10 @@ func _fire(weapon: String, ship: Node3D, target: Node3D, attacker_id: String, ta
 	var aim: Dictionary = _ships[target.get_instance_id()]
 	match weapon:
 		"cannon":
-			var to_target: Vector3 = target.global_position - ship.global_position
-			var ports: Array = info.guns_r if to_target.dot(ship.global_basis.x) >= 0.0 else info.guns_l
+			# The side facing the target; the bow guns when the ship has them and the target is more ahead than abeam.
+			var to_target: Vector3 = ship.global_basis.inverse() * (target.global_position - ship.global_position)
+			var ports: Array = info.guns_r if to_target.x >= 0.0 else info.guns_l
+			if not info.guns_f.is_empty() and -to_target.z > absf(to_target.x): ports = info.guns_f
 			cannon.fire_broadside(ports.map(func(port): return (port as Node3D).global_position), target.global_position, attacker_id, target_id)
 		"arrow":
 			for index in range(info.shooters.size()):
@@ -233,18 +261,80 @@ func _target_yaw(lab: Node, id: String, root: Node3D) -> float:
 
 # ---- models ----
 
+## The model file of a ship type: the rule's `model_path`, else the file named after the type, else "" (a stand-in).
+static func model_path(kind: String) -> String:
+	for path in [String(UnitTypeContract.get_rule(kind).get("model_path", "")), MODEL_PATH % kind]:
+		if not path.is_empty() and ResourceLoader.exists(path): return path
+	return ""
+
 ## Fits a delivered model to the ship length: lengthwise along Z (turned a quarter when it came sideways), centred on
-## its own middle, scaled so its length is `length`. Returns (width, deck height) in metres.
+## its own middle, scaled so its length is `length`. Measured on the model's `Hull` mesh when it has one (oars, masts
+## and sails are left out), else on all of it. A model with a `WaterLine` node is lowered so that node lies on the sea.
+## Returns (width, deck height) in metres.
 static func fit_model(model: Node3D, length: float) -> Vector2:
-	var box := model_box(model, Transform3D())
+	var hull := model.find_child(HULL_NODE, true, false) as MeshInstance3D
+	var box := _fit_box(model, hull)
 	if box.size.x > box.size.z:
 		model.rotation.y = PI / 2
-		box = model_box(model, Transform3D())
-	var size := length / maxf(box.size.z, 0.001)
-	model.scale *= size
-	box = model_box(model, Transform3D())
+		box = _fit_box(model, hull)
+	model.scale *= length / maxf(box.size.z, 0.001)
+	box = _fit_box(model, hull)
 	model.position -= Vector3(box.get_center().x, 0, box.get_center().z)
+	var water := model.find_child(WATERLINE_NODE, true, false) as Node3D
+	if water != null: model.position.y -= xform_in(water, model).origin.y + GROUND_LIFT
+	box = _fit_box(model, hull)
 	return Vector2(box.size.x, maxf(box.end.y * 0.6, 0.15))
+
+static func _fit_box(model: Node3D, hull: MeshInstance3D) -> AABB:
+	if hull == null or hull.mesh == null: return model_box(model, Transform3D())
+	return xform_in(hull, model) * hull.mesh.get_aabb()
+
+## `node`'s transform in the space `top` sits in (`top` is `node` or one of its parents; neither need be in the tree).
+static func xform_in(node: Node3D, top: Node3D) -> Transform3D:
+	var xform := Transform3D()
+	var at: Node = node
+	while at != null:
+		if at is Node3D: xform = (at as Node3D).transform * xform
+		if at == top: break
+		at = at.get_parent()
+	return xform
+
+func _rig(model: Node3D, sail_color: String) -> Dictionary:
+	# A delivered model's moving parts: its sails (open / furled pairs under each mast) and the player of its oar
+	# animation. The sail cloth becomes this ship's own copy in `sail_color`; hull, masts and other ships keep theirs.
+	var rig := {"sails_open": model.find_children("Sail_Open_*", "MeshInstance3D", true, false),
+		"sails_furled": model.find_children("Sail_Furled_*", "MeshInstance3D", true, false), "oars": null}
+	var cloth := {} # the model's sail material -> this ship's copy
+	for sail in rig.sails_open + rig.sails_furled:
+		for surface in range(sail.mesh.get_surface_count() if sail.mesh != null and Color.html_is_valid(sail_color) else 0):
+			var material := sail.mesh.surface_get_material(surface) as BaseMaterial3D
+			if material == null or material.resource_name != SAIL_MATERIAL: continue
+			if not cloth.has(material):
+				cloth[material] = material.duplicate()
+				cloth[material].albedo_color = Color.html(sail_color)
+			sail.set_surface_override_material(surface, cloth[material])
+	for player in model.find_children("*", "AnimationPlayer", true, false):
+		if not player.has_animation(OAR_ANIMATION): continue
+		player.get_animation(OAR_ANIMATION).loop_mode = Animation.LOOP_LINEAR # imported without its loop flag
+		rig.oars = player
+	_set_sails(rig, 0.0) # the file comes with its sails open; a ship starts at rest
+	return rig
+
+func _sail(info: Dictionary, moving: bool, delta: float) -> void:
+	# Moving along a path: sails open, oars rowing. At rest (or sinking): sails furled, oars still.
+	if info.moving != moving:
+		info.moving = moving
+		if info.oars != null and is_instance_valid(info.oars):
+			if moving: info.oars.play(OAR_ANIMATION)
+			else: info.oars.stop()
+	var want := 1.0 if moving else 0.0
+	if is_equal_approx(info.sail, want): return
+	info.sail = move_toward(info.sail, want, delta / SAIL_TIME)
+	_set_sails(info, info.sail)
+
+static func _set_sails(rig: Dictionary, open: float) -> void:
+	for sail in rig.sails_open: sail.scale = Vector3.ONE * lerpf(SAIL_HIDDEN, 1.0, open)
+	for sail in rig.sails_furled: sail.scale = Vector3.ONE * lerpf(1.0, SAIL_HIDDEN, open)
 
 static func model_box(node: Node, parent: Transform3D) -> AABB:
 	# The model's meshes in its parent's space (the node is not in the tree yet).

@@ -5,7 +5,9 @@ extends SceneTree
 # 3 island cells are blocked for the engine; both fleets can reach each other.
 # 4 each type's attack goes to its weapons' effects (cannon / arrow / gun), in the rule's order.
 # 5 a ship without troops sinks; the battle gets a result.
-# 6 no GLB delivered: stand-in models, no error. A delivered model would be fitted to the ship length.
+# 6 the delivered ship models (reply 3): each type's GLB by the rule's model_path, fitted by its Hull to the ship
+#   length, its WaterLine on the sea, sails furled at rest and open with the oars rowing while it moves, each ship's
+#   own sail colour. With the model_path taken out (a restart at the end): stand-in models, no error.
 # 7 the battle plays to its end on auto (Hakikjin cast at least once, reaching 3 cells: battle_type naval).
 # 8 without the naval setting nothing changes: the shell's default, the land board, the land unit models.
 const SCENE := "res://scenes/battle3d/Battle3D_NavalHansando.tscn"
@@ -21,6 +23,11 @@ const RIVER_SHADER := "res://scripts/battle3d/eastwar_terrain_20x20_water.gdshad
 const RIVER_SHADER_SHA256 := "f255d007614e13c4be1cef3e76c610ada1b660f0aa719b4e1755a213e938fa2e" # main 8cc0640 (LF)
 const TYPE_NAMES := {"turtle_ship":"거북선", "panokseon":"판옥선", "atakebune":"안택선", "sekibune":"관선"}
 const WEAPON_KINDS := {"cannon":"cannon", "arrow":"arrow", "gun":"shot"}
+const MODEL_DIR := "res://assets/battle3d/naval/"
+# Reply 3 section 0: the delivered files (sha256, first 12 hex digits). The two Chinese ships have no type yet.
+const MODEL_SHA256 := {"panokseon_game_v2.glb":"4144db4aedf5", "geobukseon_game_v2.glb":"ae40107222d5", "jp_atakebune_game_v1.glb":"0a5ea4b13fa2",
+	"jp_sekibune_game_v1.glb":"47c30e6417cf", "cn_mengchong_game_v1.glb":"63edba268e13", "cn_doujian_game_v1.glb":"7aff0405278f"}
+const TYPE_MODELS := {"turtle_ship":"geobukseon_game_v2.glb", "panokseon":"panokseon_game_v2.glb", "atakebune":"jp_atakebune_game_v1.glb", "sekibune":"jp_sekibune_game_v1.glb"}
 var checks := 0
 var failures: Array[String] = []
 
@@ -52,6 +59,12 @@ func flood(start: Vector2i, steps: int, blocked: Dictionary) -> Dictionary:
 func frames(count: int) -> void:
 	for i in range(count): await process_frame
 
+func sails_are(info: Dictionary, open: bool) -> bool:
+	# Every mast shows one sail at full size and keeps the other at the model's hidden size.
+	return not info.sails_open.is_empty() and info.sails_open.size() == info.sails_furled.size() \
+		and info.sails_open.all(func(sail): return is_equal_approx(sail.scale.x, 1.0 if open else 0.001)) \
+		and info.sails_furled.all(func(sail): return is_equal_approx(sail.scale.x, 0.001 if open else 1.0))
+
 func run() -> void:
 	root.size = Vector2i(1280, 800)
 	var scenario: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SCENARIO))
@@ -63,7 +76,11 @@ func run() -> void:
 	for ship in scenario.ships:
 		expect(HeroData.HERO_DATA.has(ship.hero_id) and not HeroDesignDataRegistry.get_battle_profile(ship.hero_id).is_empty(), "hero %s is in the hero data" % ship.hero_id)
 		expect(rules.has(ship.unit_type) and not islands.has(cell_of(ship.grid_cell)), "%s: a ship type, on a sea cell" % ship.hero_id)
-		expect(not ResourceLoader.exists(ShipVisuals.MODEL_PATH % ship.unit_type), "no delivered model for %s yet (this run checks the stand-ins)" % ship.unit_type)
+	for kind in TYPE_MODELS:
+		expect(String(rules[kind].get("model_path", "")) == MODEL_DIR + TYPE_MODELS[kind] and ShipVisuals.model_path(kind) == MODEL_DIR + TYPE_MODELS[kind], "%s: the rule's model is %s" % [kind, TYPE_MODELS[kind]])
+		expect(Color.html_is_valid(String(rules[kind].get("sail_color", ""))), "%s: the rule has a sail colour (%s)" % [kind, String(rules[kind].get("sail_color", ""))])
+	for file in MODEL_SHA256:
+		expect(FileAccess.get_sha256(MODEL_DIR + file).left(12) == MODEL_SHA256[file], "%s is the delivered file (sha256 %s)" % [file, FileAccess.get_sha256(MODEL_DIR + file).left(12)])
 
 	# 1: the scene.
 	var shell: Node = (load(SCENE) as PackedScene).instantiate()
@@ -116,14 +133,43 @@ func run() -> void:
 		var id: String = unit.unit_id
 		expect(unit.side == ship.side and unit.unit_type == ship.unit_type and unit.grid_cell == cell_of(ship.grid_cell) and unit.facing == ship.facing and unit.current_troops == int(ship.troops) and unit.max_troops == int(ship.troops),
 			"%s: %s %s at %s facing %s, troops %d" % [ship.hero_id, unit.side, unit.unit_type, str(unit.grid_cell), unit.facing, unit.current_troops])
-		expect(lab.views.has(id) and lab.views[id].visible and lab.views[id].has_meta("unit3d") and lab.soldiers[id].size() == 1 and visuals.model_sources.get(id) == "placeholder",
-			"%s: one stand-in ship model, shown" % ship.hero_id)
+		expect(lab.views.has(id) and lab.views[id].visible and lab.views[id].has_meta("unit3d") and lab.soldiers[id].size() == 1 and visuals.model_sources.get(id) == "glb",
+			"%s: one delivered ship model, shown" % ship.hero_id)
 		expect(lab.views[id].position.distance_to(lab.board.world(unit.grid_cell)) < 0.01 and absf(lab.soldiers[id][0].global_position.y - 0.035) < 0.01, "%s: the ship floats on its cell" % ship.hero_id)
 		expect(lab.hud_unit_type_name(unit.unit_type) == TYPE_NAMES[unit.unit_type] and lab.hud_troop_icon(id) == null and lab.hud_portrait(id) != null and lab.hud_display_name(id) == HeroData.HERO_DATA[ship.hero_id].display_name,
 			"%s: HUD name %s, type %s, portrait, no troop icon" % [ship.hero_id, lab.hud_display_name(id), lab.hud_unit_type_name(unit.unit_type)])
+		# Reply 3: measured in the ship's body space (the swell rolls the body, not these numbers).
+		var info: Dictionary = visuals.ship_info(lab, id)
+		var body: Node3D = info.body
+		var hull := body.find_child("Hull", true, false) as MeshInstance3D
+		var water := body.find_child("WaterLine", true, false) as Node3D
+		expect(hull != null and water != null and info.oars != null and info.oars.has_animation("Oar_Row") and body.find_child("Flag", true, false) == null, "%s: the model has Hull, WaterLine and the oar animation; no stand-in flag" % ship.hero_id)
+		if hull == null or water == null: continue
+		var hull_box: AABB = body.global_transform.affine_inverse() * hull.global_transform * hull.get_aabb()
+		var length := float(rules[unit.unit_type].ship_length)
+		expect(absf(hull_box.size.z - length) <= length * 0.01 and hull_box.size.x < hull_box.size.z and absf(hull_box.get_center().x) < 0.01 and absf(hull_box.get_center().z) < 0.01,
+			"%s: the hull is its type's length, bow along Z, centred (%.3f x %.3f m, wanted %.1f)" % [ship.hero_id, hull_box.size.x, hull_box.size.z, length])
 		var box := AABB()
-		for mesh in lab.soldiers[id][0].find_children("*", "MeshInstance3D", true, false): box = box.merge(lab.soldiers[id][0].global_transform.affine_inverse() * mesh.global_transform * mesh.get_aabb())
-		expect(box.size.x <= box.size.z and absf(box.size.z - float(rules[unit.unit_type].ship_length)) <= 0.05, "%s: the ship is its type's length, inside one 3 m cell (%.2f x %.2f m)" % [ship.hero_id, box.size.x, box.size.z])
+		for part in body.find_children("*", "MeshInstance3D", true, false): box = box.merge(body.global_transform.affine_inverse() * part.global_transform * part.get_aabb())
+		expect(box.size.x <= 3.0 and box.size.z <= 3.0, "%s: the whole ship (oars, masts) is inside one 3 m cell (%.2f x %.2f m)" % [ship.hero_id, box.size.x, box.size.z])
+		var water_y: float = water.global_position.y - body.position.y # without the swell's heave
+		expect(absf(water_y) <= 0.01, "%s: the model's WaterLine is on the sea (%.3f m)" % [ship.hero_id, water_y])
+		expect(not info.moving and is_zero_approx(info.sail) and sails_are(info, false) and not info.oars.is_playing(), "%s: at rest the sails are furled and the oars still" % ship.hero_id)
+		var cloth := (info.sails_open[0] as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
+		var mast := (info.sails_open[0] as MeshInstance3D).get_parent().find_child("Mast_*", false, false) as MeshInstance3D
+		expect(cloth != null and cloth.albedo_color.is_equal_approx(Color.html(rules[unit.unit_type].sail_color)) and (info.sails_open + info.sails_furled).all(func(sail): return sail.get_surface_override_material(0) == cloth)
+			and (info.sails_open[0] as MeshInstance3D).mesh.surface_get_material(0) != cloth and not (info.sails_open[0] as MeshInstance3D).mesh.surface_get_material(0).albedo_color.is_equal_approx(cloth.albedo_color)
+			and mast != null and mast.get_surface_override_material(0) == null and hull.get_surface_override_material(0) == null,
+			"%s: its sails wear its own copy of the sail cloth in %s; mast and hull keep their materials" % [ship.hero_id, rules[unit.unit_type].sail_color])
+	# Sail cloth is never shared between ships, even of one type.
+	var cloths := {}
+	for ship in scenario.ships:
+		if by_hero.has(ship.hero_id): cloths[(visuals.ship_info(lab, by_hero[ship.hero_id].unit_id).sails_open[0] as MeshInstance3D).get_surface_override_material(0)] = true
+	expect(cloths.size() == 10, "ten ships, ten sail cloths (%d)" % cloths.size())
+	var turtle: Dictionary = visuals.ship_info(lab, by_hero["kim_deok_ryeong"].unit_id)
+	expect(turtle.guns_l.size() == 5 and turtle.guns_r.size() == 5 and turtle.guns_f.size() == 3 and (turtle.guns_l + turtle.guns_r + turtle.guns_f).all(func(port): return String(port.name).begins_with("CannonSocket_")),
+		"turtle ship: its gun ports are the model's 13 cannon sockets")
+	expect(visuals.ship_info(lab, by_hero["yi_sun_sin"].unit_id).guns_f.is_empty() and visuals.ship_info(lab, by_hero["yi_sun_sin"].unit_id).guns_l.size() == 3, "panokseon: no sockets, three made ports a side")
 	var cards: Array = shell.ally_cards() + shell.enemy_cards()
 	expect(cards.size() == 10 and cards.all(func(card): return card.visible and TYPE_NAMES.values().has(card.type_name) and card.troop_icon == null and card.portrait != null), "roster cards: ten, ship type names, portraits, no troop icons")
 	var actor: Dictionary = shell.current_actor()
@@ -155,6 +201,25 @@ func run() -> void:
 	for cell in islands:
 		var to_island: Dictionary = lab.queries.query(by_hero["yi_sun_sin"].unit_id, cell)
 		expect(not to_island.can_preview and to_island.path.is_empty() and not to_island.reachable.has(cell), "island %s: no path, no move preview" % str(cell))
+
+	# Reply 3: a ship moving along a path opens its sails and rows; at rest again it furls them and stops. The path is
+	# set by the test on the lab's presentation only (one cell out and back, twice); the engine is not asked to move.
+	for hero in ["yi_sun_sin", "kato_kiyomasa"]:
+		var mover: BattleUnitState = by_hero[hero]
+		var mover_info: Dictionary = visuals.ship_info(lab, mover.unit_id)
+		var aside := Vector2i(-1, -1)
+		for step in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var next: Vector2i = mover.grid_cell + step
+			if aside.x < 0 and next.x >= 0 and next.y >= 0 and next.x < 18 and next.y < 10 and not islands.has(next) and not occupied.has(next): aside = next
+		lab.playback[mover.unit_id] = {"path":[mover.grid_cell, aside, mover.grid_cell, aside, mover.grid_cell], "index":1}
+		await create_timer(0.6).timeout
+		expect(lab.playback.has(mover.unit_id) and mover_info.moving and is_equal_approx(mover_info.sail, 1.0) and sails_are(mover_info, true), "%s moving: sails open" % hero)
+		expect(mover_info.oars.is_playing() and mover_info.oars.current_animation == "Oar_Row" and mover_info.oars.get_animation("Oar_Row").loop_mode == Animation.LOOP_LINEAR, "%s moving: the oars row (Oar_Row, looping)" % hero)
+		var move_started := Time.get_ticks_msec()
+		while lab.playback.has(mover.unit_id) and Time.get_ticks_msec() - move_started < 10000: await process_frame
+		await create_timer(0.5).timeout
+		expect(not lab.playback.has(mover.unit_id) and not mover_info.moving and is_zero_approx(mover_info.sail) and sails_are(mover_info, false) and not mover_info.oars.is_playing(), "%s at rest again: sails furled, oars still" % hero)
+		expect(lab.views[mover.unit_id].position.distance_to(lab.board.world(mover.grid_cell)) < 0.01, "%s is back on its cell" % hero)
 
 	# 4: each type's weapons, by the lab's own attack call.
 	var target_id: String = by_hero["kato_kiyomasa"].unit_id
@@ -246,8 +311,12 @@ func run() -> void:
 	lab.request_auto()
 	expect(engine.is_full_auto_battle_enabled, "auto accepted")
 	var started := Time.get_ticks_msec()
+	var rowing_frames := 0 # frames in which a ship on a path had its oars rowing and its sails opening (engine moves)
 	while lab.battle_result.is_empty() and Time.get_ticks_msec() - started < 240000:
 		await process_frame
+		for id in lab.playback:
+			var moving_info: Dictionary = visuals.ship_info(lab, id)
+			if not moving_info.is_empty() and moving_info.moving and moving_info.sail > 0.0 and moving_info.oars.is_playing(): rowing_frames += 1
 	var ended := Time.get_ticks_msec() # the result panel comes after the shell's ending toast, however long a frame takes
 	while not shell.result_panel.visible and Time.get_ticks_msec() - ended < 60000: await process_frame
 	await frames(30)
@@ -259,13 +328,34 @@ func run() -> void:
 		if unit.current_troops <= 0: dead.append(unit.unit_id)
 	expect(dead.size() >= 1 and dead.all(func(id): return visuals.sink_records.has(id) and not lab.soldiers[id][0].visible), "%d ship(s) lost, each sank and is hidden (%s)" % [dead.size(), str(visuals.sink_records)])
 	expect(visuals.cannon.records.any(func(r): return r.kind == "sink_smoke"), "sinking smoke was shown")
+	expect(rowing_frames > 0, "ships moved by the engine rowed with their sails opening (%d frames)" % rowing_frames)
 
-	# Restart: a fresh naval battle; then closing: the land board is back.
+	# Restart: a fresh naval battle. This one runs with the rules' model_path taken out (and no <unit_type>.glb in the
+	# folder): every ship is a stand-in, as before the models were delivered. Then closing: the land board is back.
+	var model_paths := {}
+	for kind in TYPE_MODELS:
+		model_paths[kind] = UnitTypeContract.naval_rules()[kind].get("model_path", "")
+		UnitTypeContract.naval_rules()[kind].erase("model_path")
+		expect(ShipVisuals.model_path(kind) == "", "%s without model_path: no model file" % kind)
 	shell.restart_button.pressed.emit()
 	await process_frame
 	lab = shell.lab
 	while not lab.ready_for_input: await process_frame
+	await physics_frame
+	await frames(3)
 	expect(shell.lab_count == 2 and lab.unit_visuals is ShipVisuals and lab.battle_result.is_empty() and Board.source_paths.get("heightfield", "") == scenario.heightfield, "restart: a new naval lab")
+	visuals = lab.unit_visuals
+	expect(visuals.model_sources.size() == 10 and visuals.model_sources.values().all(func(source): return source == "placeholder"), "no model_path: ten stand-in ships (%s)" % str(visuals.model_sources.values()))
+	for id in visuals.model_sources:
+		var stand_in: Node3D = lab.soldiers[id][0]
+		var stand_in_info: Dictionary = visuals.ship_info(lab, id)
+		var stand_in_box := AABB()
+		for part in stand_in.find_children("*", "MeshInstance3D", true, false): stand_in_box = stand_in_box.merge(stand_in_info.body.global_transform.affine_inverse() * part.global_transform * part.get_aabb())
+		expect(stand_in_box.size.x <= stand_in_box.size.z and absf(stand_in_box.size.z - float(rules[stand_in_info.kind].ship_length)) <= 0.05 and stand_in.find_child("Flag", true, false) != null
+			and stand_in_info.oars == null and stand_in_info.sails_open.is_empty() and stand_in_info.guns_l.size() == 3 and stand_in_info.guns_f.is_empty(),
+			"%s stand-in: its type's length, a flag, made gun ports (%.2f x %.2f m)" % [id, stand_in_box.size.x, stand_in_box.size.z])
+	for kind in model_paths: UnitTypeContract.naval_rules()[kind]["model_path"] = model_paths[kind]
+	expect(TYPE_MODELS.keys().all(func(kind): return ShipVisuals.model_path(kind) == MODEL_DIR + TYPE_MODELS[kind]), "the rules' model paths are back")
 	shell._close_lab()
 	shell.free()
 	await process_frame

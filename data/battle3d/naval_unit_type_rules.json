@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "note": "큐 35 수전 배 4종 규칙. unit_type_rules.json(육전 5종, 생성 파일)과 같은 칸 구조이고 UnitTypeContract가 추가로 읽는다. 값은 클코치 제안·김작 미확정.",
+ "note": "큐 35 수전 배 4종 규칙. unit_type_rules.json(육전 5종, 생성 파일)과 같은 칸 구조이고 UnitTypeContract가 추가로 읽는다. 값은 클코치 제안·김작 미확정. model_path = 배 모델(답신 3, 없으면 assets/battle3d/naval/<unit_type>.glb, 그것도 없으면 임시 모형). sail_color = 돛 색(나라 색, 클코치 제안·김작 미확정): 조선 청 #2F5D8A / 일본 적 #A3402A / 중국 녹 #2E7D32(중국 배 규칙은 아직 없음).",
  "unit_types": [
   {
    "unit_type": "turtle_ship",
@@ -34,6 +34,8 @@
     "cannon"
    ],
    "ship_length": 2.4,
+   "model_path": "res://assets/battle3d/naval/geobukseon_game_v2.glb",
+   "sail_color": "#2F5D8A",
    "passive": "받는 피해 -20%(덮개), 주는 피해 +10%(근접 돌격)"
   },
   {
@@ -69,6 +71,8 @@
     "arrow"
    ],
    "ship_length": 2.6,
+   "model_path": "res://assets/battle3d/naval/panokseon_game_v2.glb",
+   "sail_color": "#2F5D8A",
    "passive": "표준 전열함"
   },
   {
@@ -104,6 +108,8 @@
     "arrow"
    ],
    "ship_length": 2.8,
+   "model_path": "res://assets/battle3d/naval/jp_atakebune_game_v1.glb",
+   "sail_color": "#A3402A",
    "passive": "받는 피해 -10%, 주는 피해 +8%(등선 백병)"
   },
   {
@@ -138,6 +144,8 @@
     "gun"
    ],
    "ship_length": 2.2,
+   "model_path": "res://assets/battle3d/naval/jp_sekibune_game_v1.glb",
+   "sail_color": "#A3402A",
    "passive": "받는 피해 +10%, 빠름"
   }
  ]
