@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "note": "큐 35 답신 4. 3D 전투 정보창 오른쪽 끝 지형 칸: 현재 행동 유닛이 선 칸의 지형 이름 → 표시 글자와 그림. 여기 없는 지형은 평지 글자와 평지 그림으로 나온다. hill을 평지로 둔 것은 육전 화면을 바꾸지 않기 위해서다(언덕 글자·그림은 이 줄만 바꾸면 된다). 방어·이동 %는 아직 0% 고정.",
+ "terrains": {
+  "sea": {
+   "name": "바다",
+   "icon": "res://assets/ui/battle/current_actor_icons/terrain_sea.png"
+  },
+  "plain": {
+   "name": "평지",
+   "icon": "res://assets/ui/battle/current_actor_icons/terrain_plain.png"
+  },
+  "hill": {
+   "name": "평지",
+   "icon": "res://assets/ui/battle/current_actor_icons/terrain_plain.png"
+  },
+  "island": {
+   "name": "섬",
+   "icon": "res://assets/ui/battle/current_actor_icons/terrain_plain.png"
+  }
+ }
+}

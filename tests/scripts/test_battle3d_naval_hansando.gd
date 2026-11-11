@@ -175,9 +175,18 @@ func run() -> void:
 	var actor: Dictionary = shell.current_actor()
 	expect(actor.is_empty() or TYPE_NAMES.values().has(actor.type_name), "current actor panel shows a ship type")
 	await frames(2)
-	# Scenario edit (11-11): Yi Sun-sin sails the turtle ship, Kim Deok-ryeong the panokseon flagship.
-	expect(by_hero["yi_sun_sin"].unit_type == "turtle_ship" and by_hero["yi_sun_sin"].grid_cell == Vector2i(10, 6) and by_hero["yi_sun_sin"].max_troops == 80, "Yi Sun-sin: the turtle ship at (10, 6), troops 80")
-	expect(by_hero["kim_deok_ryeong"].unit_type == "panokseon" and by_hero["kim_deok_ryeong"].grid_cell == Vector2i(8, 7) and by_hero["kim_deok_ryeong"].max_troops == 120, "Kim Deok-ryeong: the panokseon flagship at (8, 7), troops 120")
+	# Scenario edits (11-11): Yi Sun-sin sails the turtle ship, Kim Deok-ryeong the panokseon; reply 4: Yi Sun-sin has
+	# the flagship's troops (design 3000) and the flagship mark.
+	expect(by_hero["yi_sun_sin"].unit_type == "turtle_ship" and by_hero["yi_sun_sin"].grid_cell == Vector2i(10, 6) and by_hero["yi_sun_sin"].max_troops == 120, "Yi Sun-sin: the turtle ship at (10, 6), troops 120")
+	expect(by_hero["kim_deok_ryeong"].unit_type == "panokseon" and by_hero["kim_deok_ryeong"].grid_cell == Vector2i(8, 7) and by_hero["kim_deok_ryeong"].max_troops == 80, "Kim Deok-ryeong: the panokseon at (8, 7), troops 80")
+	var flagships: Array = scenario.ships.filter(func(s): return s.side == "ally" and String(s.get("role", "")) == "기함")
+	expect(flagships.size() == 1 and flagships[0].hero_id == "yi_sun_sin" and int(flagships[0].troops_design) == 3000, "the Joseon flagship is Yi Sun-sin's ship (design troops 3000)")
+	# Reply 4: the panel's terrain cell shows the terrain of the cell the current actor stands on: the sea.
+	var panel = shell.actor_hud
+	expect(lab.hud_actor_terrain() == lab.board.terrain(engine.active_unit_state.grid_cell) and lab.hud_actor_terrain() == "sea", "the lab reads the active unit's cell terrain: %s" % lab.hud_actor_terrain())
+	expect(panel.visible and panel.terrain_shown == "sea" and panel.terrain_name == "바다" and (panel.hud.get_node("TerrainArea/TerrainNameLabel") as Label).text == "바다"
+		and panel.terrain_icon_path == "res://assets/ui/battle/current_actor_icons/terrain_sea.png" and (panel.hud.get_node("TerrainArea/TerrainImageSlot/BoundTerrainIcon") as TextureRect).texture.resource_path == panel.terrain_icon_path
+		and (panel.hud.get_node("TerrainArea/TerrainEffectLabel") as Label).text == "방어 0%\n이동 0%", "naval panel terrain cell: 바다, the sea picture, 0% lines (%s, %s)" % [panel.terrain_name, panel.terrain_icon_path])
 	var overlay: Node = lab.get_node("NavalOverlay")
 	expect(overlay.title_label.text == "한산도 대첩" and overlay.title_label.visible, "title under the top HUD: %s" % overlay.title_label.text)
 
@@ -380,6 +389,33 @@ func run() -> void:
 	expect(not lab.engine.has_meta(Naval.META_BATTLE_TYPE) and Naval.battle_type(lab.engine, lab.engine.worldmap_battle_context) == "land" and lab.forest_cells().size() > 0
 		and lab.engine.all_battle_unit_states.all(func(unit): return UnitTypeContract.CANONICAL_UNIT_TYPES.has(unit.unit_type)), "land lab: battle_type land, forest cells, land unit types")
 	expect(land_shell.choose_button != null and lab.hud_unit_type_name("archer") == "궁병" and lab.hud_unit_type_name("nothing") == "부대", "land lab: unit type names as before")
+	# Reply 4, land: whatever cell the actor stands on, the terrain cell shows the plain as before (plain and hill are
+	# listed as the plain, the other land terrains are not listed). A terrain that is not in the table falls to the plain.
+	const PLAIN_ICON := "res://assets/ui/battle/current_actor_icons/terrain_plain.png"
+	await frames(3)
+	var land_panel = land_shell.actor_hud
+	var land_name := land_panel.hud.get_node("TerrainArea/TerrainNameLabel") as Label
+	var land_icon := land_panel.hud.get_node("TerrainArea/TerrainImageSlot/BoundTerrainIcon") as TextureRect
+	var land_terrains := {}
+	for y in range(10):
+		for x in range(18): land_terrains[lab.board.terrain(Vector2i(x, y))] = true
+	expect(land_panel.visible and not lab.hud_actor_terrain().is_empty() and lab.hud_actor_terrain() != "sea" and land_panel.terrain_shown == lab.hud_actor_terrain() and land_name.text == "평지" and land_icon.texture.resource_path == PLAIN_ICON,
+		"land panel terrain cell: 평지 and the plain picture on a %s cell" % lab.hud_actor_terrain())
+	expect(land_terrains.has("plain") and land_terrains.has("hill") and not land_terrains.has("sea"), "the land board has plain and hill cells, no sea (%s)" % str(land_terrains.keys()))
+	for terrain in land_terrains.keys() + ["not_a_terrain"]:
+		land_panel.show_terrain(terrain)
+		expect(land_panel.terrain_shown == terrain and land_name.text == "평지" and land_panel.terrain_icon_path == PLAIN_ICON and land_icon.texture.resource_path == PLAIN_ICON, "land terrain %s: 평지, the plain picture" % terrain)
+	land_panel.show_terrain("island")
+	expect(land_name.text == "섬" and land_icon.texture.resource_path == PLAIN_ICON, "island: 섬, the plain picture")
+	land_panel.show_terrain("sea")
+	expect(land_name.text == "바다" and land_icon.texture.resource_path.ends_with("terrain_sea.png"), "sea by the table: 바다, the sea picture")
+	land_panel.show_terrain("")
+	expect(land_name.text == "바다", "no terrain asked: the cell keeps what it shows")
+	await frames(2)
+	expect(land_name.text == "평지" and land_icon.texture.resource_path == PLAIN_ICON, "the next frame the panel shows the actor's cell again: 평지")
+	var table: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/battle3d/terrain_hud_labels.json")).terrains
+	expect(table.keys().size() == 4 and table.sea.name == "바다" and table.plain.name == "평지" and table.hill.name == "평지" and table.island.name == "섬" and table.values().all(func(entry): return ResourceLoader.exists(entry.icon)),
+		"the table lists sea, plain, hill and island; every picture exists")
 	land_shell._close_lab()
 	land_shell.free()
 	await process_frame

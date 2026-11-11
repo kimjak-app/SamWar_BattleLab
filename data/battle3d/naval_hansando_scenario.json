@@ -59,27 +59,27 @@
    "side": "ally",
    "unit_type": "panokseon",
    "hero_id": "kim_deok_ryeong",
-   "troops_design": 3000,
-   "troops": 120,
+   "troops_design": 2000,
+   "troops": 80,
    "grid_cell": [
     8,
     7
    ],
-   "facing": "up",
-   "role": "기함"
+   "facing": "up"
   },
   {
    "engine_unit_id": "jeong_dojeon",
    "side": "ally",
    "unit_type": "turtle_ship",
    "hero_id": "yi_sun_sin",
-   "troops_design": 2000,
-   "troops": 80,
+   "troops_design": 3000,
+   "troops": 120,
    "grid_cell": [
     10,
     6
    ],
-   "facing": "up"
+   "facing": "up",
+   "role": "기함"
   },
   {
    "engine_unit_id": "gwon_yul",

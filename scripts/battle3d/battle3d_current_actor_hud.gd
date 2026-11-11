@@ -8,6 +8,10 @@ extends CanvasLayer
 # plus battle_status_empty_legend_controller.gd (ProductionEmptyStatusLegend).
 # It shows the actor values handed to it by the scenario shell (show_actor) and
 # reads nothing from the engine. Every node ignores the mouse.
+# Queue 35 reply 4: the terrain cell shows the terrain of the cell the current actor stands on. The panel asks the lab
+# of the shell it sits under (hud_actor_terrain) every frame and looks the answer up in TERRAIN_LABELS_PATH (board
+# terrain -> name and picture). A terrain that is not listed, or no table, shows the plain as before. The defence and
+# move lines stay at 0%.
 const UNIQUE_SKILL_READY_BADGE := preload("res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png")
 const ICON_STAT_COMMAND := preload("res://assets/ui/battle/current_actor_icons/stat_command.png")
 const ICON_STAT_MIGHT := preload("res://assets/ui/battle/current_actor_icons/stat_might.png")
@@ -19,6 +23,7 @@ const ICON_TERRAIN_PLAIN := preload("res://assets/ui/battle/current_actor_icons/
 const TERRAIN_NAME := "평지"
 const TERRAIN_DEFENSE := "방어 0%"
 const TERRAIN_MOVE := "이동 0%"
+const TERRAIN_LABELS_PATH := "res://data/battle3d/terrain_hud_labels.json"
 const LEGEND_FONT_SIZE := 14
 const LEGEND_TEXT_COLOR := Color(0.82, 0.80, 0.73, 0.78)
 const LEGEND_ITEMS := [
@@ -35,6 +40,10 @@ var badge: TextureRect
 var legend: Control
 var shown: Dictionary = {"_": true} # last applied actor values; the nodes change only when these change
 var apply_count := 0
+var terrain_labels := {} # board terrain -> {name, icon}, from TERRAIN_LABELS_PATH
+var terrain_shown := "" # the board terrain the cell shows ("" = none asked yet: the plain)
+var terrain_name := TERRAIN_NAME # the name the cell shows
+var terrain_icon_path := ICON_TERRAIN_PLAIN.resource_path # the picture the cell shows
 
 func _ready() -> void:
 	hud = get_node("ProductionHudRoot/CurrentActorInfoHud")
@@ -45,6 +54,7 @@ func _ready() -> void:
 	_ensure_badge()
 	_ensure_legend()
 	_set_terrain()
+	terrain_labels = _read_terrain_labels()
 	_ignore_mouse(get_node("ProductionHudRoot"))
 	show_actor({})
 
@@ -91,7 +101,32 @@ func show_actor(actor: Dictionary) -> void:
 		(hud.get_node(row_path) as Control).tooltip_text = str(rows[index].get("tooltip", ""))
 	legend.visible = rows.is_empty() # the 2D legend: shown while no displayable status (부상 excluded)
 
+## Shows the name and picture of a board terrain ("sea", "plain", ...) in the terrain cell. "" keeps what is shown.
+func show_terrain(terrain: String) -> void:
+	if terrain.is_empty() or terrain == terrain_shown: return
+	terrain_shown = terrain
+	var entry: Dictionary = terrain_labels.get(terrain, {})
+	var icon: Texture2D = ICON_TERRAIN_PLAIN
+	var icon_path := String(entry.get("icon", ""))
+	if not icon_path.is_empty() and ResourceLoader.exists(icon_path): icon = load(icon_path) as Texture2D
+	if icon == null: icon = ICON_TERRAIN_PLAIN
+	terrain_name = String(entry.get("name", TERRAIN_NAME))
+	terrain_icon_path = icon.resource_path
+	_text("TerrainArea/TerrainNameLabel", terrain_name)
+	_text("TerrainArea/TerrainImageSlot/PlaceholderLabel", terrain_name)
+	_bound("TerrainArea/TerrainImageSlot", icon, "BoundTerrainIcon", TextureRect.STRETCH_KEEP_ASPECT_COVERED, true)
+	_ignore_mouse(hud.get_node("TerrainArea"))
+
+static func _read_terrain_labels() -> Dictionary:
+	if not FileAccess.file_exists(TERRAIN_LABELS_PATH): return {}
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(TERRAIN_LABELS_PATH))
+	var terrains: Variant = (parsed as Dictionary).get("terrains") if parsed is Dictionary else null
+	return terrains if terrains is Dictionary else {}
+
 func _process(_delta: float) -> void:
+	# The terrain under the current actor, from the lab of the shell this panel sits under (none: nothing changes).
+	var lab: Variant = get_parent().get("lab") if visible and get_parent() != null else null
+	if lab != null and is_instance_valid(lab) and lab.has_method("hud_actor_terrain"): show_terrain(lab.hud_actor_terrain())
 	# The 2D badge pulse (refreshed every frame while shown).
 	if badge.visible: badge.modulate = Color(1.0, 1.0, 1.0, 0.88 + 0.12 * sin(float(Time.get_ticks_msec()) / 220.0))
 

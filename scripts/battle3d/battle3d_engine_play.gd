@@ -202,6 +202,12 @@ func hud_active_unit_id() -> String:
 	var unit = engine.get("active_unit_state")
 	return "" if unit == null else String(unit.unit_id)
 
+func hud_actor_terrain() -> String:
+	# Queue 35 reply 4: the board terrain of the cell the active unit stands on ("" = no active unit), for the
+	# current-actor panel's terrain cell.
+	var unit = engine.get("active_unit_state")
+	return "" if unit == null else String(board.terrain(unit.grid_cell))
+
 func hud_ally_actor_id() -> String:
 	# The 2D roster's gold frame on the ally side: active_unit_state during the ally input phases.
 	var unit = engine.get("active_unit_state")
