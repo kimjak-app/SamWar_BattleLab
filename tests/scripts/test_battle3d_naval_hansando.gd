@@ -166,15 +166,18 @@ func run() -> void:
 	for ship in scenario.ships:
 		if by_hero.has(ship.hero_id): cloths[(visuals.ship_info(lab, by_hero[ship.hero_id].unit_id).sails_open[0] as MeshInstance3D).get_surface_override_material(0)] = true
 	expect(cloths.size() == 10, "ten ships, ten sail cloths (%d)" % cloths.size())
-	var turtle: Dictionary = visuals.ship_info(lab, by_hero["kim_deok_ryeong"].unit_id)
+	var turtle: Dictionary = visuals.ship_info(lab, by_hero["yi_sun_sin"].unit_id)
 	expect(turtle.guns_l.size() == 5 and turtle.guns_r.size() == 5 and turtle.guns_f.size() == 3 and (turtle.guns_l + turtle.guns_r + turtle.guns_f).all(func(port): return String(port.name).begins_with("CannonSocket_")),
 		"turtle ship: its gun ports are the model's 13 cannon sockets")
-	expect(visuals.ship_info(lab, by_hero["yi_sun_sin"].unit_id).guns_f.is_empty() and visuals.ship_info(lab, by_hero["yi_sun_sin"].unit_id).guns_l.size() == 3, "panokseon: no sockets, three made ports a side")
+	expect(visuals.ship_info(lab, by_hero["kim_deok_ryeong"].unit_id).guns_f.is_empty() and visuals.ship_info(lab, by_hero["kim_deok_ryeong"].unit_id).guns_l.size() == 3, "panokseon: no sockets, three made ports a side")
 	var cards: Array = shell.ally_cards() + shell.enemy_cards()
 	expect(cards.size() == 10 and cards.all(func(card): return card.visible and TYPE_NAMES.values().has(card.type_name) and card.troop_icon == null and card.portrait != null), "roster cards: ten, ship type names, portraits, no troop icons")
 	var actor: Dictionary = shell.current_actor()
 	expect(actor.is_empty() or TYPE_NAMES.values().has(actor.type_name), "current actor panel shows a ship type")
 	await frames(2)
+	# Scenario edit (11-11): Yi Sun-sin sails the turtle ship, Kim Deok-ryeong the panokseon flagship.
+	expect(by_hero["yi_sun_sin"].unit_type == "turtle_ship" and by_hero["yi_sun_sin"].grid_cell == Vector2i(10, 6) and by_hero["yi_sun_sin"].max_troops == 80, "Yi Sun-sin: the turtle ship at (10, 6), troops 80")
+	expect(by_hero["kim_deok_ryeong"].unit_type == "panokseon" and by_hero["kim_deok_ryeong"].grid_cell == Vector2i(8, 7) and by_hero["kim_deok_ryeong"].max_troops == 120, "Kim Deok-ryeong: the panokseon flagship at (8, 7), troops 120")
 	var overlay: Node = lab.get_node("NavalOverlay")
 	expect(overlay.title_label.text == "한산도 대첩" and overlay.title_label.visible, "title under the top HUD: %s" % overlay.title_label.text)
 
@@ -284,7 +287,9 @@ func run() -> void:
 	var yi_id: String = yi.unit_id
 	var near: BattleUnitState = by_hero["kuroda_nagamasa"]
 	var far: BattleUnitState = by_hero["honda_tadakatsu"]
-	for placed in [[near, Vector2i(8, 4)], [far, Vector2i(11, 4)]]:
+	var near_cell: Vector2i = yi.grid_cell + Vector2i(0, -3) # (10, 3)
+	var far_cell: Vector2i = near_cell + Vector2i(3, 0) # (13, 3)
+	for placed in [[near, near_cell], [far, far_cell]]:
 		placed[0].set_grid_cell(placed[1])
 		engine.call("_sync_resumed_unit_markers_to_grid", placed[0])
 	engine.battle_momentum.gain("ally", 5, "test arrangement")
@@ -295,7 +300,7 @@ func run() -> void:
 	var troops_before := {near.unit_id: near.current_troops, far.unit_id: far.current_troops}
 	lab.request_skill()
 	await frames(2)
-	if engine.current_phase == "unique_skill_target_select": lab._click_skill_cell(Vector2i(8, 4))
+	if engine.current_phase == "unique_skill_target_select": lab._click_skill_cell(near_cell)
 	var skill_started := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - skill_started < 60000 and (lab.hud_skill_casts.is_empty() or lab._presentation_busy() or lab.hud_cutin_hold or engine.current_phase != "ally_turn" or engine.is_demo_animating):
 		await process_frame
