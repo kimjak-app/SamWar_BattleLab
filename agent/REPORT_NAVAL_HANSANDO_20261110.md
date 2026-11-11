@@ -297,4 +297,4 @@ aval\`(로그·캡처 원본·증거 촬영 스크립트)에만 있다.
   - 학익진 확인의 적 배치를 이순신의 새 칸 기준으로 옮겼다: 대상 (10, 3), 거기서 3칸 떨어진 배 (13, 3). 확인 내용은 같다.
   - 로컬 `[NAVAL_HANSANDO] checks=251 failures=[]` (249 → 251), `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`.
 - 바꾼 파일은 대본과 수전 시험 2개뿐이다. 증거 사진(`ships_*.jpg`)은 교체 전에 찍은 것이라 얼굴 칩이 이전 조합이다. 다시 찍지 않았다.
-- CI: @@CI_SWAP@@
+- CI: Verify C-track refactor `43034877261`(`6156bc3`) 4 shard 전부 success(재실행 없음, 첫 시도). shard 0의 컷인 길이 검사도 이번에는 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=251 failures=[]`. 이 커밋은 답신 3 코드(`c727472`)를 포함한다. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.

@@ -10,9 +10,9 @@
 
 ### 2026-11-11 — 큐 35번 대본 수정 (이순신 거북선, 김덕령 판옥선 기함 — 김작 지시)
 - 현재 단계: 35번 답신 3 뒤 대본 수정, 가지 `feature/wm3d-naval-20261110`
-- 마지막 코드 커밋: @@CODE_SWAP@@
+- 마지막 코드 커밋: `6156bc3db7f2f44de1ede976b0501688399a1c71`
 - 마지막 보고서: `agent/REPORT_NAVAL_HANSANDO_20261110.md` "대본 수정" 절
-- CI: @@CI_SWAP@@
+- CI: Verify C-track refactor `43034877261`(`6156bc3`) 4 shard 전부 success(재실행 없음, 첫 시도). shard 0의 컷인 길이 검사도 이번에는 통과했다. 수전 시험: shard 1 `[BATTLE_SETUP_NAVAL] checks=64 failures=[]`, shard 2 `[NAVAL_HANSANDO] checks=251 failures=[]`. 이 커밋은 답신 3 코드(`c727472`)를 포함한다. Verify WorldMap3D는 경로 조건에 안 걸려 실행되지 않았다.
 - 대본과 수전 시험만 변경. 김작 지시: shard 0이 컷인 길이 검사만으로 빨가면 멈추지 않고 보고만 한다
 - 다음 할 일: 김작 F6. 답신 3 멈춤 보고(A/B/C)에 대한 클코치 답신은 여전히 대기
 - 멈춘 이유: 없음
