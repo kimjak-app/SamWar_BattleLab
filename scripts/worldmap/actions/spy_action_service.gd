@@ -176,6 +176,9 @@ func _validate_spy_action(action_id: String, target_city_id: String = "") -> Dic
 			check = {"ok": false, "reason": "invalid_action"}
 	var city_data := _adapter.call("_get_city_hud_entry", resolved_city_id)
 	var target_faction_id := _adapter.call("_get_city_owner_faction_id", city_data) if not city_data.is_empty() else ""
+	# Queue 39: an unclaimed city (빈 성) is never a spy target.
+	if bool(check.get("ok", false)) and WorldMapUnclaimedCityRules.is_unclaimed_owner(target_faction_id):
+		check = {"ok": false, "reason": WorldMapUnclaimedCityRules.REJECT_REASON}
 	var result := check.duplicate(true)
 	result["action_id"] = action_id
 	result["action_label"] = str(definition.get("label", action_id))

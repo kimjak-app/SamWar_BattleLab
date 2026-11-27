@@ -382,7 +382,7 @@ func _format_region_label(region_id: String) -> String:
 
 func _format_faction_label(owner_faction_id: String) -> String:
 	if owner_faction_id.is_empty():
-		return "정보 없음"
+		return WorldMapUnclaimedCityRules.OWNER_LABEL  # Queue 39: an owner-less city is an unclaimed city (빈 성).
 	return str(FACTION_LABELS.get(owner_faction_id, owner_faction_id))
 
 

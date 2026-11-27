@@ -937,7 +937,7 @@ shape = SubResource("CircleShape2D_city_click")
 position = Vector2(1029.5, 272.5)
 script = ExtResource("6_city_marker")
 city_id = "karakorum"
-display_name = "카라코룸"
+display_name = "상도"
 region_id = "region.northern_steppe"
 owner_faction_id = "mongol_faction"
 neighbors = Array[String](["pyeongyang", "yecheng"])
@@ -966,7 +966,7 @@ texture = ExtResource("9_7yvie")
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1787550722]
 position = Vector2(0, 16)
 script = ExtResource("7_city_name_label")
-text = "카라코룸"
+text = "상도"
 
 [node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=918498995]
 

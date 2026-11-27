@@ -386,6 +386,13 @@ EXPECTED_P0_STOCK_FROZEN_DELTAS: dict[str, list[str]] = {'scripts/worldmap/actio
                                                                     '+']}
 
 
+# Queue 39 CITIES65 0.7 (Kim approved 11-27, re-pin allowed): the code commit that added the 52 unclaimed cities.
+# worldmap_main.gd must equal that commit and differ from the P0-stock text by exactly this delta (CITY_HUD_DATA rows,
+# 상도 name, the roster call). Empty checkpoint = not approved yet.
+CITIES65_CHECKPOINT = ""
+EXPECTED_CITIES65_MAIN_DELTA: list[str] = []
+
+
 def line_delta(old_text: str, new_text: str) -> list[str]:
     return [
         line
@@ -404,14 +411,20 @@ def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_ma
         "P-1 worldmap_main.gd delta no longer matches the approved exact delta"
     )
     approved_main = git_show_text(root, P0_STOCK_CHECKPOINT, main_path) if P0_STOCK_CHECKPOINT else p1_main
-    assert current_main == approved_main, (
-        "worldmap_main.gd changed after the approved P-1/P0-stock checkpoint; review a new exact delta "
-        "instead of relaxing the guard"
-    )
     if P0_STOCK_CHECKPOINT:
         assert line_delta(p1_main, approved_main) == EXPECTED_P0_STOCK_MAIN_DELTA, (
             "P0-stock worldmap_main.gd delta no longer matches the approved exact delta"
         )
+    if CITIES65_CHECKPOINT:
+        cities65_main = git_show_text(root, CITIES65_CHECKPOINT, main_path)
+        assert line_delta(approved_main, cities65_main) == EXPECTED_CITIES65_MAIN_DELTA, (
+            "CITIES65 worldmap_main.gd delta no longer matches the approved exact delta"
+        )
+        approved_main = cities65_main
+    assert current_main == approved_main, (
+        "worldmap_main.gd changed after the approved P-1/P0-stock/CITIES65 checkpoint; review a new exact delta "
+        "instead of relaxing the guard"
+    )
 
 
 def frozen_text_matches(root, path: str, expected_text: str, current_text: str) -> bool:

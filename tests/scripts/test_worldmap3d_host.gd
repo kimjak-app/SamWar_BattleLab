@@ -92,7 +92,7 @@ func _run() -> void:
 		var city3d: Dictionary = root3d.cities.get(city_id, {})
 		if str(city3d.get("owner", "")) != want_owner or int(city3d.get("troops", -1)) != want_troops:
 			bad.append([city_id, city3d.get("owner", ""), want_owner, city3d.get("troops", -1), want_troops])
-	_expect(markers.size() == 13, "13 city markers (%d)" % markers.size())
+	_expect(markers.size() == 65, "65 city markers (13 scene + 52 unclaimed, queue 39) (%d)" % markers.size())
 	_expect(bad.is_empty(), "every city: 3D owner and troops = game values %s" % str(bad))
 
 	# 5. runtime changes follow (host syncs every SYNC_INTERVAL = 0.25 s)

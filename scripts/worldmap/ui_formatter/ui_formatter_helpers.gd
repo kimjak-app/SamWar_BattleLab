@@ -76,6 +76,8 @@ static func format_region_label(region_id: String, region_labels: Dictionary) ->
 
 
 static func format_faction_label(owner_faction_id: String, faction_labels: Dictionary) -> String:
+	if WorldMapUnclaimedCityRules.is_unclaimed_owner(owner_faction_id):
+		return WorldMapUnclaimedCityRules.OWNER_LABEL  # Queue 39: 빈 성.
 	return str(faction_labels.get(owner_faction_id, owner_faction_id))
 
 

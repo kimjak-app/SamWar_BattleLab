@@ -1,7 +1,9 @@
 extends SceneTree
 
 # T-WM3D-06: one road network for 2D and 3D (18 roads = 13 land + 5 sea).
-# 1. WorldMap.tscn Route nodes (start/end/route_type) == rule_data_eastasia.json roads (land) + sea_routes (sea).
+# Queue 39 (CITIES65 0.7): the 3D rule data is the 0.7 network (100 land + 20 sea). The 18 WorldMap.tscn routes stay the
+# gameplay links of the 13 legacy cities (unchanged until faction placement); a pair present in both keeps one type.
+# 1. WorldMap.tscn Route nodes (start/end/route_type) agree in type with rule_data_eastasia.json roads / sea_routes.
 # 2. WorldMap.tscn CityMarker neighbors (undirected pairs) == the same 18 pairs.
 # 3. The real 3D scene (worldmap3d_eastasia.tscn) builds 13 land paths + 5 sea paths with ribbon triangles.
 # 4. Sea paths stay on sea cells (grid height <= 2.0 m); land paths stay on land cells (> 2.0 m).
@@ -36,14 +38,11 @@ func _run() -> void:
 
 	# 1. pairs and types
 	_expect(routes2d.size() == 18, "2D Route nodes == 18 (got %d)" % routes2d.size())
-	_expect(rules.roads.size() == 13 and rules.sea_routes.size() == 5, "3D rule data: 13 roads + 5 sea routes")
-	_expect(routes3d.size() == routes2d.size(), "2D route count == 3D route count (%d vs %d)" % [routes2d.size(), routes3d.size()])
+	_expect(rules.roads.size() == 100 and rules.sea_routes.size() == 20, "3D rule data: 100 roads + 20 sea routes (0.7)")
+	_expect(routes3d.size() == 120, "3D route pairs are unique (got %d)" % routes3d.size())
 	for k in routes3d:
-		_expect(routes2d.has(k), "2D has route %s" % k)
 		if routes2d.has(k):
 			_expect(routes2d[k] == routes3d[k], "route %s type 2D %s == 3D %s" % [k, routes2d[k], routes3d[k]])
-	for k in routes2d:
-		_expect(routes3d.has(k), "3D has route %s" % k)
 
 	# 2. neighbors == routes
 	_expect(scene.marker_count == 13, "13 CityMarker nodes (got %d)" % scene.marker_count)
@@ -63,12 +62,12 @@ func _run() -> void:
 	var sea_v = roads.get("sea_paths") if roads != null else null
 	var sea_paths: Array = sea_v if sea_v is Array else []
 	_expect(bool(root.get("show_roads")), "3D scene: show_roads on")
-	_expect(land_paths.size() == 13, "3D land paths == 13 (got %d)" % land_paths.size())
-	_expect(sea_paths.size() == 5, "3D sea paths == 5 (got %d)" % sea_paths.size())
+	_expect(land_paths.size() == 100, "3D land paths == 100 (got %d)" % land_paths.size())
+	_expect(sea_paths.size() == 20, "3D sea paths == 20 (got %d)" % sea_paths.size())
 	_expect(int(stats.get("road_tris", 0)) > 0, "stats.road_tris > 0 (%d)" % int(stats.get("road_tris", 0)))
 	_expect(int(stats.get("sea_route_tris", 0)) > 0, "stats.sea_route_tris > 0 (%d)" % int(stats.get("sea_route_tris", 0)))
-	_expect(int(stats.get("road_count", -1)) == 13, "stats.road_count == 13")
-	_expect(int(stats.get("sea_route_count", -1)) == 5, "stats.sea_route_count == 5")
+	_expect(int(stats.get("road_count", -1)) == 100, "stats.road_count == 100")
+	_expect(int(stats.get("sea_route_count", -1)) == 20, "stats.sea_route_count == 20")
 	_expect(root.get_node_or_null("Roads") != null, "Roads ribbon node exists")
 	_expect(root.get_node_or_null("SeaRoutes") != null, "SeaRoutes ribbon node exists")
 
@@ -97,7 +96,8 @@ func _run() -> void:
 			var g: Vector2i = geo.xz_to_grid(p[k])
 			if geo.grid_height_m(g.x, g.y) > SEA_MAX_M:
 				bad += 1
-		_expect(p.size() > 3 and bad == 0, "sea %s-%s: %d points, %d on land cells" % [link[0], link[1], p.size(), bad])
+		# Queue 39: 건업–양주 sits on one estuary, so its sea path is city -> one shared sea cell -> city (3 points).
+		_expect(p.size() >= 3 and bad == 0, "sea %s-%s: %d points, %d on land cells" % [link[0], link[1], p.size(), bad])
 		_report("sea", link, p, marker_xz)
 	root.queue_free()
 	await process_frame

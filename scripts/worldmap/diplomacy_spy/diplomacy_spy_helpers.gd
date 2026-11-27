@@ -68,6 +68,8 @@ static func format_spy_validation_message(check: Dictionary) -> String:
 			return "대상 도시 확인이 필요합니다."
 		"own_city":
 			return "자국 도시는 첩보 대상이 아닙니다."
+		WorldMapUnclaimedCityRules.REJECT_REASON:
+			return WorldMapUnclaimedCityRules.REJECT_MESSAGE
 		"no_chancellor":
 			return "재상이 필요합니다."
 		"no_political_aptitude":

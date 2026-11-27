@@ -1,7 +1,7 @@
 extends SceneTree
 
 # T-WM3D-08: the production WorldMap.tscn carries the 3D map (WorldMap3DHost as a child of the WorldMap root).
-# 1. 3D setting: host built, adapter has 13 cities, 3D camera controller, 2D $WorldMapRoot hidden, HUD still there.
+# 1. 3D setting: host built, adapter has 65 cities (queue 39), 3D camera controller, 2D $WorldMapRoot hidden, HUD still there.
 # 2. 2D setting: no 3D layer, $WorldMapRoot visible, main's own 2D controller.
 # 3. 3D files missing (host.scene_path_3d -> missing file): 2D fallback, no error.
 # 4. Battle return path (no real battle): pending return + a battle-result snapshot with a changed owner -> reload
@@ -38,7 +38,7 @@ func _run() -> void:
 	if host == null or host.adapter == null or host.adapter.root3d == null:
 		_finish()
 		return
-	_expect((host.adapter.markers_by_id as Dictionary).size() == 13 and (host.adapter.root3d.cities as Dictionary).size() == 13, "adapter: 13 cities")
+	_expect((host.adapter.markers_by_id as Dictionary).size() == 65 and (host.adapter.root3d.cities as Dictionary).size() == 65, "adapter: 65 cities")
 	_expect(main.get("_camera_controller") is WorldMap3DCameraController, "3D: main's controller is the 3D one")
 	_expect((main.get_node("WorldMapRoot") as CanvasItem).visible == false, "3D: $WorldMapRoot hidden")
 	_expect(main.get_node_or_null("WorldMapUI") != null and main.get_node_or_null("TopNavCanvas") != null, "3D: HUD nodes (WorldMapUI, TopNavCanvas) present")

@@ -525,11 +525,12 @@ func update_zoom_params() -> void:
 # ------------------------------------------------------------------ public API
 ## Owner change: ONE texel of the owner lookup texture -> the whole region recolours next frame. O(1).
 func set_city_owner(city_id: String, faction_id: String) -> bool:
-	if not cities.has(city_id) or not faction_color.has(faction_id):
+	# Queue 39: "" = unclaimed city (빈 성) — grey castle/banner, no territory fill (same as an initial "" owner).
+	if not cities.has(city_id) or (faction_id != "" and not faction_color.has(faction_id)):
 		return false
 	cities[city_id].owner = faction_id
 	regions.set_city_owner(city_id, faction_id)
-	var col: Color = faction_color[faction_id]
+	var col: Color = faction_color.get(faction_id, Color.GRAY)
 	if banners.has(city_id):
 		banners[city_id].set_faction_color(col)
 	if markers.has(city_id) and markers[city_id].has_method("set_faction_color"):

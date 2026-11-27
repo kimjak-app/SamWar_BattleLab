@@ -8,16 +8,20 @@
    "city_id": "pyeongyang",
    "name_ko": "평양",
    "label_ko": "관서",
-   "label_xz_km": [844.7, -696.9],
+   "label_xz_km": [
+    759.4,
+    -535.4
+   ],
    "label_scale": 0.75,
    "realm": "korea",
-   "default_owner": "goguryeo",
+   "default_owner": "",
    "color": "#9B6BE0",
    "shade": 1,
    "city_lonlat": [
     125.75,
     39.02
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 2,
@@ -25,16 +29,20 @@
    "city_id": "hanseong",
    "name_ko": "한성",
    "label_ko": "경기",
-   "label_xz_km": [1000.0, -360.0],
+   "label_xz_km": [
+    903.9,
+    -265.6
+   ],
    "label_scale": 0.6,
    "realm": "korea",
-   "default_owner": "player",
-   "color": "#2F6BFF",
+   "default_owner": "",
+   "color": "#9B6BE0",
    "shade": -1,
    "city_lonlat": [
     127.1,
     37.52
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 3,
@@ -42,16 +50,20 @@
    "city_id": "sabi",
    "name_ko": "사비",
    "label_ko": "호남",
-   "label_xz_km": [810.0, 150.0],
+   "label_xz_km": [
+    859.3,
+    -137.9
+   ],
    "label_scale": 0.6,
    "realm": "korea",
-   "default_owner": "baekje_faction",
-   "color": "#B07CF0",
-   "shade": 1,
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
    "city_lonlat": [
     126.91,
     36.28
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 4,
@@ -59,16 +71,20 @@
    "city_id": "gyeongju",
    "name_ko": "경주",
    "label_ko": "영남",
-   "label_xz_km": [1050.0, 20.0],
+   "label_xz_km": [
+    1096.6,
+    -60.8
+   ],
    "label_scale": 0.6,
    "realm": "korea",
-   "default_owner": "silla",
-   "color": "#E0559A",
-   "shade": 0,
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": -1,
    "city_lonlat": [
     129.21,
     35.84
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 5,
@@ -76,16 +92,20 @@
    "city_id": "edo",
    "name_ko": "에도",
    "label_ko": "간토",
-   "label_xz_km": [2145.4, -497.8],
+   "label_xz_km": [
+    2137.2,
+    -299.3
+   ],
    "label_scale": 0.75,
    "realm": "japan",
-   "default_owner": "tokugawa",
+   "default_owner": "",
    "color": "#FF7A1A",
-   "shade": 1,
+   "shade": 0,
    "city_lonlat": [
     139.77,
     35.68
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 6,
@@ -93,16 +113,20 @@
    "city_id": "kyoto",
    "name_ko": "교토",
    "label_ko": "긴키",
-   "label_xz_km": [1898.1, -240.9],
+   "label_xz_km": [
+    1742.1,
+    -143.9
+   ],
    "label_scale": 0.6,
    "realm": "japan",
-   "default_owner": "oda",
-   "color": "#FFD84A",
-   "shade": -1,
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 0,
    "city_lonlat": [
     135.76,
     35.01
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 7,
@@ -110,16 +134,20 @@
    "city_id": "osaka",
    "name_ko": "오사카",
    "label_ko": "주고쿠",
-   "label_xz_km": [1503.1, -61.0],
+   "label_xz_km": [
+    1795.1,
+    3.0
+   ],
    "label_scale": 0.75,
    "realm": "japan",
-   "default_owner": "toyotomi",
-   "color": "#E8505B",
-   "shade": 1,
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
    "city_lonlat": [
     135.5,
     34.69
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 8,
@@ -127,16 +155,20 @@
    "city_id": "kyushu",
    "name_ko": "큐슈",
    "label_ko": "쓰쿠시",
-   "label_xz_km": [1326.4, 391.8],
+   "label_xz_km": [
+    1303.8,
+    283.6
+   ],
    "label_scale": 0.6,
    "realm": "japan",
-   "default_owner": "kyushu_faction",
-   "color": "#C98A4A",
-   "shade": -1,
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 1,
    "city_lonlat": [
     130.71,
     32.8
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 9,
@@ -144,16 +176,20 @@
    "city_id": "yecheng",
    "name_ko": "업성",
    "label_ko": "하북",
-   "label_xz_km": [-157.4, -401.5],
+   "label_xz_km": [
+    -325.8,
+    -229.4
+   ],
    "label_scale": 0.6,
-   "realm": "wei",
-   "default_owner": "wei",
-   "color": "#62A6F2",
-   "shade": 0,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
    "city_lonlat": [
     114.35,
     36.33
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 10,
@@ -161,16 +197,20 @@
    "city_id": "luoyang",
    "name_ko": "낙양",
    "label_ko": "중원",
-   "label_xz_km": [-568.5, -529.9],
+   "label_xz_km": [
+    -471.5,
+    -97.0
+   ],
    "label_scale": 1.0,
-   "realm": "chu",
-   "default_owner": "chu",
+   "realm": "china",
+   "default_owner": "",
    "color": "#2E7D32",
    "shade": 0,
    "city_lonlat": [
     112.45,
     34.62
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 11,
@@ -178,16 +218,20 @@
    "city_id": "jianye",
    "name_ko": "건업",
    "label_ko": "강동",
-   "label_xz_km": [-465.7, 529.9],
+   "label_xz_km": [
+    -31.9,
+    311.3
+   ],
    "label_scale": 1.0,
-   "realm": "wu",
-   "default_owner": "wu",
-   "color": "#C8283C",
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
    "shade": 0,
    "city_lonlat": [
     118.78,
     32.05
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 12,
@@ -195,33 +239,1082 @@
    "city_id": "chengdu",
    "name_ko": "성도",
    "label_ko": "파촉",
-   "label_xz_km": [-1043.8, 350.1],
+   "label_xz_km": [
+    -1280.9,
+    287.2
+   ],
    "label_scale": 1.0,
-   "realm": "shu",
-   "default_owner": "shu",
-   "color": "#E2C23A",
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
    "shade": 0,
    "city_lonlat": [
     104.07,
     30.66
-   ]
+   ],
+   "color_is_placeholder": true
   },
   {
    "index": 13,
    "region_id": "karakorum",
    "city_id": "karakorum",
-   "name_ko": "카라코룸",
-   "label_ko": "막북",
-   "label_xz_km": [-1525.6, -1602.6],
+   "name_ko": "상도",
+   "label_ko": "내몽골",
+   "label_xz_km": [
+    -74.1,
+    -956.9
+   ],
    "label_scale": 1.0,
-   "realm": "mongol",
-   "default_owner": "mongol_faction",
-   "color": "#17B3B0",
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
    "shade": 0,
    "city_lonlat": [
-    102.83,
-    47.2
-   ]
+    116.185,
+    42.358
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 14,
+   "region_id": "ansiseong",
+   "city_id": "ansiseong",
+   "name_ko": "안시성",
+   "label_xz_km": [
+    302.9,
+    -790.7
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    122.708,
+    40.87
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 15,
+   "region_id": "gungnaeseong",
+   "city_id": "gungnaeseong",
+   "name_ko": "국내성",
+   "label_xz_km": [
+    810.0,
+    -748.5
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": -1,
+   "city_lonlat": [
+    126.189,
+    41.13
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 16,
+   "region_id": "sanggyeong_yongcheonbu",
+   "city_id": "sanggyeong_yongcheonbu",
+   "name_ko": "상경 용천부",
+   "label_xz_km": [
+    1221.9,
+    -1244.7
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    129.143,
+    44.131
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 17,
+   "region_id": "byeokjin",
+   "city_id": "byeokjin",
+   "name_ko": "벽진 성주",
+   "label_xz_km": [
+    1018.3,
+    -89.7
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    128.309,
+    36.029
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 18,
+   "region_id": "cheorwon",
+   "city_id": "cheorwon",
+   "name_ko": "철원",
+   "label_xz_km": [
+    903.9,
+    -424.5
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    127.31,
+    38.15
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 19,
+   "region_id": "gaeseong",
+   "city_id": "gaeseong",
+   "name_ko": "개성",
+   "label_xz_km": [
+    771.4,
+    -395.6
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    126.55,
+    37.97
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 20,
+   "region_id": "goryeong",
+   "city_id": "goryeong",
+   "name_ko": "고령",
+   "label_xz_km": [
+    1023.1,
+    -24.7
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 1,
+   "city_lonlat": [
+    128.246,
+    35.593
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 21,
+   "region_id": "jeju",
+   "city_id": "jeju",
+   "name_ko": "제주",
+   "label_xz_km": [
+    847.3,
+    252.3
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    126.555,
+    33.454
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 22,
+   "region_id": "jeonju",
+   "city_id": "jeonju",
+   "name_ko": "전주",
+   "label_xz_km": [
+    884.6,
+    -40.3
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    127.15,
+    35.82
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 23,
+   "region_id": "jinju",
+   "city_id": "jinju",
+   "name_ko": "진주 강주",
+   "label_xz_km": [
+    955.7,
+    23.5
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    128.107,
+    35.171
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 24,
+   "region_id": "myeongju",
+   "city_id": "myeongju",
+   "name_ko": "명주 강릉",
+   "label_xz_km": [
+    1037.6,
+    -265.6
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 0,
+   "city_lonlat": [
+    128.9,
+    37.75
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 25,
+   "region_id": "naju",
+   "city_id": "naju",
+   "name_ko": "나주",
+   "label_xz_km": [
+    862.9,
+    53.6
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 1,
+   "city_lonlat": [
+    126.71,
+    35.02
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 26,
+   "region_id": "sangju",
+   "city_id": "sangju",
+   "name_ko": "상주",
+   "label_xz_km": [
+    972.5,
+    -162.0
+   ],
+   "label_scale": 0.6,
+   "realm": "korea",
+   "default_owner": "",
+   "color": "#9B6BE0",
+   "shade": 1,
+   "city_lonlat": [
+    128.146,
+    36.446
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 27,
+   "region_id": "aizu",
+   "city_id": "aizu",
+   "name_ko": "아이즈",
+   "label_xz_km": [
+    2123.9,
+    -514.9
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
+   "city_lonlat": [
+    139.93,
+    37.49
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 28,
+   "region_id": "bungo",
+   "city_id": "bungo",
+   "name_ko": "분고 후나이",
+   "label_xz_km": [
+    1366.4,
+    240.3
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 0,
+   "city_lonlat": [
+    131.651,
+    33.199
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 29,
+   "region_id": "echigo",
+   "city_id": "echigo",
+   "name_ko": "에치고",
+   "label_xz_km": [
+    1973.4,
+    -377.6
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 0,
+   "city_lonlat": [
+    138.191,
+    37.112
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 30,
+   "region_id": "hiroshima",
+   "city_id": "hiroshima",
+   "name_ko": "히로시마",
+   "label_xz_km": [
+    1482.0,
+    -51.2
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 1,
+   "city_lonlat": [
+    132.443,
+    34.44
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 31,
+   "region_id": "hitachi",
+   "city_id": "hitachi",
+   "name_ko": "히타치 미토",
+   "label_xz_km": [
+    2173.3,
+    -395.6
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 1,
+   "city_lonlat": [
+    140.45,
+    36.37
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 32,
+   "region_id": "hizen",
+   "city_id": "hizen",
+   "name_ko": "히젠 사가",
+   "label_xz_km": [
+    1245.9,
+    188.5
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
+   "city_lonlat": [
+    130.263,
+    33.284
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 33,
+   "region_id": "kagoshima",
+   "city_id": "kagoshima",
+   "name_ko": "가고시마",
+   "label_xz_km": [
+    1314.6,
+    367.9
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
+   "city_lonlat": [
+    130.501,
+    31.625
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 34,
+   "region_id": "kitaomi",
+   "city_id": "kitaomi",
+   "name_ko": "북오미 오다니",
+   "label_xz_km": [
+    1820.4,
+    -181.3
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
+   "city_lonlat": [
+    136.28,
+    35.45
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 35,
+   "region_id": "kofu",
+   "city_id": "kofu",
+   "name_ko": "고후",
+   "label_xz_km": [
+    2049.3,
+    -266.8
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": -1,
+   "city_lonlat": [
+    138.57,
+    35.66
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 36,
+   "region_id": "nagoya",
+   "city_id": "nagoya",
+   "name_ko": "나고야",
+   "label_xz_km": [
+    1927.6,
+    -218.6
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 1,
+   "city_lonlat": [
+    136.91,
+    35.18
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 37,
+   "region_id": "odawara",
+   "city_id": "odawara",
+   "name_ko": "오다와라",
+   "label_xz_km": [
+    2120.3,
+    -237.9
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 1,
+   "city_lonlat": [
+    139.105,
+    35.309
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 38,
+   "region_id": "sendai",
+   "city_id": "sendai",
+   "name_ko": "센다이",
+   "label_xz_km": [
+    2164.9,
+    -810.0
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 0,
+   "city_lonlat": [
+    140.87,
+    38.27
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 39,
+   "region_id": "tosa",
+   "city_id": "tosa",
+   "name_ko": "토사",
+   "label_xz_km": [
+    1628.9,
+    57.2
+   ],
+   "label_scale": 0.6,
+   "realm": "japan",
+   "default_owner": "",
+   "color": "#FF7A1A",
+   "shade": 0,
+   "city_lonlat": [
+    133.484,
+    33.611
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 40,
+   "region_id": "jiangdong",
+   "city_id": "jiangdong",
+   "name_ko": "강동",
+   "label_xz_km": [
+    178.9,
+    561.8
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    120.6,
+    31.3
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 41,
+   "region_id": "lingnan",
+   "city_id": "lingnan",
+   "name_ko": "영남 광주",
+   "label_xz_km": [
+    -239.1,
+    1052.0
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    113.26,
+    23.13
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 42,
+   "region_id": "yangzhou",
+   "city_id": "yangzhou",
+   "name_ko": "양주",
+   "label_xz_km": [
+    276.4,
+    175.2
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    119.42,
+    32.39
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 43,
+   "region_id": "changsha",
+   "city_id": "changsha",
+   "name_ko": "장사",
+   "label_xz_km": [
+    -572.7,
+    654.6
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    112.94,
+    28.23
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 44,
+   "region_id": "hetuala",
+   "city_id": "hetuala",
+   "name_ko": "허투알라",
+   "label_xz_km": [
+    652.2,
+    -890.6
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    124.799,
+    41.73
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 45,
+   "region_id": "huining",
+   "city_id": "huining",
+   "name_ko": "회령",
+   "label_xz_km": [
+    732.9,
+    -1424.2
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    126.97,
+    45.51
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 46,
+   "region_id": "liaodong",
+   "city_id": "liaodong",
+   "name_ko": "요동 양평",
+   "label_xz_km": [
+    442.6,
+    -931.6
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    123.183,
+    41.281
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 47,
+   "region_id": "shangjing",
+   "city_id": "shangjing",
+   "name_ko": "상경",
+   "label_xz_km": [
+    182.5,
+    -1270.0
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    118.999,
+    43.98
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 48,
+   "region_id": "lhasa",
+   "city_id": "lhasa",
+   "name_ko": "라싸",
+   "label_xz_km": [
+    -1938.5,
+    39.1
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    97.17,
+    31.14
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 49,
+   "region_id": "nanzhong",
+   "city_id": "nanzhong",
+   "name_ko": "운남(남중)",
+   "label_xz_km": [
+    -1883.1,
+    734.1
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    100.23,
+    25.6
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 50,
+   "region_id": "wuguo",
+   "city_id": "wuguo",
+   "name_ko": "오과 독룡",
+   "label_xz_km": [
+    -1167.7,
+    1124.3
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    104.2,
+    23.4
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 51,
+   "region_id": "yunnan",
+   "city_id": "yunnan",
+   "name_ko": "운남",
+   "label_xz_km": [
+    -1394.1,
+    775.0
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    102.7,
+    25.04
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 52,
+   "region_id": "hexi",
+   "city_id": "hexi",
+   "name_ko": "하서 고장",
+   "label_xz_km": [
+    -1424.2,
+    -558.2
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    102.64,
+    37.93
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 53,
+   "region_id": "longxi",
+   "city_id": "longxi",
+   "name_ko": "농서",
+   "label_xz_km": [
+    -1103.8,
+    -172.8
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    105.72,
+    34.58
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 54,
+   "region_id": "xingqing",
+   "city_id": "xingqing",
+   "name_ko": "흥경",
+   "label_xz_km": [
+    -897.9,
+    -455.9
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    106.23,
+    38.49
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 55,
+   "region_id": "ordubaliq",
+   "city_id": "ordubaliq",
+   "name_ko": "오르두발릭",
+   "label_xz_km": [
+    -496.8,
+    -944.8
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    111.0,
+    40.7
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 56,
+   "region_id": "orkhon",
+   "city_id": "orkhon",
+   "name_ko": "오르혼",
+   "label_xz_km": [
+    -585.9,
+    -522.1
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    109.97,
+    39.82
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 57,
+   "region_id": "changan",
+   "city_id": "changan",
+   "name_ko": "장안",
+   "label_xz_km": [
+    -669.0,
+    -68.0
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    109.145,
+    34.214
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 58,
+   "region_id": "dadu",
+   "city_id": "dadu",
+   "name_ko": "대도",
+   "label_xz_km": [
+    -88.5,
+    -657.0
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    116.4,
+    39.9
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 59,
+   "region_id": "jizhou",
+   "city_id": "jizhou",
+   "name_ko": "기주",
+   "label_xz_km": [
+    -269.2,
+    -418.5
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    115.0,
+    37.4
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 60,
+   "region_id": "kaifeng",
+   "city_id": "kaifeng",
+   "name_ko": "개봉",
+   "label_xz_km": [
+    -278.8,
+    -100.6
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    114.35,
+    34.8
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 61,
+   "region_id": "pengcheng",
+   "city_id": "pengcheng",
+   "name_ko": "팽성",
+   "label_xz_km": [
+    21.1,
+    -27.1
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    117.18,
+    34.26
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 62,
+   "region_id": "puyang",
+   "city_id": "puyang",
+   "name_ko": "복양",
+   "label_xz_km": [
+    -169.2,
+    -153.6
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    115.1,
+    35.7
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 63,
+   "region_id": "xiangyang",
+   "city_id": "xiangyang",
+   "name_ko": "양양",
+   "label_xz_km": [
+    -545.0,
+    196.9
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": -1,
+   "city_lonlat": [
+    112.14,
+    32.04
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 64,
+   "region_id": "xianyang",
+   "city_id": "xianyang",
+   "name_ko": "함양",
+   "label_xz_km": [
+    -834.0,
+    -139.1
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 1,
+   "city_lonlat": [
+    108.515,
+    34.385
+   ],
+   "color_is_placeholder": true
+  },
+  {
+   "index": 65,
+   "region_id": "xuchang",
+   "city_id": "xuchang",
+   "name_ko": "허창",
+   "label_xz_km": [
+    -290.9,
+    75.3
+   ],
+   "label_scale": 0.6,
+   "realm": "china",
+   "default_owner": "",
+   "color": "#2E7D32",
+   "shade": 0,
+   "city_lonlat": [
+    113.85,
+    34.03
+   ],
+   "color_is_placeholder": true
   }
- ]
+ ],
+ "_note": "65-region bake (stage 3). Ids 1..65 = city source order (13 legacy keep 1..13). Land only; neutral land = 0. karakorum label_ko = 내몽골. Regions without label_ko have no region label yet. label_xz_km = widest inner point of the region (km, x east, z south)."
 }

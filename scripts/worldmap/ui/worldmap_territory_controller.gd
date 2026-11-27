@@ -124,6 +124,8 @@ func refresh_territory_data() -> void:
 
 		var marker := child as Node2D
 		var faction_id := str(marker.get("owner_faction_id"))
+		if WorldMapUnclaimedCityRules.is_unclaimed_owner(faction_id):
+			continue  # Queue 39: an unclaimed city (빈 성) has no territory colour.
 		if not owner_colors.has(faction_id):
 			push_warning(
 				"WorldMap Territory: owner color missing for city %s faction %s."
