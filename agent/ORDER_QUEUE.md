@@ -52,7 +52,8 @@
 | 36 | `agent/ORDER_STOCK_AUTHORITY_P0_20261127.md` | **main 합류 11-27 20:35** (`main` `8cc0640..e3bf253` fast-forward, 김작 채팅 승인 "합치자 그럼 합쳐"). CI `45952527223` 초록. F6: 연구 비용·무역 수입·결산·치트 ① 합격, 도시 창고 표시·이송·수동 수출·모병·저장/불러오기는 HUD 연결 때(3D HUD에 숨겨진 UI). | 클코드 |
 | 37 | `agent/ORDER_SPY_INTEL_P3_20261127.md` | **main 합류 11-27 20:35** (같은 fast-forward). CI `45966240063` 초록(shard 0 컷인 플레이크 재실행 통과). 정탐 화면 F6 8~13은 HUD 연결 때 — `agent/REPORT_SPY_UI_3D_GAP_20261127.md`. | 클코드 |
 | 38 | `agent/ORDER_STRATEGY_P1_DIPLOMACY_REQUESTS_20261127.md` | **main 합류 11-27 22:46** (`e3bf253..c643eee` fast-forward, 클코치 — 김작 사전 승인 20:39). CI `46005936669` 4/4 초록, `[STRATEGY_P1] checks=49 failures=[]`. 남은 문제: AI 출처 교역 협정·동맹 미지원(P5), 반환 도시 없을 때 기록 없이 건너뜀(P2에서 기록·보류로). | 클코드 |
-| 39 | `agent/ORDER_CITIES65_PREVIEW_20261127.md` | **대기(큐 38 뒤)** — 65개 성 미리보기(새 52개 빈 성), 데이터 `agent/data/cities65_0_7/`(체크섬 `SHA256SUMS`). 가지 `feature/wm3d-cities65-preview-20261127`, 빈 성 = 정식 상태(김작 21:17), 조건 충족 시 main 병합. 세력·장수 배치는 P2·HUD 뒤. | 클코드 |
+| 39 | `agent/ORDER_CITIES65_PREVIEW_20261127.md` | **main 합류 11-28 03:05** (`c643eee..7c27f3c` fast-forward, 클코치 — 김작 사전 승인 20:39). CI C-track `46044665812` 4/4 + WorldMap3D `46044665719` 초록, `[CITIES65_PREVIEW] checks=322 failures=[]`, P0 86·P3 48·P1 49 그대로. 데이터 regions·두 텍스처 0.7 바이트 일치, 육로 100·바닷길 20, 3쌍 land. 남은 문제: 기존 13성 게임 연결은 v2.4 18개 그대로(상도–평양 등 직통이 규칙엔 남음, 새 성 연결은 한쪽 방향) → 세력 배치 때 0.7로. 보고서 `REPORT_CITIES65_PREVIEW` 미도착. | 클코드 |
+| 40 | `agent/ORDER_TRADE_P2_MANUAL_EXTERNAL_20261128.md` | **준비됨** — P2 수동 대외무역 한 번 접수·T+1 양쪽 정산 + P1 공통 반환(반환처 없으면 기록·보류). 기준 `main` `7c27f3c`, 가지 `feature/wm3d-trade-p2-20261128`, 조건 충족 시 main 병합. | 클코드 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.
