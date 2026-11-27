@@ -931,8 +931,45 @@ EXPECTED_CITIES65_MAIN_DELTA: list[str] = ['-\t"pyeongyang": {"id": "pyeongyang"
 # Queue 41 3D HUD connection (Kim approved 11-27 order, re-pin allowed): the code commit that wired the hidden windows.
 # worldmap_main.gd must equal that commit and differ from the CITIES65 text by exactly this delta (city storage / spy
 # report / strategy request texts in CityDetailPanel, three missing refresh calls). Empty checkpoint = not approved yet.
-HUD41_CHECKPOINT = ""
-EXPECTED_HUD41_MAIN_DELTA: list[str] = []
+HUD41_CHECKPOINT = "2d347342b3b2db0e36b81cb26ae7a0b50f8c43ed"
+EXPECTED_HUD41_MAIN_DELTA: list[str] = ['+const WORLDMAP_MANUAL_SAVE_PATH := "user://worldmap_manual_save.json"  # Queue 41: system menu save slot',
+ '-\t\t\tcity_detail_status_label.text = ""',
+ '+\t\t\tcity_detail_status_label.text = WorldMapHudConnectPresenter.format_strategy_requests(self, "trade")',
+ '-\t\t"storage_summary": _format_city_storage_summary(_get_city_storage(city_id, city_data)),',
+ '+\t\t"storage_summary": WorldMapHudConnectPresenter.format_city_storage(self, city_id, '
+ '_format_city_storage_summary(_get_city_storage(city_id, city_data))),',
+ '-\t\tcity_detail_rating_label.text = ""',
+ '+\t\tcity_detail_rating_label.text = WorldMapHudConnectPresenter.format_intel_card(self, current_selected_city_id)',
+ '-\t\tcity_detail_rating_label.text = ""',
+ '+\t\tcity_detail_rating_label.text = WorldMapHudConnectPresenter.format_strategy_requests(self, "diplomacy")',
+ '+\t# Queue 41: the research cost left the city stock — refresh the national / city stock now, not at the next click.',
+ '+\t_refresh_left_world_status_panel()',
+ '+\t_refresh_city_hud_data_bindings()',
+ '+\t_refresh_city_hud_data_bindings()  # Queue 41: the reserved cost left the city stock; show it now.',
+ '+\t_refresh_left_world_status_panel()  # Queue 41: the spy cost left the city stock; national stock now.',
+ '-func _write_worldmap_state_mvp(show_status: bool) -> bool:',
+ "+## Queue 41: the system menu's save is its own slot (same JSON), so the turn-end checkpoint — which rewrites",
+ '+## WORLDMAP_SAVE_PATH every turn — cannot overwrite it. Load reads it first (else the checkpoint slot, as before).',
+ '+func _save_worldmap_manual_slot_mvp() -> bool:',
+ '+\treturn _write_worldmap_state_mvp(true, WORLDMAP_MANUAL_SAVE_PATH)',
+ '+',
+ '+',
+ '+func _load_worldmap_manual_slot_mvp() -> void:',
+ '+\t_load_worldmap_state(WORLDMAP_MANUAL_SAVE_PATH if FileAccess.file_exists(WORLDMAP_MANUAL_SAVE_PATH) else '
+ 'WORLDMAP_SAVE_PATH)',
+ '+',
+ '+',
+ '+func _write_worldmap_state_mvp(show_status: bool, path: String = WORLDMAP_SAVE_PATH) -> bool:',
+ '-\tvar file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.WRITE)',
+ '+\tvar file := FileAccess.open(path, FileAccess.WRITE)',
+ '-\t\tpush_warning("[WorldMap] Failed to open worldmap save path: %s" % WORLDMAP_SAVE_PATH)',
+ '+\t\tpush_warning("[WorldMap] Failed to open worldmap save path: %s" % path)',
+ '-func _load_worldmap_state() -> void:',
+ '-\tif not FileAccess.file_exists(WORLDMAP_SAVE_PATH):',
+ '+func _load_worldmap_state(path: String = WORLDMAP_SAVE_PATH) -> void:',
+ '+\tif not FileAccess.file_exists(path):',
+ '-\tvar file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.READ)',
+ '+\tvar file := FileAccess.open(path, FileAccess.READ)']
 
 
 def line_delta(old_text: str, new_text: str) -> list[str]:
