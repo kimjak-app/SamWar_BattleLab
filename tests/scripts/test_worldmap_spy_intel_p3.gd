@@ -13,6 +13,8 @@ extends SceneTree
 #  9. save -> load keeps city_intel[A] (deep compare)
 # 10. a paid spy action is paid out of the cities (P0) and the national sum = city sum
 # 11. a failed spy report leaves city_intel unchanged
+# 12. (addendum) the record stays as observed after the city's stock / roster change, a turn and save -> load; only a
+#     new successful report replaces it
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const PanelBase := preload("res://scripts/worldmap_city_info_panel_base.gd")
@@ -60,6 +62,7 @@ func _run() -> void:
 	_check_heroes()
 	_check_tiers()
 	_check_record_turn_and_save()
+	_check_snapshot_stays()
 	_check_failure_keeps_intel()
 	_check_p0_cost()
 	_finish()
@@ -166,6 +169,68 @@ func _check_record_turn_and_save() -> void:
 	_expect(parsed is Dictionary and bool(_main.call("_apply_worldmap_state", parsed)), "9. save -> load")
 	var after: Dictionary = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
 	_expect(_deep_equal(before, after), "9. city_intel[%s] equal after load (%s / %s)" % [_target, str(before), str(after)])
+
+
+# ---- 12 (addendum 16:31) ----
+
+# The record is the picture taken when spying, not a live window: changing the city's stock and roster, passing a turn
+# and saving / loading keep the recorded stock, roster and observed_turn; only a new successful report replaces them.
+func _check_snapshot_stays() -> void:
+	var all_ids := _hero_ids(5)
+	var ids: Array[String] = [all_ids[0]]
+	var elsewhere := _other_city()
+	for hero_id in all_ids.slice(1):
+		_main.call("_apply_battle_settlement_move_hero", hero_id, elsewhere)
+	_main.call("_apply_battle_settlement_move_hero", ids[0], _target)
+	var state: Dictionary = _main.get("_player_state")
+	state["city_intel"] = {}
+	state["spy_cooldown"] = 0
+	_set_stock(_target, {"rice": 40, "gold": 0})
+	var turn := maxi(1, int(state.get("turn_number", 1)))
+	_spy.call("validate_spy_action", "gather_info", _target)
+	var first: Dictionary = _service.call("_gather_spy_info", _target, 1, 100)
+	var recorded := _recorded_payload()
+	_expect(bool(first.get("success", false)) and int((recorded.get("resources", {}) as Dictionary).get("rice", -1)) == 40 and _roster_ids(recorded) == ids, "12. first report records rice 40 and roster %s (%s)" % [str(ids), str(_roster_ids(recorded))])
+
+	_set_stock(_target, {"rice": 90, "gold": 0})
+	_main.call("_apply_battle_settlement_move_hero", ids[0], elsewhere)   # the one hero moves away
+	(_main.get("_player_state") as Dictionary)["turn_number"] = turn + 1
+	var parsed: Variant = JSON.parse_string(JSON.stringify(_main.call("_serialize_worldmap_state")))
+	_expect(parsed is Dictionary and bool(_main.call("_apply_worldmap_state", parsed)), "12. save -> load after the change")
+	recorded = _recorded_payload()
+	_expect(int((recorded.get("resources", {}) as Dictionary).get("rice", -1)) == 40 and _roster_ids(recorded) == ids and int(recorded.get("observed_turn", -1)) == turn, "12. after stock 40->90, hero moved, turn +1, save/load: record keeps rice 40, roster %s, turn %d (%s)" % [str(ids), turn, str(recorded)])
+	var hint := _panel_hint(recorded, ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {}).get("fields", []))
+	_expect(hint.contains("쌀 40") and not hint.contains("쌀 90") and not hint.contains("소속 장수 0명"), "12. the panel shows the record, not the live city (%s)" % hint.replace("\n", " | "))
+
+	state = _main.get("_player_state")
+	state["spy_cooldown"] = 0
+	_spy.call("validate_spy_action", "gather_info", _target)
+	var second: Dictionary = _service.call("_gather_spy_info", _target, 1, 100)
+	recorded = _recorded_payload()
+	_expect(bool(second.get("success", false)) and int((recorded.get("resources", {}) as Dictionary).get("rice", -1)) == 90 and _roster_ids(recorded).is_empty() and int(recorded.get("observed_turn", -1)) == turn + 1, "12. a new report replaces it: rice 90, roster [], turn %d (%s)" % [turn + 1, str(recorded)])
+	(_main.get("_player_state") as Dictionary)["turn_number"] = turn
+
+
+func _recorded_payload() -> Dictionary:
+	var entry: Variant = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
+	return ((entry as Dictionary).get("payload", {}) as Dictionary).duplicate(true) if entry is Dictionary else {}
+
+
+func _roster_ids(payload: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	for hero in payload.get("heroes", []):
+		if hero is Dictionary:
+			result.append(str(hero.get("hero_id", "")))
+	return result
+
+
+func _other_city() -> String:
+	var ids: Array = (_main.get_script().get_script_constant_map()["CITY_HUD_DATA"] as Dictionary).keys()
+	ids.sort()
+	for city_id in ids:
+		if str(city_id) != _target:
+			return str(city_id)
+	return ""
 
 
 # ---- 11 ----
