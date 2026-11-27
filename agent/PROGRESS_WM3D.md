@@ -8,6 +8,12 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-27 — 큐 36번 STOCK-AUTHORITY-P0 멈춤 (답신 대기)
+- 가지 `feature/wm3d-stock-p0-20261127`(시작 `main` `8cc0640`). 코드 커밋 0. 보고서 `agent/REPORT_STOCK_AUTHORITY_P0_STOP_20261127.md`. CI 없음(문서만, `[skip ci]`).
+- 세이브 백업 끝: `C:\eastwar_tmp\saves_backup_20261127\`(파일 204개).
+- 멈춘 이유: 외교 비용(`diplomacy_action_service.gd` 666~712)이 도시가 아니라 국가 합계를 직접 깎는다(지시서 0절과 다름). 고치려면 허용 목록 밖 `diplomacy_controller.gd` + 국가 재고를 직접 심는 시험 9개 준비 단계 변경이 필요.
+- 다음 할 일: 10분마다 orders 가지에서 답신 `ORDER_STOCK_AUTHORITY_P0_REPLY_1_*` 확인 → 오면 보고서 1~3절 표대로 구현.
+
 ### 2026-11-08 — 큐 31번 WARNFIX 완료 (답신 1 A안) + 30번 경고 2개 정리
 - 31번: 가지 `feature/wm3d-warnfix-20261108`, 코드 `645ffcf5b9a7ed8aa0954428abce9c3ed5d551c1`, 보고서 `agent/REPORT_WARNFIX_20261108.md`. 경고 12 → 0
 - 31번 CI(`645ffcf`): Verify C-track refactor `42488036136` 4 shard success, Verify WorldMap3D `42488036103` success
