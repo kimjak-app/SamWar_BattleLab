@@ -19,7 +19,7 @@ const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const CONTROLLER_NODE := "WorldMapDebugCheatsController"
 const CONTROLLER_SCRIPT := "res://scripts/worldmap/ui/worldmap_debug_cheats_controller.gd"
 const OWN_CITY := "hanseong"
-const INTEL_FIELDS := ["troops", "resources", "publicSupport", "loyalty", "governor", "tech"]
+const INTEL_FIELDS := ["troops", "resources", "publicSupport", "loyalty", "governor", "tech", "heroes"]  # queue 37: + heroes
 const CHEAT_KEYS := [KEY_G, KEY_T, KEY_I]
 const CHEAT_KEY_NAMES := ["KEY_G", "KEY_T", "KEY_I"]
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -270,7 +270,7 @@ func _check_intel(main: Node, ctl: Node) -> void:
 	var entry: Dictionary = presenter.get_city_intel_entry(enemy)
 	var fields: Array = entry.get("fields", [])
 	var payload: Dictionary = entry.get("payload", {})
-	_expect(fields == INTEL_FIELDS and not bool(entry.get("estimated", true)), "4. enemy %s entry has the six fields, not estimated (%s)" % [enemy, str(fields)])
+	_expect(fields == INTEL_FIELDS and not bool(entry.get("estimated", true)), "4. enemy %s entry has the seven fields (queue 37: + heroes), not estimated (%s)" % [enemy, str(fields)])
 	_expect(service.get("_adapter") == spy_controller, "4. empty spy service _adapter filled with the spy controller")
 	_expect(int(payload.get("troops", -1)) == int(main.call("_get_city_troops_for_battle_context", enemy)) and not payload.has("troops_estimated"), "4. troops is the real value (%s)" % str(payload.get("troops")))
 	var revealed: Array = presenter.get_revealed_field_ids(presenter.get_city_intel_fields(entry), presenter.get_city_intel_payload(entry))

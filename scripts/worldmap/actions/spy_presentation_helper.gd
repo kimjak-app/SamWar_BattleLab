@@ -19,6 +19,7 @@ func has_enemy_intel_payload(fields: Array[String], payload: Dictionary, field: 
 		"troops_estimated": return fields.has(field) and payload.has(field) and not (fields.has("troops") and payload.has("troops"))
 		"troops", "resources", "publicSupport", "loyalty", "tech": return fields.has(field) and payload.has(field)
 		"governor": return fields.has(field) and payload.has(field) and str(payload.get(field, "")) != "not_available"
+		"heroes": return fields.has(field) and payload.get(field) is Array   # queue 37
 	return false
 
 
@@ -28,7 +29,7 @@ func get_revealed_field_ids(fields: Array[String], payload: Dictionary) -> Array
 		revealed.append("troops")
 	elif has_enemy_intel_payload(fields, payload, "troops_estimated"):
 		revealed.append("troops_estimated")
-	for field in ["resources", "publicSupport", "loyalty", "governor", "tech"]:
+	for field in ["resources", "publicSupport", "loyalty", "governor", "tech", "heroes"]:
 		if has_enemy_intel_payload(fields, payload, field): revealed.append(field)
 	return revealed
 
@@ -99,6 +100,7 @@ func format_known_info_summary(city_marker) -> String:
 	if has_enemy_intel_payload(fields, payload, "loyalty"): values.append("충성도 %s" % str(payload.get("loyalty", "")))
 	if has_enemy_intel_payload(fields, payload, "governor"): values.append("태수 확인")
 	if has_enemy_intel_payload(fields, payload, "tech"): values.append("기술 확인")
+	if has_enemy_intel_payload(fields, payload, "heroes"): values.append("소속 장수 %d명" % (payload.get("heroes") as Array).size())
 	var shown := _field_labels(revealed)
 	var locked := _locked_field_labels(revealed)
 	var public_text := "도시명 / 세력 / 유형" + (" / %s" % " / ".join(shown) if not shown.is_empty() else "")
@@ -236,7 +238,7 @@ func _level_label(id: String) -> String:
 func _field_labels(fields: Array[String]) -> Array[String]:
 	var labels: Array[String] = []
 	for field in fields:
-		var label: String = {"troops_estimated": "병력 추정", "troops": "병력", "resources": "자원", "publicSupport": "민심", "loyalty": "충성도", "governor": "태수", "tech": "기술"}.get(field, field)
+		var label: String = {"troops_estimated": "병력 추정", "troops": "병력", "resources": "자원", "publicSupport": "민심", "loyalty": "충성도", "governor": "태수", "tech": "기술", "heroes": "소속 장수"}.get(field, field)
 		if not labels.has(label): labels.append(label)
 	return labels
 

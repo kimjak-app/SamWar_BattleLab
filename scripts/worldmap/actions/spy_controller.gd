@@ -89,7 +89,7 @@ func normalize_city_intel_registry(raw_intel: Variant) -> Dictionary:
 	var result := {}
 	if not raw_intel is Dictionary:
 		return result
-	var allowed_fields := ["troops_estimated", "troops", "resources", "publicSupport", "loyalty", "governor", "tech"]
+	var allowed_fields := ["troops_estimated", "troops", "resources", "publicSupport", "loyalty", "governor", "tech", "heroes"]
 	for city_id_variant in (raw_intel as Dictionary).keys():
 		var city_id := str(city_id_variant)
 		if not bool(_host.call("_has_worldmap_city_for_trade_persistence", city_id)):
@@ -198,3 +198,32 @@ func _has_completed_national_domestic_tech_mvp(tech_id: String) -> bool: return 
 func _append_domestic_modifier_source_if_completed_mvp(modifier: Dictionary, tech_id: String) -> void: _host.call("_append_domestic_modifier_source_if_completed_mvp", modifier, tech_id)
 func _get_enemy_spy_resistance_baseline_mvp(city: Dictionary) -> Dictionary: return _host.call("_get_enemy_spy_resistance_baseline_mvp", city)
 func _get_enemy_city_intel_resistance_baseline_mvp(city: Dictionary) -> Dictionary: return _host.call("_get_enemy_city_intel_resistance_baseline_mvp", city)
+
+
+# Queue 37 (SPY-INTEL-P3): an exact report observes the city's real stock (the P0 resource_stock adapter, 9 items) and
+# its stationed roster. A non-numeric ledger value is passed through so the snapshot reports it unknown, not as 0.
+func _get_spy_intel_city_stock(city_id: String) -> Dictionary:
+	var stock: Dictionary = (_host.call("_get_city_storage", city_id) as Dictionary).duplicate(true)
+	var raw_stock: Variant = _get_city_hud_entry(city_id).get("resource_stock", {})
+	if raw_stock is Dictionary:
+		for resource_id in stock.keys():
+			var value: Variant = (raw_stock as Dictionary).get(resource_id)
+			if (raw_stock as Dictionary).has(resource_id) and not (value is int or value is float):
+				stock[resource_id] = value
+	return stock
+
+
+func _get_spy_intel_city_hero_rows(city_id: String) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	var governor_id := str(_get_city_hud_entry(city_id).get("governor_id", ""))
+	for raw_hero_id in _host.call("_get_city_stationed_hero_ids_for_battle_context", city_id):
+		var hero_id := str(raw_hero_id)
+		var state: Dictionary = _host.call("_normalize_hero_runtime_state", hero_id, _host.call("_get_existing_hero_runtime_state", hero_id))
+		rows.append({
+			"hero_id": hero_id,
+			"display_name": str(_host.call("_format_hero_name_by_id", hero_id, hero_id)),
+			"status": str(state.get("status", "")),
+			"faction_id": str(state.get("side", state.get("faction_id", ""))),
+			"role": "governor" if hero_id == governor_id else "none",
+		})
+	return rows

@@ -665,6 +665,8 @@ func _has_enemy_intel_payload_for_field(fields: Array[String], payload: Dictiona
 			return fields.has("governor") and payload.has("governor") and str(payload.get("governor", "")) != "not_available"
 		"tech":
 			return fields.has("tech") and payload.has("tech")
+		"heroes":
+			return fields.has("heroes") and payload.get("heroes") is Array
 		_:
 			return false
 
@@ -675,7 +677,7 @@ func _get_enemy_intel_revealed_field_ids(fields: Array[String], payload: Diction
 		revealed.append("troops")
 	elif _has_enemy_intel_payload_for_field(fields, payload, "troops_estimated"):
 		revealed.append("troops_estimated")
-	for field in ["resources", "publicSupport", "loyalty", "governor", "tech"]:
+	for field in ["resources", "publicSupport", "loyalty", "governor", "tech", "heroes"]:
 		if _has_enemy_intel_payload_for_field(fields, payload, field):
 			revealed.append(field)
 	return revealed
@@ -735,6 +737,8 @@ func _get_enemy_intel_field_label(field: String) -> String:
 			return "태수"
 		"tech":
 			return "기술"
+		"heroes":
+			return "소속 장수"
 		_:
 			return field
 
@@ -871,7 +875,36 @@ func _format_enemy_intel_hint(city_intel: Dictionary, fields: Array[String], pay
 		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
 	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
 	var next_text := "추가 정탐 필요" if not locked_labels.is_empty() else "잠김 정보 없음"
-	return "정보 수준: %s%s\n공개: %s\n잠김: %s\n다음: %s" % [label, turn_text, revealed_text, locked_text, next_text]
+	var hint := "정보 수준: %s%s\n공개: %s\n잠김: %s\n다음: %s" % [label, turn_text, revealed_text, locked_text, next_text]
+	var observation := _format_enemy_intel_observation_lines(fields, payload)
+	return hint if observation.is_empty() else "%s\n%s" % [hint, observation]
+
+
+# Queue 37 (SPY-INTEL-P3): an exact report shows the city's real stock (9 items, 0 is 0, unknown is "?") and its hero
+# roster (name and state; an empty roster is a confirmed "0명"). The observed turn is the " · N턴" above.
+func _format_enemy_intel_observation_lines(fields: Array[String], payload: Dictionary) -> String:
+	var lines: Array[String] = []
+	var unknown_fields: Array = payload.get("unknown_fields", []) if payload.get("unknown_fields", []) is Array else []
+	if _has_enemy_intel_payload_for_field(fields, payload, "resources") and payload.get("resources") is Dictionary and payload.has("observed_turn"):
+		var resources: Dictionary = payload.get("resources")
+		var parts: Array[String] = []
+		for resource_id in ["gold", "rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]:
+			var known := resources.has(resource_id) and not unknown_fields.has("resources." + resource_id)
+			parts.append("%s %s" % ["금" if resource_id == "gold" else _get_resource_label(resource_id), str(int(resources.get(resource_id, 0))) if known else "?"])
+		lines.append("재고: %s" % " · ".join(parts))
+	if _has_enemy_intel_payload_for_field(fields, payload, "heroes"):
+		var heroes: Array = payload.get("heroes")
+		if heroes.is_empty():
+			lines.append("소속 장수 0명")
+		else:
+			var names: Array[String] = []
+			for hero in heroes:
+				if hero is Dictionary:
+					names.append("%s(%s)" % [str(hero.get("display_name", hero.get("hero_id", ""))), "부상" if str(hero.get("status", "")) == "wounded" else "정상"])
+			lines.append("소속 장수 %d명: %s" % [names.size(), ", ".join(names)])
+	elif fields.has("heroes") and unknown_fields.has("heroes"):
+		lines.append("소속 장수 ?")
+	return "\n".join(lines)
 
 
 func _get_hero_entry(hero_id: String) -> Dictionary:

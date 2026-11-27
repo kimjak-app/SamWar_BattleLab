@@ -14,7 +14,7 @@ extends Node
 const KEY_FILL_RESOURCES := KEY_G
 const KEY_COMPLETE_TECH := KEY_T
 const KEY_REVEAL_INTEL := KEY_I
-const INTEL_FIELDS: Array[String] = ["troops", "resources", "publicSupport", "loyalty", "governor", "tech"]
+const INTEL_FIELDS: Array[String] = ["troops", "resources", "publicSupport", "loyalty", "governor", "tech", "heroes"]
 const SCOPE_CITY := "city"
 const SCOPE_NATIONAL := "national"
 const STATUS_PREFIX := "[디버그] "

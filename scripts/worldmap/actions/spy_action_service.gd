@@ -2,6 +2,7 @@ class_name WorldMapSpyActionService
 extends RefCounted
 
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
+const SpyIntelSnapshotService := preload("res://scripts/worldmap/actions/spy_intel_snapshot_service.gd")
 
 const ACTION_GATHER_INFO := "gather_info"
 const ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"
@@ -34,6 +35,9 @@ const DIPLOMACY_SCORE_MAX := 100
 const DIPLOMACY_DEFAULT_SCORE := 50
 const ALLIANCE_ACCEPTANCE_THRESHOLD := 70
 const FACTION_RELATION_STATUS := {"ALLIED": "allied", "NEUTRAL": "neutral", "HOSTILE": "hostile", "SUSPENDED": "suspended"}
+# Queue 37 (SPY-INTEL-P3) [proposal]: the city's hero roster ("heroes") is added at the end of the field list from this
+# political aptitude up (3, 4, 5). Tiers 1 and 2 are unchanged. Change only this constant to move it.
+const SPY_INFO_HEROES_MIN_APTITUDE := 3
 
 var _adapter: Object
 var _player_state: Dictionary:
@@ -281,6 +285,13 @@ func _calculate_spy_detection_chance(target_city_id: String) -> int:
 
 
 func _get_spy_info_visibility_level(political_aptitude: int) -> Dictionary:
+	var visibility := _get_spy_info_base_visibility_level(political_aptitude)
+	if clampi(political_aptitude, 0, 5) >= SPY_INFO_HEROES_MIN_APTITUDE:
+		(visibility["fields"] as Array).append("heroes")
+	return visibility
+
+
+func _get_spy_info_base_visibility_level(political_aptitude: int) -> Dictionary:
 	var aptitude := clampi(political_aptitude, 0, 5)
 	match aptitude:
 		5:
@@ -365,8 +376,18 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 	if city_data.is_empty():
 		return {}
 	var payload := {"city_id": target_city_id, "city_name": _adapter.call("_format_city_name_by_id", target_city_id, target_city_id)}
+	# Queue 37: an exact report reads the city's real resource_stock and hero roster through the snapshot service.
+	# The estimated (political aptitude 1) path below is unchanged.
+	var snapshot := {}
+	if not estimated and (fields.has("resources") or fields.has("heroes")):
+		snapshot = _build_exact_spy_intel_snapshot(target_city_id, city_data, fields)
+		payload["observed_turn"] = snapshot.get("observed_turn", -1)
+		payload["unknown_fields"] = (snapshot.get("unknown_fields", []) as Array).duplicate()
 	for field_variant in fields:
 		var field := str(field_variant)
+		if snapshot.has(field):
+			payload[field] = snapshot[field].duplicate(true) if snapshot[field] is Dictionary or snapshot[field] is Array else snapshot[field]
+			continue
 		match field:
 			"troops":
 				payload["troops"] = _adapter.call("_get_city_troops_for_battle_context", target_city_id)
@@ -420,6 +441,28 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 		payload["troops_estimated"] = int(round(float(int(payload.get("troops", 0))) / 500.0)) * 500
 		payload.erase("troops")
 	return payload
+
+
+func _build_exact_spy_intel_snapshot(target_city_id: String, city_data: Dictionary, fields: Array) -> Dictionary:
+	var exact_fields: Array = []
+	for field in ["resources", "heroes"]:
+		if fields.has(field):
+			exact_fields.append(field)
+	var owner_faction_id := str(_adapter.call("_get_city_owner_faction_id", city_data))
+	var snapshot := SpyIntelSnapshotService.build_snapshot({
+		"precision": "exact",
+		"fields": exact_fields,
+		"city_id": target_city_id,
+		"observed_turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"stock": _adapter.call("_get_spy_intel_city_stock", target_city_id) if fields.has("resources") else {},
+		"heroes": _adapter.call("_get_spy_intel_city_hero_rows", target_city_id) if fields.has("heroes") else [],
+		"owner_faction_id": owner_faction_id,
+	})
+	if fields.has("heroes") and owner_faction_id.is_empty():
+		# Unknown owner: the roster is unknown, not a confirmed 0.
+		snapshot.erase("heroes")
+		(snapshot["unknown_fields"] as Array).append("heroes")
+	return snapshot
 
 
 func _get_spy_cooldown_turns() -> int:
