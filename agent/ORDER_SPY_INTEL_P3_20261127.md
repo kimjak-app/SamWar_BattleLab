@@ -56,3 +56,15 @@
 - 기준 SHA: `1d68293`(CI 초록) → `2e3360f` 차이는 `agent/PROGRESS_WM3D.md`·`agent/REPORT_STOCK_AUTHORITY_P0_20261127.md` 문서 2개뿐(클코치 확인, 실행 코드·검사기·CI 설정 0). 보고서에 이 한 줄과 **이번 가지 후보 SHA의 새 CI 실행 번호**를 같이 적는다.
 - 시험 12 추가: 정탐 성공 직후 대상 도시의 재고와 주둔 장수를 바꾸고(예: 쌀 40→90, 장수 1명 이동), 턴을 넘기고, 저장→불러오기 → `city_intel[A]`의 재고·장수 명단·`observed_turn`이 **정탐 때 값 그대로**. 다시 정탐하면 그때만 새 값·새 턴으로 바뀐다. (기록은 그 시점 사진이지 현재 값 창이 아니다. 표시도 기록만 쓴다.)
 - 장수 노출 단계 표: 보고서에 "정치 단계별 필드 전/후" 표를 넣어, 기존 정확/추정 경계가 안 바뀌었고 `heroes`만 3·4·5에 더해졌음을 보인다.
+
+## 7. 추가 (16:45, 채비서 `30_…기술보정_회귀검수` + 클코치 코드 확인)
+[사실, `2e3360f`] `_get_modified_spy_visibility_level_mvp`(spy_action_service 1435행): 기술 보정 순값 ≥ 0.05면 단계 목록에 한 칸을 더한다. **정치 1 + 보정이면 `estimated=true`인데 `resources`가 붙는다.** 그리고 `spy_controller.gd` 92행 `allowed_fields`에 `heroes`가 없어 저장 정리 때 지워진다.
+- 실제 재고는 **`estimated == false`일 때만** 넣는다(`fields.has("resources")`만 보고 넣지 않는다). `estimated == true`인 결과의 `resources`는 **지금 코드 그대로**(0줄 변경) 둔다 — 추정 재고 규칙은 이번 범위가 아니다(보고서 "남은 문제"에 적는다).
+- 보정 사다리(`resources`→`publicSupport`→`loyalty`→`governor`)는 바꾸지 않는다. `heroes`는 사다리에 넣지 않고 기본 단계 3·4·5 목록에만.
+- `allowed_fields`에 `heroes` 추가(허용 파일 `spy_controller.gd`).
+- 기록에 `owner_faction_id`(관측 당시 소유 세력)를 넣고, 표시는 소유가 바뀐 뒤 "관측 당시 ○○ 소속"처럼 그 기록 기준으로만 보여 준다(현재 소유국 정보로 보이지 않게).
+- 시험 추가(3절 목록에 이어서):
+  13. 기본 정치 1 / **보정 정치 1** / 보정 정치 2 / 기본 정치 3 네 경우 필드 표: 기본 1 = `troops_estimated`, 보정 1 = `troops_estimated`+`resources`(**기존 값 그대로, 실제 재고 아님**), 보정 2 = `troops`+`resources`(**실제 재고**), 기본 3 = `troops`+`resources`(실제)+`heroes`. 시험에서 HUD 씨앗값과 실제 재고를 크게 다르게(예: 씨앗 쌀 500, 실제 40) 둔다.
+  14. `heroes`가 저장→불러오기 뒤 `city_intel`과 도시 정보 창에 남음.
+  15. 관측 뒤 도시 소유권이 바뀌어도 기록의 `owner_faction_id`·장수 명단은 관측 때 그대로, 표시도 "관측 당시" 기준.
+- 보고서 단계표는 "전/후" 두 칸 + 보정 여부 칸으로.
