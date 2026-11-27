@@ -68,7 +68,14 @@ static func format_strategy_requests(main: Node, domain: String) -> String:
 			detail = "받은 것 %s · 보낸 것 %s" % [_format_amounts({"_": outcome.get("received", {})}), _format_amounts({"_": outcome.get("paid", {})})]
 		# A resolved diplomacy request can still be a rejection (alliance below 70) — "처리", its message says which.
 		var status_text := "처리" if status == StrategyRequestServiceScript.STATUS_RESOLVED and domain != StrategyRequestServiceScript.DOMAIN_TRADE else str(STATUS_TEXT.get(status, status))
-		lines.append("· %d턴 결과 %s: %s — %s" % [int(last.get("source_turn", 0)), status_text, _request_label(main, request), detail])
+		# Queue 42: "예약분 반환" only when something really came back; both refund lines carry the amounts.
+		if status == StrategyRequestServiceScript.STATUS_INVALID:
+			var refunded := _format_amounts(outcome.get("refunded", {}))
+			status_text = "무효 · 예약분 반환 (%s)" % refunded if refunded != "없음" else "무효"
+		elif status == StrategyRequestServiceScript.STATUS_HELD:
+			status_text = "%s (%s)" % [str(STATUS_TEXT[status]), _format_amounts(request.get("unrefunded", {}))]
+		# Queue 42: "N턴 결과" used the internal source turn and read like the next-turn notice — name the domain instead.
+		lines.append("· %s %s: %s — %s" % ["교역 결과" if domain == StrategyRequestServiceScript.DOMAIN_TRADE else "외교 결과", status_text, _request_label(main, request), detail])
 	if lines.is_empty():
 		return ""
 	return "전략 요청\n" + "\n".join(lines)
