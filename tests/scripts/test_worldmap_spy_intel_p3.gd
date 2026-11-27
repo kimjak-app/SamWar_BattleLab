@@ -309,6 +309,18 @@ func _check_owner_at_observation() -> void:
 	(_main.get("_city_runtime_states") as Dictionary)[_target] = city
 	_main.call("_rebuild_occupation_runtime_indexes_mvp")
 
+	# Addendum 16:55: an old record without owner_faction_id is not back-filled with the current owner, and it shows
+	# as before (no ownership text).
+	var legacy_entry := {"turn": 3, "fields": ["troops", "resources"], "estimated": false, "payload": {"city_id": _target, "troops": 1200, "resources": {"rice": 500, "salt": 20}}}
+	var legacy_hint_before := _panel_hint(legacy_entry.payload, legacy_entry.fields)
+	(_main.get("_player_state") as Dictionary)["city_intel"] = {_target: legacy_entry.duplicate(true)}
+	parsed = JSON.parse_string(JSON.stringify(_main.call("_serialize_worldmap_state")))
+	_expect(parsed is Dictionary and bool(_main.call("_apply_worldmap_state", parsed)), "15. old record saved and loaded")
+	entry = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
+	payload = entry.get("payload", {})
+	var legacy_hint_after := _panel_hint(payload, entry.get("fields", []))
+	_expect(not payload.has("owner_faction_id") and legacy_hint_after == legacy_hint_before and not legacy_hint_after.contains("관측 당시"), "15. old record: no owner_faction_id added, display as before (%s)" % legacy_hint_after.replace("\n", " | "))
+
 
 func _recorded_payload() -> Dictionary:
 	var entry: Variant = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
