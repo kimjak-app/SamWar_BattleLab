@@ -51,13 +51,13 @@ func _run() -> void:
 	_expect(not bool(national_conflict.ok) and national_conflict.reason == "national_active", "conflicting national active research rejection")
 
 	_reset()
-	var city_before := (_cities.a.storage as Dictionary).duplicate(true)
+	var city_before := (_cities.a.resource_stock as Dictionary).duplicate(true)
 	var city_start: Dictionary = service.start_research("agri_tool_upgrade", "a")
 	_expect(bool(city_start.ok), "start city research")
-	_expect(int(_cities.a.storage.gold) == int(city_before.gold) - 70 and _food_total(_cities.a.storage) == _food_total(city_before) - 15, "city charge success")
-	var city_gold_after_first := int(_cities.a.storage.gold)
+	_expect(int(_cities.a.resource_stock.gold) == int(city_before.gold) - 70 and _food_total(_cities.a.resource_stock) == _food_total(city_before) - 15, "city charge success")
+	var city_gold_after_first := int(_cities.a.resource_stock.gold)
 	var city_duplicate: Dictionary = service.start_research("agri_tool_upgrade", "a")
-	_expect(not bool(city_duplicate.ok) and int(_cities.a.storage.gold) == city_gold_after_first, "city charge occurs once")
+	_expect(not bool(city_duplicate.ok) and int(_cities.a.resource_stock.gold) == city_gold_after_first, "city charge occurs once")
 
 	_reset()
 	_player.national_domestic_tech_completed = {"nation_foundation": true}
@@ -68,10 +68,10 @@ func _run() -> void:
 	var insufficient: Dictionary = service.start_research("nation_foundation")
 	_expect(insufficient.reason == "insufficient_cost" and _player.resource_stock == stock_before and (_player.national_tech_research.active as Dictionary).is_empty(), "insufficient resource rejection without partial charge")
 	_reset()
-	_cities.a.storage = {"gold": 70, "rice": 5, "barley": 0, "seafood": 0}
-	var city_stock_before := (_cities.a.storage as Dictionary).duplicate(true)
+	_cities.a.resource_stock = {"gold": 70, "rice": 5, "barley": 0, "seafood": 0}
+	var city_stock_before := (_cities.a.resource_stock as Dictionary).duplicate(true)
 	var city_insufficient: Dictionary = service.start_research("agri_tool_upgrade", "a")
-	_expect(city_insufficient.reason == "insufficient_cost" and _cities.a.storage == city_stock_before, "failed city start causes no partial charge")
+	_expect(city_insufficient.reason == "insufficient_cost" and _cities.a.resource_stock == city_stock_before, "failed city start causes no partial charge")
 	_expect(service.start_research("missing_tech").reason == "missing_definition", "malformed tech rejected safely")
 
 	_reset()
@@ -117,8 +117,8 @@ func _service() -> RefCounted:
 func _reset() -> void:
 	_player = {"selected_city_id": "a", "owned_city_ids": ["a", "b"], "turn_number": 1, "resource_stock": {"gold": 2000, "rice": 500, "barley": 500, "seafood": 500}, "city_domestic_tech_completed": {}, "city_domestic_tech_unlocked": {}, "national_domestic_tech_completed": {}, "national_domestic_tech_unlocked": {}, "national_tech_research": {"active": {}}}
 	_cities = {
-		"a": {"owner": "player", "type": "inland", "storage": {"gold": 1000, "rice": 200, "barley": 100, "seafood": 50}, "city_tech": {"completed": {}, "in_progress": {}, "available_cache": {}, "research": {"active": {}}}},
-		"b": {"owner": "player", "type": "coastal", "storage": {"gold": 1000, "rice": 200, "barley": 100, "seafood": 50}, "city_tech": {"completed": {}, "in_progress": {}, "available_cache": {}, "research": {"active": {}}}},
+		"a": {"owner": "player", "type": "inland", "resource_stock": {"gold": 1000, "rice": 200, "barley": 100, "seafood": 50}, "city_tech": {"completed": {}, "in_progress": {}, "available_cache": {}, "research": {"active": {}}}},
+		"b": {"owner": "player", "type": "coastal", "resource_stock": {"gold": 1000, "rice": 200, "barley": 100, "seafood": 50}, "city_tech": {"completed": {}, "in_progress": {}, "available_cache": {}, "research": {"active": {}}}},
 	}
 
 
@@ -130,7 +130,8 @@ func _query(query_id: String, args: Array) -> Variant:
 		"city_exists": return _cities.has(str(args[0]))
 		"is_city_owned": return str((_cities.get(str(args[0]), {}) as Dictionary).get("owner", "")) == "player"
 		"current_turn": return int(_player.get("turn_number", 1))
-		"city_storage": return ((_cities.get(str(args[0]), {}) as Dictionary).get("storage", {}) as Dictionary).duplicate(true)
+		"city_storage": return ((_cities.get(str(args[0]), {}) as Dictionary).get("resource_stock", {}) as Dictionary).duplicate(true)
+		"national_resource_stock": return (_player.get("resource_stock", {}) as Dictionary).duplicate(true)
 		"is_city_coastal": return str((_cities.get(str(args[0]), {}) as Dictionary).get("type", "")).contains("coastal")
 	return null
 
@@ -144,7 +145,12 @@ func _mutation(mutation_id: String, args: Array) -> Variant:
 			_cities[str(args[0])] = (args[1] as Dictionary).duplicate(true)
 			return true
 		"set_city_storage":
-			_cities[str(args[0])]["storage"] = (args[1] as Dictionary).duplicate(true)
+			_cities[str(args[0])]["resource_stock"] = (args[1] as Dictionary).duplicate(true)
+			return true
+		"charge_national_city_stock":
+			# The fake national stock stands for the owned-city sum; the live host takes the charge out of the cities.
+			for resource_id in (args[0] as Dictionary):
+				_player.resource_stock[resource_id] = int(_player.resource_stock.get(resource_id, 0)) - int((args[0] as Dictionary)[resource_id])
 			return true
 	return false
 

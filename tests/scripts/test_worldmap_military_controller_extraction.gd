@@ -41,7 +41,10 @@ func _run() -> void:
 			"Conscription capacity wrapper parity"
 		)
 		host.call("_set_city_loyalty_value", city_id, 90)
-		state["resource_stock"] = {"gold": 1000, "rice": 1000, "barley": 0, "seafood": 0}
+		# Queue 36: the national stock is the owned cities' sum; the stock goes into the capital, the others are emptied.
+		var payment_city_ids: Array = host.call("_get_national_payment_city_ids_mvp")
+		for index in payment_city_ids.size():
+			host.call("_set_city_storage", str(payment_city_ids[index]), {"gold": 1000, "rice": 1000, "barley": 0, "seafood": 0} if index == 0 else {})
 		var before_troops := int(host.call("_get_city_troops_for_battle_context", city_id))
 		_expect(bool(host.call("_can_recruit_troops", city_id, 100).get("ok", false)), "Valid recruitment accepted")
 		_expect(bool(host.call("_recruit_troops", city_id, 100)), "Recruitment mutation routed")

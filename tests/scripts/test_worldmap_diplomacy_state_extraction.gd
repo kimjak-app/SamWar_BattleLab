@@ -31,7 +31,7 @@ func _prepare(score: int = 60, status: String = "neutral") -> void:
 	state["diplomacy_action_cooldowns"] = {}
 	state["trade_agreements"] = {}
 	state["alliances"] = {}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	for faction_id in _foreign_factions:
 		var relation: Dictionary = _worldmap.call("_ensure_faction_relation_entry", "player", faction_id)
 		relation["score"] = score
@@ -56,7 +56,7 @@ func _store_entry(faction_id: String, entry: Dictionary) -> void:
 	var key := str(_worldmap.call("_make_faction_relation_key", "player", faction_id))
 	relations[key] = entry
 	state["faction_relations"] = relations
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 
 
 func _check_cooldown_state() -> void:
@@ -170,7 +170,7 @@ func _check_trade_agreement_failure_and_compatibility() -> void:
 	var before := _state().duplicate(true)
 	var first_result: bool = _service.call("propose_trade_agreement", _worldmap.call("_ensure_diplomacy_controller"), faction_id)
 	var first_state := _state().duplicate(true)
-	_worldmap.set("_player_state", before.duplicate(true))
+	_set_state(before.duplicate(true))
 	var repeated_result: bool = _service.call("propose_trade_agreement", _worldmap.call("_ensure_diplomacy_controller"), faction_id)
 	_expect(repeated_result == first_result, "agreement service return is deterministic")
 	_expect(_state() == first_state, "agreement service state is deterministic")
@@ -186,7 +186,7 @@ func _check_mirror_restore_and_alliance_preservation() -> void:
 	state["diplomacy_action_cooldowns"] = {faction_id: action_cooldown}
 	state["trade_agreements"] = {faction_id: {"turns_remaining": agreement_turns, "source": "diplomacy_action", "created_turn": int(state.get("turn_number", 1)), "bonus": Service.TRADE_AGREEMENT_MULTIPLIER_BONUS}}
 	state["alliances"] = {faction_id: {"turns_remaining": 2, "created_turn": int(state.get("turn_number", 1)), "resource_package": {}, "acceptance_score": 80}}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	_worldmap.call("_ensure_diplomacy_controller").call("_normalize_diplomacy_action_state_from_player_state")
 	var restored := _entry(faction_id)
 	_expect(int(restored.get("diplomacy_action_cooldown", 0)) == action_cooldown, "cooldown mirror restores relation")
@@ -205,7 +205,7 @@ func _check_production_action_parity() -> void:
 	var before := _state().duplicate(true)
 	var direct: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), "trade_agreement", city_id)
 	var expected_state := _state().duplicate(true)
-	_worldmap.set("_player_state", before.duplicate(true))
+	_set_state(before.duplicate(true))
 	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", "trade_agreement", city_id)
 	_expect(production == direct, "trade agreement production result parity")
 	_expect(_state() == expected_state, "trade agreement action state parity")
@@ -239,3 +239,14 @@ func _run() -> void:
 	await process_frame
 	print("[DIPLOMACY_STATE_2C1] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
+
+
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock, so the stock a
+# test puts in _player_state is seeded into the first national payment city (the capital) and the other owned cities
+# are emptied. A state reset therefore resets the city stock too.
+func _set_state(state: Dictionary) -> void:
+	_worldmap.set("_player_state", state)
+	var stock: Dictionary = (state.get("resource_stock", {}) as Dictionary).duplicate(true) if state.get("resource_stock", {}) is Dictionary else {}
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock if index == 0 else {})

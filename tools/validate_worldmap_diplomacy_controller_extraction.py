@@ -4,6 +4,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from p1_exact_delta import frozen_text_matches
+
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "114cb33283ef08e4282dff4f79b130127039d4ac"
 COORDINATOR = "scripts/worldmap/actions/worldmap_action_coordinator.gd"
@@ -149,7 +151,8 @@ def check_main_boundaries():
     current_controller = functions(current(CONTROLLER))
     for name, body in frozen_controller.items():
         assert current_controller.get(name) == body, f"Diplomacy Controller baseline function changed: {name}"
-    assert set(current_controller) - set(frozen_controller) == {"apply_spy_relation_delta", "break_alliance_for_spy_wedge"}, "Unexpected Diplomacy Controller expansion"
+    # Queue 36 reply 1 adds the two national-cost bridges (diplomacy cost paid out of the owned cities).
+    assert set(current_controller) - set(frozen_controller) == {"apply_spy_relation_delta", "break_alliance_for_spy_wedge", "_can_pay_national_city_stock_cost", "_pay_national_city_stock_cost"}, "Unexpected Diplomacy Controller expansion"
     assert current(PRESENTER) == subprocess.check_output(
         ["git", "show", f"b51f95f868aa7bda891895ac29eb0730d0b15428:{PRESENTER}"], cwd=ROOT
     ).decode("utf-8").replace("\r\n", "\n"), "Diplomacy Presenter changed during Trade extraction"
@@ -164,6 +167,8 @@ def check_main_boundaries():
         "_has_completed_national_domestic_tech_mvp",
         "_append_domestic_modifier_source_if_completed_mvp",
         "_get_total_recruitment_food_stock",
+        # Queue 36 reply 1: national cost check / payment out of the owned cities.
+        "_can_pay_generic_resource_cost", "_apply_generic_resource_cost",
     }
     assert calls == allowed, f"Unexpected main dependencies: {calls ^ allowed}"
     assert not (calls & CONTROLLER_FUNCTIONS), "Controller calls diplomacy-specific main implementation"
@@ -188,7 +193,8 @@ def check_regression_migration():
             r'\1_worldmap.call("_ensure_diplomacy_controller")',
             expected,
         )
-        assert current(path) == expected, f"Legacy regression changed beyond owner migration: {suffix}"
+        # Queue 36 reply 1: plus the approved P0-stock setup change (test stock seeded into the owned cities).
+        assert frozen_text_matches(ROOT, path, expected, current(path)), f"Legacy regression changed beyond owner migration: {suffix}"
 
 
 def main():
@@ -205,7 +211,7 @@ def main():
     assert "configure_diplomacy(_ensure_diplomacy_controller())" in main_source
     for name in ["diplomacy_action_service.gd"]:
         path = "scripts/worldmap/actions/" + name
-        assert current(path) == baseline(path), f"Service changed: {name}"
+        assert frozen_text_matches(ROOT, path, baseline(path), current(path)), f"Service changed: {name}"
     print("PASS: diplomacy 2F Controller/Presenter ownership, exact moved bodies, thin main, explicit Spy boundary, unchanged Trade/Military")
 
 

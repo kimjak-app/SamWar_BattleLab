@@ -19,10 +19,10 @@ func _run() -> void:
 	_expect(empty_storage.size() == 9 and int(empty_storage.gold) == 0, "empty storage normalization")
 	var malformed := service.normalize_city_storage({"rice": -3, "gold": "12", "unknown": 9})
 	_expect(int(malformed.rice) == 0 and int(malformed.gold) == 12 and not malformed.has("unknown"), "malformed storage normalization")
-	var defaults := service.build_default_city_storage("sabi", {"gold": 99})
+	var defaults: Dictionary = service.get_city_storage({})
 	_expect(defaults.size() == 9 and int(defaults.gold) == 0, "default city storage")
-	var hanseong := service.build_default_city_storage("hanseong", {"gold": 99, "rice": 20})
-	_expect(int(hanseong.gold) == 99 and int(hanseong.rice) == 20, "hanseong compatibility default")
+	var hanseong: Dictionary = service.get_city_storage({"resource_stock": {"gold": 99, "rice": 20}, "storage": {"gold": 5, "rice": 7}})
+	_expect(int(hanseong.gold) == 99 and int(hanseong.rice) == 20, "city storage adapter reads resource_stock and ignores a legacy storage ledger")
 
 	var seed_city := {"id": "hanseong", "food": 100, "gold": 40, "resource_seed": {"rice": 2, "barley": 1, "seafood": 1, "salt": 2}}
 	var initialized := service.build_supply_resource_defaults(seed_city)

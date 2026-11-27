@@ -33,7 +33,7 @@ func _prepare(faction: String = "player", score: int = 60, status: String = "neu
 	state["diplomacy_action_cooldowns"] = {}
 	state["active_trade_agreements"] = {}
 	state["active_alliances"] = {}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	var markers: Dictionary = _worldmap.get("_city_markers_by_id")
 	for city_id in markers:
 		var owner := str(_worldmap.call("_get_city_owner_faction_id_for_trade_display", city_id))
@@ -53,7 +53,7 @@ func _parity(action: String, faction: String, score: int, status: String, gold: 
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var service_result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action, _target)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	_worldmap.set("_player_state", before.duplicate(true))
+	_set_state(before.duplicate(true))
 	var actual: Dictionary = _worldmap.call("_apply_diplomacy_action", action, _target)
 	var label := "%s/%s/%s/%d/%d/%d" % [action, faction, status, score, gold, cooldown]
 	_expect(actual == service_result, "coordinator/service result parity " + label)
@@ -131,7 +131,7 @@ func _run() -> void:
 
 	_prepare()
 	_open_and_press()
-	_worldmap.get("_player_state")["resource_stock"]["gold"] = 0
+	_set_national_gold(0)
 	_presentation.call("_finish_pending_video")
 	_expect(_resolved == 3, "resources revalidated after video")
 	_expect(_worldmap.get("_player_state")["last_diplomacy_action_result"].get("reason") == "resources", "resource failure displayed")
@@ -157,3 +157,23 @@ func _run() -> void:
 	await process_frame
 	print("[DIPLOMACY_ROUTING] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
+
+
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock, so the stock a
+# test puts in _player_state is seeded into the first national payment city (the capital) and the other owned cities
+# are emptied. A state reset therefore resets the city stock too.
+func _set_state(state: Dictionary) -> void:
+	_worldmap.set("_player_state", state)
+	var stock: Dictionary = (state.get("resource_stock", {}) as Dictionary).duplicate(true) if state.get("resource_stock", {}) is Dictionary else {}
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock if index == 0 else {})
+
+
+# Queue 36: set the national gold through the cities (capital gets the amount, the other owned cities 0).
+func _set_national_gold(gold: int) -> void:
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		var stock: Dictionary = _worldmap.call("_get_city_storage", str(city_ids[index]))
+		stock["gold"] = gold if index == 0 else 0
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock)

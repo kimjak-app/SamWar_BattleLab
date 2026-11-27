@@ -551,3 +551,12 @@ func _append_domestic_modifier_source_if_completed_mvp(modifier: Dictionary, tec
 
 func _get_total_recruitment_food_stock() -> int:
 	return _host.call("_get_total_recruitment_food_stock")
+
+
+# Queue 36 reply 1: national diplomacy costs are checked against and taken out of the owned cities' resource_stock.
+func _can_pay_national_city_stock_cost(cost: Dictionary) -> Dictionary:
+	return _host.call("_can_pay_generic_resource_cost", cost)
+
+
+func _pay_national_city_stock_cost(cost: Dictionary) -> Dictionary:
+	return _host.call("_apply_generic_resource_cost", cost)

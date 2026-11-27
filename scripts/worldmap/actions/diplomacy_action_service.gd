@@ -664,6 +664,9 @@ func propose_trade_agreement(host: Object, target_faction_id: String) -> bool:
 
 
 func can_pay_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictionary:
+	# Queue 36: the live host pays national costs out of the owned cities; the code below is the plain-host fallback.
+	if host.has_method("_can_pay_national_city_stock_cost"):
+		return host.call("_can_pay_national_city_stock_cost", cost)
 	var missing := {}
 	var resource_stock_variant: Variant = _get_player_state(host).get("resource_stock", {})
 	var resource_stock: Dictionary = resource_stock_variant if resource_stock_variant is Dictionary else {}
@@ -679,6 +682,8 @@ func can_pay_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictiona
 
 
 func apply_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictionary:
+	if host.has_method("_pay_national_city_stock_cost"):
+		return host.call("_pay_national_city_stock_cost", cost)
 	var player_state := _get_player_state(host)
 	var resource_stock_variant: Variant = player_state.get("resource_stock", {})
 	var resource_stock: Dictionary = resource_stock_variant.duplicate(true) if resource_stock_variant is Dictionary else {}

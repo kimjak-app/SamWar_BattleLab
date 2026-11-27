@@ -4,6 +4,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from p1_exact_delta import frozen_text_matches
+
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "90cfe4343977cd70ed9e512ec3a3b35c2f41bd71"
 MAIN = "scripts/worldmap/worldmap_main.gd"
@@ -106,7 +108,8 @@ def main():
         "scripts/worldmap/actions/trade_presentation_helper.gd",
         "scripts/worldmap/ui/worldmap_action_presentation_controller.gd",
     ]:
-        assert current(path) == at_base(path), f"Frozen production file changed: {path}"
+        # Queue 36 reply 1: the approved P0-stock delta (diplomacy cost from city stock) is the only allowed change.
+        assert frozen_text_matches(ROOT, path, at_base(path), current(path)), f"Frozen production file changed: {path}"
     old_main, new_main = functions(at_base(MAIN)), host_functions
     for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_handoff_to_battle"]:
         if name in old_main:

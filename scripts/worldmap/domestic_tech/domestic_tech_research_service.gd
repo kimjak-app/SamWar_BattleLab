@@ -224,7 +224,7 @@ func build_actual_charge_plan(tech_id: String, scope: String, city_id: String = 
 
 
 func has_national_food_group_scope() -> bool:
-	var stock: Variant = _query_value("player_value", ["resource_stock", {}], {})
+	var stock: Variant = _query_value("national_resource_stock", [], {})
 	if not stock is Dictionary:
 		return false
 	for resource_id in FOOD_GROUP_KEYS:
@@ -283,7 +283,14 @@ func apply_actual_charge(charge_plan: Dictionary) -> Dictionary:
 		_mutate("set_city_storage", [city_id, stock])
 		return {"ok": true, "scope": scope, "city_id": city_id, "before": before, "after": stock.duplicate(true), "paid": paid}
 	if scope == SCOPE_NATIONAL:
-		_mutate("set_player_value", ["resource_stock", stock])
+		# Queue 36: the national stock is the sum of the owned cities; the charge is taken out of the cities.
+		var charge := {}
+		for resource_id in before:
+			var amount := maxi(0, int(before.get(resource_id, 0))) - maxi(0, int(stock.get(resource_id, 0)))
+			if amount > 0:
+				charge[str(resource_id)] = amount
+		if not charge.is_empty() and not bool(_mutate("charge_national_city_stock", [charge])):
+			return {"ok": false, "reason": "insufficient_resources", "validation": validation}
 		return {"ok": true, "scope": scope, "before": before, "after": stock.duplicate(true), "paid": paid}
 	return {"ok": false, "reason": "invalid_scope"}
 
@@ -587,7 +594,7 @@ func _get_charge_stock(scope: String, city_id: String) -> Dictionary:
 		var stock: Variant = _query_value("city_storage", [city_id], {})
 		return (stock as Dictionary).duplicate(true) if stock is Dictionary else {}
 	if scope == SCOPE_NATIONAL:
-		var stock: Variant = _query_value("player_value", ["resource_stock", {}], {})
+		var stock: Variant = _query_value("national_resource_stock", [], {})
 		return (stock as Dictionary).duplicate(true) if stock is Dictionary else {}
 	return {}
 

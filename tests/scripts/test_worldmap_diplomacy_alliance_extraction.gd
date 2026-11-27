@@ -33,7 +33,7 @@ func _prepare(score: int = 80, gold: int = 10000, silk: int = 10000) -> void:
 	state["alliances"] = {}
 	state["last_alliance_proposal_result"] = {}
 	state["last_diplomacy_action_result"] = {}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	for faction_id in _foreign_factions:
 		var relation: Dictionary = _worldmap.call("_ensure_faction_relation_entry", "player", faction_id)
 		relation["score"] = score
@@ -57,7 +57,7 @@ func _store_entry(faction_id: String, entry: Dictionary) -> void:
 	var key := str(_worldmap.call("_make_faction_relation_key", "player", faction_id))
 	relations[key] = entry
 	state["faction_relations"] = relations
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 
 
 func _check_success_and_payment() -> void:
@@ -133,7 +133,7 @@ func _check_acceptance_and_wrapper_parity() -> void:
 	var before := _state().duplicate(true)
 	var first_proposal: bool = _service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), faction_id, package, duration)
 	var first_state := _state().duplicate(true)
-	_worldmap.set("_player_state", before.duplicate(true))
+	_set_state(before.duplicate(true))
 	var repeated_proposal: bool = _service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), faction_id, package, duration)
 	_expect(repeated_proposal == first_proposal, "proposal service return is deterministic")
 	_expect(_state() == first_state, "proposal service full state is deterministic")
@@ -146,7 +146,7 @@ func _check_acceptance_and_wrapper_parity() -> void:
 	validation["payment"] = payment
 	var first_result: Dictionary = _service.call("apply_alliance_action", _worldmap.call("_ensure_diplomacy_controller"), validation)
 	first_state = _state().duplicate(true)
-	_worldmap.set("_player_state", before.duplicate(true))
+	_set_state(before.duplicate(true))
 	payment = _service.call("apply_diplomacy_resource_cost", _worldmap.call("_ensure_diplomacy_controller"), package)
 	validation["payment"] = payment
 	var repeated_result: Dictionary = _service.call("apply_alliance_action", _worldmap.call("_ensure_diplomacy_controller"), validation)
@@ -164,7 +164,7 @@ func _check_renewal_expiration_and_independence() -> void:
 	_expect(bool(_service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), first, package, duration)), "initial direct alliance succeeds")
 	var state := _state()
 	state["turn_number"] = int(state.get("turn_number", 1)) + 1
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	var first_entry := _entry(first)
 	first_entry["alliance_turns_remaining"] = 1
 	_store_entry(first, first_entry)
@@ -200,7 +200,7 @@ func _check_mirror_restore() -> void:
 	var package: Dictionary = Service.get_action_definition("alliance_proposal").get("cost", {})
 	var state := _state()
 	state["alliances"] = {faction_id: {"turns_remaining": 3, "created_turn": int(state.get("turn_number", 1)), "resource_package": package, "acceptance_score": 75}}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	_worldmap.call("_ensure_diplomacy_controller").call("_normalize_diplomacy_action_state_from_player_state")
 	var relation := _entry(faction_id)
 	_expect(str(relation.get("status", "")) == "allied" and int(relation.get("alliance_turns_remaining", 0)) == 3, "alliance mirror restores relation state")
@@ -208,7 +208,7 @@ func _check_mirror_restore() -> void:
 	var before_sync := _state().duplicate(true)
 	_service.call("sync_alliance_mirror_state", _worldmap.call("_ensure_diplomacy_controller"))
 	var first_state := _state().duplicate(true)
-	_worldmap.set("_player_state", before_sync.duplicate(true))
+	_set_state(before_sync.duplicate(true))
 	_service.call("sync_alliance_mirror_state", _worldmap.call("_ensure_diplomacy_controller"))
 	_expect(_state() == first_state, "alliance mirror service is deterministic")
 	_expect(int(_state().get("alliances", {}).get(faction_id, {}).get("turns_remaining", 0)) == int(_entry(faction_id).get("alliance_turns_remaining", 0)), "relation and alliance mirror stay synchronized")
@@ -240,3 +240,14 @@ func _run() -> void:
 	await process_frame
 	print("[DIPLOMACY_ALLIANCE_2C2] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
+
+
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock, so the stock a
+# test puts in _player_state is seeded into the first national payment city (the capital) and the other owned cities
+# are emptied. A state reset therefore resets the city stock too.
+func _set_state(state: Dictionary) -> void:
+	_worldmap.set("_player_state", state)
+	var stock: Dictionary = (state.get("resource_stock", {}) as Dictionary).duplicate(true) if state.get("resource_stock", {}) is Dictionary else {}
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock if index == 0 else {})

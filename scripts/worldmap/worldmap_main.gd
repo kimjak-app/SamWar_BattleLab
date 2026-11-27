@@ -555,6 +555,7 @@ const MANUAL_TRADE_PREVIEW_PRICES := {
 	"silk": 10,
 	"salt": 6,
 }
+const STOCK_LEDGER_VERSION := "resource_stock_v1"
 const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
 const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
 const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
@@ -1461,7 +1462,12 @@ func _mutate_city_resource_service(mutation_id: String, args: Array) -> Variant:
 			_city_runtime_states[str(args[0])] = (args[1] as Dictionary).duplicate(true)
 			return true
 		"set_player_resource_compatibility":
-			_player_state["resource_stock"] = (args[0] as Dictionary).duplicate(true)
+			# Queue 36: both national caches hold the same live owned-city sum the warehouse window reads.
+			var national := _get_player_national_resource_stock_mvp()
+			_player_state["resource_stock"] = national.duplicate(true)
+			var aggregation: Dictionary = _player_state.get("national_aggregation", {}) if _player_state.get("national_aggregation", {}) is Dictionary else {}
+			aggregation["resources"] = national.duplicate(true)
+			_player_state["national_aggregation"] = aggregation
 			return true
 	return false
 
@@ -1616,6 +1622,8 @@ func _query_domestic_tech_research_service(query_id: String, args: Array) -> Var
 		"city_storage":
 			var city_id := str(args[0])
 			return _get_city_storage(city_id, _get_city_hud_entry(city_id)).duplicate(true)
+		"national_resource_stock":
+			return _get_player_national_resource_stock_mvp().duplicate(true)
 		"is_city_coastal":
 			return _is_city_coastal_for_city_tech(str(args[0]))
 	return null
@@ -1632,6 +1640,8 @@ func _mutate_domestic_tech_research_service(mutation_id: String, args: Array) ->
 		"set_city_storage":
 			_set_city_storage(str(args[0]), (args[1] as Dictionary).duplicate(true))
 			return true
+		"charge_national_city_stock":
+			return bool(_commit_national_city_stock_payment_mvp((args[0] as Dictionary).duplicate(true)).get("ok", false))
 	return false
 
 
@@ -3762,8 +3772,9 @@ func _set_city_storage(city_id: String, storage: Dictionary) -> void:
 	var mutable_city_state := _get_mutable_city_runtime_state(city_id)
 	if mutable_city_state.is_empty():
 		return
-	mutable_city_state["storage"] = _ensure_city_resource_service().ensure_city_storage_keys(storage)
+	mutable_city_state["resource_stock"] = _ensure_city_resource_service().ensure_city_storage_keys(storage)
 	_city_runtime_states[city_id] = mutable_city_state
+	_sync_player_resource_compatibility_from_city_stock_mvp()
 
 
 func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, transfer_multiplier: int) -> String:
@@ -7835,17 +7846,12 @@ func _calculate_recruitment_cost(amount: int) -> Dictionary:
 
 
 func _get_total_recruitment_food_stock() -> int:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	return maxi(0, int(resource_stock.get("rice", 0))) + maxi(0, int(resource_stock.get("barley", 0))) + maxi(0, int(resource_stock.get("seafood", 0)))
 
 
 func _get_national_payment_city_ids_mvp() -> Array[String]:
-	var city_ids: Array[String] = []
-	for city_id_variant in _city_runtime_states.keys():
-		var city_id := str(city_id_variant)
-		if _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():
-			city_ids.append(city_id)
-	city_ids.sort()
+	var city_ids := _get_player_city_ids_for_national_stock_mvp()
 	var capital_id := str(_player_state.get("capital_city_id", ""))
 	if city_ids.has(capital_id):
 		city_ids.erase(capital_id)
@@ -7888,7 +7894,7 @@ func _commit_city_stock_payment_plan_mvp(payment: Dictionary) -> Dictionary:
 
 func _can_pay_generic_resource_cost(cost: Dictionary) -> Dictionary:
 	var missing := {}
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	for resource_id_variant in cost.keys():
 		var resource_id := str(resource_id_variant)
 		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
@@ -7902,32 +7908,31 @@ func _can_pay_generic_resource_cost(cost: Dictionary) -> Dictionary:
 	}
 
 
+# Queue 36: a national cost is paid out of the owned cities (capital first, then by city id; "food" = rice, barley,
+# seafood in that order). All or nothing: if any item is short, no city stock changes and every paid amount is 0.
 func _apply_generic_resource_cost(cost: Dictionary) -> Dictionary:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)
-	var before_stock := resource_stock.duplicate(true)
+	var before_stock := _get_player_national_resource_stock_mvp().duplicate(true)
+	var payment := _plan_national_city_stock_payment_mvp(cost)
+	var plan: Dictionary = payment.get("plan", {}) if bool(payment.get("ok", false)) else {}
+	var paid_by_resource := {}
+	for raw_city_id in plan:
+		for raw_resource_id in (plan[raw_city_id] as Dictionary):
+			paid_by_resource[str(raw_resource_id)] = int(paid_by_resource.get(str(raw_resource_id), 0)) + int((plan[raw_city_id] as Dictionary).get(raw_resource_id, 0))
 	var paid := {}
 	for resource_id_variant in cost.keys():
 		var resource_id := str(resource_id_variant)
-		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
 		if resource_id == "food":
-			var remaining_food := required_amount
 			var food_paid := {}
 			for food_resource_id in ["rice", "barley", "seafood"]:
-				var food_before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))
-				var food_paid_amount := mini(food_before_amount, remaining_food)
-				resource_stock[food_resource_id] = food_before_amount - food_paid_amount
-				remaining_food -= food_paid_amount
-				food_paid[food_resource_id] = food_paid_amount
+				food_paid[food_resource_id] = int(paid_by_resource.get(food_resource_id, 0))
 			paid["food"] = food_paid
 			continue
-		var before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
-		var paid_amount := mini(before_amount, required_amount)
-		resource_stock[resource_id] = before_amount - paid_amount
-		paid[resource_id] = paid_amount
-	_player_state["resource_stock"] = resource_stock
+		paid[resource_id] = int(paid_by_resource.get(resource_id, 0))
+	if not plan.is_empty():
+		_commit_city_stock_payment_plan_mvp(payment)
 	return {
 		"before": before_stock,
-		"after": resource_stock.duplicate(true),
+		"after": _get_player_national_resource_stock_mvp().duplicate(true),
 		"cost": cost.duplicate(true),
 		"paid": paid,
 	}
@@ -12278,7 +12283,7 @@ func _has_city_public_support_food_surplus(_city_id: String) -> bool:
 		var recent_food := int((income_delta as Dictionary).get("rice", 0)) + int((income_delta as Dictionary).get("barley", 0)) + int((income_delta as Dictionary).get("seafood", 0))
 		if recent_food != 0:
 			return recent_food > 0
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	return int(resource_stock.get("rice", 0)) + int(resource_stock.get("barley", 0)) + int(resource_stock.get("seafood", 0)) > 0
 
 
@@ -12293,7 +12298,7 @@ func _has_city_public_support_commerce_surplus(_city_id: String) -> bool:
 		applied_trade = (last_trade as Dictionary).get("applied_player_totals", {})
 	if applied_trade is Dictionary and int((applied_trade as Dictionary).get("gold", 0)) != 0:
 		return int((applied_trade as Dictionary).get("gold", 0)) > 0
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	return int(resource_stock.get("gold", 0)) > 0
 
 
@@ -12740,6 +12745,7 @@ func _serialize_worldmap_state() -> Dictionary:
 	])
 	return {
 		"version": "v0.76",
+		"stock_ledger": STOCK_LEDGER_VERSION,
 		"title": "T04-T05 Korea MVP Turn Loop and Unification Completion",
 		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
@@ -12770,7 +12776,7 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_city_runtime_states.clear()
 	_hero_runtime_states.clear()
 	_city_policy_state.clear()
-	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}))
+	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}), str(data.get("stock_ledger", "")) != STOCK_LEDGER_VERSION)
 	_apply_worldmap_city_policy_state(data.get("city_policy_state", {}))
 	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
 	_restore_trade_persistence_from_player_state()
@@ -12864,10 +12870,6 @@ func _get_mutable_city_runtime_state(city_id: String) -> Dictionary:
 	if source_city_state.is_empty():
 		return {}
 	var mutable_city_state := source_city_state.duplicate(true)
-	if not mutable_city_state.has("storage") or not (mutable_city_state["storage"] is Dictionary):
-		mutable_city_state["storage"] = _build_default_city_storage(city_id, mutable_city_state)
-	else:
-		mutable_city_state["storage"] = _normalize_city_storage(mutable_city_state.get("storage"))
 	_city_runtime_states[city_id] = mutable_city_state
 	return mutable_city_state
 
@@ -12930,8 +12932,6 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 		}
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			city_payload["resource_stock"] = (source.get("resource_stock") as Dictionary).duplicate(true)
-		if source.has("storage") and source.get("storage") is Dictionary:
-			city_payload["storage"] = _normalize_city_storage(source.get("storage"))
 		if source.has("city_tech") and source.get("city_tech") is Dictionary:
 			city_payload["city_tech"] = (source.get("city_tech") as Dictionary).duplicate(true)
 		var wounded_queue := _get_city_wounded_queue_mvp(source)
@@ -13007,7 +13007,7 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 	return serialized
 
 
-func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
+func _apply_worldmap_city_runtime_state(raw_state: Variant, legacy_stock_ledger: bool = false) -> void:
 	if raw_state == null:
 		return
 	if not raw_state is Dictionary:
@@ -13054,10 +13054,9 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 				var resource_key := str(resource_id)
 				resource_stock[resource_key] = maxi(0, int((source.get("resource_stock") as Dictionary).get(resource_key, 0)))
 			city_state["resource_stock"] = resource_stock
-		if source.has("storage") and source.get("storage") is Dictionary:
-			city_state["storage"] = _normalize_city_storage(source.get("storage"))
-		else:
-			city_state["storage"] = _build_default_city_storage(city_id, city_state)
+		if legacy_stock_ledger and source.get("storage") is Dictionary:
+			# Queue 36 option A: an old save keeps only resource_stock; the separate storage ledger is dropped, not added.
+			print("[STOCK_MIGRATION] city=%s dropped_storage=%s" % [city_id, str(source.get("storage"))])
 		if source.has("city_tech") and source.get("city_tech") is Dictionary:
 			var city_tech: Dictionary = (source.get("city_tech") as Dictionary).duplicate(true)
 			if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
@@ -13343,33 +13342,40 @@ func _get_player_resource_amount(resource_id: String) -> int:
 
 
 func _get_player_national_resource_stock_mvp() -> Dictionary:
-	var aggregation: Variant = _player_state.get("national_aggregation", {})
-	if aggregation is Dictionary and (aggregation as Dictionary).get("resources", {}) is Dictionary:
-		return ((aggregation as Dictionary).get("resources", {}) as Dictionary)
-	return _player_state.get("resource_stock", {})
+	# Queue 36: computed from the owned cities every time; national_aggregation / resource_stock are only caches.
+	return _sum_city_resource_stocks_mvp(_get_player_city_ids_for_national_stock_mvp())
 
 
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock. Same owner
+# test as _rebuild_occupation_runtime_indexes_mvp.
+func _get_player_city_ids_for_national_stock_mvp() -> Array[String]:
+	var player_cities: Array[String] = []
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		if _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():
+			player_cities.append(city_id)
+	player_cities.sort()
+	return player_cities
+
+
+func _sum_city_resource_stocks_mvp(city_ids: Array[String]) -> Dictionary:
+	var resources := {}
+	for city_id in city_ids:
+		var stock: Variant = _get_city_hud_entry(city_id).get("resource_stock", {})
+		if stock is Dictionary:
+			for resource_id in (stock as Dictionary).keys():
+				resources[str(resource_id)] = int(resources.get(str(resource_id), 0)) + maxi(0, int((stock as Dictionary).get(resource_id, 0)))
+	return resources
+
+
+# Queue 36: the city "storage" ledger is gone. This adapter name stays for the trade / research / UI services and
+# returns the city's resource_stock (supply defaults ensured) with the 9 resource keys.
 func _get_city_storage(city_id: String, city_data: Dictionary = {}) -> Dictionary:
 	var source_data: Dictionary = city_data
-	if source_data.is_empty() and not city_id.is_empty():
-		source_data = _get_city_hud_entry(city_id)
-	var player_resource_stock: Dictionary = _player_state.get("resource_stock", {}) if _player_state.get("resource_stock", {}) is Dictionary else {}
-	var storage := _ensure_city_resource_service().get_city_storage(city_id, source_data, player_resource_stock)
 	if not city_id.is_empty():
-		var runtime_state := _get_mutable_city_runtime_state(city_id)
-		if not runtime_state.is_empty():
-			runtime_state["storage"] = storage.duplicate(true)
-			_city_runtime_states[city_id] = runtime_state
-	return storage
-
-
-func _normalize_city_storage(raw_storage: Variant) -> Dictionary:
-	return _ensure_city_resource_service().normalize_city_storage(raw_storage)
-
-
-func _build_default_city_storage(city_id: String, _city_data: Dictionary) -> Dictionary:
-	var player_resource_stock: Dictionary = _player_state.get("resource_stock", {}) if _player_state.get("resource_stock", {}) is Dictionary else {}
-	return _ensure_city_resource_service().build_default_city_storage(city_id, player_resource_stock)
+		_ensure_city_supply_resource_defaults(city_id)
+		source_data = _get_city_hud_entry(city_id)
+	return _ensure_city_resource_service().get_city_storage(source_data)
 
 
 func _format_city_storage_summary(storage: Dictionary) -> String:

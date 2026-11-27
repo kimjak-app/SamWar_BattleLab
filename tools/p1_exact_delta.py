@@ -63,6 +63,16 @@ EXPECTED_P1D_SETTLEMENT_DELTA = ['-\tif result_kind == RESULT_RETREAT:',
  'str(plan.get("settlement_profile", "standard")) == "t02_return":']
 
 
+# Queue 36 STOCK-AUTHORITY-P0 (Kim approved re-pin 11-27): the code commit that made each city's resource_stock the only
+# stock ledger. worldmap_main.gd must equal that commit and differ from P1_MAIN_CHECKPOINT by exactly
+# EXPECTED_P0_STOCK_MAIN_DELTA. Other files the same commit changed on purpose, which older guards freeze byte for byte,
+# are listed in EXPECTED_P0_STOCK_FROZEN_DELTAS: path -> exact delta from the text such a guard expects.
+# Empty checkpoint = no approved P0 state yet (only the P-1 state is accepted).
+P0_STOCK_CHECKPOINT = ""
+EXPECTED_P0_STOCK_MAIN_DELTA: list[str] = []
+EXPECTED_P0_STOCK_FROZEN_DELTAS: dict[str, list[str]] = {}
+
+
 def line_delta(old_text: str, new_text: str) -> list[str]:
     return [
         line
@@ -77,13 +87,27 @@ def git_show_text(root, commit: str, path: str) -> str:
 
 def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_main: str, main_path: str) -> None:
     p1_main = git_show_text(root, P1_MAIN_CHECKPOINT, main_path)
-    assert current_main == p1_main, (
-        "worldmap_main.gd changed after the approved P-1 checkpoint; review a new exact delta "
-        "instead of relaxing the guard"
-    )
     assert line_delta(warning_cleanup_main, p1_main) == EXPECTED_P1_MAIN_DELTA, (
         "P-1 worldmap_main.gd delta no longer matches the approved exact delta"
     )
+    approved_main = git_show_text(root, P0_STOCK_CHECKPOINT, main_path) if P0_STOCK_CHECKPOINT else p1_main
+    assert current_main == approved_main, (
+        "worldmap_main.gd changed after the approved P-1/P0-stock checkpoint; review a new exact delta "
+        "instead of relaxing the guard"
+    )
+    if P0_STOCK_CHECKPOINT:
+        assert line_delta(p1_main, approved_main) == EXPECTED_P0_STOCK_MAIN_DELTA, (
+            "P0-stock worldmap_main.gd delta no longer matches the approved exact delta"
+        )
+
+
+def frozen_text_matches(root, path: str, expected_text: str, current_text: str) -> bool:
+    """A frozen file equals what its guard expects, or (queue 36) the P0-stock commit with exactly the approved delta."""
+    current_text = current_text.replace("\r\n", "\n")
+    if not P0_STOCK_CHECKPOINT or path not in EXPECTED_P0_STOCK_FROZEN_DELTAS:
+        return current_text == expected_text
+    p0_text = git_show_text(root, P0_STOCK_CHECKPOINT, path)
+    return current_text == p0_text and line_delta(expected_text, p0_text) == EXPECTED_P0_STOCK_FROZEN_DELTAS[path]
 
 
 def assert_settlement_is_approved_p1d_state(root, current_bytes: bytes, af1_expected_bytes: bytes, path: str) -> None:

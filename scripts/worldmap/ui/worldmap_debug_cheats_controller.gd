@@ -2,7 +2,7 @@ class_name WorldMapDebugCheatsController
 extends Node
 
 ## Queue 30 DEBUG-CHEATS (reply 1, option A): three developer cheats for world-map testing, debug builds only.
-##   Ctrl+Shift+G      fill every owned city's stock (city resource_stock and city storage) to WAREHOUSE_CAPACITY
+##   Ctrl+Shift+G      fill every owned city's stock (city resource_stock, the only city ledger) to WAREHOUSE_CAPACITY
 ##   Ctrl+Shift+T      complete the tech selected in the open tech tree (no cost, no prerequisites, active research kept)
 ##   Ctrl+Shift+Alt+T  complete every tech of the selected tech's scope (city scope: the selected city only)
 ##   Ctrl+Shift+I      toggle: show every field of enemy city intel without spying (read-time only, never saved)
@@ -89,13 +89,10 @@ func fill_resources() -> Dictionary:
 	for city_id_variant in city_ids:
 		var city_id := str(city_id_variant)
 		main.call("_ensure_city_supply_resource_defaults", city_id)
-		var storage: Dictionary = (main.call("_get_city_storage", city_id) as Dictionary).duplicate(true)
 		for resource_id_variant in capacity.keys():
 			var resource_id := str(resource_id_variant)
 			var amount := int(capacity[resource_id_variant])
 			main.call("_wounded_recovery_mutation", "set_city_resource_amount", [city_id, resource_id, amount])
-			storage[resource_id] = amount
-		main.call("_set_city_storage", city_id, storage)
 	main.call("_rebuild_occupation_runtime_indexes_mvp")
 	_refresh_after_resource_change()
 	_status("자원 채움: 내 도시 %d곳, 창고 용량 값(금 %d)" % [city_ids.size(), int(capacity.get("gold", 0))])

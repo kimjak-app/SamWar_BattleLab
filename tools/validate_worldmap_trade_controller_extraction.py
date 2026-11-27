@@ -4,6 +4,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from p1_exact_delta import frozen_text_matches
+
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "b51f95f868aa7bda891895ac29eb0730d0b15428"
 MAIN = "scripts/worldmap/worldmap_main.gd"
@@ -76,7 +78,8 @@ def main():
         "scripts/worldmap/actions/diplomacy_presentation_helper.gd",
         "scripts/worldmap/ui/worldmap_action_presentation_controller.gd",
     ]:
-        assert current(frozen) == at_base(frozen), f"Frozen Diplomacy/Spy/presentation boundary changed: {frozen}"
+        # Queue 36 reply 1: the approved P0-stock delta (diplomacy cost from city stock) is the only allowed change.
+        assert frozen_text_matches(ROOT, frozen, at_base(frozen), current(frozen)), f"Frozen Diplomacy/Spy/presentation boundary changed: {frozen}"
 
     old, new = functions(at_base(MAIN)), functions(source)
     for boundary in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:

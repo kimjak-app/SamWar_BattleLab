@@ -31,18 +31,11 @@ func ensure_city_storage_keys(storage: Dictionary) -> Dictionary:
 	return normalized
 
 
-func build_default_city_storage(city_id: String, player_resource_stock: Dictionary) -> Dictionary:
-	var storage := ensure_city_storage_keys({})
-	if city_id == "hanseong":
-		for resource_id in RESOURCE_DISPLAY_ORDER:
-			storage[resource_id] = maxi(0, int(player_resource_stock.get(resource_id, 0)))
-	return storage
-
-
-func get_city_storage(city_id: String, city_data: Dictionary, player_resource_stock: Dictionary = {}) -> Dictionary:
-	if city_data.get("storage") is Dictionary:
-		return ensure_city_storage_keys(normalize_city_storage(city_data.get("storage")))
-	return build_default_city_storage(city_id, player_resource_stock)
+# Queue 36 (STOCK-AUTHORITY-P0): one city ledger. The "storage" adapter names stay, but they read resource_stock;
+# a legacy city["storage"] dictionary is ignored.
+func get_city_storage(city_data: Dictionary) -> Dictionary:
+	var stock: Variant = city_data.get("resource_stock", {})
+	return ensure_city_storage_keys(normalize_city_storage(stock if stock is Dictionary else {}))
 
 
 func get_city_storage_group_total(storage: Dictionary, resource_ids: Array) -> int:

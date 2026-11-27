@@ -12,8 +12,46 @@ class GenericHost extends Node:
 	const CITY_HUD_DATA := {"foreign": {"owner": "enemy"}, "own": {"owner": "player"}}
 	const RESOURCE_LABELS := {"gold": "금전", "silk": "비단"}
 	const FACTION_LABELS := {"enemy": "상대국", "player": "자국"}
-	var _player_state: Dictionary = {}
+	# Queue 36: national costs come out of the owned city ("own"). Setting _player_state seeds that city from the
+	# state's resource_stock, like the real host where the national stock is only the owned cities' sum.
+	var _city_stock := {}
+	var _player_state: Dictionary = {}:
+		set(value):
+			_player_state = value
+			_city_stock = {"own": ((value.get("resource_stock", {}) as Dictionary).duplicate(true) if value.get("resource_stock", {}) is Dictionary else {})}
 	var _save_management_status := ""
+
+	func _can_pay_generic_resource_cost(cost: Dictionary) -> Dictionary:
+		var stock: Dictionary = _city_stock.get("own", {})
+		var missing := {}
+		for resource_id in cost:
+			var available := _food(stock) if str(resource_id) == "food" else int(stock.get(resource_id, 0))
+			if available < int(cost[resource_id]):
+				missing[str(resource_id)] = int(cost[resource_id]) - available
+		return {"ok": missing.is_empty(), "cost": cost.duplicate(true), "missing": missing}
+	func _apply_generic_resource_cost(cost: Dictionary) -> Dictionary:
+		var stock: Dictionary = (_city_stock.get("own", {}) as Dictionary).duplicate(true)
+		var before := stock.duplicate(true)
+		var paid := {}
+		if bool(_can_pay_generic_resource_cost(cost).get("ok", false)):
+			for resource_id in cost:
+				if str(resource_id) == "food":
+					var remaining := int(cost[resource_id])
+					var food_paid := {}
+					for food_id in ["rice", "barley", "seafood"]:
+						var pay := mini(int(stock.get(food_id, 0)), remaining)
+						stock[food_id] = int(stock.get(food_id, 0)) - pay
+						remaining -= pay
+						food_paid[food_id] = pay
+					paid["food"] = food_paid
+				else:
+					stock[resource_id] = int(stock.get(resource_id, 0)) - int(cost[resource_id])
+					paid[str(resource_id)] = int(cost[resource_id])
+			_city_stock["own"] = stock
+			_player_state["resource_stock"] = stock.duplicate(true)
+		return {"before": before, "after": stock.duplicate(true), "cost": cost.duplicate(true), "paid": paid}
+	func _food(stock: Dictionary) -> int:
+		return int(stock.get("rice", 0)) + int(stock.get("barley", 0)) + int(stock.get("seafood", 0))
 	var selected_city_marker: WorldMapCityMarker = null
 
 	func _get_current_player_faction_id() -> String:
@@ -127,7 +165,7 @@ func _check_cancel_and_targets() -> void:
 	_expect(_controller._validate_diplomacy_action("envoy").get("reason") == "no_city", "missing selected target")
 	_expect(_controller._validate_diplomacy_action("envoy", "own").get("reason") == "player_faction", "own target rejected")
 	_expect(_controller._validate_diplomacy_action("envoy", "missing").get("reason") == "invalid_target", "unknown target rejected")
-	_host._player_state["resource_stock"] = {}
+	_host._city_stock["own"] = {}
 	_expect(_controller._validate_diplomacy_action("envoy", "foreign").get("reason") == "resources", "resource failure")
 
 

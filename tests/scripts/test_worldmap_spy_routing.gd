@@ -41,7 +41,6 @@ func _prepare(gold: int = 10000, cooldown: int = 0) -> void:
 	state["faction_relations"] = {}
 	state["city_intel"] = {}
 	state["revolt_instigation"] = {}
-	_worldmap.set("_player_state", state)
 	var cities := _baseline_cities.duplicate(true)
 	for city_id in cities:
 		var city: Dictionary = cities[city_id]
@@ -57,6 +56,8 @@ func _prepare(gold: int = 10000, cooldown: int = 0) -> void:
 		city["domestic_seed"] = domestic
 		cities[city_id] = city
 	_worldmap.set("_city_runtime_states", cities)
+	# Queue 36: seed the stock after the city states are replaced (the stock lives in the cities).
+	_set_state(state)
 
 
 func _find_valid_target(action: String) -> String:
@@ -81,7 +82,7 @@ func _parity(action: String, gold: int = 10000, cooldown: int = 0, require_valid
 		_expect(false, "valid target exists for " + action)
 		return
 	_select_target(city_id)
-	_worldmap.get("_player_state")["resource_stock"]["gold"] = gold
+	_set_national_gold(gold)
 	_worldmap.get("_player_state")["spy_cooldown"] = cooldown
 	var before_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var before_cities: Dictionary = _worldmap.get("_city_runtime_states").duplicate(true)
@@ -90,7 +91,7 @@ func _parity(action: String, gold: int = 10000, cooldown: int = 0, require_valid
 	var direct: Dictionary = controller.call("execute", action, city_id)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var expected_cities: Dictionary = _worldmap.get("_city_runtime_states").duplicate(true)
-	_worldmap.set("_player_state", before_state.duplicate(true))
+	_set_state(before_state.duplicate(true))
 	_worldmap.set("_city_runtime_states", before_cities.duplicate(true))
 	seed(73021)
 	var actual: Dictionary = _worldmap.call("_apply_spy_action", action, city_id)
@@ -184,7 +185,7 @@ func _run() -> void:
 	_prepare()
 	var costly_target := _find_valid_target("wedge")
 	_open_and_press("wedge", costly_target)
-	_worldmap.get("_player_state")["resource_stock"]["gold"] = 0
+	_set_national_gold(0)
 	_presentation.call("_finish_pending_video")
 	_expect(_resolved == 3, "resources revalidated after video")
 	var failure: Dictionary = _worldmap.get("_player_state")["last_spy_wedge_result"]
@@ -207,3 +208,23 @@ func _run() -> void:
 	await process_frame
 	print("[SPY_ROUTING] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
+
+
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock, so the stock a
+# test puts in _player_state is seeded into the first national payment city (the capital) and the other owned cities
+# are emptied. A state reset therefore resets the city stock too.
+func _set_state(state: Dictionary) -> void:
+	_worldmap.set("_player_state", state)
+	var stock: Dictionary = (state.get("resource_stock", {}) as Dictionary).duplicate(true) if state.get("resource_stock", {}) is Dictionary else {}
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock if index == 0 else {})
+
+
+# Queue 36: set the national gold through the cities (capital gets the amount, the other owned cities 0).
+func _set_national_gold(gold: int) -> void:
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		var stock: Dictionary = _worldmap.call("_get_city_storage", str(city_ids[index]))
+		stock["gold"] = gold if index == 0 else 0
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock)

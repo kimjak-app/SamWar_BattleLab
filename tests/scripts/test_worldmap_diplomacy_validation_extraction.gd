@@ -30,7 +30,7 @@ func _prepare(score: int = 60, status: String = "neutral", gold: int = 10000, co
 	state["resource_stock"] = {"gold": gold, "silk": 10000, "rice": 10000}
 	state["faction_relations"] = {}
 	state["diplomacy_action_cooldowns"] = {}
-	_worldmap.set("_player_state", state)
+	_set_state(state)
 	var relation: Dictionary = _worldmap.call("_ensure_faction_relation_entry", "player", _foreign_faction_id)
 	relation["score"] = score
 	relation["status"] = status
@@ -125,3 +125,14 @@ func _run() -> void:
 	await process_frame
 	print("[DIPLOMACY_VALIDATION_2A] %s: %d checks, %d failures" % ["PASS" if _failures == 0 else "FAIL", _checks, _failures])
 	quit(0 if _failures == 0 else 1)
+
+
+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock, so the stock a
+# test puts in _player_state is seeded into the first national payment city (the capital) and the other owned cities
+# are emptied. A state reset therefore resets the city stock too.
+func _set_state(state: Dictionary) -> void:
+	_worldmap.set("_player_state", state)
+	var stock: Dictionary = (state.get("resource_stock", {}) as Dictionary).duplicate(true) if state.get("resource_stock", {}) is Dictionary else {}
+	var city_ids: Array = _worldmap.call("_get_national_payment_city_ids_mvp")
+	for index in city_ids.size():
+		_worldmap.call("_set_city_storage", str(city_ids[index]), stock if index == 0 else {})

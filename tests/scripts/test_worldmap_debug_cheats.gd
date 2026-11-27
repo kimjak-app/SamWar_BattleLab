@@ -3,7 +3,7 @@ extends SceneTree
 # Queue 30 DEBUG-CHEATS (reply 1, option A): scripts/worldmap/ui/worldmap_debug_cheats_controller.gd, a root child of
 # WorldMap.tscn (worldmap_main.gd unchanged). Runs on the real WorldMap.tscn; cheats are called directly, and through
 # real key events pushed into the viewport where the order asks for input checks.
-# 1. ① fills every owned city's resource_stock and storage to WAREHOUSE_CAPACITY, the national stock is their sum,
+# 1. ① fills every owned city's resource_stock (the only city ledger) to WAREHOUSE_CAPACITY, the national stock is their sum,
 #    and a city tech and a national tech no longer fail validate_start with insufficient_cost
 # 2. ① leaves enemy cities alone
 # 3. ② completes the selected tech with no resource change, keeps the active research slot, does not spread to other
@@ -98,31 +98,25 @@ func _check_resources(main: Node, ctl: Node) -> void:
 	_expect(not enemy.is_empty(), "an enemy city exists (%s)" % enemy)
 	# Empty the player's stock first so that the tech start checks fail on cost before the cheat.
 	for city_id in owned:
-		var zero_storage := {}
 		for resource_id in capacity.keys():
 			main.call("_wounded_recovery_mutation", "set_city_resource_amount", [city_id, resource_id, 0])
-			zero_storage[resource_id] = 0
-		main.call("_set_city_storage", city_id, zero_storage)
 	main.call("_rebuild_occupation_runtime_indexes_mvp")
 	var city_tech := _find_cost_tech(main, "city", OWN_CITY)
 	var national_tech := _find_cost_tech(main, "national", "")
 	_expect(not city_tech.is_empty(), "1. a city tech fails on cost with an empty stock (%s)" % city_tech)
 	_expect(not national_tech.is_empty(), "1. a national tech fails on cost with an empty stock (%s)" % national_tech)
 	var enemy_stock_before: Dictionary = (_city(main, enemy).get("resource_stock", {}) as Dictionary).duplicate(true)
-	var enemy_storage_before: Variant = _city(main, enemy).get("storage", null)
-	enemy_storage_before = (enemy_storage_before as Dictionary).duplicate(true) if enemy_storage_before is Dictionary else null
 
 	# Through a real key event (overlay closed).
 	_push_key(KEY_G)
 	await process_frame
 	for city_id in owned:
 		var stock: Dictionary = _city(main, city_id).get("resource_stock", {})
-		var storage: Dictionary = _city(main, city_id).get("storage", {})
 		var bad := []
 		for resource_id in capacity.keys():
-			if int(stock.get(resource_id, -1)) != int(capacity[resource_id]) or int(storage.get(resource_id, -1)) != int(capacity[resource_id]):
-				bad.append("%s %s/%s" % [resource_id, str(stock.get(resource_id)), str(storage.get(resource_id))])
-		_expect(bad.is_empty(), "1. Ctrl+Shift+G: %s resource_stock and storage = capacity (%s)" % [city_id, str(bad)])
+			if int(stock.get(resource_id, -1)) != int(capacity[resource_id]):
+				bad.append("%s %s" % [resource_id, str(stock.get(resource_id))])
+		_expect(bad.is_empty() and not _city(main, city_id).has("storage"), "1. Ctrl+Shift+G: %s resource_stock = capacity, no storage ledger (%s)" % [city_id, str(bad)])
 	var national: Dictionary = (main.get("_player_state") as Dictionary).get("resource_stock", {})
 	var bad_national := []
 	for resource_id in capacity.keys():
@@ -137,8 +131,7 @@ func _check_resources(main: Node, ctl: Node) -> void:
 	_expect(str(main.get("_save_management_status")).begins_with("[디버그] 자원 채움"), "1. status line message (%s)" % str(main.get("_save_management_status")))
 	# 2. enemy untouched
 	_expect(_city(main, enemy).get("resource_stock", {}) == enemy_stock_before, "2. enemy %s resource_stock unchanged" % enemy)
-	var enemy_storage_after: Variant = _city(main, enemy).get("storage", null)
-	_expect(enemy_storage_after == enemy_storage_before or enemy_storage_before == null and not enemy_storage_after is Dictionary, "2. enemy %s storage unchanged" % enemy)
+	_expect(not _city(main, enemy).has("storage"), "2. enemy %s has no storage ledger" % enemy)
 	# Pressing again keeps the values (fill, not toggle).
 	ctl.call("fill_resources")
 	_expect(int((_city(main, OWN_CITY).get("resource_stock", {}) as Dictionary).get("gold", 0)) == int(capacity["gold"]), "1. pressing again keeps the capacity values")
@@ -251,7 +244,7 @@ func _check_tech(main: Node, ctl: Node) -> void:
 func _stock_snapshot(main: Node) -> Dictionary:
 	var snap := {"national": ((main.get("_player_state") as Dictionary).get("resource_stock", {}) as Dictionary).duplicate(true)}
 	for city_id in _owned(main):
-		snap[city_id] = [(_city(main, city_id).get("resource_stock", {}) as Dictionary).duplicate(true), (_city(main, city_id).get("storage", {}) as Dictionary).duplicate(true)]
+		snap[city_id] = (_city(main, city_id).get("resource_stock", {}) as Dictionary).duplicate(true)
 	return snap
 
 
