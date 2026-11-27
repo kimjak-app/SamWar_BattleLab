@@ -162,6 +162,22 @@ func _check_diplomacy_order() -> void:
 	_expect(_stock(OWN_CITY) == source_before, "4. reservation back")
 	_expect((_main.get("_player_state") as Dictionary).get("last_domestic_apply_result", {}) == domestic_before, "4. the domestic result of the turn is not touched")
 	_set_relation("neutral")
+	# Agreement expiry alone is not an invalid condition (채비서 48): re-checked with today's rule at settlement.
+	for blocked in [false, true]:
+		_reset()
+		_set_agreement(true, 1)
+		var before := _stock(OWN_CITY)
+		var with_agreement := _submit({"salt": {"action": "import", "amount": 2}})
+		_set_agreement(false, 0)  # the agreement ran out in this turn's domestic step
+		if blocked:
+			_set_relation("suspended")  # ...and under the existing rule trade is now blocked
+		_resolve()
+		var r := _request(str(with_agreement.get("request_id", "")))
+		if blocked:
+			_expect(str(r.get("status", "")) == Strategy.STATUS_INVALID and _stock(OWN_CITY) == before, "4. agreement expired and trade now blocked -> invalid, refunded once")
+		else:
+			_expect(str(r.get("status", "")) == Strategy.STATUS_RESOLVED and int(_stock(OWN_CITY).get("salt", 0)) == int(before.get("salt", 0)) + 2, "4. agreement expired but trade still allowed -> settles normally (%s)" % str(r.get("result", {}).get("reason", "")))
+		_set_relation("neutral")
 	# The real turn end: domestic -> diplomacy -> trade -> turn advance.
 	_reset()
 	var submitted := _submit({"salt": {"action": "import", "amount": 2}})
@@ -347,6 +363,14 @@ func _set_relation(status: String) -> void:
 	var relation: Dictionary = _main.call("_ensure_faction_relation_entry", _player, _partner_faction)
 	relation["status"] = status
 	relation["score"] = 80 if status == "allied" else (10 if status == "hostile" else 50)
+	var state: Dictionary = _main.get("_player_state")
+	(state["faction_relations"] as Dictionary)[_main.call("_make_faction_relation_key", _player, _partner_faction)] = relation
+
+
+func _set_agreement(active: bool, turns: int) -> void:
+	var relation: Dictionary = _main.call("_ensure_faction_relation_entry", _player, _partner_faction)
+	relation["trade_agreement_active"] = active
+	relation["trade_agreement_turns_remaining"] = turns
 	var state: Dictionary = _main.get("_player_state")
 	(state["faction_relations"] as Dictionary)[_main.call("_make_faction_relation_key", _player, _partner_faction)] = relation
 
