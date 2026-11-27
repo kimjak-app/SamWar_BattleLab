@@ -433,9 +433,67 @@ def frozen_text_matches(root, path: str, expected_text: str, current_text: str) 
 # Frozen files it changed on purpose: path -> exact delta from the P0-stock text (or from the guard's text when the
 # file has no P0 stage). Controller functions it changed on purpose, which a guard freezes function by function:
 # path -> {function name -> exact delta of the normalized body}. Empty checkpoint = no approved P1 state yet.
-P1_STRATEGY_CHECKPOINT = ""
-EXPECTED_P1_STRATEGY_FROZEN_DELTAS: dict[str, list[str]] = {}
-EXPECTED_P1_STRATEGY_FUNCTION_DELTAS: dict[str, dict[str, list[str]]] = {}
+P1_STRATEGY_CHECKPOINT = "45ee6d9565bec6c8493a375bd86214be593d6290"
+EXPECTED_P1_STRATEGY_FROZEN_DELTAS: dict[str, list[str]] = {'scripts/worldmap/actions/diplomacy_action_service.gd': ['-\t_source_city_id: String = ""',
+                                                          '+\t_source_city_id: String = "",',
+                                                          '+\tprepaid_payment: Dictionary = {}',
+                                                          "+\t# Queue 38: prepaid_payment = a strategy request's own "
+                                                          'reservation (cost already taken out of the cities when it',
+                                                          '+\t# was submitted). With it, the payment check passes and '
+                                                          'nothing is charged again; everything else is unchanged.',
+                                                          '+\tif not prepaid_payment.is_empty():',
+                                                          '+\t\t(context_variant as Dictionary)["payment_check"] = '
+                                                          '{"ok": true, "prepaid": true}',
+                                                          '-\tvar payment_result := '
+                                                          'apply_diplomacy_resource_cost(host, cost)',
+                                                          '+\tvar payment_result := prepaid_payment if not '
+                                                          'prepaid_payment.is_empty() else '
+                                                          'apply_diplomacy_resource_cost(host, cost)'],
+ 'tests/scripts/test_worldmap_diplomacy_mutation_extraction.gd': ['+const Strategy := '
+                                                                  'preload("res://scripts/worldmap/actions/strategy_request_service.gd")  '
+                                                                  '# queue 38: player diplomacy is submitted (T) and '
+                                                                  'resolved at the turn end',
+                                                                  '-\tvar direct: Dictionary = '
+                                                                  '_service.call("execute", '
+                                                                  '_worldmap.call("_ensure_diplomacy_controller"), '
+                                                                  'action_id, _foreign_city_id)',
+                                                                  '+\tvar direct: Dictionary = '
+                                                                  'Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), '
+                                                                  'action_id, _foreign_city_id)'],
+ 'tests/scripts/test_worldmap_diplomacy_routing.gd': ['+const Strategy := '
+                                                      'preload("res://scripts/worldmap/actions/strategy_request_service.gd")  '
+                                                      '# queue 38: player diplomacy is submitted (T) and resolved at '
+                                                      'the turn end',
+                                                      '-\tvar service_result: Dictionary = _service.call("execute", '
+                                                      '_worldmap.call("_ensure_diplomacy_controller"), action, '
+                                                      '_target)',
+                                                      '+\tvar service_result: Dictionary = '
+                                                      'Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), '
+                                                      'action, _target)',
+                                                      '-\t\t_parity("alliance_proposal", faction, 0, "neutral", 10000, '
+                                                      '0, false)',
+                                                      '+\t\t_parity("alliance_proposal", faction, 0, "neutral", 10000, '
+                                                      '0, true)  # queue 38: submitted; acceptance is judged at the '
+                                                      'turn end'],
+ 'tests/scripts/test_worldmap_diplomacy_state_extraction.gd': ['+const Strategy := '
+                                                               'preload("res://scripts/worldmap/actions/strategy_request_service.gd")  '
+                                                               '# queue 38: player diplomacy is submitted (T) and '
+                                                               'resolved at the turn end',
+                                                               '-\tvar direct: Dictionary = _service.call("execute", '
+                                                               '_worldmap.call("_ensure_diplomacy_controller"), '
+                                                               '"trade_agreement", city_id)',
+                                                               '+\tvar direct: Dictionary = '
+                                                               'Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), '
+                                                               '"trade_agreement", city_id)']}
+EXPECTED_P1_STRATEGY_FUNCTION_DELTAS: dict[str, dict[str, list[str]]] = {'scripts/worldmap/actions/diplomacy_controller.gd': {'execute': ['-(action_id: String, target_city_id: String = "", '
+                                                                  'source_city_id: String = "") -> Dictionary:',
+                                                                  '-\treturn _service.execute(self, action_id, '
+                                                                  'target_city_id, source_city_id)',
+                                                                  '+(action_id: String, target_city_id: String = "", '
+                                                                  '_source_city_id: String = "") -> Dictionary:',
+                                                                  '+\treturn '
+                                                                  'StrategyRequestServiceScript.submit_player_diplomacy(self, '
+                                                                  'action_id, target_city_id)']}}
 
 
 def _approved_frozen_stages():
