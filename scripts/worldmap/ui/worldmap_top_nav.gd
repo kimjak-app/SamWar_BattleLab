@@ -65,9 +65,19 @@ var _slot_state: Dictionary = {}
 var _slot_tweens: Dictionary = {}
 
 
+var menu_router: WorldMapHudMenuRouter = null
+
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_top_bar()
+	# Queue 41: the other menus open the world map's existing windows (see WorldMapHudMenuRouter).
+	var production_world_map := get_node_or_null(production_world_map_path) if not production_world_map_path.is_empty() else null
+	if production_world_map != null:
+		menu_router = WorldMapHudMenuRouter.new()
+		menu_router.name = "HudMenuRouter"
+		add_child(menu_router)
+		menu_router.install(self, production_world_map)
 
 
 func _build_top_bar() -> void:
@@ -200,9 +210,21 @@ func _on_menu_pressed(menu_id: StringName) -> void:
 	menu_selected.emit(menu_id)
 
 	if menu_id == &"techtree":
+		if menu_router != null:
+			menu_router.close_all()
 		_open_techtree_if_available()
 	elif menu_id == &"system":
-		$AudioSettingsPopup.popup_centered()
+		# Queue 41: system = save / load + sound; without the world map it is the sound settings as before.
+		if menu_router != null:
+			menu_router.route(menu_id)
+		else:
+			open_audio_settings()
+	elif menu_router != null:
+		menu_router.route(menu_id)
+
+
+func open_audio_settings() -> void:
+	$AudioSettingsPopup.popup_centered()
 
 
 func _animate_menu(menu_id: StringName, hovered: bool) -> void:

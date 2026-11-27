@@ -565,11 +565,17 @@ func _can_disrupt_city_public_support(target_city_id: String) -> Dictionary:
 	var loyalty := _adapter.call("_get_city_loyalty_value", city_data)
 	if security >= 100 and loyalty >= 100:
 		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	# Queue 41 (8-1): charge the action's own cost (it was never charged) and refuse when it cannot be paid —
+	# nothing taken, no cooldown, no effect (same as the wedge check).
+	var cost := _get_spy_public_support_disrupt_cost(target_city_id)
+	var payment_check := _adapter.call("_can_pay_generic_resource_cost", cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_public_support_disrupt_amount(political_aptitude),
-		"cost": {},
+		"cost": cost,
 		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_PUBLIC_SUPPORT_DISRUPT),
 		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 	}
@@ -732,11 +738,17 @@ func _can_disrupt_city_loyalty(target_city_id: String) -> Dictionary:
 	var loyalty := _adapter.call("_get_city_loyalty_value", city_data)
 	if security >= 100 and loyalty >= 100:
 		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	# Queue 41 (8-1): charge the action's own cost (it was never charged) and refuse when it cannot be paid —
+	# nothing taken, no cooldown, no effect (same as the wedge check).
+	var cost := _get_spy_loyalty_disrupt_cost(target_city_id)
+	var payment_check := _adapter.call("_can_pay_generic_resource_cost", cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_loyalty_disrupt_amount(political_aptitude),
-		"cost": {},
+		"cost": cost,
 		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_LOYALTY_DISRUPT),
 		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 	}
@@ -890,11 +902,17 @@ func _can_instigate_revolt(target_city_id: String) -> Dictionary:
 		return {"ok": false, "reason": "prerequisite_public_support", "publicSupport": public_support}
 	if loyalty > 40:
 		return {"ok": false, "reason": "prerequisite_loyalty", "loyalty": loyalty}
+	# Queue 41 (8-1): charge the action's own cost (it was never charged) and refuse when it cannot be paid —
+	# nothing taken, no cooldown, no effect (same as the wedge check).
+	var cost := _get_spy_revolt_instigation_cost(target_city_id)
+	var payment_check := _adapter.call("_can_pay_generic_resource_cost", cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"probability_boost": _get_spy_revolt_instigation_boost(political_aptitude),
-		"cost": {},
+		"cost": cost,
 		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_REVOLT_INSTIGATE),
 		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 		"publicSupport": public_support,

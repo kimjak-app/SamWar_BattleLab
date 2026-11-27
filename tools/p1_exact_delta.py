@@ -928,6 +928,13 @@ EXPECTED_CITIES65_MAIN_DELTA: list[str] = ['-\t"pyeongyang": {"id": "pyeongyang"
  '+\tWorldMapCityRosterService.add_missing_city_markers(city_layer, CITY_HUD_DATA)  # Queue 39: 52 unclaimed cities.']
 
 
+# Queue 41 3D HUD connection (Kim approved 11-27 order, re-pin allowed): the code commit that wired the hidden windows.
+# worldmap_main.gd must equal that commit and differ from the CITIES65 text by exactly this delta (city storage / spy
+# report / strategy request texts in CityDetailPanel, three missing refresh calls). Empty checkpoint = not approved yet.
+HUD41_CHECKPOINT = ""
+EXPECTED_HUD41_MAIN_DELTA: list[str] = []
+
+
 def line_delta(old_text: str, new_text: str) -> list[str]:
     return [
         line
@@ -956,8 +963,14 @@ def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_ma
             "CITIES65 worldmap_main.gd delta no longer matches the approved exact delta"
         )
         approved_main = cities65_main
+    if HUD41_CHECKPOINT:
+        hud41_main = git_show_text(root, HUD41_CHECKPOINT, main_path)
+        assert line_delta(approved_main, hud41_main) == EXPECTED_HUD41_MAIN_DELTA, (
+            "HUD-41 worldmap_main.gd delta no longer matches the approved exact delta"
+        )
+        approved_main = hud41_main
     assert current_main == approved_main, (
-        "worldmap_main.gd changed after the approved P-1/P0-stock/CITIES65 checkpoint; review a new exact delta "
+        "worldmap_main.gd changed after the approved P-1/P0-stock/CITIES65/HUD-41 checkpoint; review a new exact delta "
         "instead of relaxing the guard"
     )
 

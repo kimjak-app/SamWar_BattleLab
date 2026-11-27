@@ -104,7 +104,9 @@ func _on_root_city_selected(city_id: String, _region_index: int) -> void:
 ## Returns true when the 3D map accepted the owner. Rejected pairs are recorded in unmapped_owners.
 ## A city whose owner and troops are unchanged since the last push is not pushed again (main syncs on every HUD refresh).
 func sync_city(city_id: String) -> bool:
-	if root3d == null:
+	# Queue 41: a root whose script did not load (C-track ignores worldmap3d/, so WorldMap3DRoot has no class cache and
+	# the scene root is a plain Node3D) has no owner API — skip instead of failing on every city every 0.25 s.
+	if root3d == null or not root3d.has_method("set_city_owner"):
 		return false
 	var marker = markers_by_id.get(city_id)
 	if marker == null or not is_instance_valid(marker):
@@ -126,6 +128,30 @@ func sync_city(city_id: String) -> bool:
 	_last_synced[city_id] = synced_key
 	_last_synced_ok[city_id] = ok
 	return ok
+
+
+## Queue 41: where a city stands on screen in the 3D view (viewport pixels; the 3D SubViewport is stretched full-rect
+## at shrink 1, so its pixels are the main viewport's). Null when 3D is off, the city has no 3D castle, or it is behind
+## the camera — callers then fall back / hide.
+func city_screen_position(city_id: String) -> Variant:
+	if not can_project_cities():
+		return null
+	var camera = get_camera()
+	var markers3d = root3d.get("markers")
+	if camera == null or not camera is Camera3D or not markers3d is Dictionary or not (markers3d as Dictionary).has(city_id):
+		return null
+	var castle := (markers3d as Dictionary)[city_id] as Node3D
+	if castle == null or not is_instance_valid(castle) or not castle.is_inside_tree():
+		return null
+	var world_position := castle.global_position
+	if (camera as Camera3D).is_position_behind(world_position):
+		return null
+	return (camera as Camera3D).unproject_position(world_position)
+
+
+## True when the 3D view is on and really drawn by a Camera3D (false for a root whose script did not load).
+func can_project_cities() -> bool:
+	return is_active() and root3d != null and get_camera() is Camera3D
 
 
 func sync_all() -> int:

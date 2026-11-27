@@ -216,7 +216,7 @@ static func submit_player_trade(host: Object, trade: Object, order: Dictionary) 
 		"efficiency": efficiency,
 		"market_turn": int(context.get("market_turn", 0)),
 		"market_prices": prices.duplicate(true),
-		"message": "수동 무역을 접수했습니다. 결과는 다음 턴에 나옵니다.",
+		"message": "접수됨. %s 예약했습니다. 다음 턴에 결과가 나옵니다." % _format_reserved_with_particle(pay),
 	}
 
 
@@ -401,7 +401,7 @@ static func _invalidate(host: Object, request: Dictionary, reason: String, detai
 		result["detail"] = detail.duplicate(true)
 	if not unrefunded.is_empty():
 		result["unrefunded"] = unrefunded.duplicate(true)
-		result["message"] = "%s 요청이 무효가 되었고, 돌려받을 도시가 없어 예약한 비용을 보류했습니다." % label
+		result["message"] = "%s 요청이 무효가 되었습니다. 돌려줄 도시가 없어 반환 보류." % label
 		print("[STRATEGY_REFUND_HELD] request=%s source=%s unrefunded=%s" % [str(request.get("request_id", "")), str(request.get("source_faction_id", "")), str(unrefunded)])
 		return {"status": STATUS_HELD, "result": result, "unrefunded": unrefunded}
 	return {"status": STATUS_INVALID, "result": result}
@@ -566,6 +566,21 @@ static func _refund(host: Object, reserved_variant: Variant, source_faction_id: 
 			into[str(resource_id)] = int(into.get(str(resource_id), 0)) + int(reserved[city_id_variant][resource_id])
 		refunded[destination] = into
 	return refunded
+
+
+## Queue 41 (8-2): "쌀 100을" / "금 25, 쌀 10을" — the object particle after the last number's Korean reading.
+static func _format_reserved_with_particle(amounts: Dictionary) -> String:
+	var labels := {"gold": "금", "rice": "쌀", "barley": "보리", "seafood": "수산물", "wood": "목재", "iron": "철", "horses": "말", "silk": "비단", "salt": "소금"}
+	var parts: Array[String] = []
+	var last := 0
+	for resource_id in RESOURCE_IDS:
+		if int(amounts.get(resource_id, 0)) > 0:
+			last = int(amounts[resource_id])
+			parts.append("%s %d" % [labels[resource_id], last])
+	if parts.is_empty():
+		return "없음을"
+	# 일 삼 육 칠 팔 and every 십 / 백 / 천 / 만 end in a final consonant (을); 이 사 오 구 do not (를).
+	return ", ".join(parts) + ("를" if [2, 4, 5, 9].has(last % 10) else "을")
 
 
 static func _drop_zero(amounts: Dictionary) -> void:

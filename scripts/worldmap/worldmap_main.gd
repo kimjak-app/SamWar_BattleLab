@@ -93,6 +93,7 @@ const UNIFIED_PANEL_COLLAPSED_HEIGHT := 48.0
 const UNIFIED_PANEL_MIN_EXPANDED_HEIGHT := 188.0
 const UNIFIED_PANEL_SCREEN_PADDING := 18.0
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
+const WORLDMAP_MANUAL_SAVE_PATH := "user://worldmap_manual_save.json"  # Queue 41: system menu save slot
 const TURN_PHASE_PLAYER := WorldMapTurnControllerScript.PHASE_PLAYER
 const TURN_PHASE_ENEMY := WorldMapTurnControllerScript.PHASE_ENEMY
 const MANUAL_QA_NO_INVASION_GRACE_TURNS := 0
@@ -2860,7 +2861,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_rating_label.text = _ensure_trade_presenter().format_external_trade_manual_order_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
 			_refresh_manual_trade_execution_button(city_marker.city_id, external_trade_candidate_city_ids)
-			city_detail_status_label.text = ""
+			city_detail_status_label.text = WorldMapHudConnectPresenter.format_strategy_requests(self, "trade")
 			city_detail_hint_label.text = "인접 외국 성, 관계 효율, 수동 무역 상태를 확인합니다."
 			_refresh_trade_control_ui(CITY_DETAIL_TAB_EXTERNAL_TRADE, has_external_manual_targets)
 		_:
@@ -2880,7 +2881,7 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 		"military_bonus_lines": _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id, city_data),
 		"naval_bonus_lines": _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id),
 		"spy_bonus_lines": _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id),
-		"storage_summary": _format_city_storage_summary(_get_city_storage(city_id, city_data)),
+		"storage_summary": WorldMapHudConnectPresenter.format_city_storage(self, city_id, _format_city_storage_summary(_get_city_storage(city_id, city_data))),
 		"economy_modifier_summary": _format_city_economy_tech_modifier_summary_mvp(city_id),
 	})
 
@@ -3871,7 +3872,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 		city_detail_security_label.text = _format_spy_action_candidates_for_ui(selected_city_marker)
 		city_detail_military_label.text = _format_recent_spy_result_for_ui(current_selected_city_id)
 		city_detail_commerce_label.text = _format_spy_action_policy_display_for_ui(selected_city_marker)
-		city_detail_rating_label.text = ""
+		city_detail_rating_label.text = WorldMapHudConnectPresenter.format_intel_card(self, current_selected_city_id)
 		city_detail_hint_label.text = "선택 도시의 정보 수준, 공개 정보, 첩보 행동을 확인합니다."
 	else:
 		_refresh_spy_action_card(null)
@@ -3880,7 +3881,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 		city_detail_security_label.text = _ensure_diplomacy_presenter()._format_diplomacy_trade_status_for_ui(selected_city_marker)
 		city_detail_military_label.text = _ensure_diplomacy_presenter()._format_diplomacy_action_candidates_for_ui(selected_city_marker)
 		city_detail_commerce_label.text = _ensure_diplomacy_presenter()._format_diplomacy_policy_display_for_ui(selected_city_marker)
-		city_detail_rating_label.text = ""
+		city_detail_rating_label.text = WorldMapHudConnectPresenter.format_strategy_requests(self, "diplomacy")
 		city_detail_hint_label.text = "선택 도시 소유 세력과 PLAYER의 관계, 교역, 행동 후보를 확인합니다."
 		_refresh_diplomacy_action_card(selected_city_marker)
 	city_detail_domestic_button_placeholder.text = ""
@@ -9782,6 +9783,9 @@ func _start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") ->
 	var active: Dictionary = result.get("active_research", {}) if result.get("active_research", {}) is Dictionary else {}
 	_set_save_management_status("연구 시작: %s · 남은 %d턴" % [_get_domestic_tech_display_name_mvp(tech_id), int(active.get("remaining_turns", 1))])
 	_refresh_domestic_tech_tree_overlay_mvp()
+	# Queue 41: the research cost left the city stock — refresh the national / city stock now, not at the next click.
+	_refresh_left_world_status_panel()
+	_refresh_city_hud_data_bindings()
 	return true
 
 
@@ -11934,6 +11938,7 @@ func _on_diplomacy_action_pressed(action_id: String) -> void:
 	_save_management_status = str(result.get("message", "외교 행동 처리"))
 	print("[DIPLOMACY_ACTION] ", result)
 	_refresh_left_world_status_panel()
+	_refresh_city_hud_data_bindings()  # Queue 41: the reserved cost left the city stock; show it now.
 	_show_unified_diplomacy_spy_content()
 
 
@@ -12053,6 +12058,7 @@ func _on_spy_action_pressed(action_id: String) -> void:
 			_resolve_contextual_worldmap_action_without_video("spy", failure_result)
 		return
 	_apply_spy_action(action_id)
+	_refresh_left_world_status_panel()  # Queue 41: the spy cost left the city stock; national stock now.
 	_refresh_city_hud_data_bindings()
 	if selected_city_marker != null:
 		city_info_panel.show_city(selected_city_marker)
@@ -12856,11 +12862,21 @@ func _checkpoint_worldmap_state_mvp() -> bool:
 	return _write_worldmap_state_mvp(false)
 
 
-func _write_worldmap_state_mvp(show_status: bool) -> bool:
+## Queue 41: the system menu's save is its own slot (same JSON), so the turn-end checkpoint — which rewrites
+## WORLDMAP_SAVE_PATH every turn — cannot overwrite it. Load reads it first (else the checkpoint slot, as before).
+func _save_worldmap_manual_slot_mvp() -> bool:
+	return _write_worldmap_state_mvp(true, WORLDMAP_MANUAL_SAVE_PATH)
+
+
+func _load_worldmap_manual_slot_mvp() -> void:
+	_load_worldmap_state(WORLDMAP_MANUAL_SAVE_PATH if FileAccess.file_exists(WORLDMAP_MANUAL_SAVE_PATH) else WORLDMAP_SAVE_PATH)
+
+
+func _write_worldmap_state_mvp(show_status: bool, path: String = WORLDMAP_SAVE_PATH) -> bool:
 	var save_data := _serialize_worldmap_state()
-	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
-		push_warning("[WorldMap] Failed to open worldmap save path: %s" % WORLDMAP_SAVE_PATH)
+		push_warning("[WorldMap] Failed to open worldmap save path: %s" % path)
 		if show_status:
 			_set_save_management_status("저장 실패")
 		return false
@@ -12870,12 +12886,12 @@ func _write_worldmap_state_mvp(show_status: bool) -> bool:
 	return true
 
 
-func _load_worldmap_state() -> void:
-	if not FileAccess.file_exists(WORLDMAP_SAVE_PATH):
+func _load_worldmap_state(path: String = WORLDMAP_SAVE_PATH) -> void:
+	if not FileAccess.file_exists(path):
 		_set_save_management_status("저장 데이터 없음")
 		return
 	_cancel_enemy_turn_timer_if_needed()
-	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.READ)
+	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		_set_save_management_status("불러오기 실패")
 		return

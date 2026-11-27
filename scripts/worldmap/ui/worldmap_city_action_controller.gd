@@ -170,6 +170,15 @@ func _layout_menu() -> void:
 
 	var viewport_size := viewport.get_visible_rect().size
 	var screen_position := _selected_marker.get_global_transform_with_canvas().origin
+	# Queue 41: in the 3D view the 2D marker is hidden and its canvas position is not where the city is drawn; follow
+	# the city's 3D screen position every frame (camera pan / zoom / rotate). Behind the camera -> close the menu.
+	var host := world_map.get_node_or_null("WorldMap3DHost") if world_map != null else null
+	if host != null and bool(host.get("active")) and host.get("adapter") != null and bool(host.get("adapter").call("can_project_cities")):
+		var projected: Variant = host.get("adapter").call("city_screen_position", str(_selected_marker.get("city_id")))
+		if projected == null:
+			_hide_menu()
+			return
+		screen_position = projected
 	var minimum := _panel.get_combined_minimum_size()
 	if minimum.x <= 0.0 or minimum.y <= 0.0:
 		minimum = Vector2(258.0, 40.0)
