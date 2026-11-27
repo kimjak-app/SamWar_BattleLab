@@ -1,0 +1,1532 @@
+{
+ "_comment": "초안(1단계). 세력 없음(owner 빈 값). 새 성 3개는 아직 선택 전. type, grade, troops, population은 기존 13개만 v2.4 값, 나머지는 null 또는 초안 type. roads와 sea_routes는 자동 초안(김작 확인 필요).",
+ "_draft": true,
+ "version": "draft-0.2",
+ "factions": [],
+ "cities": [
+  {
+   "id": "pyeongyang",
+   "name_ko": "평양",
+   "owner": "",
+   "troops": 280,
+   "population": 42000,
+   "type": "production_city",
+   "grade": 2,
+   "capital": false,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": "고구려"
+  },
+  {
+   "id": "hanseong",
+   "name_ko": "한성",
+   "owner": "",
+   "troops": 300,
+   "population": 50000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": "조선"
+  },
+  {
+   "id": "sabi",
+   "name_ko": "사비",
+   "owner": "",
+   "troops": 300,
+   "population": 44000,
+   "type": "river_trade_city",
+   "grade": 2,
+   "capital": false,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": "백제"
+  },
+  {
+   "id": "gyeongju",
+   "name_ko": "경주",
+   "owner": "",
+   "troops": 280,
+   "population": 48000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": "신라"
+  },
+  {
+   "id": "edo",
+   "name_ko": "에도",
+   "owner": "",
+   "troops": 380,
+   "population": 46000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": "도쿠가와"
+  },
+  {
+   "id": "kyoto",
+   "name_ko": "교토",
+   "owner": "",
+   "troops": 240,
+   "population": 45000,
+   "type": "coastal_trade_city",
+   "grade": 2,
+   "capital": false,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "osaka",
+   "name_ko": "오사카",
+   "owner": "",
+   "troops": 260,
+   "population": 50000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": "도요토미"
+  },
+  {
+   "id": "kyushu",
+   "name_ko": "큐슈",
+   "owner": "",
+   "troops": 270,
+   "population": 42000,
+   "type": "coastal_trade_city",
+   "grade": 2,
+   "capital": false,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "yecheng",
+   "name_ko": "업성",
+   "owner": "",
+   "troops": 450,
+   "population": 55000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": "원소, 사마의"
+  },
+  {
+   "id": "luoyang",
+   "name_ko": "낙양",
+   "owner": "",
+   "troops": 420,
+   "population": 80000,
+   "type": "commercial_capital",
+   "grade": 2,
+   "capital": true,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": "동탁"
+  },
+  {
+   "id": "jianye",
+   "name_ko": "건업",
+   "owner": "",
+   "troops": 300,
+   "population": 52000,
+   "type": "river_trade_city",
+   "grade": 2,
+   "capital": false,
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "coastal": true,
+   "existing_v24": true,
+   "faction_hint_ko": "오, 명"
+  },
+  {
+   "id": "chengdu",
+   "name_ko": "성도",
+   "owner": "",
+   "troops": 350,
+   "population": 60000,
+   "type": "production_city",
+   "grade": 2,
+   "capital": false,
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": "촉"
+  },
+  {
+   "id": "karakorum",
+   "name_ko": "상도",
+   "owner": "",
+   "troops": 460,
+   "population": 36000,
+   "type": "military_fortress",
+   "grade": 2,
+   "capital": false,
+   "group": "china",
+   "area": "내몽골",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": true,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "ansiseong",
+   "name_ko": "안시성",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "(고구려 또는 발해 거점) 추가 검토"
+  },
+  {
+   "id": "gungnaeseong",
+   "name_ko": "국내성",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "sanggyeong_yongcheonbu",
+   "name_ko": "상경 용천부",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "byeokjin",
+   "name_ko": "벽진 성주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "벽진(이총언)"
+  },
+  {
+   "id": "cheorwon",
+   "name_ko": "철원",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "태봉"
+  },
+  {
+   "id": "gaeseong",
+   "name_ko": "개성",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "고려"
+  },
+  {
+   "id": "goryeong",
+   "name_ko": "고령",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "가야"
+  },
+  {
+   "id": "jeju",
+   "name_ko": "제주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "탐라"
+  },
+  {
+   "id": "jeonju",
+   "name_ko": "전주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "후백제"
+  },
+  {
+   "id": "jinju",
+   "name_ko": "진주 강주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "강주(왕봉규)"
+  },
+  {
+   "id": "myeongju",
+   "name_ko": "명주 강릉",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "명주(왕순식)"
+  },
+  {
+   "id": "naju",
+   "name_ko": "나주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "river_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "나주(오다련)"
+  },
+  {
+   "id": "sangju",
+   "name_ko": "상주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "상주(아자개)"
+  },
+  {
+   "id": "aizu",
+   "name_ko": "아이즈",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "아시나"
+  },
+  {
+   "id": "bungo",
+   "name_ko": "분고 후나이",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "오토모"
+  },
+  {
+   "id": "echigo",
+   "name_ko": "에치고",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "우에스기"
+  },
+  {
+   "id": "hiroshima",
+   "name_ko": "히로시마",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "모리"
+  },
+  {
+   "id": "hitachi",
+   "name_ko": "히타치 미토",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "사타케"
+  },
+  {
+   "id": "hizen",
+   "name_ko": "히젠 사가",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "류조지"
+  },
+  {
+   "id": "kagoshima",
+   "name_ko": "가고시마",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "시마즈"
+  },
+  {
+   "id": "kitaomi",
+   "name_ko": "북오미 오다니",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "아자이"
+  },
+  {
+   "id": "kofu",
+   "name_ko": "고후",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "다케다"
+  },
+  {
+   "id": "nagoya",
+   "name_ko": "나고야",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "오다"
+  },
+  {
+   "id": "odawara",
+   "name_ko": "오다와라",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "호조"
+  },
+  {
+   "id": "sendai",
+   "name_ko": "센다이",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "다테"
+  },
+  {
+   "id": "tosa",
+   "name_ko": "토사",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "조소카베"
+  },
+  {
+   "id": "jiangdong",
+   "name_ko": "강동",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "river_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "손견"
+  },
+  {
+   "id": "lingnan",
+   "name_ko": "영남 광주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "coastal_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "남한(유엄)"
+  },
+  {
+   "id": "yangzhou",
+   "name_ko": "양주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "river_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "오월"
+  },
+  {
+   "id": "changsha",
+   "name_ko": "장사",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "river_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "남방",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": ""
+  },
+  {
+   "id": "hetuala",
+   "name_ko": "허투알라",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "청"
+  },
+  {
+   "id": "huining",
+   "name_ko": "회령",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "금"
+  },
+  {
+   "id": "liaodong",
+   "name_ko": "요동 양평",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "coastal": true,
+   "existing_v24": false,
+   "faction_hint_ko": "요동 공손(공손도)"
+  },
+  {
+   "id": "shangjing",
+   "name_ko": "상경",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "요"
+  },
+  {
+   "id": "lhasa",
+   "name_ko": "라싸",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "토번"
+  },
+  {
+   "id": "nanzhong",
+   "name_ko": "운남(남중)",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "맹획 남만"
+  },
+  {
+   "id": "wuguo",
+   "name_ko": "오과 독룡",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "오과국 동맹(올돌골)"
+  },
+  {
+   "id": "yunnan",
+   "name_ko": "운남",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "남만(옹개 고정 주포)"
+  },
+  {
+   "id": "hexi",
+   "name_ko": "하서 고장",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "전량(장궤)"
+  },
+  {
+   "id": "longxi",
+   "name_ko": "농서",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "마등, 농서 조씨"
+  },
+  {
+   "id": "xingqing",
+   "name_ko": "흥경",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "서하"
+  },
+  {
+   "id": "ordubaliq",
+   "name_ko": "오르두발릭",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "오르도스",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "위구르"
+  },
+  {
+   "id": "orkhon",
+   "name_ko": "오르혼",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "오르도스",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "돌궐"
+  },
+  {
+   "id": "changan",
+   "name_ko": "장안",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "한, 수, 당"
+  },
+  {
+   "id": "dadu",
+   "name_ko": "대도",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "원, 공손찬"
+  },
+  {
+   "id": "jizhou",
+   "name_ko": "기주",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "장각"
+  },
+  {
+   "id": "kaifeng",
+   "name_ko": "개봉",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "송"
+  },
+  {
+   "id": "pengcheng",
+   "name_ko": "팽성",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "river_trade_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "초"
+  },
+  {
+   "id": "puyang",
+   "name_ko": "복양",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "여포"
+  },
+  {
+   "id": "xiangyang",
+   "name_ko": "양양",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "military_fortress",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "유표"
+  },
+  {
+   "id": "xianyang",
+   "name_ko": "함양",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "commercial_capital",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "진"
+  },
+  {
+   "id": "xuchang",
+   "name_ko": "허창",
+   "owner": "",
+   "troops": null,
+   "population": null,
+   "type": "production_city",
+   "grade": null,
+   "capital": null,
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "coastal": false,
+   "existing_v24": false,
+   "faction_hint_ko": "위"
+  }
+ ],
+ "roads": [
+  [
+   "pyeongyang",
+   "cheorwon"
+  ],
+  [
+   "pyeongyang",
+   "gaeseong"
+  ],
+  [
+   "hanseong",
+   "sabi"
+  ],
+  [
+   "hanseong",
+   "cheorwon"
+  ],
+  [
+   "hanseong",
+   "gaeseong"
+  ],
+  [
+   "hanseong",
+   "myeongju"
+  ],
+  [
+   "hanseong",
+   "sangju"
+  ],
+  [
+   "sabi",
+   "sangju"
+  ],
+  [
+   "gyeongju",
+   "byeokjin"
+  ],
+  [
+   "gyeongju",
+   "goryeong"
+  ],
+  [
+   "gyeongju",
+   "jinju"
+  ],
+  [
+   "gyeongju",
+   "sangju"
+  ],
+  [
+   "edo",
+   "kofu"
+  ],
+  [
+   "edo",
+   "odawara"
+  ],
+  [
+   "kyoto",
+   "kitaomi"
+  ],
+  [
+   "kyushu",
+   "bungo"
+  ],
+  [
+   "yecheng",
+   "luoyang"
+  ],
+  [
+   "yecheng",
+   "orkhon"
+  ],
+  [
+   "yecheng",
+   "jizhou"
+  ],
+  [
+   "yecheng",
+   "kaifeng"
+  ],
+  [
+   "yecheng",
+   "puyang"
+  ],
+  [
+   "luoyang",
+   "orkhon"
+  ],
+  [
+   "luoyang",
+   "changan"
+  ],
+  [
+   "luoyang",
+   "kaifeng"
+  ],
+  [
+   "luoyang",
+   "xiangyang"
+  ],
+  [
+   "luoyang",
+   "xuchang"
+  ],
+  [
+   "jianye",
+   "pengcheng"
+  ],
+  [
+   "jianye",
+   "xiangyang"
+  ],
+  [
+   "jianye",
+   "xuchang"
+  ],
+  [
+   "chengdu",
+   "yunnan"
+  ],
+  [
+   "chengdu",
+   "longxi"
+  ],
+  [
+   "karakorum",
+   "ansiseong"
+  ],
+  [
+   "karakorum",
+   "shangjing"
+  ],
+  [
+   "karakorum",
+   "ordubaliq"
+  ],
+  [
+   "karakorum",
+   "dadu"
+  ],
+  [
+   "ansiseong",
+   "shangjing"
+  ],
+  [
+   "gungnaeseong",
+   "hetuala"
+  ],
+  [
+   "gungnaeseong",
+   "liaodong"
+  ],
+  [
+   "sanggyeong_yongcheonbu",
+   "hetuala"
+  ],
+  [
+   "sanggyeong_yongcheonbu",
+   "huining"
+  ],
+  [
+   "byeokjin",
+   "goryeong"
+  ],
+  [
+   "byeokjin",
+   "jeonju"
+  ],
+  [
+   "byeokjin",
+   "sangju"
+  ],
+  [
+   "cheorwon",
+   "gaeseong"
+  ],
+  [
+   "cheorwon",
+   "myeongju"
+  ],
+  [
+   "goryeong",
+   "jeonju"
+  ],
+  [
+   "goryeong",
+   "jinju"
+  ],
+  [
+   "jeonju",
+   "jinju"
+  ],
+  [
+   "jeonju",
+   "naju"
+  ],
+  [
+   "jeonju",
+   "sangju"
+  ],
+  [
+   "jinju",
+   "naju"
+  ],
+  [
+   "myeongju",
+   "sangju"
+  ],
+  [
+   "aizu",
+   "echigo"
+  ],
+  [
+   "aizu",
+   "hitachi"
+  ],
+  [
+   "aizu",
+   "sendai"
+  ],
+  [
+   "bungo",
+   "hizen"
+  ],
+  [
+   "echigo",
+   "kofu"
+  ],
+  [
+   "kofu",
+   "nagoya"
+  ],
+  [
+   "kofu",
+   "odawara"
+  ],
+  [
+   "lingnan",
+   "changsha"
+  ],
+  [
+   "yangzhou",
+   "pengcheng"
+  ],
+  [
+   "changsha",
+   "xiangyang"
+  ],
+  [
+   "hetuala",
+   "huining"
+  ],
+  [
+   "hetuala",
+   "liaodong"
+  ],
+  [
+   "hetuala",
+   "shangjing"
+  ],
+  [
+   "liaodong",
+   "shangjing"
+  ],
+  [
+   "nanzhong",
+   "yunnan"
+  ],
+  [
+   "wuguo",
+   "yunnan"
+  ],
+  [
+   "hexi",
+   "longxi"
+  ],
+  [
+   "hexi",
+   "xingqing"
+  ],
+  [
+   "longxi",
+   "xingqing"
+  ],
+  [
+   "longxi",
+   "xianyang"
+  ],
+  [
+   "xingqing",
+   "ordubaliq"
+  ],
+  [
+   "xingqing",
+   "orkhon"
+  ],
+  [
+   "xingqing",
+   "xianyang"
+  ],
+  [
+   "ordubaliq",
+   "orkhon"
+  ],
+  [
+   "ordubaliq",
+   "dadu"
+  ],
+  [
+   "ordubaliq",
+   "jizhou"
+  ],
+  [
+   "orkhon",
+   "jizhou"
+  ],
+  [
+   "orkhon",
+   "xianyang"
+  ],
+  [
+   "changan",
+   "xiangyang"
+  ],
+  [
+   "changan",
+   "xianyang"
+  ],
+  [
+   "dadu",
+   "jizhou"
+  ],
+  [
+   "dadu",
+   "pengcheng"
+  ],
+  [
+   "jizhou",
+   "pengcheng"
+  ],
+  [
+   "jizhou",
+   "puyang"
+  ],
+  [
+   "kaifeng",
+   "pengcheng"
+  ],
+  [
+   "kaifeng",
+   "puyang"
+  ],
+  [
+   "kaifeng",
+   "xuchang"
+  ],
+  [
+   "pengcheng",
+   "puyang"
+  ],
+  [
+   "pengcheng",
+   "xuchang"
+  ],
+  [
+   "xiangyang",
+   "xuchang"
+  ],
+  [
+   "lhasa",
+   "chengdu"
+  ],
+  [
+   "kyoto",
+   "osaka"
+  ],
+  [
+   "ansiseong",
+   "liaodong"
+  ],
+  [
+   "jiangdong",
+   "jianye"
+  ],
+  [
+   "gungnaeseong",
+   "pyeongyang"
+  ],
+  [
+   "kyoto",
+   "nagoya"
+  ],
+  [
+   "hiroshima",
+   "osaka"
+  ],
+  [
+   "kagoshima",
+   "kyushu"
+  ]
+ ],
+ "sea_routes": [
+  [
+   "sabi",
+   "gaeseong"
+  ],
+  [
+   "sabi",
+   "naju"
+  ],
+  [
+   "edo",
+   "hitachi"
+  ],
+  [
+   "osaka",
+   "nagoya"
+  ],
+  [
+   "osaka",
+   "tosa"
+  ],
+  [
+   "kyushu",
+   "hizen"
+  ],
+  [
+   "jianye",
+   "yangzhou"
+  ],
+  [
+   "jeju",
+   "jinju"
+  ],
+  [
+   "jeju",
+   "naju"
+  ],
+  [
+   "jeju",
+   "hizen"
+  ],
+  [
+   "jeju",
+   "jiangdong"
+  ],
+  [
+   "jinju",
+   "hizen"
+  ],
+  [
+   "naju",
+   "jiangdong"
+  ],
+  [
+   "naju",
+   "yangzhou"
+  ],
+  [
+   "bungo",
+   "hiroshima"
+  ],
+  [
+   "bungo",
+   "tosa"
+  ],
+  [
+   "hiroshima",
+   "hizen"
+  ],
+  [
+   "hiroshima",
+   "tosa"
+  ],
+  [
+   "hizen",
+   "kagoshima"
+  ],
+  [
+   "jiangdong",
+   "yangzhou"
+  ]
+ ]
+}

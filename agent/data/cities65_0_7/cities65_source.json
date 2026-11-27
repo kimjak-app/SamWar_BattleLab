@@ -1,0 +1,3802 @@
+{
+ "_draft": true,
+ "_comment": "EASTWAR 65개 성 원본 JSON 초안 (1단계, 데이터만). 김작이 고른 새 성 3개(국내성, 상경 용천부, 장사)를 넣어 65개를 채움. 소유 세력 없음(owner null). type, grade는 초안. 육로는 2026-11-27 김작 결정 반영(0.6: 성도-장안, 성도-함양, 운남(남중)-오과 독룡 삭제, 안시성-요동 양평 추가, 오르혼-함양, 상도-안시성, 허투알라-상경 유지. 0.7: 건업-강동, 평양-국내성, 교토-나고야, 오사카-히로시마, 큐슈-가고시마 추가, 오르혼-장안 삭제).",
+ "version": "cities65-src-0.7-draft",
+ "date": "2026-11-27",
+ "base": {
+  "repo": "kimjak-app/SamWar_BattleLab",
+  "commit": "8cc0640",
+  "note": "읽기 전용 기준. 13개 기존 id는 그대로"
+ },
+ "coord_system": "1 unit = 1 km, x 동, z 남, 원점 맵 중앙. map_km = [5549.823, 3699.882]. v2.4 굽기와 같은 투영 + 한일 확대 워프",
+ "min_distance_km": 60.0,
+ "city_types": [
+  "commercial_capital",
+  "production_city",
+  "river_trade_city",
+  "military_fortress",
+  "coastal_trade_city"
+ ],
+ "building_styles": [
+  "kr",
+  "cn",
+  "jp"
+ ],
+ "counts": {
+  "total_now": 65,
+  "target": 65,
+  "to_pick": 0,
+  "existing_v24": 13,
+  "selected_new": 3
+ },
+ "selected_new_ids": [
+  "gungnaeseong",
+  "sanggyeong_yongcheonbu",
+  "changsha"
+ ],
+ "gameplay_adjusted_ids": [
+  "ordubaliq",
+  "orkhon",
+  "lhasa"
+ ],
+ "safe_frame_existing13_km": {
+  "x_min": -1251.3,
+  "x_max": 2182.1,
+  "z_north": -900.6,
+  "z_south": 268.6,
+  "note": "상도로 옮긴 뒤 기존 13개의 테두리. 이 밖은 월드맵 UI와 겹칠 수 있어 겹침_정리표에 표시"
+ },
+ "existing_ids_v24": [
+  "pyeongyang",
+  "hanseong",
+  "sabi",
+  "gyeongju",
+  "edo",
+  "kyoto",
+  "osaka",
+  "kyushu",
+  "yecheng",
+  "luoyang",
+  "jianye",
+  "chengdu",
+  "karakorum"
+ ],
+ "cities": [
+  {
+   "id": "pyeongyang",
+   "name_ko": "평양",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "production_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "고구려",
+   "owner": null,
+   "lonlat_est": [
+    125.75,
+    39.02
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": -0.16,
+   "x_km": 722.7,
+   "z_km": -508.7,
+   "lonlat": [
+    125.75,
+    39.02
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 20.6,
+   "coastal": false,
+   "grade": 2,
+   "troops": 280,
+   "population": 42000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "goguryeo",
+    "name_ko": "평양",
+    "lonlat": [
+     125.75,
+     39.02
+    ],
+    "x_km": 722.7,
+    "z_km": -508.7,
+    "realm": "korea",
+    "label_ko": "관서",
+    "region_index": 1
+   },
+   "region_index": 1,
+   "neighbors_draft": [
+    "cheorwon",
+    "gaeseong",
+    "gungnaeseong"
+   ]
+  },
+  {
+   "id": "hanseong",
+   "name_ko": "한성",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "commercial_capital",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "조선",
+   "owner": null,
+   "lonlat_est": [
+    127.1,
+    37.52
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": 0.16,
+   "x_km": 864.1,
+   "z_km": -290.4,
+   "lonlat": [
+    127.1,
+    37.52
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 6.4,
+   "coastal": true,
+   "grade": 2,
+   "troops": 300,
+   "population": 50000,
+   "capital": true,
+   "legacy_v24": {
+    "owner": "player",
+    "name_ko": "한성",
+    "lonlat": [
+     127.1,
+     37.52
+    ],
+    "x_km": 864.1,
+    "z_km": -290.4,
+    "realm": "korea",
+    "label_ko": "경기",
+    "region_index": 2
+   },
+   "region_index": 2,
+   "neighbors_draft": [
+    "cheorwon",
+    "gaeseong",
+    "myeongju",
+    "sabi",
+    "sangju"
+   ]
+  },
+  {
+   "id": "sabi",
+   "name_ko": "사비",
+   "aliases_ko": [
+    "부여"
+   ],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "river_trade_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "백제",
+   "owner": null,
+   "lonlat_est": [
+    126.91,
+    36.28
+   ],
+   "note": "65개 목록 이름은 부여, 앱 id는 sabi 유지",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": -0.16,
+   "x_km": 848.5,
+   "z_km": -114.2,
+   "lonlat": [
+    126.91,
+    36.28
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": false,
+   "coast_km": 0.0,
+   "coastal": true,
+   "grade": 2,
+   "troops": 300,
+   "population": 44000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "baekje_faction",
+    "name_ko": "사비",
+    "lonlat": [
+     126.91,
+     36.28
+    ],
+    "x_km": 848.5,
+    "z_km": -114.2,
+    "realm": "korea",
+    "label_ko": "호남",
+    "region_index": 3
+   },
+   "region_index": 3,
+   "neighbors_draft": [
+    "gaeseong",
+    "hanseong",
+    "naju",
+    "sangju"
+   ]
+  },
+  {
+   "id": "gyeongju",
+   "name_ko": "경주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "commercial_capital",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "신라",
+   "owner": null,
+   "lonlat_est": [
+    129.21,
+    35.84
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": 1110.3,
+   "z_km": -70.8,
+   "lonlat": [
+    129.21,
+    35.84
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 16.8,
+   "coastal": false,
+   "grade": 2,
+   "troops": 280,
+   "population": 48000,
+   "capital": true,
+   "legacy_v24": {
+    "owner": "silla",
+    "name_ko": "경주",
+    "lonlat": [
+     129.21,
+     35.84
+    ],
+    "x_km": 1110.3,
+    "z_km": -70.8,
+    "realm": "korea",
+    "label_ko": "영남",
+    "region_index": 4
+   },
+   "region_index": 4,
+   "neighbors_draft": [
+    "byeokjin",
+    "goryeong",
+    "jinju",
+    "sangju"
+   ]
+  },
+  {
+   "id": "edo",
+   "name_ko": "에도",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "military_fortress",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "도쿠가와",
+   "owner": null,
+   "lonlat_est": [
+    139.77,
+    35.68
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": 2182.1,
+   "z_km": -281.0,
+   "lonlat": [
+    139.77,
+    35.68
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": false,
+   "coast_km": 0.0,
+   "coastal": true,
+   "grade": 2,
+   "troops": 380,
+   "population": 46000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "tokugawa",
+    "name_ko": "에도",
+    "lonlat": [
+     139.77,
+     35.68
+    ],
+    "x_km": 2182.1,
+    "z_km": -281.0,
+    "realm": "japan",
+    "label_ko": "간토",
+    "region_index": 5
+   },
+   "region_index": 5,
+   "neighbors_draft": [
+    "hitachi",
+    "kofu",
+    "odawara"
+   ]
+  },
+  {
+   "id": "kyoto",
+   "name_ko": "교토",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    135.76,
+    35.01
+   ],
+   "note": "김작 결정 11/27: 유지(기존 id). 65개 목록에는 없음",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": 0.17,
+   "x_km": 1780.5,
+   "z_km": -116.0,
+   "lonlat": [
+    135.76,
+    35.01
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 39.7,
+   "coastal": false,
+   "grade": 2,
+   "troops": 240,
+   "population": 45000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "oda",
+    "name_ko": "교토",
+    "lonlat": [
+     135.76,
+     35.01
+    ],
+    "x_km": 1780.5,
+    "z_km": -116.0,
+    "realm": "japan",
+    "label_ko": "긴키",
+    "region_index": 6
+   },
+   "region_index": 6,
+   "neighbors_draft": [
+    "kitaomi",
+    "nagoya",
+    "osaka"
+   ]
+  },
+  {
+   "id": "osaka",
+   "name_ko": "오사카",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "commercial_capital",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "도요토미",
+   "owner": null,
+   "lonlat_est": [
+    135.5,
+    34.69
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": -0.17,
+   "x_km": 1760.7,
+   "z_km": -68.8,
+   "lonlat": [
+    135.5,
+    34.69
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": false,
+   "coast_km": 0.0,
+   "coastal": true,
+   "grade": 2,
+   "troops": 260,
+   "population": 50000,
+   "capital": true,
+   "legacy_v24": {
+    "owner": "toyotomi",
+    "name_ko": "오사카",
+    "lonlat": [
+     135.5,
+     34.69
+    ],
+    "x_km": 1760.7,
+    "z_km": -68.8,
+    "realm": "japan",
+    "label_ko": "주고쿠",
+    "region_index": 7
+   },
+   "region_index": 7,
+   "neighbors_draft": [
+    "hiroshima",
+    "kyoto",
+    "nagoya",
+    "tosa"
+   ]
+  },
+  {
+   "id": "kyushu",
+   "name_ko": "큐슈",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    130.71,
+    32.8
+   ],
+   "note": "김작 결정 11/27: 유지(기존 id). 65개 목록에는 없음",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": 1279.4,
+   "z_km": 268.6,
+   "lonlat": [
+    130.71,
+    32.8
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 5.1,
+   "coastal": true,
+   "grade": 2,
+   "troops": 270,
+   "population": 42000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "kyushu_faction",
+    "name_ko": "큐슈",
+    "lonlat": [
+     130.71,
+     32.8
+    ],
+    "x_km": 1279.4,
+    "z_km": 268.6,
+    "realm": "japan",
+    "label_ko": "쓰쿠시",
+    "region_index": 8
+   },
+   "region_index": 8,
+   "neighbors_draft": [
+    "bungo",
+    "hizen",
+    "kagoshima"
+   ]
+  },
+  {
+   "id": "yecheng",
+   "name_ko": "업성",
+   "aliases_ko": [
+    "업"
+   ],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "원소, 사마의",
+   "owner": null,
+   "lonlat_est": [
+    114.35,
+    36.33
+   ],
+   "note": "합침: 업(원소) + 업(사마의). 기존 id yecheng 유지",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": -250.9,
+   "z_km": -246.7,
+   "lonlat": [
+    114.35,
+    36.33
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 334.4,
+   "coastal": false,
+   "grade": 2,
+   "troops": 450,
+   "population": 55000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "wei",
+    "name_ko": "업성",
+    "lonlat": [
+     114.35,
+     36.33
+    ],
+    "x_km": -250.9,
+    "z_km": -246.7,
+    "realm": "wei",
+    "label_ko": "하북",
+    "region_index": 9
+   },
+   "region_index": 9,
+   "neighbors_draft": [
+    "jizhou",
+    "kaifeng",
+    "luoyang",
+    "orkhon",
+    "puyang"
+   ]
+  },
+  {
+   "id": "luoyang",
+   "name_ko": "낙양",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "commercial_capital",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "동탁",
+   "owner": null,
+   "lonlat_est": [
+    112.45,
+    34.62
+   ],
+   "note": "현재 앱은 낙양 = 초(항우)",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": -432.3,
+   "z_km": -71.1,
+   "lonlat": [
+    112.45,
+    34.62
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 544.0,
+   "coastal": false,
+   "grade": 2,
+   "troops": 420,
+   "population": 80000,
+   "capital": true,
+   "legacy_v24": {
+    "owner": "chu",
+    "name_ko": "낙양",
+    "lonlat": [
+     112.45,
+     34.62
+    ],
+    "x_km": -432.3,
+    "z_km": -71.1,
+    "realm": "chu",
+    "label_ko": "중원",
+    "region_index": 10
+   },
+   "region_index": 10,
+   "neighbors_draft": [
+    "changan",
+    "kaifeng",
+    "orkhon",
+    "xiangyang",
+    "xuchang",
+    "yecheng"
+   ]
+  },
+  {
+   "id": "jianye",
+   "name_ko": "건업",
+   "aliases_ko": [
+    "남경"
+   ],
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "type": "river_trade_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "오, 명",
+   "owner": null,
+   "lonlat_est": [
+    118.78,
+    32.05
+   ],
+   "note": "합침: 건업(오) + 남경(명). 기존 id jianye 유지",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": 134.0,
+   "z_km": 235.7,
+   "lonlat": [
+    118.78,
+    32.05
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 4.8,
+   "coastal": true,
+   "grade": 2,
+   "troops": 300,
+   "population": 52000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "wu",
+    "name_ko": "건업",
+    "lonlat": [
+     118.78,
+     32.05
+    ],
+    "x_km": 134.0,
+    "z_km": 235.7,
+    "realm": "wu",
+    "label_ko": "강동",
+    "region_index": 11
+   },
+   "region_index": 11,
+   "neighbors_draft": [
+    "jiangdong",
+    "pengcheng",
+    "xiangyang",
+    "xuchang",
+    "yangzhou"
+   ]
+  },
+  {
+   "id": "chengdu",
+   "name_ko": "성도",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "v2.4 rule_data 값 그대로",
+   "existing_v24": true,
+   "faction_hint_ko": "촉",
+   "owner": null,
+   "lonlat_est": [
+    104.07,
+    30.66
+   ],
+   "note": "",
+   "position_basis": "v2.4 markers",
+   "banner_dx_v24": null,
+   "x_km": -1251.3,
+   "z_km": 268.5,
+   "lonlat": [
+    104.07,
+    30.66
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 1008.5,
+   "coastal": false,
+   "grade": 2,
+   "troops": 350,
+   "population": 60000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "shu",
+    "name_ko": "성도",
+    "lonlat": [
+     104.07,
+     30.66
+    ],
+    "x_km": -1251.3,
+    "z_km": 268.5,
+    "realm": "shu",
+    "label_ko": "파촉",
+    "region_index": 12
+   },
+   "region_index": 12,
+   "neighbors_draft": [
+    "lhasa",
+    "longxi",
+    "yunnan"
+   ]
+  },
+  {
+   "id": "karakorum",
+   "name_ko": "상도",
+   "aliases_ko": [
+    "카라코룸"
+   ],
+   "group": "china",
+   "area": "내몽골",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "v2.4 유형 유지(성 이름과 위치만 바꿈)",
+   "existing_v24": true,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    116.185,
+    42.358
+   ],
+   "note": "김작 결정 11/27: 카라코룸을 상도(上都)로 바꿈. id karakorum 유지. 실제 상도 유적 42.358N 116.185E",
+   "position_basis": "historical site (상도 유적). 옛 카라코룸 위치는 legacy_v24",
+   "historical_lonlat": [
+    116.185,
+    42.358
+   ],
+   "x_km": -63.7,
+   "z_km": -900.6,
+   "lonlat": [
+    116.185,
+    42.358
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 307.7,
+   "coastal": false,
+   "grade": 2,
+   "troops": 460,
+   "population": 36000,
+   "capital": false,
+   "legacy_v24": {
+    "owner": "mongol_faction",
+    "name_ko": "카라코룸",
+    "lonlat": [
+     102.83,
+     47.2
+    ],
+    "x_km": -1053.7,
+    "z_km": -1545.6,
+    "realm": "mongol",
+    "label_ko": "막북",
+    "region_index": 13
+   },
+   "region_index": 13,
+   "neighbors_draft": [
+    "ansiseong",
+    "dadu",
+    "ordubaliq",
+    "shangjing"
+   ]
+  },
+  {
+   "id": "ansiseong",
+   "name_ko": "안시성",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "(고구려 또는 발해 거점) 추가 검토",
+   "owner": null,
+   "lonlat_est": [
+    122.72,
+    40.88
+   ],
+   "note": "10번째 한반도 땅 불명: 안시성인지 발해 거점인지 확인 필요",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 472.7,
+   "z_km": -733.7,
+   "lonlat": [
+    122.708,
+    40.87
+   ],
+   "nudge_km": 1.6,
+   "on_land_pixel": true,
+   "coast_km": 23.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 14,
+   "neighbors_draft": [
+    "karakorum",
+    "liaodong",
+    "shangjing"
+   ]
+  },
+  {
+   "id": "gungnaeseong",
+   "name_ko": "국내성",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    126.19,
+    41.13
+   ],
+   "note": "김작 선택 11/27. 고구려가 평양으로 옮기기 전 도읍. 지금은 중국 지안시.",
+   "position_basis": "historical site (김작이 고른 새 성)",
+   "x_km": 760.4,
+   "z_km": -775.2,
+   "lonlat": [
+    126.189,
+    41.13
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 185.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 15,
+   "neighbors_draft": [
+    "hetuala",
+    "liaodong",
+    "pyeongyang"
+   ]
+  },
+  {
+   "id": "sanggyeong_yongcheonbu",
+   "name_ko": "상경 용천부",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "만주",
+   "building_style": "kr",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    129.142,
+    44.131
+   ],
+   "note": "김작 선택 11/27. 발해가 가장 오래 도읍으로 쓴 곳. 요나라 상경(shangjing)과 다른 도시라 이름을 구분함.",
+   "position_basis": "historical site (김작이 고른 새 성)",
+   "x_km": 974.1,
+   "z_km": -1124.3,
+   "lonlat": [
+    129.143,
+    44.131
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 198.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 16,
+   "neighbors_draft": [
+    "hetuala",
+    "huining"
+   ]
+  },
+  {
+   "id": "byeokjin",
+   "name_ko": "벽진 성주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "벽진(이총언)",
+   "owner": null,
+   "lonlat_est": [
+    128.28,
+    35.92
+   ],
+   "note": "고령과 가까워 간격 조정 대상",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 1008.1,
+   "z_km": -88.3,
+   "lonlat": [
+    128.309,
+    36.029
+   ],
+   "nudge_km": 15.3,
+   "on_land_pixel": true,
+   "coast_km": 66.8,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 17,
+   "neighbors_draft": [
+    "goryeong",
+    "gyeongju",
+    "jeonju",
+    "sangju"
+   ]
+  },
+  {
+   "id": "cheorwon",
+   "name_ko": "철원",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "태봉",
+   "owner": null,
+   "lonlat_est": [
+    127.31,
+    38.15
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 886.9,
+   "z_km": -380.0,
+   "lonlat": [
+    127.31,
+    38.15
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 69.1,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 18,
+   "neighbors_draft": [
+    "gaeseong",
+    "hanseong",
+    "myeongju",
+    "pyeongyang"
+   ]
+  },
+  {
+   "id": "gaeseong",
+   "name_ko": "개성",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "고려",
+   "owner": null,
+   "lonlat_est": [
+    126.55,
+    37.97
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 804.4,
+   "z_km": -356.0,
+   "lonlat": [
+    126.55,
+    37.97
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 9.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 19,
+   "neighbors_draft": [
+    "cheorwon",
+    "hanseong",
+    "pyeongyang",
+    "sabi"
+   ]
+  },
+  {
+   "id": "goryeong",
+   "name_ko": "고령",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "가야",
+   "owner": null,
+   "lonlat_est": [
+    128.26,
+    35.73
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 1004.6,
+   "z_km": -28.3,
+   "lonlat": [
+    128.246,
+    35.593
+   ],
+   "nudge_km": 18.8,
+   "on_land_pixel": true,
+   "coast_km": 15.8,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 20,
+   "neighbors_draft": [
+    "byeokjin",
+    "gyeongju",
+    "jeonju",
+    "jinju"
+   ]
+  },
+  {
+   "id": "jeju",
+   "name_ko": "제주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "탐라",
+   "owner": null,
+   "lonlat_est": [
+    126.53,
+    33.5
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 834.2,
+   "z_km": 246.5,
+   "lonlat": [
+    126.555,
+    33.454
+   ],
+   "nudge_km": 6.9,
+   "on_land_pixel": true,
+   "coast_km": 5.1,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 21,
+   "neighbors_draft": [
+    "hizen",
+    "jiangdong",
+    "jinju",
+    "naju"
+   ]
+  },
+  {
+   "id": "jeonju",
+   "name_ko": "전주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "후백제",
+   "owner": null,
+   "lonlat_est": [
+    127.15,
+    35.82
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 879.8,
+   "z_km": -51.2,
+   "lonlat": [
+    127.15,
+    35.82
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 36.2,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 22,
+   "neighbors_draft": [
+    "byeokjin",
+    "goryeong",
+    "jinju",
+    "naju",
+    "sangju"
+   ]
+  },
+  {
+   "id": "jinju",
+   "name_ko": "진주 강주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "강주(왕봉규)",
+   "owner": null,
+   "lonlat_est": [
+    128.11,
+    35.18
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 993.2,
+   "z_km": 30.6,
+   "lonlat": [
+    128.107,
+    35.171
+   ],
+   "nudge_km": 1.2,
+   "on_land_pixel": true,
+   "coast_km": 11.7,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 23,
+   "neighbors_draft": [
+    "goryeong",
+    "gyeongju",
+    "hizen",
+    "jeju",
+    "jeonju",
+    "naju"
+   ]
+  },
+  {
+   "id": "myeongju",
+   "name_ko": "명주 강릉",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "명주(왕순식)",
+   "owner": null,
+   "lonlat_est": [
+    128.9,
+    37.75
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 1062.3,
+   "z_km": -330.2,
+   "lonlat": [
+    128.9,
+    37.75
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 1.6,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 24,
+   "neighbors_draft": [
+    "cheorwon",
+    "hanseong",
+    "sangju"
+   ]
+  },
+  {
+   "id": "naju",
+   "name_ko": "나주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "river_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "나주(오다련)",
+   "owner": null,
+   "lonlat_est": [
+    126.71,
+    35.02
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 837.7,
+   "z_km": 60.9,
+   "lonlat": [
+    126.71,
+    35.02
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 1.6,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 25,
+   "neighbors_draft": [
+    "jeju",
+    "jeonju",
+    "jiangdong",
+    "jinju",
+    "sabi",
+    "yangzhou"
+   ]
+  },
+  {
+   "id": "sangju",
+   "name_ko": "상주",
+   "aliases_ko": [],
+   "group": "korea",
+   "area": "한반도",
+   "building_style": "kr",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "상주(아자개)",
+   "owner": null,
+   "lonlat_est": [
+    128.16,
+    36.41
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 986.7,
+   "z_km": -144.3,
+   "lonlat": [
+    128.146,
+    36.446
+   ],
+   "nudge_km": 5.3,
+   "on_land_pixel": true,
+   "coast_km": 126.2,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 26,
+   "neighbors_draft": [
+    "byeokjin",
+    "gyeongju",
+    "hanseong",
+    "jeonju",
+    "myeongju",
+    "sabi"
+   ]
+  },
+  {
+   "id": "aizu",
+   "name_ko": "아이즈",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "아시나",
+   "owner": null,
+   "lonlat_est": [
+    139.93,
+    37.49
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 2139.4,
+   "z_km": -517.8,
+   "lonlat": [
+    139.93,
+    37.49
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 87.1,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 27,
+   "neighbors_draft": [
+    "echigo",
+    "hitachi",
+    "sendai"
+   ]
+  },
+  {
+   "id": "bungo",
+   "name_ko": "분고 후나이",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "오토모",
+   "owner": null,
+   "lonlat_est": [
+    131.61,
+    33.24
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1378.6,
+   "z_km": 198.3,
+   "lonlat": [
+    131.651,
+    33.199
+   ],
+   "nudge_km": 7.3,
+   "on_land_pixel": true,
+   "coast_km": 5.1,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 28,
+   "neighbors_draft": [
+    "hiroshima",
+    "hizen",
+    "kyushu",
+    "tosa"
+   ]
+  },
+  {
+   "id": "echigo",
+   "name_ko": "에치고",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "우에스기",
+   "owner": null,
+   "lonlat_est": [
+    138.24,
+    37.15
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1972.8,
+   "z_km": -437.6,
+   "lonlat": [
+    138.191,
+    37.112
+   ],
+   "nudge_km": 6.8,
+   "on_land_pixel": true,
+   "coast_km": 3.6,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 29,
+   "neighbors_draft": [
+    "aizu",
+    "kofu"
+   ]
+  },
+  {
+   "id": "hiroshima",
+   "name_ko": "히로시마",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "모리",
+   "owner": null,
+   "lonlat_est": [
+    132.46,
+    34.39
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1436.4,
+   "z_km": 16.9,
+   "lonlat": [
+    132.443,
+    34.44
+   ],
+   "nudge_km": 7.2,
+   "on_land_pixel": true,
+   "coast_km": 4.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 30,
+   "neighbors_draft": [
+    "bungo",
+    "hizen",
+    "osaka",
+    "tosa"
+   ]
+  },
+  {
+   "id": "hitachi",
+   "name_ko": "히타치 미토",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "사타케",
+   "owner": null,
+   "lonlat_est": [
+    140.45,
+    36.37
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 2233.6,
+   "z_km": -387.4,
+   "lonlat": [
+    140.45,
+    36.37
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 8.6,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 31,
+   "neighbors_draft": [
+    "aizu",
+    "edo"
+   ]
+  },
+  {
+   "id": "hizen",
+   "name_ko": "히젠 사가",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "류조지",
+   "owner": null,
+   "lonlat_est": [
+    130.3,
+    33.25
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1219.6,
+   "z_km": 211.2,
+   "lonlat": [
+    130.263,
+    33.284
+   ],
+   "nudge_km": 6.2,
+   "on_land_pixel": true,
+   "coast_km": 5.1,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 32,
+   "neighbors_draft": [
+    "bungo",
+    "hiroshima",
+    "jeju",
+    "jinju",
+    "kagoshima",
+    "kyushu"
+   ]
+  },
+  {
+   "id": "kagoshima",
+   "name_ko": "가고시마",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "시마즈",
+   "owner": null,
+   "lonlat_est": [
+    130.56,
+    31.6
+   ],
+   "note": "현재 앱은 큐슈 세력",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1274.2,
+   "z_km": 428.0,
+   "lonlat": [
+    130.501,
+    31.625
+   ],
+   "nudge_km": 7.7,
+   "on_land_pixel": true,
+   "coast_km": 4.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 33,
+   "neighbors_draft": [
+    "hizen",
+    "kyushu"
+   ]
+  },
+  {
+   "id": "kitaomi",
+   "name_ko": "북오미 오다니",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "아자이",
+   "owner": null,
+   "lonlat_est": [
+    136.28,
+    35.45
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 1822.3,
+   "z_km": -183.5,
+   "lonlat": [
+    136.28,
+    35.45
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 31.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 34,
+   "neighbors_draft": [
+    "kyoto"
+   ]
+  },
+  {
+   "id": "kofu",
+   "name_ko": "고후",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "다케다",
+   "owner": null,
+   "lonlat_est": [
+    138.57,
+    35.66
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 2055.7,
+   "z_km": -255.0,
+   "lonlat": [
+    138.57,
+    35.66
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 67.1,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 35,
+   "neighbors_draft": [
+    "echigo",
+    "edo",
+    "nagoya",
+    "odawara"
+   ]
+  },
+  {
+   "id": "nagoya",
+   "name_ko": "나고야",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "오다",
+   "owner": null,
+   "lonlat_est": [
+    136.91,
+    35.18
+   ],
+   "note": "현재 앱은 오다 = 교토",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 1895.7,
+   "z_km": -159.8,
+   "lonlat": [
+    136.91,
+    35.18
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 3.2,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 36,
+   "neighbors_draft": [
+    "kofu",
+    "kyoto",
+    "osaka"
+   ]
+  },
+  {
+   "id": "odawara",
+   "name_ko": "오다와라",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "호조",
+   "owner": null,
+   "lonlat_est": [
+    139.15,
+    35.26
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 2122.1,
+   "z_km": -219.2,
+   "lonlat": [
+    139.105,
+    35.309
+   ],
+   "nudge_km": 8.3,
+   "on_land_pixel": true,
+   "coast_km": 5.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 37,
+   "neighbors_draft": [
+    "edo",
+    "kofu"
+   ]
+  },
+  {
+   "id": "sendai",
+   "name_ko": "센다이",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "다테",
+   "owner": null,
+   "lonlat_est": [
+    140.87,
+    38.27
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 2204.9,
+   "z_km": -636.9,
+   "lonlat": [
+    140.87,
+    38.27
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 6.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 38,
+   "neighbors_draft": [
+    "aizu"
+   ]
+  },
+  {
+   "id": "tosa",
+   "name_ko": "토사",
+   "aliases_ko": [],
+   "group": "japan",
+   "area": "일본",
+   "building_style": "jp",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "조소카베",
+   "owner": null,
+   "lonlat_est": [
+    133.53,
+    33.56
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "snapped_to_land": true,
+   "x_km": 1571.3,
+   "z_km": 111.6,
+   "lonlat": [
+    133.484,
+    33.611
+   ],
+   "nudge_km": 8.8,
+   "on_land_pixel": true,
+   "coast_km": 5.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 39,
+   "neighbors_draft": [
+    "bungo",
+    "hiroshima",
+    "osaka"
+   ]
+  },
+  {
+   "id": "jiangdong",
+   "name_ko": "강동",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "type": "river_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "손견",
+   "owner": null,
+   "lonlat_est": [
+    120.6,
+    31.3
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 303.7,
+   "z_km": 318.5,
+   "lonlat": [
+    120.6,
+    31.3
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 3.2,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 40,
+   "neighbors_draft": [
+    "jeju",
+    "jianye",
+    "naju",
+    "yangzhou"
+   ]
+  },
+  {
+   "id": "lingnan",
+   "name_ko": "영남 광주",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "type": "coastal_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "남한(유엄)",
+   "owner": null,
+   "lonlat_est": [
+    113.26,
+    23.13
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -445.4,
+   "z_km": 1199.0,
+   "lonlat": [
+    113.26,
+    23.13
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 1.6,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 41,
+   "neighbors_draft": [
+    "changsha"
+   ]
+  },
+  {
+   "id": "yangzhou",
+   "name_ko": "양주",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "강남",
+   "building_style": "cn",
+   "type": "river_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "오월",
+   "owner": null,
+   "lonlat_est": [
+    119.42,
+    32.39
+   ],
+   "note": "추가 검토: 오월의 도읍은 항주, 양주는 양오의 도읍. 세력 이름과 땅 확인 필요",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 193.7,
+   "z_km": 198.9,
+   "lonlat": [
+    119.42,
+    32.39
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 10.2,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 42,
+   "neighbors_draft": [
+    "jiangdong",
+    "jianye",
+    "naju",
+    "pengcheng"
+   ]
+  },
+  {
+   "id": "changsha",
+   "name_ko": "장사",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "남방",
+   "building_style": "cn",
+   "type": "river_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "",
+   "owner": null,
+   "lonlat_est": [
+    112.94,
+    28.23
+   ],
+   "note": "김작 선택 11/27(돈황 대신). 한나라 장사국의 도읍, 마왕퇴 한묘가 있는 곳.",
+   "position_basis": "historical site (김작이 고른 새 성)",
+   "x_km": -438.1,
+   "z_km": 632.0,
+   "lonlat": [
+    112.94,
+    28.23
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 274.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 43,
+   "neighbors_draft": [
+    "lingnan",
+    "xiangyang"
+   ]
+  },
+  {
+   "id": "hetuala",
+   "name_ko": "허투알라",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "청",
+   "owner": null,
+   "lonlat_est": [
+    124.8,
+    41.73
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 642.1,
+   "z_km": -834.9,
+   "lonlat": [
+    124.799,
+    41.73
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 69.3,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 44,
+   "neighbors_draft": [
+    "gungnaeseong",
+    "huining",
+    "liaodong",
+    "sanggyeong_yongcheonbu",
+    "shangjing"
+   ]
+  },
+  {
+   "id": "huining",
+   "name_ko": "회령",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "금",
+   "owner": null,
+   "lonlat_est": [
+    126.97,
+    45.51
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 791.0,
+   "z_km": -1263.1,
+   "lonlat": [
+    126.97,
+    45.51
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 194.6,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 45,
+   "neighbors_draft": [
+    "hetuala",
+    "sanggyeong_yongcheonbu"
+   ]
+  },
+  {
+   "id": "liaodong",
+   "name_ko": "요동 양평",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "요동 공손(공손도)",
+   "owner": null,
+   "lonlat_est": [
+    123.17,
+    41.27
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 510.8,
+   "z_km": -780.1,
+   "lonlat": [
+    123.183,
+    41.281
+   ],
+   "nudge_km": 1.6,
+   "on_land_pixel": true,
+   "coast_km": 10.8,
+   "coastal": true,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 46,
+   "neighbors_draft": [
+    "ansiseong",
+    "gungnaeseong",
+    "hetuala",
+    "shangjing"
+   ]
+  },
+  {
+   "id": "shangjing",
+   "name_ko": "상경",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "만주",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "요",
+   "owner": null,
+   "lonlat_est": [
+    119.0,
+    43.98
+   ],
+   "note": "요나라 상경. 발해 상경 용천부와 다른 곳",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": 167.6,
+   "z_km": -1074.5,
+   "lonlat": [
+    118.999,
+    43.98
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 304.3,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 47,
+   "neighbors_draft": [
+    "ansiseong",
+    "hetuala",
+    "karakorum",
+    "liaodong"
+   ]
+  },
+  {
+   "id": "lhasa",
+   "name_ko": "라싸",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "토번",
+   "owner": null,
+   "lonlat_est": [
+    97.17,
+    31.14
+   ],
+   "note": "김작 결정 11/27: 너무 서쪽이라 월드맵 UI와 겹침. 성도 쪽으로 당겨 창두(昌都) 일대(97.17E 31.14N, 성도에서 서쪽으로 약 652km)에 둠. id 유지. 실제 역사 위치는 91.12E 29.65N.",
+   "position_basis": "gameplay-adjusted (김작 11/27, 창두 일대·성도 서쪽으로 약 652km). 실제 유적은 historical_lonlat",
+   "historical_lonlat": [
+    91.12,
+    29.65
+   ],
+   "x_km": -1878.8,
+   "z_km": 90.9,
+   "lonlat": [
+    97.17,
+    31.14
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 877.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 48,
+   "neighbors_draft": [
+    "chengdu"
+   ]
+  },
+  {
+   "id": "nanzhong",
+   "name_ko": "운남(남중)",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "맹획 남만",
+   "owner": null,
+   "lonlat_est": [
+    100.23,
+    25.6
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -1718.7,
+   "z_km": 751.1,
+   "lonlat": [
+    100.23,
+    25.6
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 651.8,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 49,
+   "neighbors_draft": [
+    "yunnan"
+   ]
+  },
+  {
+   "id": "wuguo",
+   "name_ko": "오과 독룡",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "오과국 동맹(올돌골)",
+   "owner": null,
+   "lonlat_est": [
+    104.2,
+    23.4
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -1366.4,
+   "z_km": 1063.7,
+   "lonlat": [
+    104.2,
+    23.4
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 246.0,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 50,
+   "neighbors_draft": [
+    "yunnan"
+   ]
+  },
+  {
+   "id": "yunnan",
+   "name_ko": "운남",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서남",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "남만(옹개 고정 주포)",
+   "owner": null,
+   "lonlat_est": [
+    102.7,
+    25.04
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -1486.5,
+   "z_km": 858.2,
+   "lonlat": [
+    102.7,
+    25.04
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 484.2,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 51,
+   "neighbors_draft": [
+    "chengdu",
+    "nanzhong",
+    "wuguo"
+   ]
+  },
+  {
+   "id": "hexi",
+   "name_ko": "하서 고장",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "전량(장궤)",
+   "owner": null,
+   "lonlat_est": [
+    102.64,
+    37.93
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -1246.1,
+   "z_km": -538.6,
+   "lonlat": [
+    102.64,
+    37.93
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 1176.8,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 52,
+   "neighbors_draft": [
+    "longxi",
+    "xingqing"
+   ]
+  },
+  {
+   "id": "longxi",
+   "name_ko": "농서",
+   "aliases_ko": [
+    "서량"
+   ],
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "마등, 농서 조씨",
+   "owner": null,
+   "lonlat_est": [
+    105.72,
+    34.58
+   ],
+   "note": "합침: 서량(마등) + 농서. 위치는 천수 일대",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -1035.7,
+   "z_km": -133.2,
+   "lonlat": [
+    105.72,
+    34.58
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 979.9,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 53,
+   "neighbors_draft": [
+    "chengdu",
+    "hexi",
+    "xianyang",
+    "xingqing"
+   ]
+  },
+  {
+   "id": "xingqing",
+   "name_ko": "흥경",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "서북",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "서하",
+   "owner": null,
+   "lonlat_est": [
+    106.23,
+    38.49
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -931.0,
+   "z_km": -551.0,
+   "lonlat": [
+    106.23,
+    38.49
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 873.6,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 54,
+   "neighbors_draft": [
+    "hexi",
+    "longxi",
+    "ordubaliq",
+    "orkhon",
+    "xianyang"
+   ]
+  },
+  {
+   "id": "ordubaliq",
+   "name_ko": "오르두발릭",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "오르도스",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "위구르",
+   "owner": null,
+   "lonlat_est": [
+    111.0,
+    40.7
+   ],
+   "note": "김작 결정 11/27: 월드맵 UI와 겹쳐 오르도스/황하 큰 굽이(하투 평야, 111.00E 40.70N)로 옮김. id 유지. 실제 역사 위치는 47.43N 102.66E(카라 발가스, 오르혼 계곡).",
+   "position_basis": "gameplay-adjusted (김작 11/27, 오르도스/하투). 실제 유적은 historical_lonlat",
+   "historical_lonlat": [
+    102.659,
+    47.431
+   ],
+   "x_km": -502.3,
+   "z_km": -745.9,
+   "lonlat": [
+    111.0,
+    40.7
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 487.4,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 55,
+   "neighbors_draft": [
+    "dadu",
+    "jizhou",
+    "karakorum",
+    "orkhon",
+    "xingqing"
+   ]
+  },
+  {
+   "id": "orkhon",
+   "name_ko": "오르혼",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "오르도스",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "돌궐",
+   "owner": null,
+   "lonlat_est": [
+    109.97,
+    39.82
+   ],
+   "note": "김작 결정 11/27: 월드맵 UI와 겹쳐 오르도스 고원(동승 일대, 109.97E 39.82N)으로 옮김. id 유지. 실제 역사 위치는 오르혼 계곡(약 47.56N 102.80E, 추가 검토).",
+   "position_basis": "gameplay-adjusted (김작 11/27, 오르도스 고원). 실제 유적은 historical_lonlat(추가 검토)",
+   "historical_lonlat": [
+    102.8,
+    47.56
+   ],
+   "x_km": -597.5,
+   "z_km": -657.9,
+   "lonlat": [
+    109.97,
+    39.82
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 552.4,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 56,
+   "neighbors_draft": [
+    "jizhou",
+    "luoyang",
+    "ordubaliq",
+    "xianyang",
+    "xingqing",
+    "yecheng"
+   ]
+  },
+  {
+   "id": "changan",
+   "name_ko": "장안",
+   "aliases_ko": [
+    "장안(한)",
+    "대흥(수)",
+    "장안(당)"
+   ],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "한, 수, 당",
+   "owner": null,
+   "lonlat_est": [
+    108.94,
+    34.27
+   ],
+   "note": "합침: 장안(한) + 대흥(수) + 장안(당)",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -733.7,
+   "z_km": -54.4,
+   "lonlat": [
+    109.145,
+    34.214
+   ],
+   "nudge_km": 19.6,
+   "on_land_pixel": true,
+   "coast_km": 697.2,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 57,
+   "neighbors_draft": [
+    "luoyang",
+    "xiangyang",
+    "xianyang"
+   ]
+  },
+  {
+   "id": "dadu",
+   "name_ko": "대도",
+   "aliases_ko": [
+    "유주"
+   ],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "원, 공손찬",
+   "owner": null,
+   "lonlat_est": [
+    116.4,
+    39.9
+   ],
+   "note": "합침: 대도(원) + 유주(공손찬). 같은 베이징 자리",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -56.0,
+   "z_km": -629.5,
+   "lonlat": [
+    116.4,
+    39.9
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 73.5,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 58,
+   "neighbors_draft": [
+    "jizhou",
+    "karakorum",
+    "ordubaliq",
+    "pengcheng"
+   ]
+  },
+  {
+   "id": "jizhou",
+   "name_ko": "기주",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "장각",
+   "owner": null,
+   "lonlat_est": [
+    115.0,
+    37.4
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -187.7,
+   "z_km": -360.7,
+   "lonlat": [
+    115.0,
+    37.4
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 205.0,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 59,
+   "neighbors_draft": [
+    "dadu",
+    "ordubaliq",
+    "orkhon",
+    "pengcheng",
+    "puyang",
+    "yecheng"
+   ]
+  },
+  {
+   "id": "kaifeng",
+   "name_ko": "개봉",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "송",
+   "owner": null,
+   "lonlat_est": [
+    114.35,
+    34.8
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -260.4,
+   "z_km": -79.4,
+   "lonlat": [
+    114.35,
+    34.8
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 432.0,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 60,
+   "neighbors_draft": [
+    "luoyang",
+    "pengcheng",
+    "puyang",
+    "xuchang",
+    "yecheng"
+   ]
+  },
+  {
+   "id": "pengcheng",
+   "name_ko": "팽성",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "river_trade_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "초",
+   "owner": null,
+   "lonlat_est": [
+    117.18,
+    34.26
+   ],
+   "note": "현재 앱은 초 = 낙양",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -7.8,
+   "z_km": -9.4,
+   "lonlat": [
+    117.18,
+    34.26
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 181.5,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 61,
+   "neighbors_draft": [
+    "dadu",
+    "jianye",
+    "jizhou",
+    "kaifeng",
+    "puyang",
+    "xuchang",
+    "yangzhou"
+   ]
+  },
+  {
+   "id": "puyang",
+   "name_ko": "복양",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "여포",
+   "owner": null,
+   "lonlat_est": [
+    115.1,
+    35.7
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -188.2,
+   "z_km": -174.3,
+   "lonlat": [
+    115.1,
+    35.7
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 341.3,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 62,
+   "neighbors_draft": [
+    "jizhou",
+    "kaifeng",
+    "pengcheng",
+    "yecheng"
+   ]
+  },
+  {
+   "id": "xiangyang",
+   "name_ko": "양양",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "military_fortress",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "유표",
+   "owner": null,
+   "lonlat_est": [
+    112.14,
+    32.04
+   ],
+   "note": "",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -482.5,
+   "z_km": 208.6,
+   "lonlat": [
+    112.14,
+    32.04
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 335.2,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 63,
+   "neighbors_draft": [
+    "changan",
+    "changsha",
+    "jianye",
+    "luoyang",
+    "xuchang"
+   ]
+  },
+  {
+   "id": "xianyang",
+   "name_ko": "함양",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "commercial_capital",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "진",
+   "owner": null,
+   "lonlat_est": [
+    108.72,
+    34.33
+   ],
+   "note": "장안과 가까워 간격 조정 대상",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -788.3,
+   "z_km": -79.5,
+   "lonlat": [
+    108.515,
+    34.385
+   ],
+   "nudge_km": 19.6,
+   "on_land_pixel": true,
+   "coast_km": 754.4,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 64,
+   "neighbors_draft": [
+    "changan",
+    "longxi",
+    "orkhon",
+    "xingqing"
+   ]
+  },
+  {
+   "id": "xuchang",
+   "name_ko": "허창",
+   "aliases_ko": [],
+   "group": "china",
+   "area": "중원",
+   "building_style": "cn",
+   "type": "production_city",
+   "type_basis": "초안 제안: 클코치와 김작 확인",
+   "existing_v24": false,
+   "faction_hint_ko": "위",
+   "owner": null,
+   "lonlat_est": [
+    113.85,
+    34.03
+   ],
+   "note": "현재 앱은 위 = 업성",
+   "position_basis": "estimated from 2D world map / toponym (간격 조정이 있으면 nudge_km)",
+   "x_km": -310.5,
+   "z_km": 2.1,
+   "lonlat": [
+    113.85,
+    34.03
+   ],
+   "nudge_km": 0.0,
+   "on_land_pixel": true,
+   "coast_km": 439.8,
+   "coastal": false,
+   "grade": null,
+   "troops": null,
+   "population": null,
+   "capital": null,
+   "region_index": 65,
+   "neighbors_draft": [
+    "jianye",
+    "kaifeng",
+    "luoyang",
+    "pengcheng",
+    "xiangyang"
+   ]
+  }
+ ],
+ "roads_draft": [
+  [
+   "pyeongyang",
+   "cheorwon",
+   209
+  ],
+  [
+   "pyeongyang",
+   "gaeseong",
+   173
+  ],
+  [
+   "hanseong",
+   "sabi",
+   177
+  ],
+  [
+   "hanseong",
+   "cheorwon",
+   92
+  ],
+  [
+   "hanseong",
+   "gaeseong",
+   89
+  ],
+  [
+   "hanseong",
+   "myeongju",
+   202
+  ],
+  [
+   "hanseong",
+   "sangju",
+   191
+  ],
+  [
+   "sabi",
+   "sangju",
+   141
+  ],
+  [
+   "gyeongju",
+   "byeokjin",
+   104
+  ],
+  [
+   "gyeongju",
+   "goryeong",
+   114
+  ],
+  [
+   "gyeongju",
+   "jinju",
+   155
+  ],
+  [
+   "gyeongju",
+   "sangju",
+   144
+  ],
+  [
+   "edo",
+   "kofu",
+   129
+  ],
+  [
+   "edo",
+   "odawara",
+   86
+  ],
+  [
+   "kyoto",
+   "kitaomi",
+   79
+  ],
+  [
+   "kyushu",
+   "bungo",
+   122
+  ],
+  [
+   "yecheng",
+   "luoyang",
+   252
+  ],
+  [
+   "yecheng",
+   "orkhon",
+   538
+  ],
+  [
+   "yecheng",
+   "jizhou",
+   130
+  ],
+  [
+   "yecheng",
+   "kaifeng",
+   168
+  ],
+  [
+   "yecheng",
+   "puyang",
+   96
+  ],
+  [
+   "luoyang",
+   "orkhon",
+   610
+  ],
+  [
+   "luoyang",
+   "changan",
+   302
+  ],
+  [
+   "luoyang",
+   "kaifeng",
+   172
+  ],
+  [
+   "luoyang",
+   "xiangyang",
+   284
+  ],
+  [
+   "luoyang",
+   "xuchang",
+   142
+  ],
+  [
+   "jianye",
+   "pengcheng",
+   283
+  ],
+  [
+   "jianye",
+   "xiangyang",
+   617
+  ],
+  [
+   "jianye",
+   "xuchang",
+   502
+  ],
+  [
+   "chengdu",
+   "yunnan",
+   635
+  ],
+  [
+   "chengdu",
+   "longxi",
+   456
+  ],
+  [
+   "karakorum",
+   "ansiseong",
+   562
+  ],
+  [
+   "karakorum",
+   "shangjing",
+   289
+  ],
+  [
+   "karakorum",
+   "ordubaliq",
+   465
+  ],
+  [
+   "karakorum",
+   "dadu",
+   271
+  ],
+  [
+   "ansiseong",
+   "shangjing",
+   457
+  ],
+  [
+   "gungnaeseong",
+   "hetuala",
+   133
+  ],
+  [
+   "gungnaeseong",
+   "liaodong",
+   250
+  ],
+  [
+   "sanggyeong_yongcheonbu",
+   "hetuala",
+   440
+  ],
+  [
+   "sanggyeong_yongcheonbu",
+   "huining",
+   230
+  ],
+  [
+   "byeokjin",
+   "goryeong",
+   60
+  ],
+  [
+   "byeokjin",
+   "jeonju",
+   134
+  ],
+  [
+   "byeokjin",
+   "sangju",
+   60
+  ],
+  [
+   "cheorwon",
+   "gaeseong",
+   86
+  ],
+  [
+   "cheorwon",
+   "myeongju",
+   182
+  ],
+  [
+   "goryeong",
+   "jeonju",
+   127
+  ],
+  [
+   "goryeong",
+   "jinju",
+   60
+  ],
+  [
+   "jeonju",
+   "jinju",
+   140
+  ],
+  [
+   "jeonju",
+   "naju",
+   120
+  ],
+  [
+   "jeonju",
+   "sangju",
+   142
+  ],
+  [
+   "jinju",
+   "naju",
+   158
+  ],
+  [
+   "myeongju",
+   "sangju",
+   201
+  ],
+  [
+   "aizu",
+   "echigo",
+   185
+  ],
+  [
+   "aizu",
+   "hitachi",
+   161
+  ],
+  [
+   "aizu",
+   "sendai",
+   136
+  ],
+  [
+   "bungo",
+   "hizen",
+   160
+  ],
+  [
+   "echigo",
+   "kofu",
+   201
+  ],
+  [
+   "kofu",
+   "nagoya",
+   186
+  ],
+  [
+   "kofu",
+   "odawara",
+   75
+  ],
+  [
+   "lingnan",
+   "changsha",
+   567
+  ],
+  [
+   "yangzhou",
+   "pengcheng",
+   290
+  ],
+  [
+   "changsha",
+   "xiangyang",
+   426
+  ],
+  [
+   "hetuala",
+   "huining",
+   453
+  ],
+  [
+   "hetuala",
+   "liaodong",
+   142
+  ],
+  [
+   "hetuala",
+   "shangjing",
+   532
+  ],
+  [
+   "liaodong",
+   "shangjing",
+   452
+  ],
+  [
+   "nanzhong",
+   "yunnan",
+   256
+  ],
+  [
+   "wuguo",
+   "yunnan",
+   238
+  ],
+  [
+   "hexi",
+   "longxi",
+   457
+  ],
+  [
+   "hexi",
+   "xingqing",
+   315
+  ],
+  [
+   "longxi",
+   "xingqing",
+   431
+  ],
+  [
+   "longxi",
+   "xianyang",
+   253
+  ],
+  [
+   "xingqing",
+   "ordubaliq",
+   471
+  ],
+  [
+   "xingqing",
+   "orkhon",
+   350
+  ],
+  [
+   "xingqing",
+   "xianyang",
+   493
+  ],
+  [
+   "ordubaliq",
+   "orkhon",
+   130
+  ],
+  [
+   "ordubaliq",
+   "dadu",
+   461
+  ],
+  [
+   "ordubaliq",
+   "jizhou",
+   497
+  ],
+  [
+   "orkhon",
+   "jizhou",
+   506
+  ],
+  [
+   "orkhon",
+   "xianyang",
+   609
+  ],
+  [
+   "changan",
+   "xiangyang",
+   364
+  ],
+  [
+   "changan",
+   "xianyang",
+   60
+  ],
+  [
+   "dadu",
+   "jizhou",
+   299
+  ],
+  [
+   "dadu",
+   "pengcheng",
+   622
+  ],
+  [
+   "jizhou",
+   "pengcheng",
+   395
+  ],
+  [
+   "jizhou",
+   "puyang",
+   186
+  ],
+  [
+   "kaifeng",
+   "pengcheng",
+   262
+  ],
+  [
+   "kaifeng",
+   "puyang",
+   119
+  ],
+  [
+   "kaifeng",
+   "xuchang",
+   96
+  ],
+  [
+   "pengcheng",
+   "puyang",
+   244
+  ],
+  [
+   "pengcheng",
+   "xuchang",
+   303
+  ],
+  [
+   "xiangyang",
+   "xuchang",
+   269
+  ],
+  [
+   "lhasa",
+   "chengdu",
+   652
+  ],
+  [
+   "kyoto",
+   "osaka",
+   51
+  ],
+  [
+   "ansiseong",
+   "liaodong",
+   60
+  ],
+  [
+   "jiangdong",
+   "jianye",
+   189
+  ],
+  [
+   "gungnaeseong",
+   "pyeongyang",
+   269
+  ],
+  [
+   "kyoto",
+   "nagoya",
+   123
+  ],
+  [
+   "hiroshima",
+   "osaka",
+   335
+  ],
+  [
+   "kagoshima",
+   "kyushu",
+   159
+  ]
+ ],
+ "sea_routes_draft": [
+  [
+   "sabi",
+   "gaeseong",
+   246
+  ],
+  [
+   "sabi",
+   "naju",
+   175
+  ],
+  [
+   "edo",
+   "hitachi",
+   118
+  ],
+  [
+   "osaka",
+   "nagoya",
+   163
+  ],
+  [
+   "osaka",
+   "tosa",
+   262
+  ],
+  [
+   "kyushu",
+   "hizen",
+   83
+  ],
+  [
+   "jianye",
+   "yangzhou",
+   70
+  ],
+  [
+   "jeju",
+   "jinju",
+   268
+  ],
+  [
+   "jeju",
+   "naju",
+   186
+  ],
+  [
+   "jeju",
+   "hizen",
+   387
+  ],
+  [
+   "jeju",
+   "jiangdong",
+   535
+  ],
+  [
+   "jinju",
+   "hizen",
+   290
+  ],
+  [
+   "naju",
+   "jiangdong",
+   593
+  ],
+  [
+   "naju",
+   "yangzhou",
+   659
+  ],
+  [
+   "bungo",
+   "hiroshima",
+   190
+  ],
+  [
+   "bungo",
+   "tosa",
+   211
+  ],
+  [
+   "hiroshima",
+   "hizen",
+   291
+  ],
+  [
+   "hiroshima",
+   "tosa",
+   165
+  ],
+  [
+   "hizen",
+   "kagoshima",
+   224
+  ],
+  [
+   "jiangdong",
+   "yangzhou",
+   162
+  ]
+ ],
+ "auto_added_links": [
+  [
+   "lhasa",
+   "chengdu",
+   652
+  ]
+ ],
+ "forced_land_links": [
+  [
+   "kyoto",
+   "osaka",
+   51
+  ],
+  [
+   "ansiseong",
+   "liaodong",
+   60
+  ],
+  [
+   "jiangdong",
+   "jianye",
+   189
+  ],
+  [
+   "gungnaeseong",
+   "pyeongyang",
+   269
+  ],
+  [
+   "kyoto",
+   "nagoya",
+   123
+  ],
+  [
+   "hiroshima",
+   "osaka",
+   335
+  ],
+  [
+   "kagoshima",
+   "kyushu",
+   159
+  ]
+ ],
+ "legacy_v24": {
+  "factions": [
+   {
+    "id": "goguryeo",
+    "name_ko": "고구려",
+    "color": "#9B6BE0",
+    "realm": "korea",
+    "home_city": "pyeongyang"
+   },
+   {
+    "id": "player",
+    "name_ko": "플레이어(한성)",
+    "color": "#2F6BFF",
+    "realm": "korea",
+    "home_city": "hanseong"
+   },
+   {
+    "id": "baekje_faction",
+    "name_ko": "백제",
+    "color": "#B07CF0",
+    "realm": "korea",
+    "home_city": "sabi"
+   },
+   {
+    "id": "silla",
+    "name_ko": "신라",
+    "color": "#E0559A",
+    "realm": "korea",
+    "home_city": "gyeongju"
+   },
+   {
+    "id": "tokugawa",
+    "name_ko": "도쿠가와",
+    "color": "#FF7A1A",
+    "realm": "japan",
+    "home_city": "edo"
+   },
+   {
+    "id": "oda",
+    "name_ko": "오다",
+    "color": "#FFD84A",
+    "realm": "japan",
+    "home_city": "kyoto"
+   },
+   {
+    "id": "toyotomi",
+    "name_ko": "도요토미",
+    "color": "#E8505B",
+    "realm": "japan",
+    "home_city": "osaka"
+   },
+   {
+    "id": "kyushu_faction",
+    "name_ko": "큐슈",
+    "color": "#C98A4A",
+    "realm": "japan",
+    "home_city": "kyushu"
+   },
+   {
+    "id": "wei",
+    "name_ko": "위(업성)",
+    "color": "#62A6F2",
+    "realm": "wei",
+    "home_city": "yecheng"
+   },
+   {
+    "id": "chu",
+    "name_ko": "초(항우)",
+    "color": "#2E7D32",
+    "realm": "chu",
+    "home_city": "luoyang"
+   },
+   {
+    "id": "wu",
+    "name_ko": "오",
+    "color": "#C8283C",
+    "realm": "wu",
+    "home_city": "jianye"
+   },
+   {
+    "id": "shu",
+    "name_ko": "촉",
+    "color": "#E2C23A",
+    "realm": "shu",
+    "home_city": "chengdu"
+   },
+   {
+    "id": "mongol_faction",
+    "name_ko": "몽골",
+    "color": "#17B3B0",
+    "realm": "mongol",
+    "home_city": "karakorum"
+   }
+  ],
+  "roads": [
+   [
+    "chengdu",
+    "jianye"
+   ],
+   [
+    "chengdu",
+    "luoyang"
+   ],
+   [
+    "edo",
+    "kyoto"
+   ],
+   [
+    "gyeongju",
+    "hanseong"
+   ],
+   [
+    "gyeongju",
+    "sabi"
+   ],
+   [
+    "hanseong",
+    "pyeongyang"
+   ],
+   [
+    "hanseong",
+    "sabi"
+   ],
+   [
+    "jianye",
+    "luoyang"
+   ],
+   [
+    "jianye",
+    "yecheng"
+   ],
+   [
+    "karakorum",
+    "pyeongyang"
+   ],
+   [
+    "karakorum",
+    "yecheng"
+   ],
+   [
+    "kyoto",
+    "osaka"
+   ],
+   [
+    "luoyang",
+    "yecheng"
+   ]
+  ],
+  "sea_routes": [
+   [
+    "gyeongju",
+    "kyoto"
+   ],
+   [
+    "gyeongju",
+    "osaka"
+   ],
+   [
+    "jianye",
+    "sabi"
+   ],
+   [
+    "kyushu",
+    "osaka"
+   ],
+   [
+    "kyushu",
+    "sabi"
+   ]
+  ],
+  "note": "참고용. 이번 초안은 세력 없음"
+ },
+ "road_edits_20261127": {
+  "note": "김작 결정: 3곳은 재미로 두고 나머진 역사-지형 기준. 추천안 그대로 적용.",
+  "removed_land": [
+   [
+    "chengdu",
+    "changan",
+    610
+   ],
+   [
+    "chengdu",
+    "xianyang",
+    579
+   ],
+   [
+    "nanzhong",
+    "wuguo",
+    471
+   ]
+  ],
+  "added_land": [
+   [
+    "ansiseong",
+    "liaodong",
+    60
+   ]
+  ],
+  "kept_fun_long": [
+   [
+    "karakorum",
+    "ansiseong",
+    562
+   ],
+   [
+    "hetuala",
+    "shangjing",
+    532
+   ],
+   [
+    "orkhon",
+    "xianyang",
+    609
+   ]
+  ],
+  "replace_path_chengdu_changan": [
+   [
+    "chengdu",
+    "longxi",
+    456
+   ],
+   [
+    "longxi",
+    "xianyang",
+    253
+   ],
+   [
+    "xianyang",
+    "changan",
+    60
+   ]
+  ]
+ },
+ "road_edits_20261127_07": {
+  "note": "김작 승인(오케이). 클코치 21번 제안: 육로 5개 추가(교토-나고야, 북오미 아님), 오르혼-장안 삭제. 바닷길이던 3쌍은 육로로 옮김.",
+  "added_land": [
+   [
+    "jiangdong",
+    "jianye",
+    189
+   ],
+   [
+    "gungnaeseong",
+    "pyeongyang",
+    269
+   ],
+   [
+    "kyoto",
+    "nagoya",
+    123
+   ],
+   [
+    "hiroshima",
+    "osaka",
+    335
+   ],
+   [
+    "kagoshima",
+    "kyushu",
+    159
+   ]
+  ],
+  "removed_land": [
+   [
+    "orkhon",
+    "changan",
+    619
+   ]
+  ],
+  "promoted_from_sea": [
+   [
+    "osaka",
+    "hiroshima",
+    335
+   ],
+   [
+    "kyushu",
+    "kagoshima",
+    159
+   ],
+   [
+    "jianye",
+    "jiangdong",
+    189
+   ]
+  ]
+ }
+}

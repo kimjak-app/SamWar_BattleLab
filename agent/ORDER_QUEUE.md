@@ -52,6 +52,7 @@
 | 36 | `agent/ORDER_STOCK_AUTHORITY_P0_20261127.md` | **main 합류 11-27 20:35** (`main` `8cc0640..e3bf253` fast-forward, 김작 채팅 승인 "합치자 그럼 합쳐"). CI `45952527223` 초록. F6: 연구 비용·무역 수입·결산·치트 ① 합격, 도시 창고 표시·이송·수동 수출·모병·저장/불러오기는 HUD 연결 때(3D HUD에 숨겨진 UI). | 클코드 |
 | 37 | `agent/ORDER_SPY_INTEL_P3_20261127.md` | **main 합류 11-27 20:35** (같은 fast-forward). CI `45966240063` 초록(shard 0 컷인 플레이크 재실행 통과). 정탐 화면 F6 8~13은 HUD 연결 때 — `agent/REPORT_SPY_UI_3D_GAP_20261127.md`. | 클코드 |
 | 38 | `agent/ORDER_STRATEGY_P1_DIPLOMACY_REQUESTS_20261127.md` | **준비됨** — 기준 `main` `e3bf253`, 새 가지 `feature/wm3d-strategy-p1-20261127`. 전략 요청 대장 + 기본 외교 T 접수 → T+1 결과. 규칙은 현행 값 기본안. 가지 푸시 승인, `main` 병합은 클코치. | 클코드 |
+| 39 | `agent/ORDER_CITIES65_PREVIEW_20261127.md` | **대기(큐 38 뒤)** — 65개 성 미리보기(새 52개 빈 성), 데이터 `agent/data/cities65_0_7/`(체크섬 `SHA256SUMS`). 가지 `feature/wm3d-cities65-preview-20261127`, **main 병합 없음**(김작이 보고 세력·장수 결정). | 클코드 |
 
 - 다음 지시서 파일이 아직 없으면 **작업을 시작하지 말고** 5분마다 `git fetch`로 확인한다(최대 90분). 그래도 없으면 `agent/PROGRESS_WM3D.md`에 "대기 중: <파일명> 없음"을 적고 `[skip ci]` 커밋으로 올린 뒤 멈춘다.
 - 클코드는 한 번에 한 단계만 한다. 단계가 끝나기 전에 다음 단계 파일을 읽어 두는 것은 허용(준비 목적), 코드 수정은 금지.

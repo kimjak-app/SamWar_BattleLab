@@ -1,0 +1,596 @@
+{
+ "_comment": "초안(1단계). 세력 없음(owner 빈 값). 새 성 3개는 아직 선택 전. x_km 동, z_km 남, 원점 맵 중앙. banner_dx는 v2.4 값이 있던 곳만 유지.",
+ "_draft": true,
+ "markers": {
+  "pyeongyang": {
+   "x_km": 722.7,
+   "z_km": -508.7,
+   "marker_scene": "",
+   "lonlat": [
+    125.75,
+    39.02
+   ],
+   "banner_dx": -0.16
+  },
+  "hanseong": {
+   "x_km": 864.1,
+   "z_km": -290.4,
+   "marker_scene": "",
+   "lonlat": [
+    127.1,
+    37.52
+   ],
+   "banner_dx": 0.16
+  },
+  "sabi": {
+   "x_km": 848.5,
+   "z_km": -114.2,
+   "marker_scene": "",
+   "lonlat": [
+    126.91,
+    36.28
+   ],
+   "banner_dx": -0.16
+  },
+  "gyeongju": {
+   "x_km": 1110.3,
+   "z_km": -70.8,
+   "marker_scene": "",
+   "lonlat": [
+    129.21,
+    35.84
+   ]
+  },
+  "edo": {
+   "x_km": 2182.1,
+   "z_km": -281.0,
+   "marker_scene": "",
+   "lonlat": [
+    139.77,
+    35.68
+   ]
+  },
+  "kyoto": {
+   "x_km": 1780.5,
+   "z_km": -116.0,
+   "marker_scene": "",
+   "lonlat": [
+    135.76,
+    35.01
+   ],
+   "banner_dx": 0.17
+  },
+  "osaka": {
+   "x_km": 1760.7,
+   "z_km": -68.8,
+   "marker_scene": "",
+   "lonlat": [
+    135.5,
+    34.69
+   ],
+   "banner_dx": -0.17
+  },
+  "kyushu": {
+   "x_km": 1279.4,
+   "z_km": 268.6,
+   "marker_scene": "",
+   "lonlat": [
+    130.71,
+    32.8
+   ]
+  },
+  "yecheng": {
+   "x_km": -250.9,
+   "z_km": -246.7,
+   "marker_scene": "",
+   "lonlat": [
+    114.35,
+    36.33
+   ]
+  },
+  "luoyang": {
+   "x_km": -432.3,
+   "z_km": -71.1,
+   "marker_scene": "",
+   "lonlat": [
+    112.45,
+    34.62
+   ]
+  },
+  "jianye": {
+   "x_km": 134.0,
+   "z_km": 235.7,
+   "marker_scene": "",
+   "lonlat": [
+    118.78,
+    32.05
+   ]
+  },
+  "chengdu": {
+   "x_km": -1251.3,
+   "z_km": 268.5,
+   "marker_scene": "",
+   "lonlat": [
+    104.07,
+    30.66
+   ]
+  },
+  "karakorum": {
+   "x_km": -63.7,
+   "z_km": -900.6,
+   "marker_scene": "",
+   "lonlat": [
+    116.185,
+    42.358
+   ]
+  },
+  "ansiseong": {
+   "x_km": 472.7,
+   "z_km": -733.7,
+   "marker_scene": "",
+   "lonlat": [
+    122.708,
+    40.87
+   ]
+  },
+  "gungnaeseong": {
+   "x_km": 760.4,
+   "z_km": -775.2,
+   "marker_scene": "",
+   "lonlat": [
+    126.189,
+    41.13
+   ]
+  },
+  "sanggyeong_yongcheonbu": {
+   "x_km": 974.1,
+   "z_km": -1124.3,
+   "marker_scene": "",
+   "lonlat": [
+    129.143,
+    44.131
+   ]
+  },
+  "byeokjin": {
+   "x_km": 1008.1,
+   "z_km": -88.3,
+   "marker_scene": "",
+   "lonlat": [
+    128.309,
+    36.029
+   ]
+  },
+  "cheorwon": {
+   "x_km": 886.9,
+   "z_km": -380.0,
+   "marker_scene": "",
+   "lonlat": [
+    127.31,
+    38.15
+   ]
+  },
+  "gaeseong": {
+   "x_km": 804.4,
+   "z_km": -356.0,
+   "marker_scene": "",
+   "lonlat": [
+    126.55,
+    37.97
+   ]
+  },
+  "goryeong": {
+   "x_km": 1004.6,
+   "z_km": -28.3,
+   "marker_scene": "",
+   "lonlat": [
+    128.246,
+    35.593
+   ]
+  },
+  "jeju": {
+   "x_km": 834.2,
+   "z_km": 246.5,
+   "marker_scene": "",
+   "lonlat": [
+    126.555,
+    33.454
+   ]
+  },
+  "jeonju": {
+   "x_km": 879.8,
+   "z_km": -51.2,
+   "marker_scene": "",
+   "lonlat": [
+    127.15,
+    35.82
+   ]
+  },
+  "jinju": {
+   "x_km": 993.2,
+   "z_km": 30.6,
+   "marker_scene": "",
+   "lonlat": [
+    128.107,
+    35.171
+   ]
+  },
+  "myeongju": {
+   "x_km": 1062.3,
+   "z_km": -330.2,
+   "marker_scene": "",
+   "lonlat": [
+    128.9,
+    37.75
+   ]
+  },
+  "naju": {
+   "x_km": 837.7,
+   "z_km": 60.9,
+   "marker_scene": "",
+   "lonlat": [
+    126.71,
+    35.02
+   ]
+  },
+  "sangju": {
+   "x_km": 986.7,
+   "z_km": -144.3,
+   "marker_scene": "",
+   "lonlat": [
+    128.146,
+    36.446
+   ]
+  },
+  "aizu": {
+   "x_km": 2139.4,
+   "z_km": -517.8,
+   "marker_scene": "",
+   "lonlat": [
+    139.93,
+    37.49
+   ]
+  },
+  "bungo": {
+   "x_km": 1378.6,
+   "z_km": 198.3,
+   "marker_scene": "",
+   "lonlat": [
+    131.651,
+    33.199
+   ]
+  },
+  "echigo": {
+   "x_km": 1972.8,
+   "z_km": -437.6,
+   "marker_scene": "",
+   "lonlat": [
+    138.191,
+    37.112
+   ]
+  },
+  "hiroshima": {
+   "x_km": 1436.4,
+   "z_km": 16.9,
+   "marker_scene": "",
+   "lonlat": [
+    132.443,
+    34.44
+   ]
+  },
+  "hitachi": {
+   "x_km": 2233.6,
+   "z_km": -387.4,
+   "marker_scene": "",
+   "lonlat": [
+    140.45,
+    36.37
+   ]
+  },
+  "hizen": {
+   "x_km": 1219.6,
+   "z_km": 211.2,
+   "marker_scene": "",
+   "lonlat": [
+    130.263,
+    33.284
+   ]
+  },
+  "kagoshima": {
+   "x_km": 1274.2,
+   "z_km": 428.0,
+   "marker_scene": "",
+   "lonlat": [
+    130.501,
+    31.625
+   ]
+  },
+  "kitaomi": {
+   "x_km": 1822.3,
+   "z_km": -183.5,
+   "marker_scene": "",
+   "lonlat": [
+    136.28,
+    35.45
+   ]
+  },
+  "kofu": {
+   "x_km": 2055.7,
+   "z_km": -255.0,
+   "marker_scene": "",
+   "lonlat": [
+    138.57,
+    35.66
+   ]
+  },
+  "nagoya": {
+   "x_km": 1895.7,
+   "z_km": -159.8,
+   "marker_scene": "",
+   "lonlat": [
+    136.91,
+    35.18
+   ]
+  },
+  "odawara": {
+   "x_km": 2122.1,
+   "z_km": -219.2,
+   "marker_scene": "",
+   "lonlat": [
+    139.105,
+    35.309
+   ]
+  },
+  "sendai": {
+   "x_km": 2204.9,
+   "z_km": -636.9,
+   "marker_scene": "",
+   "lonlat": [
+    140.87,
+    38.27
+   ]
+  },
+  "tosa": {
+   "x_km": 1571.3,
+   "z_km": 111.6,
+   "marker_scene": "",
+   "lonlat": [
+    133.484,
+    33.611
+   ]
+  },
+  "jiangdong": {
+   "x_km": 303.7,
+   "z_km": 318.5,
+   "marker_scene": "",
+   "lonlat": [
+    120.6,
+    31.3
+   ]
+  },
+  "lingnan": {
+   "x_km": -445.4,
+   "z_km": 1199.0,
+   "marker_scene": "",
+   "lonlat": [
+    113.26,
+    23.13
+   ]
+  },
+  "yangzhou": {
+   "x_km": 193.7,
+   "z_km": 198.9,
+   "marker_scene": "",
+   "lonlat": [
+    119.42,
+    32.39
+   ]
+  },
+  "changsha": {
+   "x_km": -438.1,
+   "z_km": 632.0,
+   "marker_scene": "",
+   "lonlat": [
+    112.94,
+    28.23
+   ]
+  },
+  "hetuala": {
+   "x_km": 642.1,
+   "z_km": -834.9,
+   "marker_scene": "",
+   "lonlat": [
+    124.799,
+    41.73
+   ]
+  },
+  "huining": {
+   "x_km": 791.0,
+   "z_km": -1263.1,
+   "marker_scene": "",
+   "lonlat": [
+    126.97,
+    45.51
+   ]
+  },
+  "liaodong": {
+   "x_km": 510.8,
+   "z_km": -780.1,
+   "marker_scene": "",
+   "lonlat": [
+    123.183,
+    41.281
+   ]
+  },
+  "shangjing": {
+   "x_km": 167.6,
+   "z_km": -1074.5,
+   "marker_scene": "",
+   "lonlat": [
+    118.999,
+    43.98
+   ]
+  },
+  "lhasa": {
+   "x_km": -1878.8,
+   "z_km": 90.9,
+   "marker_scene": "",
+   "lonlat": [
+    97.17,
+    31.14
+   ]
+  },
+  "nanzhong": {
+   "x_km": -1718.7,
+   "z_km": 751.1,
+   "marker_scene": "",
+   "lonlat": [
+    100.23,
+    25.6
+   ]
+  },
+  "wuguo": {
+   "x_km": -1366.4,
+   "z_km": 1063.7,
+   "marker_scene": "",
+   "lonlat": [
+    104.2,
+    23.4
+   ]
+  },
+  "yunnan": {
+   "x_km": -1486.5,
+   "z_km": 858.2,
+   "marker_scene": "",
+   "lonlat": [
+    102.7,
+    25.04
+   ]
+  },
+  "hexi": {
+   "x_km": -1246.1,
+   "z_km": -538.6,
+   "marker_scene": "",
+   "lonlat": [
+    102.64,
+    37.93
+   ]
+  },
+  "longxi": {
+   "x_km": -1035.7,
+   "z_km": -133.2,
+   "marker_scene": "",
+   "lonlat": [
+    105.72,
+    34.58
+   ]
+  },
+  "xingqing": {
+   "x_km": -931.0,
+   "z_km": -551.0,
+   "marker_scene": "",
+   "lonlat": [
+    106.23,
+    38.49
+   ]
+  },
+  "ordubaliq": {
+   "x_km": -502.3,
+   "z_km": -745.9,
+   "marker_scene": "",
+   "lonlat": [
+    111.0,
+    40.7
+   ]
+  },
+  "orkhon": {
+   "x_km": -597.5,
+   "z_km": -657.9,
+   "marker_scene": "",
+   "lonlat": [
+    109.97,
+    39.82
+   ]
+  },
+  "changan": {
+   "x_km": -733.7,
+   "z_km": -54.4,
+   "marker_scene": "",
+   "lonlat": [
+    109.145,
+    34.214
+   ]
+  },
+  "dadu": {
+   "x_km": -56.0,
+   "z_km": -629.5,
+   "marker_scene": "",
+   "lonlat": [
+    116.4,
+    39.9
+   ]
+  },
+  "jizhou": {
+   "x_km": -187.7,
+   "z_km": -360.7,
+   "marker_scene": "",
+   "lonlat": [
+    115.0,
+    37.4
+   ]
+  },
+  "kaifeng": {
+   "x_km": -260.4,
+   "z_km": -79.4,
+   "marker_scene": "",
+   "lonlat": [
+    114.35,
+    34.8
+   ]
+  },
+  "pengcheng": {
+   "x_km": -7.8,
+   "z_km": -9.4,
+   "marker_scene": "",
+   "lonlat": [
+    117.18,
+    34.26
+   ]
+  },
+  "puyang": {
+   "x_km": -188.2,
+   "z_km": -174.3,
+   "marker_scene": "",
+   "lonlat": [
+    115.1,
+    35.7
+   ]
+  },
+  "xiangyang": {
+   "x_km": -482.5,
+   "z_km": 208.6,
+   "marker_scene": "",
+   "lonlat": [
+    112.14,
+    32.04
+   ]
+  },
+  "xianyang": {
+   "x_km": -788.3,
+   "z_km": -79.5,
+   "marker_scene": "",
+   "lonlat": [
+    108.515,
+    34.385
+   ]
+  },
+  "xuchang": {
+   "x_km": -310.5,
+   "z_km": 2.1,
+   "marker_scene": "",
+   "lonlat": [
+    113.85,
+    34.03
+   ]
+  }
+ }
+}
