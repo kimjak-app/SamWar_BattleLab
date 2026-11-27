@@ -2,6 +2,7 @@ extends SceneTree
 
 const SCENE_PATH := "res://WorldMap_16x9_Test.tscn"
 const Service := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const Strategy := preload("res://scripts/worldmap/actions/strategy_request_service.gd")  # queue 38: player diplomacy is submitted (T) and resolved at the turn end
 var _failures := 0
 var _checks := 0
 var _resolved := 0
@@ -51,7 +52,7 @@ func _prepare(faction: String = "player", score: int = 60, status: String = "neu
 func _parity(action: String, faction: String, score: int, status: String, gold: int, cooldown: int, expected_success: bool) -> void:
 	_prepare(faction, score, status, gold, cooldown)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var service_result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action, _target)
+	var service_result: Dictionary = Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), action, _target)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_set_state(before.duplicate(true))
 	var actual: Dictionary = _worldmap.call("_apply_diplomacy_action", action, _target)
@@ -88,7 +89,7 @@ func _run() -> void:
 		for action in ["envoy", "tribute", "trade_agreement", "alliance_proposal"]:
 			_parity(action, faction, 80, "neutral", 10000, 0, true)
 		_parity("restore_relations", faction, 20, "hostile", 10000, 0, true)
-		_parity("alliance_proposal", faction, 0, "neutral", 10000, 0, false)
+		_parity("alliance_proposal", faction, 0, "neutral", 10000, 0, true)  # queue 38: submitted; acceptance is judged at the turn end
 		for action in ["envoy", "tribute", "trade_agreement", "restore_relations", "alliance_proposal"]:
 			_parity(action, faction, 60, "neutral", 10000, 2, false)
 			_parity(action, faction, 60, "hostile" if action == "restore_relations" else "neutral", 0, 0, false)

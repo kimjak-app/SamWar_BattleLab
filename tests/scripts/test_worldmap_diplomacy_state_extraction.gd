@@ -2,6 +2,7 @@ extends SceneTree
 
 const SCENE_PATH := "res://WorldMap_16x9_Test.tscn"
 const Service := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const Strategy := preload("res://scripts/worldmap/actions/strategy_request_service.gd")  # queue 38: player diplomacy is submitted (T) and resolved at the turn end
 
 var _checks := 0
 var _failures := 0
@@ -203,7 +204,7 @@ func _check_production_action_parity() -> void:
 	var faction_id := _foreign_factions[0]
 	var city_id := str(_city_by_faction.get(faction_id, ""))
 	var before := _state().duplicate(true)
-	var direct: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), "trade_agreement", city_id)
+	var direct: Dictionary = Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), "trade_agreement", city_id)
 	var expected_state := _state().duplicate(true)
 	_set_state(before.duplicate(true))
 	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", "trade_agreement", city_id)

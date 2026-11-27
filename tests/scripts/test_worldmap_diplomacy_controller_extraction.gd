@@ -3,6 +3,7 @@ extends SceneTree
 const Controller := preload("res://scripts/worldmap/actions/diplomacy_controller.gd")
 const Coordinator := preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")
 const Service := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const Strategy := preload("res://scripts/worldmap/actions/strategy_request_service.gd")  # queue 38: the coordinator route submits a request
 const Presenter := preload("res://scripts/worldmap/actions/diplomacy_presentation_helper.gd")
 const Marker := preload("res://scripts/worldmap_city_marker.gd")
 
@@ -50,6 +51,14 @@ class GenericHost extends Node:
 			_city_stock["own"] = stock
 			_player_state["resource_stock"] = stock.duplicate(true)
 		return {"before": before, "after": stock.duplicate(true), "cost": cost.duplicate(true), "paid": paid}
+	# Queue 38: the strategy request ledger reserves per city and refunds once; the fake host has one owned city.
+	func _get_national_payment_city_ids_mvp() -> Array:
+		return ["own"]
+	func _get_city_storage(city_id: String) -> Dictionary:
+		return (_city_stock.get(city_id, {}) as Dictionary).duplicate(true)
+	func _set_city_storage(city_id: String, stock: Dictionary) -> void:
+		_city_stock[city_id] = stock.duplicate(true)
+		_player_state["resource_stock"] = stock.duplicate(true)
 	func _food(stock: Dictionary) -> int:
 		return int(stock.get("rice", 0)) + int(stock.get("barley", 0)) + int(stock.get("seafood", 0))
 	var selected_city_marker: WorldMapCityMarker = null
@@ -131,7 +140,7 @@ func _check_routes() -> void:
 			var context := _controller._build_diplomacy_action_validation_context(action, "foreign")
 			_expect(_controller._validate_diplomacy_action(action, "foreign") == Service.validate_action(action, context), "validation parity " + action)
 			_host._player_state = initial.duplicate(true)
-			var expected := _service.execute(_controller, action, "foreign")
+			var expected := Strategy.submit_player_diplomacy(_controller, action, "foreign")
 			var expected_state := _host._player_state.duplicate(true)
 			_host._player_state = initial.duplicate(true)
 			var immediate := _coordinator.execute_now("diplomacy", action, "foreign")
@@ -218,6 +227,8 @@ func _check_presentation() -> void:
 	_expect(blocked == {"disabled": true, "tooltip": "행동 불가 · 자원이 부족합니다."}, "blocked tooltip")
 	var result := _coordinator.execute_now("diplomacy", "envoy", "foreign")
 	_expect(result["success"], "presented action succeeds")
+	# Queue 38: the action was submitted on turn 7; its result and cooldown show after the turn-end resolution.
+	_controller.resolve_strategy_requests(7, "turn_7_test")
 	_expect(_presenter._format_last_diplomacy_action_result_for_ui("enemy") == "최근 외교\n사절 파견 → 상대국\n관계 80 → 85 / 금전 -30", "success result text")
 	card = _presenter.build_action_card_model(marker)
 	_expect(card["status"] == "중립 · 관계 85 / 쿨다운 1턴", "cooldown card text")

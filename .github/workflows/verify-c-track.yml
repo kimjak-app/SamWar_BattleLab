@@ -424,6 +424,7 @@ jobs:
             tests/scripts/test_worldmap_stock_authority_p0.gd
             tests/scripts/test_spy_intel_snapshot_service.gd
             tests/scripts/test_worldmap_spy_intel_p3.gd
+            tests/scripts/test_worldmap_strategy_p1.gd
           )
           index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do

@@ -2,6 +2,7 @@ extends SceneTree
 
 const SCENE_PATH := "res://WorldMap_16x9_Test.tscn"
 const Service := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const Strategy := preload("res://scripts/worldmap/actions/strategy_request_service.gd")  # queue 38: player diplomacy is submitted (T) and resolved at the turn end
 const ACTIONS := ["envoy", "tribute", "trade_agreement", "restore_relations", "alliance_proposal"]
 
 var _failures := 0
@@ -106,7 +107,7 @@ func _check_insufficient_resources(action_id: String) -> void:
 func _check_production_parity(action_id: String, score: int, status: String) -> void:
 	_prepare(score, status)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var direct: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action_id, _foreign_city_id)
+	var direct: Dictionary = Strategy.submit_player_diplomacy(_worldmap.call("_ensure_diplomacy_controller"), action_id, _foreign_city_id)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_set_state(before.duplicate(true))
 	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", action_id, _foreign_city_id)

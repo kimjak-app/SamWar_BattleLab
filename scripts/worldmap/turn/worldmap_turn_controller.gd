@@ -167,6 +167,7 @@ func finish_enemy_turn() -> void:
 		domestic_summary = str(_do("apply_domestic_turn"))
 		_domestic_apply_pending = false
 		_do("set_player_state", ["domestic_apply_pending", false])
+	var strategy_result := _resolve_strategy_requests(source_turn, transaction_id)
 	advance_world_turn()
 	set_phase(PHASE_PLAYER)
 	_do("evaluate_outcome")
@@ -183,6 +184,9 @@ func finish_enemy_turn() -> void:
 		"ai_city_production_count": int(ai_domestic_result.get("city_count", 0)),
 		"outcome": str(game_outcome.get("status", TurnOutcomeRulesScript.OUTCOME_ACTIVE)),
 	}
+	if int(strategy_result.get("count", 0)) > 0:
+		turn_result["strategy_request_results"] = (strategy_result.get("results", []) as Array).duplicate(true)
+		domestic_summary = ("%s · " % domestic_summary if not domestic_summary.is_empty() else "") + "전략 요청 %d건 결과" % int(strategy_result.get("count", 0))
 	_do("set_player_state", ["last_turn_resolution_result", turn_result])
 	completed_ids.append(transaction_id)
 	_do("set_player_state", ["completed_turn_resolution_ids", completed_ids])
@@ -206,6 +210,21 @@ func finish_enemy_turn() -> void:
 		_do("defer_present_outcome")
 		return
 	_do("defer_next_battle_report")
+
+
+## Queue 38: turn-end resolution of the strategy request ledger (requests submitted on this turn). It runs after the
+## domestic step, which counts the existing agreement / alliance / cooldown turns down, so a new result starts T+1
+## with its full value; and before the turn advances. The ledger stamps each request with transaction_id, so a
+## resolution re-entered after a load changes nothing twice. The diplomacy controller is reached through the
+## world map that owns this node (no new main command name).
+func _resolve_strategy_requests(source_turn: int, transaction_id: String) -> Dictionary:
+	var world_map := get_parent()
+	if world_map == null or not world_map.has_method("_ensure_diplomacy_controller"):
+		return {}
+	var diplomacy: Object = world_map.call("_ensure_diplomacy_controller")
+	if diplomacy == null or not diplomacy.has_method("resolve_strategy_requests"):
+		return {}
+	return _as_dictionary(diplomacy.call("resolve_strategy_requests", source_turn, transaction_id))
 
 
 func advance_world_turn() -> void:

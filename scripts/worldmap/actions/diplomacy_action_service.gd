@@ -27,8 +27,11 @@ func execute(
 	host: Object,
 	action_id: String,
 	target_city_id: String,
-	_source_city_id: String = ""
+	_source_city_id: String = "",
+	prepaid_payment: Dictionary = {}
 ) -> Dictionary:
+	# Queue 38: prepaid_payment = a strategy request's own reservation (cost already taken out of the cities when it
+	# was submitted). With it, the payment check passes and nothing is charged again; everything else is unchanged.
 	if host == null:
 		return _failure("executor_unavailable", "외교 행동 실행기를 찾을 수 없습니다.")
 	for method_name in [
@@ -45,6 +48,8 @@ func execute(
 	var context_variant: Variant = host.call("_build_diplomacy_action_validation_context", action_id, target_city_id)
 	if not context_variant is Dictionary:
 		return _failure("invalid_validation", "외교 행동 조건을 확인할 수 없습니다.")
+	if not prepaid_payment.is_empty():
+		(context_variant as Dictionary)["payment_check"] = {"ok": true, "prepaid": true}
 	var validation := validate_action(action_id, context_variant as Dictionary)
 	if not bool(validation.get("ok", false)):
 		var current_turn := maxi(1, int(_get_player_state(host).get("turn_number", 1)))
@@ -59,7 +64,7 @@ func execute(
 	var target_faction_id := str(validation.get("target_faction_id", ""))
 	var cost_variant: Variant = validation.get("cost", {})
 	var cost: Dictionary = cost_variant if cost_variant is Dictionary else {}
-	var payment_result := apply_diplomacy_resource_cost(host, cost)
+	var payment_result := prepaid_payment if not prepaid_payment.is_empty() else apply_diplomacy_resource_cost(host, cost)
 	if action_id == ACTION_ALLIANCE_PROPOSAL:
 		var prepaid_validation := validation.duplicate(true)
 		prepaid_validation["payment"] = payment_result

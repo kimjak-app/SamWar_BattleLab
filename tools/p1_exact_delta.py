@@ -415,12 +415,46 @@ def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_ma
 
 
 def frozen_text_matches(root, path: str, expected_text: str, current_text: str) -> bool:
-    """A frozen file equals what its guard expects, or (queue 36) the P0-stock commit with exactly the approved delta."""
+    """A frozen file equals what its guard expects, after the approved stages in order: each stage that lists the path
+    must be reached by exactly its approved delta (queue 36 P0-stock, then queue 38 P1-strategy)."""
     current_text = current_text.replace("\r\n", "\n")
-    if not P0_STOCK_CHECKPOINT or path not in EXPECTED_P0_STOCK_FROZEN_DELTAS:
-        return current_text == expected_text
-    p0_text = git_show_text(root, P0_STOCK_CHECKPOINT, path)
-    return current_text == p0_text and line_delta(expected_text, p0_text) == EXPECTED_P0_STOCK_FROZEN_DELTAS[path]
+    approved_text = expected_text
+    for checkpoint, deltas in _approved_frozen_stages():
+        if not checkpoint or path not in deltas:
+            continue
+        stage_text = git_show_text(root, checkpoint, path)
+        if line_delta(approved_text, stage_text) != deltas[path]:
+            return False
+        approved_text = stage_text
+    return current_text == approved_text
+
+
+# Queue 38 STRATEGY-P1 (Kim approved 11-27, re-pin allowed): the code commit that added the strategy request ledger.
+# Frozen files it changed on purpose: path -> exact delta from the P0-stock text (or from the guard's text when the
+# file has no P0 stage). Controller functions it changed on purpose, which a guard freezes function by function:
+# path -> {function name -> exact delta of the normalized body}. Empty checkpoint = no approved P1 state yet.
+P1_STRATEGY_CHECKPOINT = ""
+EXPECTED_P1_STRATEGY_FROZEN_DELTAS: dict[str, list[str]] = {}
+EXPECTED_P1_STRATEGY_FUNCTION_DELTAS: dict[str, dict[str, list[str]]] = {}
+
+
+def _approved_frozen_stages():
+    return [
+        (P0_STOCK_CHECKPOINT, EXPECTED_P0_STOCK_FROZEN_DELTAS),
+        (P1_STRATEGY_CHECKPOINT, EXPECTED_P1_STRATEGY_FROZEN_DELTAS),
+    ]
+
+
+def approved_function_body(root, path: str, name: str, baseline_body: str, functions_of):
+    """The body a guard must see for a frozen function: the baseline, or (queue 38) the P1-strategy commit's body when
+    that commit changed it by exactly the approved delta. Returns None when the approved delta no longer matches."""
+    changed = EXPECTED_P1_STRATEGY_FUNCTION_DELTAS.get(path, {})
+    if not P1_STRATEGY_CHECKPOINT or name not in changed:
+        return baseline_body
+    stage_body = functions_of(git_show_text(root, P1_STRATEGY_CHECKPOINT, path)).get(name)
+    if stage_body is None or line_delta(baseline_body, stage_body) != changed[name]:
+        return None
+    return stage_body
 
 
 def assert_settlement_is_approved_p1d_state(root, current_bytes: bytes, af1_expected_bytes: bytes, path: str) -> None:

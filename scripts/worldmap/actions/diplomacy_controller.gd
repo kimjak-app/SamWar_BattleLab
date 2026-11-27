@@ -2,6 +2,7 @@ class_name WorldMapDiplomacyController
 extends RefCounted
 
 const DiplomacyActionServiceScript := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const StrategyRequestServiceScript := preload("res://scripts/worldmap/actions/strategy_request_service.gd")
 const ALLIANCE_ACCEPTANCE_THRESHOLD := DiplomacyActionServiceScript.ALLIANCE_ACCEPTANCE_THRESHOLD
 
 const FACTION_RELATION_STATUS := {
@@ -52,8 +53,27 @@ func configure(host: Node) -> void:
 	_host = host
 
 
-func execute(action_id: String, target_city_id: String = "", source_city_id: String = "") -> Dictionary:
+func execute(action_id: String, target_city_id: String = "", _source_city_id: String = "") -> Dictionary:
+	# Queue 38: a player diplomacy action is submitted on turn T (cost reserved now) and resolved at the turn end of T.
+	return StrategyRequestServiceScript.submit_player_diplomacy(self, action_id, target_city_id)
+
+
+## The old immediate path (validate, pay and apply now). Not used by the player buttons since queue 38.
+func execute_immediately(action_id: String, target_city_id: String = "", source_city_id: String = "") -> Dictionary:
 	return _service.execute(self, action_id, target_city_id, source_city_id)
+
+
+## Queue 38: strategy request ledger (shared by diplomacy now, trade in P2).
+func submit_strategy_request(source_faction_id: String, action_id: String, target_faction_id: String, target_city_id: String = "") -> Dictionary:
+	return StrategyRequestServiceScript.submit_strategy_request(self, source_faction_id, action_id, target_faction_id, target_city_id)
+
+
+func resolve_strategy_requests(source_turn: int, transaction_id: String) -> Dictionary:
+	return StrategyRequestServiceScript.resolve_turn(self, source_turn, transaction_id)
+
+
+func get_pending_strategy_requests() -> Array:
+	return StrategyRequestServiceScript.get_pending_requests(self)
 
 
 # Compatibility names intentionally match the existing Service adapter contract.
@@ -560,3 +580,16 @@ func _can_pay_national_city_stock_cost(cost: Dictionary) -> Dictionary:
 
 func _pay_national_city_stock_cost(cost: Dictionary) -> Dictionary:
 	return _host.call("_apply_generic_resource_cost", cost)
+
+
+# Queue 38: city-stock bridges for the strategy request ledger (reserve per city, refund once).
+func _get_national_payment_city_ids_mvp() -> Array:
+	return _host.call("_get_national_payment_city_ids_mvp")
+
+
+func _get_city_storage(city_id: String) -> Dictionary:
+	return _host.call("_get_city_storage", city_id)
+
+
+func _set_city_storage(city_id: String, stock: Dictionary) -> void:
+	_host.call("_set_city_storage", city_id, stock)
