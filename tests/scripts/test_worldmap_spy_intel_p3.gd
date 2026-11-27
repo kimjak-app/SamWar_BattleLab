@@ -63,6 +63,8 @@ func _run() -> void:
 	_check_tiers()
 	_check_record_turn_and_save()
 	_check_snapshot_stays()
+	_check_bonus_ladder()
+	_check_owner_at_observation()
 	_check_failure_keeps_intel()
 	_check_p0_cost()
 	_finish()
@@ -209,6 +211,103 @@ func _check_snapshot_stays() -> void:
 	recorded = _recorded_payload()
 	_expect(bool(second.get("success", false)) and int((recorded.get("resources", {}) as Dictionary).get("rice", -1)) == 90 and _roster_ids(recorded).is_empty() and int(recorded.get("observed_turn", -1)) == turn + 1, "12. a new report replaces it: rice 90, roster [], turn %d (%s)" % [turn + 1, str(recorded)])
 	(_main.get("_player_state") as Dictionary)["turn_number"] = turn
+
+
+# ---- 13 (addendum 2, 16:45) ----
+
+# Four cases: base 1 = troops_estimated; bonus 1 = troops_estimated + resources (the old seed value, NOT the real
+# stock); bonus 2 = troops + resources (real); base 3 = troops + resources (real) + heroes. Seed rice 500, real rice 40.
+func _check_bonus_ladder() -> void:
+	# A city whose intel resistance does not cancel the tech bonus (net bonus >= 0.05 is what adds a field). Setup like
+	# the spy controller test: security / public order 50 -> resistance 0.02.
+	var guarded: Dictionary = _main.call("_get_mutable_city_runtime_state", _target)
+	guarded["security"] = 50
+	guarded["public_order"] = 50
+	(_main.get("_city_runtime_states") as Dictionary)[_target] = guarded
+	(_main.get("_player_state") as Dictionary)["spy_cooldown"] = 0
+	var target := _low_resistance_target()
+	_expect(not target.is_empty(), "13. a spy target with intel resistance <= 0.03 exists (%s: security %s, baseline %s)" % [_target, str(_spy.call("get_city_security_score", _target)), str(_main.call("_get_enemy_city_intel_resistance_baseline_mvp", _city(_target)))])
+	if target.is_empty():
+		return
+	var city: Dictionary = _main.call("_get_mutable_city_runtime_state", target)
+	city["resource_seed"] = {"rice": 500, "barley": 500, "seafood": 500, "salt": 500}
+	(_main.get("_city_runtime_states") as Dictionary)[target] = city
+	_set_stock(target, {"rice": 40, "gold": 0})
+	_spy.call("validate_spy_action", "gather_info", target)
+	var state: Dictionary = _main.get("_player_state")
+	var completed_before: Variant = (state.get("national_domestic_tech_completed", {}) as Dictionary).duplicate(true)
+	var all_national := {}
+	for tech_id in (_main.call("_ensure_domestic_tech_catalog").get_national_definitions() as Dictionary).keys():
+		all_national[str(tech_id)] = true
+	state["national_domestic_tech_completed"] = all_national
+	var modifier: Dictionary = _spy.call("get_player_spy_tech_modifier", target)
+	var bonus1: Dictionary = _service.call("_get_modified_spy_visibility_level_mvp", target, 1)
+	var bonus2: Dictionary = _service.call("_get_modified_spy_visibility_level_mvp", target, 2)
+	state["national_domestic_tech_completed"] = completed_before
+	var base1: Dictionary = _service.call("_get_modified_spy_visibility_level_mvp", target, 1)
+	var base3: Dictionary = _service.call("_get_spy_info_visibility_level", 3)
+	_expect(base1.get("fields") == ["troops_estimated"] and bool(base1.get("estimated", false)), "13. base 1 (no tech): troops_estimated, estimated (%s)" % str(base1))
+	_expect(bonus1.get("fields") == ["troops_estimated", "resources"] and bool(bonus1.get("estimated", false)), "13. bonus 1 (all national techs, intel_visibility_pct %s): troops_estimated + resources, still estimated (%s)" % [str(modifier.get("intel_visibility_pct")), str(bonus1)])
+	_expect(bonus2.get("fields") == ["troops", "resources"] and not bool(bonus2.get("estimated", true)), "13. bonus 2: troops + resources, exact (%s)" % str(bonus2))
+	_expect(base3.get("fields") == ["troops", "resources", "heroes"], "13. base 3: troops + resources + heroes (%s)" % str(base3))
+	var p_base1: Dictionary = _service.call("_build_spy_info_payload", target, ["troops_estimated"], true)
+	var p_bonus1: Dictionary = _service.call("_build_spy_info_payload", target, ["troops_estimated", "resources"], true)
+	var p_bonus2: Dictionary = _service.call("_build_spy_info_payload", target, ["troops", "resources"], false)
+	var p_base3: Dictionary = _service.call("_build_spy_info_payload", target, ["troops", "resources", "heroes"], false)
+	_expect(not p_base1.has("resources"), "13. base 1 payload has no resources")
+	_expect(p_bonus1.get("resources") == city.get("resource_seed") and not p_bonus1.has("unknown_fields") and not p_bonus1.has("observed_turn"), "13. bonus 1 payload keeps the old value (seed rice 500), not the real stock (%s)" % str(p_bonus1.get("resources")))
+	_expect(int((p_bonus2.get("resources", {}) as Dictionary).get("rice", -1)) == 40 and not p_bonus2.has("heroes"), "13. bonus 2 payload: real rice 40, no heroes (%s)" % str(p_bonus2.get("resources")))
+	_expect(int((p_base3.get("resources", {}) as Dictionary).get("rice", -1)) == 40 and p_base3.get("heroes") is Array, "13. base 3 payload: real rice 40 + heroes")
+
+
+func _low_resistance_target() -> String:
+	var ids: Array = (_main.get("_city_markers_by_id") as Dictionary).keys()
+	ids.sort()
+	for city_id in ids:
+		if not bool(_spy.call("validate_spy_action", "gather_info", str(city_id)).get("ok", false)):
+			continue
+		var baseline: Dictionary = _main.call("_get_enemy_city_intel_resistance_baseline_mvp", _city(str(city_id)))
+		if bool(baseline.get("masked", true)) or float(baseline.get("intel_visibility_resistance_pct", 0.0)) <= 0.03:
+			return str(city_id)
+	return ""
+
+
+# ---- 14, 15 (addendum 2) ----
+
+# 14: heroes survive save -> load in city_intel and in the panel. 15: after the city changes owner, the record keeps
+# owner_faction_id and the roster from the observation, and the panel names the owner at observation time.
+func _check_owner_at_observation() -> void:
+	var ids := _hero_ids(1)
+	_main.call("_apply_battle_settlement_move_hero", ids[0], _target)
+	var state: Dictionary = _main.get("_player_state")
+	state["city_intel"] = {}
+	state["spy_cooldown"] = 0
+	_spy.call("validate_spy_action", "gather_info", _target)
+	var result: Dictionary = _service.call("_gather_spy_info", _target, 1, 100)
+	var parsed: Variant = JSON.parse_string(JSON.stringify(_main.call("_serialize_worldmap_state")))
+	_expect(bool(result.get("success", false)) and parsed is Dictionary and bool(_main.call("_apply_worldmap_state", parsed)), "14. spy then save -> load")
+	var entry: Dictionary = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
+	var payload: Dictionary = entry.get("payload", {})
+	var hint := _panel_hint(payload, entry.get("fields", []))
+	_expect((entry.get("fields", []) as Array).has("heroes") and _roster_ids(payload) == ids and hint.contains("소속 장수 1명"), "14. heroes kept in city_intel and the panel after load (%s)" % hint.replace("\n", " | "))
+	_expect(str(payload.get("owner_faction_id", "")) == _owner, "15. record owner_faction_id = owner at observation %s (%s)" % [_owner, str(payload.get("owner_faction_id"))])
+
+	var new_owner := _player if _owner != _player else "silla"
+	var city: Dictionary = _main.call("_get_mutable_city_runtime_state", _target)
+	for key in ["owner", "nation", "owner_faction_id", "faction"]:
+		city[key] = new_owner
+	(_main.get("_city_runtime_states") as Dictionary)[_target] = city
+	_main.call("_rebuild_occupation_runtime_indexes_mvp")
+	entry = ((_main.get("_player_state") as Dictionary).get("city_intel", {}) as Dictionary).get(_target, {})
+	payload = entry.get("payload", {})
+	hint = _panel_hint(payload, entry.get("fields", []))
+	var observed_label := str(PanelBase.FACTION_LABELS.get(_owner, _owner))
+	_expect(str(payload.get("owner_faction_id", "")) == _owner and _roster_ids(payload) == ids, "15. after the owner change the record keeps owner %s and the roster (%s)" % [_owner, str(payload.get("owner_faction_id"))])
+	_expect(hint.contains("관측 당시 %s 소속" % observed_label), "15. the panel names the owner at observation (%s)" % hint.replace("\n", " | "))
+	for key in ["owner", "nation", "owner_faction_id", "faction"]:
+		city[key] = _owner
+	(_main.get("_city_runtime_states") as Dictionary)[_target] = city
+	_main.call("_rebuild_occupation_runtime_indexes_mvp")
 
 
 func _recorded_payload() -> Dictionary:

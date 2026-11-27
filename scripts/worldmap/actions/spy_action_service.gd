@@ -383,6 +383,8 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 		snapshot = _build_exact_spy_intel_snapshot(target_city_id, city_data, fields)
 		payload["observed_turn"] = snapshot.get("observed_turn", -1)
 		payload["unknown_fields"] = (snapshot.get("unknown_fields", []) as Array).duplicate()
+		# Owner at observation time: the roster is shown against this record, not the city's current owner.
+		payload["owner_faction_id"] = str(_adapter.call("_get_city_owner_faction_id", city_data))
 	for field_variant in fields:
 		var field := str(field_variant)
 		if snapshot.has(field):

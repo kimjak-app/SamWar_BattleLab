@@ -894,14 +894,17 @@ func _format_enemy_intel_observation_lines(fields: Array[String], payload: Dicti
 		lines.append("재고: %s" % " · ".join(parts))
 	if _has_enemy_intel_payload_for_field(fields, payload, "heroes"):
 		var heroes: Array = payload.get("heroes")
+		# Shown against the owner recorded at observation time, never the city's current owner.
+		var observed_owner := str(payload.get("owner_faction_id", ""))
+		var owner_note := " (관측 당시 %s 소속)" % _format_faction_label(observed_owner) if not observed_owner.is_empty() else ""
 		if heroes.is_empty():
-			lines.append("소속 장수 0명")
+			lines.append("소속 장수 0명%s" % owner_note)
 		else:
 			var names: Array[String] = []
 			for hero in heroes:
 				if hero is Dictionary:
 					names.append("%s(%s)" % [str(hero.get("display_name", hero.get("hero_id", ""))), "부상" if str(hero.get("status", "")) == "wounded" else "정상"])
-			lines.append("소속 장수 %d명: %s" % [names.size(), ", ".join(names)])
+			lines.append("소속 장수 %d명%s: %s" % [names.size(), owner_note, ", ".join(names)])
 	elif fields.has("heroes") and unknown_fields.has("heroes"):
 		lines.append("소속 장수 ?")
 	return "\n".join(lines)
