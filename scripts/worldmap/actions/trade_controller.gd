@@ -4,6 +4,7 @@ extends RefCounted
 const TradeActionServiceScript := preload("res://scripts/worldmap/actions/trade_action_service.gd")
 const TradeAutomationServiceScript := preload("res://scripts/worldmap/actions/trade_automation_service.gd")
 const InternalTradeTransferServiceScript := preload("res://scripts/worldmap/actions/internal_trade_transfer_service.gd")
+const StrategyRequestServiceScript := preload("res://scripts/worldmap/actions/strategy_request_service.gd")
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const RELATION_TRADE_MULTIPLIER := {
@@ -42,10 +43,25 @@ func execute(_action_id: String, _target_city_id: String, source_city_id: String
 	return execute_order(get_manual_trade_order(source_city_id))
 
 
+## Queue 40 (P2): the manual external trade button submits the stored order to the strategy request ledger (player
+## side reserved now, both sides settled at the turn end). The stored order is used up on a submit, so a second click
+## finds no order and reserves nothing.
 func execute_order(order: Dictionary) -> Dictionary:
+	var result := StrategyRequestServiceScript.submit_player_trade(_host, self, order)
+	_record_manual_trade_execution_result(order, result)
+	return result
+
+
+## The pre-P2 immediate path (source city only, at once). Not reached by the button any more.
+func execute_order_immediately(order: Dictionary) -> Dictionary:
 	var result := _action_service.execute_order(self, order, _build_external_manual_trade_execution_context(order))
 	_record_manual_trade_execution_result(order, result)
 	return result
+
+
+## Turn end, after the diplomacy resolution of the same turn (worldmap_turn_controller).
+func resolve_trade_requests(source_turn: int, transaction_id: String) -> Dictionary:
+	return StrategyRequestServiceScript.resolve_turn(_host, source_turn, transaction_id, StrategyRequestServiceScript.DOMAIN_TRADE)
 
 
 func validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:

@@ -13,10 +13,16 @@ const LEDGER_KEY := "strategy_pending_requests"
 const SEQUENCE_KEY := "strategy_request_sequence"
 const LAST_RESULTS_KEY := "last_strategy_request_results"
 const DOMAIN_DIPLOMACY := "diplomacy"
+## Queue 40 (P2): manual external trade goes through the same ledger (one request per stored order).
+const DOMAIN_TRADE := "trade"
+const TRADE_ACTION_ID := "manual_external_trade"
 const STATUS_PENDING := "pending"
 const STATUS_RESOLVED := "resolved"
 const STATUS_INVALID := "invalid"
 const STATUS_CANCELLED := "cancelled"
+## Queue 40: an invalid request whose reservation has no city of the source faction left to go back to keeps it as
+## `unrefunded` (per city) instead of dropping it; how a held reservation is paid back later is not decided yet.
+const STATUS_HELD := "held"
 
 # ---- Queue 38 §0-2 rule defaults (Kim 11-27 20:44: "rules can change later") — change them here only. ----
 ## Cost is reserved (taken out of the cities, atomically) when the request is submitted.
@@ -126,12 +132,101 @@ static func submit_strategy_request(host: Object, source_faction_id: String, act
 	return {"success": true, "submitted": true, "request_id": str(request.get("request_id", "")), "action_id": action_id, "source_faction_id": source_faction_id, "target_faction_id": target_faction_id}
 
 
+## Queue 40 (P2) player manual external trade: validate the stored order exactly as today, fix both sides with
+## today's formulas (import ceil(price*amount/eff), export floor(price*amount*eff)), take only the player's side out of
+## the source city once (import gold, export items) and store the request. Nothing moves to the partner until the
+## turn end. host = the world map (city stock / ownership / relation bridges), trade = the trade controller.
+static func submit_player_trade(host: Object, trade: Object, order: Dictionary) -> Dictionary:
+	var turn := maxi(1, int(_player_state(host).get("turn_number", 1)))
+	var action_service = trade.get("_action_service")
+	var context: Dictionary = trade.call("_build_external_manual_trade_execution_context", order)
+	var validation: Dictionary = action_service.validate_order(order, context)
+	var source_city_id := str(order.get("source_city_id", ""))
+	var target_city_id := str(order.get("target_city_id", ""))
+	if not bool(validation.get("ok", false)):
+		validation["source_city_id"] = source_city_id
+		validation["target_city_id"] = target_city_id
+		return validation
+	var efficiency := float(context.get("efficiency", 0.0))
+	var prices: Dictionary = context.get("market_prices", {})
+	var lines: Array = []
+	var pay := {}  # player side, reserved now: import gold + export items
+	var receive := {}  # partner side, paid at the turn end: import items + export gold
+	var orders: Dictionary = order.get("orders", {})
+	for resource_id in action_service.TRADE_RESOURCE_ORDER:
+		var item: Variant = orders.get(resource_id, {})
+		if not item is Dictionary:
+			continue
+		var action := str((item as Dictionary).get("action", "none"))
+		var amount := maxi(0, int((item as Dictionary).get("amount", 0)))
+		var price := int(prices.get(resource_id, 0))
+		if amount <= 0:
+			continue
+		if action == action_service.ACTION_IMPORT:
+			var cost: int = action_service.calculate_import_cost(price, amount, efficiency)
+			lines.append({"resource_id": resource_id, "action": action, "amount": amount, "price": price, "gold": cost})
+			pay["gold"] = int(pay.get("gold", 0)) + cost
+			receive[resource_id] = int(receive.get(resource_id, 0)) + amount
+		elif action == action_service.ACTION_EXPORT:
+			var gain: int = action_service.calculate_export_gain(price, amount, efficiency)
+			lines.append({"resource_id": resource_id, "action": action, "amount": amount, "price": price, "gold": gain})
+			pay[resource_id] = int(pay.get(resource_id, 0)) + amount
+			receive["gold"] = int(receive.get("gold", 0)) + gain
+	_drop_zero(pay)
+	_drop_zero(receive)
+	var stock: Dictionary = (host.call("_get_city_storage", source_city_id) as Dictionary).duplicate(true)
+	for resource_id in pay:
+		if int(stock.get(resource_id, 0)) < int(pay[resource_id]):
+			return {"ok": false, "success": false, "reason": "resources", "message": "자원이 부족합니다.", "source_city_id": source_city_id, "target_city_id": target_city_id}
+	for resource_id in pay:
+		stock[resource_id] = int(stock.get(resource_id, 0)) - int(pay[resource_id])
+	host.call("_set_city_storage", source_city_id, stock)
+	var source_faction_id := str(context.get("source_faction_id", ""))
+	var target_faction_id := str(context.get("target_faction_id", ""))
+	var request := _new_request(host, turn, DOMAIN_TRADE, TRADE_ACTION_ID, source_faction_id, target_faction_id, target_city_id)
+	request["reserved_assets"] = {source_city_id: pay.duplicate(true)} if not pay.is_empty() else {}
+	request["fixed_context"] = {
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"source_faction_id": source_faction_id,
+		"target_faction_id": target_faction_id,
+		"lines": lines,
+		"pay": pay.duplicate(true),
+		"receive": receive.duplicate(true),
+		"efficiency": efficiency,
+		"market_turn": int(context.get("market_turn", 0)),
+		"market_prices": prices.duplicate(true),
+	}
+	_store_request(host, request)
+	return {
+		"ok": true,
+		"success": true,
+		"submitted": true,
+		"completed": false,
+		"status": STATUS_PENDING,
+		"request_id": str(request.get("request_id", "")),
+		"resolve_turn": int(request.get("resolve_turn", turn)),
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"target_faction_id": target_faction_id,
+		"reserved": pay.duplicate(true),
+		"expected_receive": receive.duplicate(true),
+		# The source city's net change once the trade settles (today's preview, never re-priced).
+		"preview": action_service.build_preview(order, context),
+		"efficiency": efficiency,
+		"market_turn": int(context.get("market_turn", 0)),
+		"market_prices": prices.duplicate(true),
+		"message": "수동 무역을 접수했습니다. 결과는 다음 턴에 나옵니다.",
+	}
+
+
 # ---- resolve ----------------------------------------------------------------------------------------------------
 
 ## Turn-end of world turn source_turn (after the domestic step, before the turn advances). Every pending request due on
 ## or before source_turn is settled once, in request_id order. A request already stamped with transaction_id is skipped,
 ## so a re-entered resolution (load in the middle of the turn end) changes nothing twice.
-static func resolve_turn(host: Object, source_turn: int, transaction_id: String) -> Dictionary:
+## Queue 40: one domain per call (the turn end runs diplomacy first, then trade); a request without a domain is diplomacy.
+static func resolve_turn(host: Object, source_turn: int, transaction_id: String, domain: String = DOMAIN_DIPLOMACY) -> Dictionary:
 	var ledger := _ledger(host)
 	var ids := ledger.keys()
 	ids.sort()
@@ -140,6 +235,8 @@ static func resolve_turn(host: Object, source_turn: int, transaction_id: String)
 		var request: Dictionary = (ledger.get(request_id_variant, {}) as Dictionary).duplicate(true)
 		if str(request.get("status", "")) != STATUS_PENDING:
 			continue
+		if str(request.get("domain", DOMAIN_DIPLOMACY)) != domain:
+			continue
 		if int(request.get("resolve_turn", source_turn + 1)) > source_turn:
 			continue
 		if str(request.get("applied_transaction_id", "")) == transaction_id:
@@ -147,6 +244,8 @@ static func resolve_turn(host: Object, source_turn: int, transaction_id: String)
 		var outcome := _resolve_request(host, request, source_turn)
 		request["status"] = str(outcome.get("status", STATUS_RESOLVED))
 		request["result"] = (outcome.get("result", {}) as Dictionary).duplicate(true)
+		if outcome.has("unrefunded"):
+			request["unrefunded"] = (outcome.get("unrefunded", {}) as Dictionary).duplicate(true)
 		request["applied_transaction_id"] = transaction_id
 		request["resolved_turn"] = source_turn
 		ledger = _ledger(host)
@@ -155,12 +254,17 @@ static func resolve_turn(host: Object, source_turn: int, transaction_id: String)
 		results.append({"request_id": str(request_id_variant), "status": request["status"], "action_id": str(request.get("action_id", "")), "source_faction_id": str(request.get("source_faction_id", "")), "target_faction_id": str(request.get("target_faction_id", "")), "message": str(request["result"].get("message", ""))})
 	if not results.is_empty():
 		var player_state := _player_state(host)
-		player_state[LAST_RESULTS_KEY] = {"source_turn": source_turn, "transaction_id": transaction_id, "results": results.duplicate(true)}
+		var previous: Dictionary = player_state.get(LAST_RESULTS_KEY, {}) if player_state.get(LAST_RESULTS_KEY, {}) is Dictionary else {}
+		var all_results: Array = (previous.get("results", []) as Array).duplicate(true) if str(previous.get("transaction_id", "")) == transaction_id else []
+		all_results.append_array(results.duplicate(true))
+		player_state[LAST_RESULTS_KEY] = {"source_turn": source_turn, "transaction_id": transaction_id, "results": all_results}
 		host.set("_player_state", player_state)
 	return {"source_turn": source_turn, "transaction_id": transaction_id, "count": results.size(), "results": results}
 
 
 static func _resolve_request(host: Object, request: Dictionary, source_turn: int) -> Dictionary:
+	if str(request.get("domain", DOMAIN_DIPLOMACY)) == DOMAIN_TRADE:
+		return _resolve_trade_request(host, request, source_turn)
 	var source_faction_id := str(request.get("source_faction_id", ""))
 	var target_faction_id := str(request.get("target_faction_id", ""))
 	var action_id := str(request.get("action_id", ""))
@@ -219,10 +323,71 @@ static func _invalid_reason(host: Object, request: Dictionary) -> String:
 	return ""
 
 
+## Queue 40 (P2): settle one manual external trade at the turn end with the latest stocks. Both cities must still
+## belong to the factions of the submission, the partner must not be unclaimed, the two factions must still be able to
+## trade (relation after this turn's diplomacy resolution), and the partner city must hold its whole side. Then, at
+## once: the reservation -> partner city, the partner side -> source city. The fixed amounts are never re-priced.
+## Anything missing -> nothing moves, the whole reservation goes back once.
+static func _resolve_trade_request(host: Object, request: Dictionary, source_turn: int) -> Dictionary:
+	var fixed: Dictionary = request.get("fixed_context", {}) if request.get("fixed_context", {}) is Dictionary else {}
+	var source_city_id := str(fixed.get("source_city_id", ""))
+	var target_city_id := str(fixed.get("target_city_id", request.get("target_city_id", "")))
+	var source_faction_id := str(request.get("source_faction_id", ""))
+	var target_faction_id := str(request.get("target_faction_id", ""))
+	var reason := ""
+	var target_owner := str(host.call("_get_city_owner_faction_id_for_trade_display", target_city_id))
+	var defeated: Dictionary = _player_state(host).get("defeated_factions", {}) if _player_state(host).get("defeated_factions", {}) is Dictionary else {}
+	if str(host.call("_get_city_owner_faction_id_for_trade_display", source_city_id)) != source_faction_id:
+		reason = "source_changed"
+	elif WorldMapUnclaimedCityRules.is_unclaimed_owner(target_owner):
+		reason = WorldMapUnclaimedCityRules.REJECT_REASON
+	elif target_owner != target_faction_id:
+		reason = "target_changed"
+	elif defeated.has(target_faction_id) or defeated.has(source_faction_id):
+		reason = "target_gone"
+	elif not bool(host.call("_can_trade_between_factions", source_faction_id, target_faction_id)):
+		reason = "relation"
+	var pay: Dictionary = fixed.get("pay", {})
+	var receive: Dictionary = fixed.get("receive", {})
+	var partner: Dictionary = (host.call("_get_city_storage", target_city_id) as Dictionary).duplicate(true) if reason.is_empty() else {}
+	if reason.is_empty():
+		for resource_id in receive:
+			if int(partner.get(resource_id, 0)) < int(receive[resource_id]):
+				reason = "partner_shortage"
+				break
+	if not reason.is_empty():
+		return _invalidate(host, request, reason)
+	for resource_id in receive:
+		partner[resource_id] = int(partner.get(resource_id, 0)) - int(receive[resource_id])
+	for resource_id in pay:
+		partner[resource_id] = int(partner.get(resource_id, 0)) + int(pay[resource_id])
+	host.call("_set_city_storage", target_city_id, partner)
+	var source: Dictionary = (host.call("_get_city_storage", source_city_id) as Dictionary).duplicate(true)
+	for resource_id in receive:
+		source[resource_id] = int(source.get(resource_id, 0)) + int(receive[resource_id])
+	host.call("_set_city_storage", source_city_id, source)
+	return {"status": STATUS_RESOLVED, "result": {
+		"success": true,
+		"completed": true,
+		"request_id": str(request.get("request_id", "")),
+		"action_id": TRADE_ACTION_ID,
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"target_faction_id": target_faction_id,
+		"paid": pay.duplicate(true),
+		"received": receive.duplicate(true),
+		"resolved_turn": source_turn,
+		"message": "수동 무역이 성사되었습니다.",
+	}}
+
+
 static func _invalidate(host: Object, request: Dictionary, reason: String, detail: Dictionary = {}) -> Dictionary:
 	var refunded := {}
+	var unrefunded := {}
 	if REFUND_ON_INVALID:
-		refunded = _refund(host, request.get("reserved_assets", {}), str(request.get("source_faction_id", "")))
+		refunded = _refund(host, request.get("reserved_assets", {}), str(request.get("source_faction_id", "")), unrefunded)
+	var is_trade := str(request.get("domain", DOMAIN_DIPLOMACY)) == DOMAIN_TRADE
+	var label := "수동 무역" if is_trade else str(DiplomacyActionServiceScript.get_action_definition(str(request.get("action_id", ""))).get("label", request.get("action_id", "")))
 	var result := {
 		"success": false,
 		"invalid": true,
@@ -230,10 +395,15 @@ static func _invalidate(host: Object, request: Dictionary, reason: String, detai
 		"action_id": str(request.get("action_id", "")),
 		"target_faction_id": str(request.get("target_faction_id", "")),
 		"refunded": refunded,
-		"message": "%s 요청이 무효가 되어 예약한 비용을 돌려받았습니다." % str(DiplomacyActionServiceScript.get_action_definition(str(request.get("action_id", ""))).get("label", request.get("action_id", ""))),
+		"message": "%s 요청이 무효가 되어 예약한 비용을 돌려받았습니다." % label,
 	}
 	if not detail.is_empty():
 		result["detail"] = detail.duplicate(true)
+	if not unrefunded.is_empty():
+		result["unrefunded"] = unrefunded.duplicate(true)
+		result["message"] = "%s 요청이 무효가 되었고, 돌려받을 도시가 없어 예약한 비용을 보류했습니다." % label
+		print("[STRATEGY_REFUND_HELD] request=%s source=%s unrefunded=%s" % [str(request.get("request_id", "")), str(request.get("source_faction_id", "")), str(unrefunded)])
+		return {"status": STATUS_HELD, "result": result, "unrefunded": unrefunded}
 	return {"status": STATUS_INVALID, "result": result}
 
 
@@ -366,8 +536,9 @@ static func _covers(reserved: Dictionary, cost: Dictionary) -> bool:
 
 
 ## Gives a reservation back once: to the city it came from, or, when that city no longer belongs to the source
-## faction, to the source faction's first payment city (the player's capital).
-static func _refund(host: Object, reserved_variant: Variant, source_faction_id: String) -> Dictionary:
+## faction, to the source faction's first payment city (the player's capital). Queue 40: when neither exists the amount
+## goes into `held` (per original city) instead of being skipped — never to the occupier, partner or a national pool.
+static func _refund(host: Object, reserved_variant: Variant, source_faction_id: String, held: Dictionary = {}) -> Dictionary:
 	var refunded := {}
 	if not reserved_variant is Dictionary:
 		return refunded
@@ -384,6 +555,7 @@ static func _refund(host: Object, reserved_variant: Variant, source_faction_id: 
 		var city_id := str(city_id_variant)
 		var destination := city_id if str(host.call("_get_city_owner_faction_id_for_trade_display", city_id)) == source_faction_id else fallback
 		if destination.is_empty():
+			held[city_id] = (reserved[city_id_variant] as Dictionary).duplicate(true)
 			continue
 		var stock: Dictionary = (host.call("_get_city_storage", destination) as Dictionary).duplicate(true)
 		for resource_id in reserved[city_id_variant]:
@@ -394,6 +566,12 @@ static func _refund(host: Object, reserved_variant: Variant, source_faction_id: 
 			into[str(resource_id)] = int(into.get(str(resource_id), 0)) + int(reserved[city_id_variant][resource_id])
 		refunded[destination] = into
 	return refunded
+
+
+static func _drop_zero(amounts: Dictionary) -> void:
+	for resource_id in amounts.keys():
+		if int(amounts[resource_id]) <= 0:
+			amounts.erase(resource_id)
 
 
 static func _faction_city_ids(host: Object, faction_id: String) -> Array[String]:

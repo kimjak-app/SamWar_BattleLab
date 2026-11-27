@@ -224,7 +224,16 @@ func _resolve_strategy_requests(source_turn: int, transaction_id: String) -> Dic
 	var diplomacy: Object = world_map.call("_ensure_diplomacy_controller")
 	if diplomacy == null or not diplomacy.has_method("resolve_strategy_requests"):
 		return {}
-	return _as_dictionary(diplomacy.call("resolve_strategy_requests", source_turn, transaction_id))
+	var result := _as_dictionary(diplomacy.call("resolve_strategy_requests", source_turn, transaction_id))
+	# Queue 40 (P2): manual external trade settles after the diplomacy of the same turn (its relation is the new one).
+	var trade: Object = world_map.call("_ensure_trade_controller") if world_map.has_method("_ensure_trade_controller") else null
+	if trade != null and trade.has_method("resolve_trade_requests"):
+		var trade_result := _as_dictionary(trade.call("resolve_trade_requests", source_turn, transaction_id))
+		var results: Array = (result.get("results", []) as Array).duplicate(true)
+		results.append_array(trade_result.get("results", []))
+		result["results"] = results
+		result["count"] = results.size()
+	return result
 
 
 func advance_world_turn() -> void:

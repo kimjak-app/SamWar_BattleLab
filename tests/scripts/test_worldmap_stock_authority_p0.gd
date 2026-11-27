@@ -118,10 +118,15 @@ func _check_trade() -> void:
 	var order := {"source_city_id": OWN_CITY, "target_city_id": target, "trade_type": "external", "mode": "manual", "orders": {"rice": {"action": "export", "amount": 10}}}
 	order["preview"] = _main.call("_ensure_trade_controller").call("build_external_manual_trade_execution_preview", order)
 	order["efficiency"] = _main.call("_get_trade_efficiency_for_cities", OWN_CITY, target)
+	# Queue 40 (P2): the partner pays at the turn end out of its own city stock.
+	var partner_stock: Dictionary = (_main.call("_get_city_storage", target) as Dictionary).duplicate(true)
+	partner_stock["gold"] = 1000
+	_main.call("_set_city_storage", target, partner_stock)
 	var gold_before := int(_national().get("gold", 0))
 	var result: Dictionary = _main.call("_execute_external_manual_trade_order", order)
-	var gained := int((result.get("applied", {}) as Dictionary).get("gold", 0))
+	var gained := int((result.get("preview", {}) as Dictionary).get("gold", 0))
 	_expect(bool(result.get("ok", false)) and gained > 0, "3. manual export earns gold (%s, +%d)" % [str(result.get("reason", "")), gained])
+	_main.call("_ensure_trade_controller").call("resolve_trade_requests", int((_main.get("_player_state") as Dictionary).get("turn_number", 1)), "stock_p0_trade")
 	_expect(int(_national().get("gold", 0)) == gold_before + gained, "3. the trade gold shows in the national sum (%d -> %d, +%d)" % [gold_before, int(_national().get("gold", 0)), gained])
 	_expect_sum_is_cities("3. after manual trade")
 

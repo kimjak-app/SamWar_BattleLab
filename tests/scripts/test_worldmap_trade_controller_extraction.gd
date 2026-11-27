@@ -83,13 +83,23 @@ func _run() -> void:
 
 	controller.call("store_manual_trade_order", order)
 	_expect(controller.call("get_manual_trade_order", source) == order, "Manual order stored")
+	# Queue 40 (P2): the partner city pays its side at the turn end, so it needs the stock for it.
+	var partner_stock := {"gold": 10000}
+	for resource_id in RESOURCES:
+		partner_stock[resource_id] = 100
+	host.call("_set_city_storage", target, partner_stock)
 	var before := _storage(host, source)
 	var result: Dictionary = coordinator.call("execute_trade_order", order)
 	_expect(bool(result.get("ok", false)), "Coordinator execute_trade_order succeeds")
-	_expect(result.get("applied") == preview, "Result dictionary keeps preview")
+	_expect(result.get("preview") == preview, "Result dictionary keeps preview")
 	_expect(result.has("market_prices") and result.has("market_turn"), "Market snapshot retained")
 	_expect(controller.call("get_manual_trade_order", source).is_empty(), "Successful order consumed")
 	_expect(host.get("_player_state").get("last_external_manual_trade_execution_result") == result, "Last result mirrored")
+	# Queue 40 (P2): submitted, not done — only the player side (export rice) left the source city; the turn-end
+	# settlement then brings the source city to exactly before + preview.
+	_expect(bool(result.get("submitted", false)) and not bool(result.get("completed", true)), "Order submitted, not completed")
+	_expect(int(_storage(host, source)["rice"]) == int(before["rice"]) - 10 and int(_storage(host, source)["salt"]) == int(before["salt"]), "Submit reserves only the player side")
+	controller.call("resolve_trade_requests", int(host.get("_player_state").get("turn_number", 1)), "trade_controller_test")
 	for resource_id in ["gold", "rice", "salt"]:
 		_expect(int(_storage(host, source)[resource_id]) == int(before[resource_id]) + int(preview[resource_id]), "Storage mutation " + resource_id)
 

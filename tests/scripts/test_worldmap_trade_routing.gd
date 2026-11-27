@@ -82,6 +82,11 @@ func _storage(city_id: String) -> Dictionary:
 func _check_external_parity() -> void:
 	_prepare()
 	var order := _make_order()
+	# Queue 40 (P2): the partner city pays its side at the turn end, so it needs the stock for it.
+	var partner_stock := {"gold": 10000}
+	for resource_id in ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]:
+		partner_stock[resource_id] = 100
+	_worldmap.call("_set_city_storage", _target, partner_stock)
 	var target_before := _storage(_target)
 	var source_before := _storage(_source)
 	var initial_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
@@ -96,10 +101,15 @@ func _check_external_parity() -> void:
 	_expect(_worldmap.get("_player_state") == expected_state, "service player state equals legacy")
 	_expect(_worldmap.get("_city_runtime_states") == expected_cities, "service city state equals legacy")
 	_expect(_storage(_target) == target_before, "external trade does not mutate target storage")
-	var applied: Dictionary = actual.get("applied", {})
+	# Queue 40 (P2): the submit result carries the fixed preview; the settlement at the turn end applies it.
+	var applied: Dictionary = actual.get("preview", {})
 	_expect(int(applied.get("gold", 0)) != 0, "external trade changes gold")
 	_expect(int(applied.get("rice", 0)) != 0 and int(applied.get("salt", 0)) != 0, "external trade changes food and salt")
+	_worldmap.call("_ensure_trade_controller").call("resolve_trade_requests", int(_worldmap.get("_player_state").get("turn_number", 1)), "trade_routing_test")
 	var source_after := _storage(_source)
+	var target_after := _storage(_target)
+	for resource_id in ["gold", "rice", "salt"]:
+		_expect(int(target_after.get(resource_id, 0)) - int(target_before.get(resource_id, 0)) == -int(applied.get(resource_id, 0)), "partner city mirrors the source city " + resource_id)
 	for resource_id in ["gold", "rice", "salt"]:
 		_expect(int(source_after.get(resource_id, 0)) == int(source_before.get(resource_id, 0)) + int(applied.get(resource_id, 0)), "preview matches executed " + resource_id)
 	for field in ["efficiency", "market_turn", "market_prices"]:
@@ -201,7 +211,7 @@ func _check_production_video_flow() -> void:
 	_expect(_resolved == 1, "video completion resolves once")
 	_expect(_presentation.get_node("ResultOverlay").visible, "trade result shown immediately")
 	_expect(not _worldmap.get("_manual_trade_orders").has(_source), "successful order removed")
-	_expect(_last_result.get("applied") == order.get("preview"), "production mutation matches stored preview")
+	_expect(_last_result.get("preview") == order.get("preview"), "production mutation matches stored preview")  # Queue 40: submitted result
 	_worldmap.call("complete_contextual_worldmap_action", "trade", "external_manual_trade", _target)
 	_expect(_resolved == 1, "duplicate completion ignored")
 
