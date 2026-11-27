@@ -68,9 +68,322 @@ EXPECTED_P1D_SETTLEMENT_DELTA = ['-\tif result_kind == RESULT_RETREAT:',
 # EXPECTED_P0_STOCK_MAIN_DELTA. Other files the same commit changed on purpose, which older guards freeze byte for byte,
 # are listed in EXPECTED_P0_STOCK_FROZEN_DELTAS: path -> exact delta from the text such a guard expects.
 # Empty checkpoint = no approved P0 state yet (only the P-1 state is accepted).
-P0_STOCK_CHECKPOINT = ""
-EXPECTED_P0_STOCK_MAIN_DELTA: list[str] = []
-EXPECTED_P0_STOCK_FROZEN_DELTAS: dict[str, list[str]] = {}
+P0_STOCK_CHECKPOINT = "e206d60678196550a4763906456bbc0ce11a67a4"
+EXPECTED_P0_STOCK_MAIN_DELTA: list[str] = ['+const STOCK_LEDGER_VERSION := "resource_stock_v1"',
+ '-\t\t\t_player_state["resource_stock"] = (args[0] as Dictionary).duplicate(true)',
+ '+\t\t\t# Queue 36: both national caches hold the same live owned-city sum the warehouse window reads.',
+ '+\t\t\tvar national := _get_player_national_resource_stock_mvp()',
+ '+\t\t\t_player_state["resource_stock"] = national.duplicate(true)',
+ '+\t\t\tvar aggregation: Dictionary = _player_state.get("national_aggregation", {}) if '
+ '_player_state.get("national_aggregation", {}) is Dictionary else {}',
+ '+\t\t\taggregation["resources"] = national.duplicate(true)',
+ '+\t\t\t_player_state["national_aggregation"] = aggregation',
+ '+\t\t"national_resource_stock":',
+ '+\t\t\treturn _get_player_national_resource_stock_mvp().duplicate(true)',
+ '+\t\t"charge_national_city_stock":',
+ '+\t\t\treturn bool(_commit_national_city_stock_payment_mvp((args[0] as Dictionary).duplicate(true)).get("ok", '
+ 'false))',
+ '-\tmutable_city_state["storage"] = _ensure_city_resource_service().ensure_city_storage_keys(storage)',
+ '+\tmutable_city_state["resource_stock"] = _ensure_city_resource_service().ensure_city_storage_keys(storage)',
+ '+\t_sync_player_resource_compatibility_from_city_stock_mvp()',
+ '-\tvar resource_stock: Dictionary = _player_state.get("resource_stock", {})',
+ '+\tvar resource_stock := _get_player_national_resource_stock_mvp()',
+ '-\tvar city_ids: Array[String] = []',
+ '-\tfor city_id_variant in _city_runtime_states.keys():',
+ '-\t\tvar city_id := str(city_id_variant)',
+ '-\t\tif _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():',
+ '-\t\t\tcity_ids.append(city_id)',
+ '-\tcity_ids.sort()',
+ '+\tvar city_ids := _get_player_city_ids_for_national_stock_mvp()',
+ '-\tvar resource_stock: Dictionary = _player_state.get("resource_stock", {})',
+ '+\tvar resource_stock := _get_player_national_resource_stock_mvp()',
+ '+# Queue 36: a national cost is paid out of the owned cities (capital first, then by city id; "food" = rice, barley,',
+ '+# seafood in that order). All or nothing: if any item is short, no city stock changes and every paid amount is 0.',
+ '-\tvar resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)',
+ '-\tvar before_stock := resource_stock.duplicate(true)',
+ '+\tvar before_stock := _get_player_national_resource_stock_mvp().duplicate(true)',
+ '+\tvar payment := _plan_national_city_stock_payment_mvp(cost)',
+ '+\tvar plan: Dictionary = payment.get("plan", {}) if bool(payment.get("ok", false)) else {}',
+ '+\tvar paid_by_resource := {}',
+ '+\tfor raw_city_id in plan:',
+ '+\t\tfor raw_resource_id in (plan[raw_city_id] as Dictionary):',
+ '+\t\t\tpaid_by_resource[str(raw_resource_id)] = int(paid_by_resource.get(str(raw_resource_id), 0)) + '
+ 'int((plan[raw_city_id] as Dictionary).get(raw_resource_id, 0))',
+ '-\t\tvar required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))',
+ '-\t\t\tvar remaining_food := required_amount',
+ '-\t\t\t\tvar food_before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))',
+ '-\t\t\t\tvar food_paid_amount := mini(food_before_amount, remaining_food)',
+ '-\t\t\t\tresource_stock[food_resource_id] = food_before_amount - food_paid_amount',
+ '-\t\t\t\tremaining_food -= food_paid_amount',
+ '-\t\t\t\tfood_paid[food_resource_id] = food_paid_amount',
+ '+\t\t\t\tfood_paid[food_resource_id] = int(paid_by_resource.get(food_resource_id, 0))',
+ '-\t\tvar before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))',
+ '-\t\tvar paid_amount := mini(before_amount, required_amount)',
+ '-\t\tresource_stock[resource_id] = before_amount - paid_amount',
+ '-\t\tpaid[resource_id] = paid_amount',
+ '-\t_player_state["resource_stock"] = resource_stock',
+ '+\t\tpaid[resource_id] = int(paid_by_resource.get(resource_id, 0))',
+ '+\tif not plan.is_empty():',
+ '+\t\t_commit_city_stock_payment_plan_mvp(payment)',
+ '-\t\t"after": resource_stock.duplicate(true),',
+ '+\t\t"after": _get_player_national_resource_stock_mvp().duplicate(true),',
+ '-\tvar resource_stock: Dictionary = _player_state.get("resource_stock", {})',
+ '+\tvar resource_stock := _get_player_national_resource_stock_mvp()',
+ '-\tvar resource_stock: Dictionary = _player_state.get("resource_stock", {})',
+ '+\tvar resource_stock := _get_player_national_resource_stock_mvp()',
+ '+\t\t"stock_ledger": STOCK_LEDGER_VERSION,',
+ '-\t_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}))',
+ '+\t_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}), str(data.get("stock_ledger", "")) != '
+ 'STOCK_LEDGER_VERSION)',
+ '-\tif not mutable_city_state.has("storage") or not (mutable_city_state["storage"] is Dictionary):',
+ '-\t\tmutable_city_state["storage"] = _build_default_city_storage(city_id, mutable_city_state)',
+ '-\telse:',
+ '-\t\tmutable_city_state["storage"] = _normalize_city_storage(mutable_city_state.get("storage"))',
+ '-\t\tif source.has("storage") and source.get("storage") is Dictionary:',
+ '-\t\t\tcity_payload["storage"] = _normalize_city_storage(source.get("storage"))',
+ '-func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:',
+ '+func _apply_worldmap_city_runtime_state(raw_state: Variant, legacy_stock_ledger: bool = false) -> void:',
+ '-\t\tif source.has("storage") and source.get("storage") is Dictionary:',
+ '-\t\t\tcity_state["storage"] = _normalize_city_storage(source.get("storage"))',
+ '-\t\telse:',
+ '-\t\t\tcity_state["storage"] = _build_default_city_storage(city_id, city_state)',
+ '+\t\tif legacy_stock_ledger and source.get("storage") is Dictionary:',
+ '+\t\t\t# Queue 36 option A: an old save keeps only resource_stock; the separate storage ledger is dropped, not '
+ 'added.',
+ '+\t\t\tprint("[STOCK_MIGRATION] city=%s dropped_storage=%s" % [city_id, str(source.get("storage"))])',
+ '-\tvar aggregation: Variant = _player_state.get("national_aggregation", {})',
+ '-\tif aggregation is Dictionary and (aggregation as Dictionary).get("resources", {}) is Dictionary:',
+ '-\t\treturn ((aggregation as Dictionary).get("resources", {}) as Dictionary)',
+ '-\treturn _player_state.get("resource_stock", {})',
+ '-',
+ '-',
+ '+\t# Queue 36: computed from the owned cities every time; national_aggregation / resource_stock are only caches.',
+ '+\treturn _sum_city_resource_stocks_mvp(_get_player_city_ids_for_national_stock_mvp())',
+ '+',
+ '+',
+ "+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only the sum of the owned cities' resource_stock. Same owner",
+ '+# test as _rebuild_occupation_runtime_indexes_mvp.',
+ '+func _get_player_city_ids_for_national_stock_mvp() -> Array[String]:',
+ '+\tvar player_cities: Array[String] = []',
+ '+\tfor city_id_variant in CITY_HUD_DATA.keys():',
+ '+\t\tvar city_id := str(city_id_variant)',
+ '+\t\tif _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():',
+ '+\t\t\tplayer_cities.append(city_id)',
+ '+\tplayer_cities.sort()',
+ '+\treturn player_cities',
+ '+',
+ '+',
+ '+func _sum_city_resource_stocks_mvp(city_ids: Array[String]) -> Dictionary:',
+ '+\tvar resources := {}',
+ '+\tfor city_id in city_ids:',
+ '+\t\tvar stock: Variant = _get_city_hud_entry(city_id).get("resource_stock", {})',
+ '+\t\tif stock is Dictionary:',
+ '+\t\t\tfor resource_id in (stock as Dictionary).keys():',
+ '+\t\t\t\tresources[str(resource_id)] = int(resources.get(str(resource_id), 0)) + maxi(0, int((stock as '
+ 'Dictionary).get(resource_id, 0)))',
+ '+\treturn resources',
+ '+',
+ '+',
+ '+# Queue 36: the city "storage" ledger is gone. This adapter name stays for the trade / research / UI services and',
+ "+# returns the city's resource_stock (supply defaults ensured) with the 9 resource keys.",
+ '-\tif source_data.is_empty() and not city_id.is_empty():',
+ '+\tif not city_id.is_empty():',
+ '+\t\t_ensure_city_supply_resource_defaults(city_id)',
+ '-\tvar player_resource_stock: Dictionary = _player_state.get("resource_stock", {}) if '
+ '_player_state.get("resource_stock", {}) is Dictionary else {}',
+ '-\tvar storage := _ensure_city_resource_service().get_city_storage(city_id, source_data, player_resource_stock)',
+ '-\tif not city_id.is_empty():',
+ '-\t\tvar runtime_state := _get_mutable_city_runtime_state(city_id)',
+ '-\t\tif not runtime_state.is_empty():',
+ '-\t\t\truntime_state["storage"] = storage.duplicate(true)',
+ '-\t\t\t_city_runtime_states[city_id] = runtime_state',
+ '-\treturn storage',
+ '-',
+ '-',
+ '-func _normalize_city_storage(raw_storage: Variant) -> Dictionary:',
+ '-\treturn _ensure_city_resource_service().normalize_city_storage(raw_storage)',
+ '-',
+ '-',
+ '-func _build_default_city_storage(city_id: String, _city_data: Dictionary) -> Dictionary:',
+ '-\tvar player_resource_stock: Dictionary = _player_state.get("resource_stock", {}) if '
+ '_player_state.get("resource_stock", {}) is Dictionary else {}',
+ '-\treturn _ensure_city_resource_service().build_default_city_storage(city_id, player_resource_stock)',
+ '+\treturn _ensure_city_resource_service().get_city_storage(source_data)']
+EXPECTED_P0_STOCK_FROZEN_DELTAS: dict[str, list[str]] = {'scripts/worldmap/actions/diplomacy_action_service.gd': ['+\t# Queue 36: the live host pays national costs out of the '
+                                                          'owned cities; the code below is the plain-host fallback.',
+                                                          '+\tif host.has_method("_can_pay_national_city_stock_cost"):',
+                                                          '+\t\treturn host.call("_can_pay_national_city_stock_cost", '
+                                                          'cost)',
+                                                          '+\tif host.has_method("_pay_national_city_stock_cost"):',
+                                                          '+\t\treturn host.call("_pay_national_city_stock_cost", '
+                                                          'cost)'],
+ 'tests/scripts/test_worldmap_diplomacy_alliance_extraction.gd': ['-\t_worldmap.set("_player_state", state)',
+                                                                  '+\t_set_state(state)',
+                                                                  '-\t_worldmap.set("_player_state", state)',
+                                                                  '+\t_set_state(state)',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before.duplicate(true))',
+                                                                  '+\t_set_state(before.duplicate(true))',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before.duplicate(true))',
+                                                                  '+\t_set_state(before.duplicate(true))',
+                                                                  '-\t_worldmap.set("_player_state", state)',
+                                                                  '+\t_set_state(state)',
+                                                                  '-\t_worldmap.set("_player_state", state)',
+                                                                  '+\t_set_state(state)',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before_sync.duplicate(true))',
+                                                                  '+\t_set_state(before_sync.duplicate(true))',
+                                                                  '+',
+                                                                  '+# Queue 36 (STOCK-AUTHORITY-P0): the national '
+                                                                  "stock is only the sum of the owned cities' "
+                                                                  'resource_stock, so the stock a',
+                                                                  '+# test puts in _player_state is seeded into the '
+                                                                  'first national payment city (the capital) and the '
+                                                                  'other owned cities',
+                                                                  '+# are emptied. A state reset therefore resets the '
+                                                                  'city stock too.',
+                                                                  '+func _set_state(state: Dictionary) -> void:',
+                                                                  '+\t_worldmap.set("_player_state", state)',
+                                                                  '+\tvar stock: Dictionary = '
+                                                                  '(state.get("resource_stock", {}) as '
+                                                                  'Dictionary).duplicate(true) if '
+                                                                  'state.get("resource_stock", {}) is Dictionary else '
+                                                                  '{}',
+                                                                  '+\tvar city_ids: Array = '
+                                                                  '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                                  '+\tfor index in city_ids.size():',
+                                                                  '+\t\t_worldmap.call("_set_city_storage", '
+                                                                  'str(city_ids[index]), stock if index == 0 else {})',
+                                                                  '+'],
+ 'tests/scripts/test_worldmap_diplomacy_mutation_extraction.gd': ['-\t_worldmap.set("_player_state", state)',
+                                                                  '+\t_set_state(state)',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before.duplicate(true))',
+                                                                  '+\t_set_state(before.duplicate(true))',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before.duplicate(true))',
+                                                                  '+\t_set_state(before.duplicate(true))',
+                                                                  '-\t_worldmap.set("_player_state", '
+                                                                  'before.duplicate(true))',
+                                                                  '+\t_set_state(before.duplicate(true))',
+                                                                  '+',
+                                                                  '+# Queue 36 (STOCK-AUTHORITY-P0): the national '
+                                                                  "stock is only the sum of the owned cities' "
+                                                                  'resource_stock, so the stock a',
+                                                                  '+# test puts in _player_state is seeded into the '
+                                                                  'first national payment city (the capital) and the '
+                                                                  'other owned cities',
+                                                                  '+# are emptied. A state reset therefore resets the '
+                                                                  'city stock too.',
+                                                                  '+func _set_state(state: Dictionary) -> void:',
+                                                                  '+\t_worldmap.set("_player_state", state)',
+                                                                  '+\tvar stock: Dictionary = '
+                                                                  '(state.get("resource_stock", {}) as '
+                                                                  'Dictionary).duplicate(true) if '
+                                                                  'state.get("resource_stock", {}) is Dictionary else '
+                                                                  '{}',
+                                                                  '+\tvar city_ids: Array = '
+                                                                  '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                                  '+\tfor index in city_ids.size():',
+                                                                  '+\t\t_worldmap.call("_set_city_storage", '
+                                                                  'str(city_ids[index]), stock if index == 0 else {})',
+                                                                  '+'],
+ 'tests/scripts/test_worldmap_diplomacy_routing.gd': ['-\t_worldmap.set("_player_state", state)',
+                                                      '+\t_set_state(state)',
+                                                      '-\t_worldmap.set("_player_state", before.duplicate(true))',
+                                                      '+\t_set_state(before.duplicate(true))',
+                                                      '-\t_worldmap.get("_player_state")["resource_stock"]["gold"] = 0',
+                                                      '+\t_set_national_gold(0)',
+                                                      '+',
+                                                      '+# Queue 36 (STOCK-AUTHORITY-P0): the national stock is only '
+                                                      "the sum of the owned cities' resource_stock, so the stock a",
+                                                      '+# test puts in _player_state is seeded into the first national '
+                                                      'payment city (the capital) and the other owned cities',
+                                                      '+# are emptied. A state reset therefore resets the city stock '
+                                                      'too.',
+                                                      '+func _set_state(state: Dictionary) -> void:',
+                                                      '+\t_worldmap.set("_player_state", state)',
+                                                      '+\tvar stock: Dictionary = (state.get("resource_stock", {}) as '
+                                                      'Dictionary).duplicate(true) if state.get("resource_stock", {}) '
+                                                      'is Dictionary else {}',
+                                                      '+\tvar city_ids: Array = '
+                                                      '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                      '+\tfor index in city_ids.size():',
+                                                      '+\t\t_worldmap.call("_set_city_storage", str(city_ids[index]), '
+                                                      'stock if index == 0 else {})',
+                                                      '+',
+                                                      '+',
+                                                      '+# Queue 36: set the national gold through the cities (capital '
+                                                      'gets the amount, the other owned cities 0).',
+                                                      '+func _set_national_gold(gold: int) -> void:',
+                                                      '+\tvar city_ids: Array = '
+                                                      '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                      '+\tfor index in city_ids.size():',
+                                                      '+\t\tvar stock: Dictionary = '
+                                                      '_worldmap.call("_get_city_storage", str(city_ids[index]))',
+                                                      '+\t\tstock["gold"] = gold if index == 0 else 0',
+                                                      '+\t\t_worldmap.call("_set_city_storage", str(city_ids[index]), '
+                                                      'stock)',
+                                                      '+'],
+ 'tests/scripts/test_worldmap_diplomacy_state_extraction.gd': ['-\t_worldmap.set("_player_state", state)',
+                                                               '+\t_set_state(state)',
+                                                               '-\t_worldmap.set("_player_state", state)',
+                                                               '+\t_set_state(state)',
+                                                               '-\t_worldmap.set("_player_state", '
+                                                               'before.duplicate(true))',
+                                                               '+\t_set_state(before.duplicate(true))',
+                                                               '-\t_worldmap.set("_player_state", state)',
+                                                               '+\t_set_state(state)',
+                                                               '-\t_worldmap.set("_player_state", '
+                                                               'before.duplicate(true))',
+                                                               '+\t_set_state(before.duplicate(true))',
+                                                               '+',
+                                                               '+# Queue 36 (STOCK-AUTHORITY-P0): the national stock '
+                                                               "is only the sum of the owned cities' resource_stock, "
+                                                               'so the stock a',
+                                                               '+# test puts in _player_state is seeded into the first '
+                                                               'national payment city (the capital) and the other '
+                                                               'owned cities',
+                                                               '+# are emptied. A state reset therefore resets the '
+                                                               'city stock too.',
+                                                               '+func _set_state(state: Dictionary) -> void:',
+                                                               '+\t_worldmap.set("_player_state", state)',
+                                                               '+\tvar stock: Dictionary = '
+                                                               '(state.get("resource_stock", {}) as '
+                                                               'Dictionary).duplicate(true) if '
+                                                               'state.get("resource_stock", {}) is Dictionary else {}',
+                                                               '+\tvar city_ids: Array = '
+                                                               '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                               '+\tfor index in city_ids.size():',
+                                                               '+\t\t_worldmap.call("_set_city_storage", '
+                                                               'str(city_ids[index]), stock if index == 0 else {})',
+                                                               '+'],
+ 'tests/scripts/test_worldmap_diplomacy_validation_extraction.gd': ['-\t_worldmap.set("_player_state", state)',
+                                                                    '+\t_set_state(state)',
+                                                                    '+',
+                                                                    '+# Queue 36 (STOCK-AUTHORITY-P0): the national '
+                                                                    "stock is only the sum of the owned cities' "
+                                                                    'resource_stock, so the stock a',
+                                                                    '+# test puts in _player_state is seeded into the '
+                                                                    'first national payment city (the capital) and the '
+                                                                    'other owned cities',
+                                                                    '+# are emptied. A state reset therefore resets '
+                                                                    'the city stock too.',
+                                                                    '+func _set_state(state: Dictionary) -> void:',
+                                                                    '+\t_worldmap.set("_player_state", state)',
+                                                                    '+\tvar stock: Dictionary = '
+                                                                    '(state.get("resource_stock", {}) as '
+                                                                    'Dictionary).duplicate(true) if '
+                                                                    'state.get("resource_stock", {}) is Dictionary '
+                                                                    'else {}',
+                                                                    '+\tvar city_ids: Array = '
+                                                                    '_worldmap.call("_get_national_payment_city_ids_mvp")',
+                                                                    '+\tfor index in city_ids.size():',
+                                                                    '+\t\t_worldmap.call("_set_city_storage", '
+                                                                    'str(city_ids[index]), stock if index == 0 else '
+                                                                    '{})',
+                                                                    '+']}
 
 
 def line_delta(old_text: str, new_text: str) -> list[str]:
