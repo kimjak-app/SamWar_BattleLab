@@ -8,6 +8,12 @@
 
 ## 현재 상태 (최신이 위)
 
+### 2026-11-27 — 큐 36번 STOCK-AUTHORITY-P0 완료 (답신 1 A안, F6 대기)
+- 가지 `feature/wm3d-stock-p0-20261127`: 코드 `e206d60678196550a4763906456bbc0ce11a67a4`, 고정 `1d6829355675e822b474912dfeb8e9e7f376ab49`(마지막 코드 커밋). 보고서 `agent/REPORT_STOCK_AUTHORITY_P0_20261127.md`.
+- CI: `Verify C-track refactor` `45952527223` 4 shard success. `Verify WorldMap3D`는 경로 조건 밖이라 실행 안 됨.
+- 로컬: C-track 210/210, 검사기 72/72, 새 시험 checks=86 failures=[].
+- 다음 할 일: 김작 F6(보고서 9절) → 합격이면 `main` 합류 지시서 대기. 큐에 다른 준비됨 행 없음.
+
 ### 2026-11-27 — 큐 36번 STOCK-AUTHORITY-P0 멈춤 (답신 대기)
 - 가지 `feature/wm3d-stock-p0-20261127`(시작 `main` `8cc0640`). 코드 커밋 0. 보고서 `agent/REPORT_STOCK_AUTHORITY_P0_STOP_20261127.md`. CI 없음(문서만, `[skip ci]`).
 - 세이브 백업 끝: `C:\eastwar_tmp\saves_backup_20261127\`(파일 204개).
