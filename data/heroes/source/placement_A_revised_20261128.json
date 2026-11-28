@@ -483,7 +483,25 @@
       ],
       "troops": "120",
       "population": "20000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "소성",
+        "type_label": "상업 수도형",
+        "gold": 300,
+        "food": 270,
+        "population_rating": 1,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 1,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 300
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -510,7 +528,25 @@
       ],
       "troops": "120",
       "population": "20000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "소성",
+        "type_label": "요새형",
+        "gold": 270,
+        "food": 180,
+        "population_rating": 1,
+        "commerce_rating": 1,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 1,
+          "seafood": 0,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 270
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -545,7 +581,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "생산 도시형",
+        "gold": 320,
+        "food": 340,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 2,
+          "seafood": 0,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 320
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -580,7 +634,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -615,7 +687,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "생산 도시형",
+        "gold": 320,
+        "food": 340,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 2,
+          "seafood": 0,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 320
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -650,7 +740,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "상업 수도형",
+        "gold": 450,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 450
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -685,7 +793,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -720,7 +846,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -747,7 +891,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "해안 무역형",
+        "gold": 430,
+        "food": 190,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 1,
+          "seafood": 3,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 430
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -770,7 +932,25 @@
       ],
       "troops": "120",
       "population": "20000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "소성",
+        "type_label": "해안 무역형",
+        "gold": 290,
+        "food": 140,
+        "population_rating": 1,
+        "commerce_rating": 1,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 0,
+          "seafood": 2,
+          "wood": 1,
+          "iron": 0,
+          "salt": 2,
+          "gold": 290
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -805,7 +985,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "생산 도시형",
+        "gold": 320,
+        "food": 340,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 2,
+          "seafood": 0,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 320
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -840,7 +1038,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -867,7 +1083,25 @@
       ],
       "troops": "120",
       "population": "20000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "소성",
+        "type_label": "생산 도시형",
+        "gold": 210,
+        "food": 230,
+        "population_rating": 1,
+        "commerce_rating": 1,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 0,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 210
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -898,7 +1132,25 @@
       ],
       "troops": "120",
       "population": "20000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "소성",
+        "type_label": "요새형",
+        "gold": 270,
+        "food": 180,
+        "population_rating": 1,
+        "commerce_rating": 1,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 1,
+          "seafood": 0,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 270
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -925,7 +1177,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "강 무역형",
+        "gold": 430,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 2,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 430
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -952,7 +1222,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "생산 도시형",
+        "gold": 320,
+        "food": 340,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 2,
+          "seafood": 0,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 320
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -979,7 +1267,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "생산 도시형",
+        "gold": 320,
+        "food": 340,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 2,
+          "seafood": 0,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 320
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1006,7 +1312,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "상업 수도형",
+        "gold": 450,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 450
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1033,7 +1357,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "강 무역형",
+        "gold": 430,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 2,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 430
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1064,7 +1406,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "상업 수도형",
+        "gold": 450,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 450
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1095,7 +1455,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "상업 수도형",
+        "gold": 450,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 1,
+          "salt": 2,
+          "gold": 450
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1122,7 +1500,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1149,7 +1545,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "강 무역형",
+        "gold": 430,
+        "food": 240,
+        "population_rating": 2,
+        "commerce_rating": 3,
+        "resource_seed": {
+          "rice": 2,
+          "barley": 1,
+          "seafood": 2,
+          "wood": 2,
+          "iron": 1,
+          "salt": 2,
+          "gold": 430
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1176,7 +1590,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1207,7 +1639,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     },
     {
       "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
@@ -1238,7 +1688,25 @@
       ],
       "troops": "200",
       "population": "30000",
-      "grade": "1"
+      "grade": "1",
+      "city_values": {
+        "values_status": "proposal",
+        "tier": "중성",
+        "type_label": "요새형",
+        "gold": 410,
+        "food": 260,
+        "population_rating": 2,
+        "commerce_rating": 2,
+        "resource_seed": {
+          "rice": 1,
+          "barley": 2,
+          "seafood": 1,
+          "wood": 1,
+          "iron": 2,
+          "salt": 2,
+          "gold": 410
+        }
+      }
     }
   ]
 }

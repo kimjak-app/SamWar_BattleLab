@@ -22,6 +22,14 @@ extends SceneTree
 #     stock of every source city; road / research / deployment-and-resources as separate columns
 # 10. (addendum 10) a test-owned new city (철원 given to the player): what the victory count and the next turn's income
 #     do with it - recorded only (the AI economy, invasions and victory still run on the 4 Korea cities)
+# Queue 47 (새 26성 기본값, Drive 104 / 109 / 110):
+# 47-1. new game: gold, rice / barley / seafood / salt stock, population / commerce rating and the seeds (rice, barley,
+#       seafood, wood, iron, salt, gold) of the 26 cities equal Drive 104 section 6 and order 47 section 2, every key
+# 47-2. the 13 legacy cities keep main's values (CITY_HUD_DATA of the unchanged worldmap_main.gd and its stock seeder)
+# 47-3. first real sortie table: no direction fails for "금·군량으로 출전 가능한 병력이 0"; siege-blocked ones listed
+# 47-4. an A save, loaded, one turn played, a stock changed, saved and loaded again: the saved stock stays (the start
+#       values do not overwrite it); old saves load as before (2.)
+# 47-5. three AI turns without a crash (6.) and a test-owned new city earns gold on the next turn (10.)
 
 const Placement := preload("res://scripts/worldmap/worldmap_placement_a.gd")
 const RosterService := preload("res://scripts/worldmap/worldmap_city_roster_service.gd")
@@ -44,6 +52,39 @@ const MOUNTED := ["go_yeon_mu", "anfiyanggu", "bilge_khagan"]
 const DEBUFF := ["dae_mun_ye"]
 ## Words a description must carry for the engine behaviour checked in 8.
 const DESCRIPTION_WORDS := {"charge_aoe": ["인접"], "mounted_team_buff": ["이동", "측후방", "기세"], "command_debuff": ["공격", "방어", "기세"]}
+## Queue 47: Drive 104 section 6 (A + B) and order 47 section 2 (wood / iron), typed from the documents.
+## city_id: [gold, food, stock rice, stock barley, stock seafood, stock salt, seed rice, seed barley, seed seafood,
+##           seed salt, population rating, commerce rating, seed wood, seed iron]
+const CITY_VALUES_104 := {
+	"gaeseong": [300, 270, 90, 90, 90, 40, 1, 1, 1, 2, 1, 2, 1, 1],   # 개성 소성 상업 수도형
+	"gungnaeseong": [270, 180, 90, 90, 0, 40, 1, 1, 0, 2, 1, 1, 1, 2],   # 국내성 소성 요새형
+	"jeonju": [320, 340, 170, 170, 0, 40, 2, 2, 0, 2, 2, 2, 2, 1],   # 전주 중성 생산 도시형
+	"cheorwon": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 철원 중성 요새형
+	"goryeong": [320, 340, 170, 170, 0, 40, 2, 2, 0, 2, 2, 2, 2, 1],   # 고령 중성 생산 도시형
+	"sanggyeong_yongcheonbu": [450, 240, 120, 60, 60, 40, 2, 1, 1, 2, 2, 3, 1, 1],   # 상경 용천부 중성 상업 수도형
+	"kofu": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 고후 중성 요새형
+	"echigo": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 에치고 중성 요새형
+	"hiroshima": [430, 190, 38, 38, 114, 40, 1, 1, 3, 2, 2, 2, 1, 1],   # 히로시마 중성 해안 무역형
+	"bungo": [290, 140, 46, 0, 94, 40, 1, 0, 2, 2, 1, 1, 1, 0],   # 분고 후나이 소성 해안 무역형
+	"aizu": [320, 340, 170, 170, 0, 40, 2, 2, 0, 2, 2, 2, 2, 1],   # 아이즈 중성 생산 도시형
+	"odawara": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 오다와라 중성 요새형
+	"xuchang": [210, 230, 153, 76, 1, 40, 2, 1, 0, 2, 1, 1, 1, 1],   # 허창 소성 생산 도시형
+	"longxi": [270, 180, 90, 90, 0, 40, 1, 1, 0, 2, 1, 1, 1, 2],   # 농서 소성 요새형
+	"jiangdong": [430, 240, 96, 48, 96, 40, 2, 1, 2, 2, 2, 3, 2, 1],   # 강동 중성 강 무역형
+	"jizhou": [320, 340, 170, 170, 0, 40, 2, 2, 0, 2, 2, 2, 2, 1],   # 기주 중성 생산 도시형
+	"puyang": [320, 340, 170, 170, 0, 40, 2, 2, 0, 2, 2, 2, 2, 1],   # 복양 중성 생산 도시형
+	"kaifeng": [450, 240, 120, 60, 60, 40, 2, 1, 1, 2, 2, 3, 1, 1],   # 개봉 중성 상업 수도형
+	"pengcheng": [430, 240, 96, 48, 96, 40, 2, 1, 2, 2, 2, 3, 2, 1],   # 팽성 중성 강 무역형
+	"dadu": [450, 240, 120, 60, 60, 40, 2, 1, 1, 2, 2, 3, 1, 1],   # 대도 중성 상업 수도형
+	"changan": [450, 240, 120, 60, 60, 40, 2, 1, 1, 2, 2, 3, 1, 1],   # 장안 중성 상업 수도형
+	"xiangyang": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 양양 중성 요새형
+	"yangzhou": [430, 240, 96, 48, 96, 40, 2, 1, 2, 2, 2, 3, 2, 1],   # 양주 중성 강 무역형
+	"hetuala": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 허투알라 중성 요새형
+	"orkhon": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 오르혼 중성 요새형
+	"lhasa": [410, 260, 65, 130, 65, 40, 1, 2, 1, 2, 2, 2, 1, 2],   # 라싸 중성 요새형
+}
+const NO_SUPPLY_REASON := "금·군량으로 출전 가능한 병력이 0"
+const STOCK_KEYS := ["gold", "rice", "barley", "seafood", "salt"]
 
 
 class ErrorCounter extends Logger:
@@ -83,6 +124,7 @@ func _run() -> void:
 	_expect(bool(_placement.ok) and _placement.city_order.size() == 39 and _placement.faction_ids.size() == 34 and _placement.hero_city.size() == 163,
 		"placement data: 39 cities, 34 factions, 163 heroes, no error %s" % str(_placement.errors))
 	_check_world("1. new game")
+	_check_city_values()
 	var snapshot := _snapshot()
 	await _check_save_load(snapshot)
 	await _new_game_world()   # 3..7 on a fresh placement-A new game
@@ -93,6 +135,7 @@ func _run() -> void:
 	_check_turns()
 	_check_new_factions(errors_before_turns)
 	_check_owned_new_city()
+	await _check_stock_save_load()
 	_check_runtime_file()
 	await _check_missing_runtime_file()
 	_restore_saves()
@@ -305,6 +348,8 @@ func _check_first_sortie() -> void:
 	var real_count := {}
 	var no_real: Array[String] = []
 	var no_window: Array[String] = []
+	var no_supply: Array[String] = []
+	var siege_blocked: Array[String] = []
 	for faction_id in _placement.faction_ids:
 		var cities: Array = _placement.city_order.filter(func(c): return str(_placement.cities[c].faction_id) == faction_id)
 		var directions := 0
@@ -324,6 +369,10 @@ func _check_first_sortie() -> void:
 					real_ok += 1
 				else:
 					reasons.append("%s->%s: %s" % [city_id, neighbor_id, row.real])
+				if str(row.real).contains(NO_SUPPLY_REASON):
+					no_supply.append("%s %s->%s" % [faction_id, city_id, neighbor_id])
+				if str(row.block).contains("공성"):
+					siege_blocked.append("%s %s->%s" % [faction_id, city_id, neighbor_id])
 		real_count[faction_id] = real_ok
 		if directions == 0:
 			no_window.append(faction_id)
@@ -355,6 +404,8 @@ func _check_first_sortie() -> void:
 		stock_lines.append("  %s | %s | %d | %d | %d | %d" % [city_id, _placement.cities[city_id].faction_id, int(stock.get("gold", 0)), int(stock.get("rice", 0)), int(stock.get("barley", 0)), int(stock.get("seafood", 0))])
 	print("\n".join(stock_lines))
 	_expect(no_window.is_empty(), "4. every faction has at least one direction to a foreign city (attack window table) %s" % str(no_window))
+	print("[PLACEMENT_A] 47-3 siege-research blocked directions (rule unchanged, %d): %s" % [siege_blocked.size(), "; ".join(siege_blocked)])
+	_expect(no_supply.is_empty(), "47-3. no first-turn direction fails because gold / food fields 0 troops %s" % str(no_supply))
 	_expect(_snapshot() == before, "4. the tables change nothing in the world (no departure, no payment)")
 
 
@@ -562,6 +613,90 @@ func _check_owned_new_city() -> void:
 		int(stock_before.get("gold", 0)), int(stock_after.get("gold", 0)), int(stock_before.get("rice", 0)), int(stock_after.get("rice", 0)),
 		int(national_before.get("gold", 0)), int(national_after.get("gold", 0))])
 	_expect(str(_main.call("_get_city_owner_id_for_battle_context", city_id)) == "player", "10. the test-owned new city stays the player's through a turn (recorded, no crash)")
+	_expect(int(stock_after.get("gold", 0)) > int(stock_before.get("gold", 0)), "47-5. the test-owned new city %s earns gold on the next turn (%d -> %d)" % [city_id, int(stock_before.get("gold", 0)), int(stock_after.get("gold", 0))])
+
+
+# ---------------------------------------------------------------- 47
+## 47-1 / 47-2: the 26 new cities against the 104 table (typed in this test), the 13 legacy ones against main.
+func _check_city_values() -> void:
+	var hud: Dictionary = _main.get("CITY_HUD_DATA")
+	var new_ids: Array = _placement.city_order.filter(func(c): return not bool(_placement.cities[c].legacy))
+	var table_ids: Array = CITY_VALUES_104.keys()
+	new_ids.sort()
+	table_ids.sort()
+	_expect(new_ids == table_ids, "47-1. the 104 table covers exactly the 26 new cities (%d / %d)" % [table_ids.size(), new_ids.size()])
+	var bad: Array = []
+	var lines: Array[String] = ["[PLACEMENT_A] 47-1 new-game values: city | gold | food | stock rice / barley / seafood / salt / gold | seed rice / barley / seafood / wood / iron / salt / gold | population / commerce rating"]
+	var compared := 0
+	for city_id in CITY_VALUES_104:
+		var want: Array = CITY_VALUES_104[city_id]
+		var entry: Dictionary = _main.call("_get_city_hud_entry", city_id)
+		var stock: Dictionary = entry.get("resource_stock", {})
+		var seed: Dictionary = entry.get("resource_seed", {})
+		var have: Array = [int(entry.get("gold", -1)), int(entry.get("food", -1)), int(stock.get("rice", -1)), int(stock.get("barley", -1)), int(stock.get("seafood", -1)),
+			int(stock.get("salt", -1)), int(seed.get("rice", -1)), int(seed.get("barley", -1)), int(seed.get("seafood", -1)), int(seed.get("salt", -1)),
+			int(entry.get("population_rating", -1)), int(entry.get("commerce_rating", -1)), int(seed.get("wood", -1)), int(seed.get("iron", -1))]
+		compared += have.size() + 2
+		if have != want or int(stock.get("gold", -1)) != int(want[0]) or int(seed.get("gold", -1)) != int(want[0]) or str(entry.get("values_status", "")) != Placement.VALUES_STATUS_PROPOSAL:
+			bad.append("%s have %s stock gold %s seed gold %s want %s" % [city_id, str(have), stock.get("gold"), seed.get("gold"), str(want)])
+		lines.append("  %s | %d | %d | %d / %d / %d / %d / %d | %d / %d / %d / %d / %d / %d / %d | %d / %d" % [city_id, have[0], have[1], have[2], have[3], have[4], have[5], int(stock.get("gold", 0)),
+			have[6], have[7], have[8], have[13 - 1], have[13], have[9], int(seed.get("gold", 0)), have[10], have[11]])
+	print("\n".join(lines))
+	_expect(bad.is_empty() and compared == 26 * 16, "47-1. 26 cities x 16 values (gold, food, 5 stocks, 7 seeds, 2 ratings) = 104 / order 47 (%d compared) %s" % [compared, str(bad.slice(0, 4))])
+	var resources := WorldMapCityResourceService.new()
+	var legacy_bad: Array = []
+	for city_id in _placement.city_order:
+		if not bool(_placement.cities[city_id].legacy):
+			continue
+		var entry: Dictionary = _main.call("_get_city_hud_entry", city_id)
+		var base: Dictionary = hud[city_id]
+		var want_stock: Dictionary = resources.build_supply_resource_defaults(base).resource_stock
+		for key in STOCK_KEYS:
+			if int((entry.get("resource_stock", {}) as Dictionary).get(key, -1)) != int(want_stock.get(key, -2)):
+				legacy_bad.append("%s stock %s" % [city_id, key])
+		for key in ["gold", "food", "population_rating", "commerce_rating"]:
+			if int(entry.get(key, -1)) != int(base.get(key, -2)):
+				legacy_bad.append("%s %s" % [city_id, key])
+		if JSON.stringify(entry.get("resource_seed", {}), "", true) != JSON.stringify(base.get("resource_seed", {}), "", true) or str(entry.get("resources", "")) != str(base.get("resources", "")):
+			legacy_bad.append("%s seed / resources text" % city_id)
+	_expect(legacy_bad.is_empty(), "47-2. the 13 legacy cities: stock, gold, food, ratings, seeds as main (unchanged worldmap_main.gd) %s" % str(legacy_bad.slice(0, 6)))
+
+
+## 47-4: the saved stock wins over the start values on a placement-A load.
+func _check_stock_save_load() -> void:
+	await _new_game_world()
+	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "47-4. A new game saved (manual slot)")
+	await OldSave.load_through_system_menu(self, FileAccess.get_file_as_string(MANUAL_SAVE))
+	_main = current_scene
+	_end_turn()
+	# a stock no turn touches (an AI new city) changed by hand as well
+	var cities: Dictionary = _main.get("_city_runtime_states")
+	var jeonju: Dictionary = cities["jeonju"]
+	(jeonju["resource_stock"] as Dictionary)["gold"] = 7
+	(jeonju["resource_stock"] as Dictionary)["rice"] = 3
+	var before := _stock_table()
+	var gaeseong_start: Array = CITY_VALUES_104["gaeseong"]
+	var gaeseong: Dictionary = before["gaeseong"]
+	_expect(int(gaeseong.gold) != int(gaeseong_start[0]) or int(gaeseong.seafood) != int(gaeseong_start[4]), "47-4. one turn changed 개성's stock (player city: gold %d, seafood %d)" % [int(gaeseong.gold), int(gaeseong.seafood)])
+	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "47-4. saved again after the turn")
+	await OldSave.load_through_system_menu(self, FileAccess.get_file_as_string(MANUAL_SAVE))
+	_main = current_scene
+	var after := _stock_table()
+	var diff: Array = before.keys().filter(func(c): return JSON.stringify(before[c], "", true) != JSON.stringify(after.get(c), "", true))
+	_expect(diff.is_empty() and int(after.jeonju.gold) == 7 and int(after.jeonju.rice) == 3, "47-4. reloaded: the saved stock of the 39 cities stays, not the start values (전주 gold %d rice %d) %s" % [int(after.jeonju.gold), int(after.jeonju.rice), str(diff.slice(0, 4))])
+	var rating_bad: Array = CITY_VALUES_104.keys().filter(func(c): return int((_main.call("_get_city_hud_entry", c) as Dictionary).get("commerce_rating", -1)) != int(CITY_VALUES_104[c][11]) or int(((_main.call("_get_city_hud_entry", c) as Dictionary).get("resource_seed", {}) as Dictionary).get("iron", -1)) != int(CITY_VALUES_104[c][13]))
+	_expect(rating_bad.is_empty(), "47-4. reloaded: ratings and seeds of the 26 cities put back %s" % str(rating_bad))
+
+
+func _stock_table() -> Dictionary:
+	var table := {}
+	for city_id in _placement.city_order:
+		var stock: Dictionary = (_main.call("_get_city_hud_entry", city_id) as Dictionary).get("resource_stock", {})
+		var row := {}
+		for key in STOCK_KEYS:
+			row[key] = int(stock.get(key, 0))
+		table[city_id] = row
+	return table
 
 
 # ---------------------------------------------------------------- 8

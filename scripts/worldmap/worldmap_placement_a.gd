@@ -86,7 +86,10 @@ static func load_placement(hero_data: Dictionary, city_data: Dictionary) -> Dict
 			"grade": int(entry.get("grade", 0)),
 			"capital": entry.get("capital", false) == true,   # the runtime file stores a bool; only true is a capital
 			"home_city": str(entry.get("home_city", "")),
+			"city_values": (entry.get("city_values", {}) as Dictionary).duplicate(true) if entry.get("city_values", {}) is Dictionary else {},
 		}
+		if not bool(cities[city_id].legacy) and (cities[city_id].city_values as Dictionary).is_empty():
+			errors.append("no city_values for new city %s" % city_id)
 		city_order.append(city_id)
 	var faction_ids: Array = factions.keys()
 	faction_ids.sort()
@@ -142,6 +145,7 @@ static func apply_new_game(main: Node) -> bool:
 		city["hero_ids"] = legacy_ids.duplicate()
 		if not bool(entry.legacy):
 			city["troops"] = int(entry.troops)
+			_apply_start_stock(city, entry)
 		_apply_static_values(city, entry)
 		city_states[city_id] = city
 	var player_state: Dictionary = main.get("_player_state")
@@ -160,8 +164,9 @@ static func apply_new_game(main: Node) -> bool:
 	return true
 
 
-## Load of a placement-A save: population / grade / capital / values_status are not in the save; put them back.
-## Owner, troops and garrison come from the save and are not touched. Does nothing for an old (pre-A) save.
+## Load of a placement-A save: population / grade / capital / values_status / ratings / resource seeds (static values)
+## are put back. Owner, troops, garrison and the stock (resource_stock, queue 47: the saved stock wins over the start
+## values) come from the save and are not touched. Does nothing for an old (pre-A) save.
 static func restore_static_values(main: Node) -> void:
 	var player_state: Dictionary = main.get("_player_state")
 	if str(player_state.get("world_placement_id", "")) != PLACEMENT_ID:
@@ -189,6 +194,38 @@ static func _apply_static_values(city: Dictionary, entry: Dictionary) -> void:
 	city["values_status"] = VALUES_STATUS_PROPOSAL
 	city["military"] = "도시 주둔군 %d / 방어력 %d (제안 값)" % [int(city.get("troops", entry.troops)), int(city.get("defense", 1))]
 	city["rating"] = "배치 A 제안 값(추가 검토)"
+	# Queue 47: ratings and resource seeds (static; the seeds not in city_values - horses, silk, specialty - stay).
+	var values: Dictionary = entry.get("city_values", {})
+	if values.is_empty():
+		return
+	city["population_rating"] = int(values.population_rating)
+	city["commerce_rating"] = int(values.commerce_rating)
+	var seed: Dictionary = (city.get("resource_seed", {}) as Dictionary).duplicate(true) if city.get("resource_seed", {}) is Dictionary else {}
+	for key in (values.resource_seed as Dictionary):
+		seed[key] = int(values.resource_seed[key])
+	city["resource_seed"] = seed
+	city["resources"] = resource_seed_text(seed)
+
+
+## Queue 47, new game only: the start gold and food of a new city (Drive 104 A). The stock is rebuilt right after
+## apply_new_game by the city stock seeder (WorldMapCityResourceService.build_supply_resource_defaults: food split by
+## the rice / barley / seafood seeds, salt = seed x 20), so an older empty stock is dropped here.
+static func _apply_start_stock(city: Dictionary, entry: Dictionary) -> void:
+	var values: Dictionary = entry.get("city_values", {})
+	if values.is_empty():
+		return
+	city["gold"] = int(values.gold)
+	city["food"] = int(values.food)
+	city.erase("resource_stock")
+
+
+## The legacy cities' "resources" line: 쌀 ★★ / 보리 ★ / … ("-" for 0).
+static func resource_seed_text(seed: Dictionary) -> String:
+	var parts: Array[String] = []
+	for pair in [["rice", "쌀"], ["barley", "보리"], ["seafood", "수산물"], ["wood", "목재"], ["iron", "철"], ["horses", "말"], ["silk", "비단"], ["salt", "소금"]]:
+		var count := int(seed.get(pair[0], 0))
+		parts.append("%s %s" % [pair[1], "★".repeat(count) if count > 0 else "-"])
+	return " / ".join(parts)
 
 
 ## The 119 new heroes carry the placement in their definition and are stationed by RegisteredHeroCitySeeder.

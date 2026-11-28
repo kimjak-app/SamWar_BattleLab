@@ -11,6 +11,9 @@ Sources (working data, kept in data/heroes/source/, which has a .gdignore and is
 Output (exported with the game): data/worldmap/placement_a_runtime.json - ids only, one record per city in source
 order, with the source files' SHA-256. A hero in two cities, an unknown name, or a governor outside the garrison is
 an error: nothing is written.
+Queue 47: each of the 26 new cities carries city_values (gold, food, population / commerce rating, resource_seed rice /
+barley / seafood / wood / iron / salt / gold, values_status "proposal"); a new city without it, a legacy city with it,
+or a missing / non-integer key is an error.
 """
 
 from __future__ import annotations
@@ -31,6 +34,34 @@ OUTPUT = ROOT / "data/worldmap/placement_a_runtime.json"
 PLACEMENT_ID = "placement_A_revised_20261128"
 LEGACY_GROUP_PREFIX = "기존 13성"
 GOVERNOR_UNDECIDED_PREFIX = "미정"
+CITY_VALUE_KEYS = ("gold", "food", "population_rating", "commerce_rating")
+RESOURCE_SEED_KEYS = ("rice", "barley", "seafood", "wood", "iron", "salt", "gold")
+
+
+def _city_values(entry: dict, city_id: str, legacy: bool, errors: list[str]) -> dict | None:
+    values = entry.get("city_values")
+    if legacy:
+        if values is not None:
+            errors.append(f"legacy city {city_id} must not carry city_values (its values stay as in main)")
+        return None
+    if not isinstance(values, dict):
+        errors.append(f"no city_values for new city {city_id}")
+        return None
+    out: dict = {"values_status": str(values.get("values_status", ""))}
+    if out["values_status"] != "proposal":
+        errors.append(f"city_values of {city_id}: values_status must be proposal")
+    for key in CITY_VALUE_KEYS:
+        if not isinstance(values.get(key), int) or values[key] < 0:
+            errors.append(f"city_values of {city_id}: {key} must be an integer >= 0")
+        out[key] = values.get(key)
+    seed = values.get("resource_seed")
+    out["resource_seed"] = {}
+    for key in RESOURCE_SEED_KEYS:
+        if not isinstance(seed, dict) or not isinstance(seed.get(key), int) or seed[key] < 0:
+            errors.append(f"city_values of {city_id}: resource_seed.{key} must be an integer >= 0")
+            continue
+        out["resource_seed"][key] = seed[key]
+    return out
 
 
 def _csv_map(path: Path, key: str, value: str) -> dict[str, str]:
@@ -87,6 +118,9 @@ def build() -> tuple[str, list[str]]:
             "capital": str(entry.get("capital", "false")) == "true",   # a string in the source: only "true" is true
             "home_city": str(entry.get("home_city", "")),
         })
+        values = _city_values(entry, city_id, cities[-1]["legacy"], errors)
+        if values is not None:
+            cities[-1]["city_values"] = values
     doc = {
         "schema": "eastwar_placement_runtime_v1",
         "placement_id": PLACEMENT_ID,
