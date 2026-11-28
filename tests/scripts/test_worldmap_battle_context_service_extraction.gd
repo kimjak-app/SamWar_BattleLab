@@ -65,7 +65,14 @@ func _run() -> void:
 		_expect(int(attack_context.get("defender_food_amount", -1)) == int(expected_defender_supply.get("food_amount", -2)), "Player attack uses target city's persisted defender food amount")
 		_expect(int(attack_context.get("defender_salt_amount", -1)) == int(expected_defender_supply.get("salt_amount", -2)), "Player attack uses target city's persisted defender salt")
 
-	var invasion_event := {"type": "defense", "attacker_city_id": target_city_id, "defender_city_id": source_city_id, "turn_number": 1}
+	# Queue 46: on the 0.7 roads 평양 is no longer next to 한성; the invasion input uses an enemy city that is.
+	var invasion_attacker := ""
+	for neighbor_id in host.call("_get_city_neighbors_mvp", source_city_id):
+		if bool(host.call("_is_city_owned_by_enemy_mvp", str(neighbor_id))):
+			invasion_attacker = str(neighbor_id)
+			break
+	_expect(not invasion_attacker.is_empty(), "An enemy city borders %s (%s)" % [source_city_id, invasion_attacker])
+	var invasion_event := {"type": "defense", "attacker_city_id": invasion_attacker, "defender_city_id": source_city_id, "turn_number": 1}
 	var validation: Dictionary = host.call("_validate_pending_invasion_event_for_battle_context", invasion_event)
 	_expect(bool(validation.get("ok", false)), "Enemy invasion input validates")
 	var defense_context: Dictionary = host.call("_build_battle_context_from_pending_invasion", invasion_event, "manual")

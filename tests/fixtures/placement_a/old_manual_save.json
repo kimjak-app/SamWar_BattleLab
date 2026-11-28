@@ -1,0 +1,960 @@
+{
+	"city_policy_state": {
+
+	},
+	"game_session": {
+		"active_scenario_id": "korea_mvp_four_cities",
+		"ai_faction_ids": [
+			"goguryeo",
+			"silla",
+			"baekje_faction"
+		],
+		"player_faction_id": "player",
+		"player_start_city_id": "hanseong"
+	},
+	"player_state": {
+		"active_scenario_id": "korea_mvp_four_cities",
+		"ai_faction_ids": [
+			"goguryeo",
+			"silla",
+			"baekje_faction"
+		],
+		"ai_ownership_cache_generation": 1,
+		"alliances": {
+
+		},
+		"applied_battle_result_ids": [],
+		"capital_city_id": "hanseong",
+		"chancellor_id": "",
+		"chancellor_policy_id": "balanced",
+		"city_domestic_tech_completed": {
+
+		},
+		"city_domestic_tech_unlocked": {
+
+		},
+		"city_intel": {
+
+		},
+		"completed_turn_resolution_ids": [],
+		"current_phase_label": "아군 턴",
+		"diplomacy_action_cooldowns": {
+
+		},
+		"domestic_apply_pending": false,
+		"enemy_invasion_roll_turn": 0,
+		"faction_chancellors": {
+			"baekje_faction": "uija_wang",
+			"chu": "fan_zeng",
+			"goguryeo": "gwanggaeto",
+			"kyushu_faction": "konishi_yukinaga",
+			"mongol_faction": "genghis_khan",
+			"oda": "takeda_shingen",
+			"shu": "zhuge_liang",
+			"silla": "kim_chun_chu",
+			"tokugawa": "tokugawa_ieyasu",
+			"toyotomi": "toyotomi_hideyoshi",
+			"wei": "xun_yu",
+			"wu": "sun_ce"
+		},
+		"faction_relations": {
+
+		},
+		"game_outcome": {
+			"acknowledged": false,
+			"outcome_id": "",
+			"owned_city_count": 1,
+			"resolved_turn": 0,
+			"status": "active"
+		},
+		"income": "이번 턴 수입 없음",
+		"korea_player_defeat": false,
+		"korea_unification_victory": false,
+		"last_ai_domestic_apply_result": {
+
+		},
+		"last_ai_domestic_apply_turn": 0,
+		"last_alliance_proposal_result": {
+
+		},
+		"last_chancellor_auto_trade_result": {
+			"turn": 0
+		},
+		"last_chancellor_auto_trade_turn": 0,
+		"last_conscription_result": {
+
+		},
+		"last_diplomacy_action_result": {
+
+		},
+		"last_diplomacy_cooldown_result": {
+
+		},
+		"last_diplomacy_normalize_result": {
+
+		},
+		"last_diplomacy_relation_result": {
+
+		},
+		"last_domestic_apply_turn": 0,
+		"last_enemy_faction_turn_processed_turn": 0,
+		"last_enemy_faction_turn_result": {
+			"actions": [],
+			"pending_invasion_event": {
+
+			},
+			"pressure_plan": {
+
+			},
+			"processed_factions": [],
+			"strategic_actions": [],
+			"summary": "이번 턴 적 행동 없음 · 침공 대기 없음",
+			"turn": 1
+		},
+		"last_enemy_pressure_plan_result": {
+
+		},
+		"last_enemy_strategic_action_result": {
+
+		},
+		"last_external_manual_trade_execution_result": {
+
+		},
+		"last_inter_faction_trade_result": {
+
+		},
+		"last_internal_trade_transfer_result": {
+
+		},
+		"last_military_support_result": {
+
+		},
+		"last_public_support_result": {
+
+		},
+		"last_recruitment_result": {
+
+		},
+		"last_revolt_instigation_tick_result": {
+
+		},
+		"last_revolt_warning_result": {
+
+		},
+		"last_seasonal_loyalty_result": {
+
+		},
+		"last_spy_cooldown_result": {
+
+		},
+		"last_spy_loyalty_disrupt_result": {
+
+		},
+		"last_spy_public_support_disrupt_result": {
+
+		},
+		"last_spy_result": {
+
+		},
+		"last_spy_revolt_instigation_result": {
+
+		},
+		"last_spy_wedge_result": {
+
+		},
+		"last_supply_state_result": {
+
+		},
+		"last_trade_agreement_result": {
+
+		},
+		"last_trade_market_result": {
+			"context": {
+				"abundant_harvest": false,
+				"alliance_recently_signed": false,
+				"famine": false,
+				"supply_isolated_count": 0,
+				"war_state": false
+			},
+			"prices": {
+				"barley": {
+					"base": 2,
+					"base_price": 2,
+					"multiplier": 0.85,
+					"name": "보리",
+					"price": 2,
+					"trend": "down_strong"
+				},
+				"horses": {
+					"base": 12,
+					"base_price": 12,
+					"multiplier": 1.0,
+					"name": "말",
+					"price": 12,
+					"trend": "flat"
+				},
+				"iron": {
+					"base": 8,
+					"base_price": 8,
+					"multiplier": 1.0,
+					"name": "철",
+					"price": 8,
+					"trend": "flat"
+				},
+				"rice": {
+					"base": 3,
+					"base_price": 3,
+					"multiplier": 1.0,
+					"name": "쌀",
+					"price": 3,
+					"trend": "flat"
+				},
+				"salt": {
+					"base": 6,
+					"base_price": 6,
+					"multiplier": 1.0,
+					"name": "소금",
+					"price": 6,
+					"trend": "flat"
+				},
+				"seafood": {
+					"base": 4,
+					"base_price": 4,
+					"multiplier": 1.0,
+					"name": "수산물",
+					"price": 4,
+					"trend": "flat"
+				},
+				"silk": {
+					"base": 10,
+					"base_price": 10,
+					"multiplier": 1.0,
+					"name": "비단",
+					"price": 10,
+					"trend": "flat"
+				},
+				"wood": {
+					"base": 5,
+					"base_price": 5,
+					"multiplier": 1.0,
+					"name": "목재",
+					"price": 5,
+					"trend": "flat"
+				}
+			},
+			"season": "spring",
+			"season_label": "봄",
+			"turn": 1
+		},
+		"last_tribute_result": {
+
+		},
+		"last_turn_resolution_result": {
+
+		},
+		"last_wounded_recovery_month_serial": -1,
+		"manual_trade_orders": {
+
+		},
+		"national_aggregation": {
+			"available_troops": 300,
+			"owner_source": "city.owner_faction_id",
+			"population": 50000,
+			"resources": {
+				"barley": 200,
+				"gold": 650,
+				"rice": 200,
+				"salt": 40,
+				"seafood": 68
+			}
+		},
+		"national_domestic_tech_completed": {
+
+		},
+		"national_domestic_tech_unlocked": {
+
+		},
+		"national_loyalty": 75,
+		"national_tech": {
+			"available_cache": {
+
+			},
+			"completed": {
+
+			},
+			"in_progress": {
+
+			}
+		},
+		"national_tech_research": {
+			"active": {
+
+			}
+		},
+		"origin_city_id": "hanseong",
+		"owned_city_ids": [
+			"hanseong"
+		],
+		"owned_hero_ids": [
+			"yi_sun_sin",
+			"jeong_do_jeon",
+			"kwon_yul",
+			"gwak_jae_u",
+			"go_gyeong_myeong",
+			"kim_deok_ryeong"
+		],
+		"pending_battle_context": {
+
+		},
+		"pending_invasion_event": {
+
+		},
+		"player_faction_id": "player",
+		"public_order": 68,
+		"resource_stock": {
+			"barley": 200,
+			"gold": 650,
+			"rice": 200,
+			"salt": 40,
+			"seafood": 68
+		},
+		"resources": "쌀 300 / 보리 250 / 수산물 80 / 목재 100 / 철 50 / 말 30 / 비단 30 / 소금 50 / 금전 500",
+		"revolt_instigation": {
+
+		},
+		"ruler_current_city_id": "hanseong",
+		"salt": "보존 소금: 필요 50 / 보유 50 / 유지비 정상",
+		"selected_city_id": "hanseong",
+		"spy_cooldown": 0,
+		"supply": "활성 교역로 3개 · 금전 +0 / 식량 +0 / 소금 +0 · 군사 지원 필요 도시: 한성",
+		"t03_acknowledged_report_ids": [],
+		"t03_automatic_battle_reports": [],
+		"t03_global_war_cooldown_until_turn": 0,
+		"tax_effect": "세금 효과: 인구·상업세 적용, 충성도 0",
+		"tax_level": 30,
+		"trade": "활성 교역로 0개 · 이번 턴 수익: 금전 +0 / 식량 +0 / 소금 +0 · 세력 관계: 없음",
+		"trade_agreements": {
+
+		},
+		"trade_control_modes": {
+			"external_trade": "chancellor",
+			"internal_trade": "chancellor"
+		},
+		"trade_market_prices": {
+			"barley": {
+				"base": 2,
+				"base_price": 2,
+				"multiplier": 0.85,
+				"name": "보리",
+				"price": 2,
+				"trend": "down_strong"
+			},
+			"horses": {
+				"base": 12,
+				"base_price": 12,
+				"multiplier": 1.0,
+				"name": "말",
+				"price": 12,
+				"trend": "flat"
+			},
+			"iron": {
+				"base": 8,
+				"base_price": 8,
+				"multiplier": 1.0,
+				"name": "철",
+				"price": 8,
+				"trend": "flat"
+			},
+			"rice": {
+				"base": 3,
+				"base_price": 3,
+				"multiplier": 1.0,
+				"name": "쌀",
+				"price": 3,
+				"trend": "flat"
+			},
+			"salt": {
+				"base": 6,
+				"base_price": 6,
+				"multiplier": 1.0,
+				"name": "소금",
+				"price": 6,
+				"trend": "flat"
+			},
+			"seafood": {
+				"base": 4,
+				"base_price": 4,
+				"multiplier": 1.0,
+				"name": "수산물",
+				"price": 4,
+				"trend": "flat"
+			},
+			"silk": {
+				"base": 10,
+				"base_price": 10,
+				"multiplier": 1.0,
+				"name": "비단",
+				"price": 10,
+				"trend": "flat"
+			},
+			"wood": {
+				"base": 5,
+				"base_price": 5,
+				"multiplier": 1.0,
+				"name": "목재",
+				"price": 5,
+				"trend": "flat"
+			}
+		},
+		"trade_market_turn": 1,
+		"troop_rebalance": "목표 주둔군 충족 · 총 이동 0명",
+		"turn_label": "제 1턴",
+		"turn_number": 1,
+		"turn_phase": "player",
+		"turn_resolution_state": {
+
+		},
+		"upkeep": "영웅 유지비: 쌀 -8 / 수산물 -3 / 비단 -1 · 병사 유지비 preview: 쌀 -18 / 보리 -15 / 수산물 -3 (영웅 병력 0명 + 주둔군 300명 기준, 미차감)",
+		"warehouse": "국가 창고: 쌀 300/1000 정상 · 보리 250/1000 정상 · 수산물 80/500 낮음 · 목재 100/800 낮음 · 철 50/500 낮음 · 말 30/300 낮음 · 비단 30/300 낮음 · 소금 50/400 낮음 · 금전 500/9999 정상",
+		"year_label": "154년 봄 1턴"
+	},
+	"stock_ledger": "resource_stock_v1",
+	"title": "T04-T05 Korea MVP Turn Loop and Unification Completion",
+	"version": "v0.76",
+	"worldmap_city_state": {
+		"gyeongju": {
+			"cityLoyalty": 76,
+			"city_tech": {
+				"completed": {
+
+				},
+				"research": {
+					"active": {
+
+					}
+				}
+			},
+			"faction": "silla",
+			"governor_id": "kim_chun_chu",
+			"governor_policy_id": "commerce",
+			"hero_ids": [
+				"kim_chun_chu",
+				"kim_yu_sin",
+				"jang_bo_go"
+			],
+			"loyalty": 76,
+			"nation": "silla",
+			"owner": "silla",
+			"owner_faction_id": "silla",
+			"publicSupport": 70,
+			"resource_stock": {
+				"barley": 110,
+				"gold": 580,
+				"rice": 165,
+				"salt": 40,
+				"seafood": 167
+			},
+			"stationed_hero_ids": [
+				"kim_chun_chu",
+				"kim_yu_sin",
+				"jang_bo_go"
+			],
+			"troops": 280
+		},
+		"hanseong": {
+			"cityLoyalty": 78,
+			"city_tech": {
+				"completed": {
+
+				},
+				"research": {
+					"active": {
+
+					}
+				}
+			},
+			"faction": "player",
+			"governor_id": "",
+			"governor_policy_id": "follow_chancellor",
+			"hero_ids": [
+				"yi_sun_sin",
+				"jeong_do_jeon",
+				"kwon_yul",
+				"gwak_jae_u",
+				"go_gyeong_myeong",
+				"kim_deok_ryeong"
+			],
+			"loyalty": 78,
+			"nation": "player",
+			"owner": "player",
+			"owner_faction_id": "player",
+			"publicSupport": 70,
+			"resource_stock": {
+				"barley": 200,
+				"gold": 650,
+				"rice": 200,
+				"salt": 40,
+				"seafood": 68
+			},
+			"stationed_hero_ids": [
+				"yi_sun_sin",
+				"jeong_do_jeon",
+				"kwon_yul",
+				"gwak_jae_u",
+				"go_gyeong_myeong",
+				"kim_deok_ryeong"
+			],
+			"troops": 300
+		},
+		"pyeongyang": {
+			"cityLoyalty": 72,
+			"city_tech": {
+				"completed": {
+
+				},
+				"research": {
+					"active": {
+
+					}
+				}
+			},
+			"faction": "goguryeo",
+			"governor_id": "gwanggaeto",
+			"governor_policy_id": "military",
+			"hero_ids": [
+				"gwanggaeto",
+				"eulji_mundeok",
+				"dorim",
+				"cheok_jun_gyeong"
+			],
+			"loyalty": 72,
+			"nation": "goguryeo",
+			"owner": "goguryeo",
+			"owner_faction_id": "goguryeo",
+			"publicSupport": 70,
+			"resource_stock": {
+				"barley": 219,
+				"gold": 420,
+				"rice": 219,
+				"salt": 20,
+				"seafood": 74
+			},
+			"stationed_hero_ids": [
+				"gwanggaeto",
+				"eulji_mundeok",
+				"dorim",
+				"cheok_jun_gyeong"
+			],
+			"troops": 280
+		},
+		"sabi": {
+			"cityLoyalty": 73,
+			"city_tech": {
+				"completed": {
+
+				},
+				"research": {
+					"active": {
+
+					}
+				}
+			},
+			"faction": "baekje_faction",
+			"governor_id": "uija_wang",
+			"governor_policy_id": "agriculture",
+			"hero_ids": [
+				"uija_wang",
+				"gyebaek",
+				"heukchi_sangji"
+			],
+			"loyalty": 73,
+			"nation": "baekje_faction",
+			"owner": "baekje_faction",
+			"owner_faction_id": "baekje_faction",
+			"publicSupport": 70,
+			"resource_stock": {
+				"barley": 103,
+				"gold": 620,
+				"rice": 155,
+				"salt": 60,
+				"seafood": 156
+			},
+			"stationed_hero_ids": [
+				"uija_wang",
+				"gyebaek",
+				"heukchi_sangji"
+			],
+			"troops": 300
+		}
+	},
+	"worldmap_hero_state": {
+		"cheok_jun_gyeong": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "pyeongyang",
+			"command_rank": "general",
+			"current_city_id": "pyeongyang",
+			"dead": false,
+			"faction_id": "goguryeo",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "pyeongyang",
+			"nation": "goguryeo",
+			"office": "",
+			"side": "goguryeo",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"dorim": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "pyeongyang",
+			"command_rank": "officer",
+			"current_city_id": "pyeongyang",
+			"dead": false,
+			"faction_id": "goguryeo",
+			"force_id": "goguryeo",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "pyeongyang",
+			"nation": "goguryeo",
+			"office": "",
+			"side": "goguryeo",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"eulji_mundeok": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "pyeongyang",
+			"command_rank": "general",
+			"current_city_id": "pyeongyang",
+			"dead": false,
+			"faction_id": "goguryeo",
+			"force_id": "goguryeo",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "pyeongyang",
+			"nation": "goguryeo",
+			"office": "",
+			"side": "goguryeo",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"go_gyeong_myeong": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "general",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"gwak_jae_u": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "general",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"gwanggaeto": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "pyeongyang",
+			"command_rank": "general",
+			"current_city_id": "pyeongyang",
+			"dead": false,
+			"faction_id": "goguryeo",
+			"force_id": "goguryeo",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "pyeongyang",
+			"nation": "goguryeo",
+			"office": "",
+			"side": "goguryeo",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"gyebaek": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "sabi",
+			"command_rank": "general",
+			"current_city_id": "sabi",
+			"dead": false,
+			"faction_id": "baekje_faction",
+			"force_id": "baekje_faction",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "sabi",
+			"nation": "baekje_faction",
+			"office": "",
+			"side": "baekje_faction",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"heukchi_sangji": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "sabi",
+			"command_rank": "general",
+			"current_city_id": "sabi",
+			"dead": false,
+			"faction_id": "baekje_faction",
+			"force_id": "baekje_faction",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "sabi",
+			"nation": "baekje_faction",
+			"office": "",
+			"side": "baekje_faction",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"jang_bo_go": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "gyeongju",
+			"command_rank": "general",
+			"current_city_id": "gyeongju",
+			"dead": false,
+			"faction_id": "silla",
+			"force_id": "silla",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "gyeongju",
+			"nation": "silla",
+			"office": "",
+			"side": "silla",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"jeong_do_jeon": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "officer",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"kim_chun_chu": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "gyeongju",
+			"command_rank": "general",
+			"current_city_id": "gyeongju",
+			"dead": false,
+			"faction_id": "silla",
+			"force_id": "silla",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "gyeongju",
+			"nation": "silla",
+			"office": "",
+			"side": "silla",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"kim_deok_ryeong": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "general",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"kim_yu_sin": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "gyeongju",
+			"command_rank": "general",
+			"current_city_id": "gyeongju",
+			"dead": false,
+			"faction_id": "silla",
+			"force_id": "silla",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "gyeongju",
+			"nation": "silla",
+			"office": "",
+			"side": "silla",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"kwon_yul": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "general",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"uija_wang": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "sabi",
+			"command_rank": "general",
+			"current_city_id": "sabi",
+			"dead": false,
+			"faction_id": "baekje_faction",
+			"force_id": "baekje_faction",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "sabi",
+			"nation": "baekje_faction",
+			"office": "",
+			"side": "baekje_faction",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		},
+		"yi_sun_sin": {
+			"acquired_from_faction_id": "",
+			"acquired_transaction_id": "",
+			"acquisition_type": "",
+			"appointment": "",
+			"captured": false,
+			"city_id": "hanseong",
+			"command_rank": "general",
+			"current_city_id": "hanseong",
+			"dead": false,
+			"faction_id": "player",
+			"force_id": "goryeo_joseon",
+			"last_battle_current_troops": 0,
+			"last_battle_max_troops": 0,
+			"last_battle_transaction_id": "",
+			"location_city_id": "hanseong",
+			"nation": "player",
+			"office": "",
+			"side": "player",
+			"status": "normal",
+			"wounded": false,
+			"wounded_turns_remaining": 0
+		}
+	}
+}

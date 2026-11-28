@@ -311,12 +311,26 @@ func _check_save_load() -> void:
 		var host: Node = _main.get_node("WorldMap3DHost")
 		host.get("adapter").call("sync_all")
 		var bad := []
-		var root3d = host.get("adapter").get("root3d")
+		var adapter = host.get("adapter")
+		var root3d = adapter.get("root3d")
+		# Queue 46: the 21 new placement-A factions have no 3D faction colour yet (a pending decision), so the 3D map
+		# refuses them as owners and the adapter records the pair in unmapped_owners - those cities are checked to be
+		# exactly the ones whose owner has no 3D colour; every other city must match the save.
+		var unmapped := {}
+		for key in adapter.get("unmapped_owners"):
+			unmapped[str(key).split(":")[0]] = str(key).split(":")[1]
+		var colour_missing := []
 		for city_id in saved_cities:
+			var owner := str(saved_cities[city_id][0])
+			if unmapped.get(city_id, "") == owner and not owner.is_empty():
+				colour_missing.append(city_id)
+				continue
 			var c: Dictionary = (root3d.get("cities") as Dictionary).get(city_id, {})
-			if str(c.get("owner", "")) != str(saved_cities[city_id][0]) or int(c.get("troops", -1)) != int(saved_cities[city_id][1]):
+			if str(c.get("owner", "")) != owner or int(c.get("troops", -1)) != int(saved_cities[city_id][1]):
 				bad.append(city_id)
 		_expect(bad.is_empty(), "5. load: 3D owner / troops as saved %s" % str(bad))
+		var no_colour := colour_missing.filter(func(c): return not (_main.get("FACTION_LABELS") as Dictionary).has(str(saved_cities[c][0])))
+		_expect(no_colour.size() == colour_missing.size(), "5. load: only owners without a 3D colour (new factions) are left unmapped %s" % str(colour_missing))
 	await _press(&"system")
 
 

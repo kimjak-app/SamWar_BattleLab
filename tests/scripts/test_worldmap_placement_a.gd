@@ -5,16 +5,23 @@ extends SceneTree
 #  1. new game: owner / governor / garrison of the 39 cities equal the JSON; 163 stationed, no duplicate; the 26
 #     unclaimed cities hold no hero; 34 factions each own >= 1 city; legacy city values unchanged, new city values from
 #     the JSON with values_status "proposal"; markers carry the runtime owner
-#  2. manual slot and turn checkpoint: save -> reset -> load gives the same world as 1
+#  2. (addendum 7) loads into a fresh WorldMap through the title and system-menu paths: an A save gives the world of 1
+#     (39 / 34 / 163 once each), a moved hero stays moved, old 60fd2a5 saves load exactly as on 60fd2a5
 #  3. links: the gameplay graph equals the 0.7 rule data the 3D roads read (100 land + 20 sea, both directions);
 #     상도–평양 / 상도–업성 gone both ways
-#  4. first sortie table (채비서 48, 72): each of the 34 factions, as the acting faction on turn 1, has >= 1 foreign
-#     city that passes the real sortie check (_get_player_attack_block_reason); 경주–고령, 상도–대도, 성도–라싸 both ways
+#  4. (addendum 8) first sortie tables, one line per direction: the attack window (route, block reason) and the real
+#     sortie (deployment, supply, confirm validation, battle context); per-faction counts; 경주↔고령, 상도↔대도,
+#     성도↔라싸 each direction. Factions with no real sortie are listed for 김작, not failed.
 #  5. sea route: without warship research the sortie is refused for the naval reason, with it it passes
 #  6. three AI-only turns: no crash; table of the 1-city factions after 3 turns (information only)
 #  7. new factions (no capital included): turn end, AI turn list, storage text, victory check without errors
 #  8. the 9 new-type skills (채비서 85) in a real battle: charge 72 % splash on the ring around the target, mounted buff
 #     inside the radius only (any unit type), command debuff 2 turns + enemy momentum drop; description mismatches listed
+#  9. (addendum 9) the game reads data/worldmap/placement_a_runtime.json, outside every .gdignore folder and a resource
+#     Godot exports; with the file gone a new game stops on a full-screen error (no silent old placement); first-turn
+#     stock of every source city; road / research / deployment-and-resources as separate columns
+# 10. (addendum 10) a test-owned new city (철원 given to the player): what the victory count and the next turn's income
+#     do with it - recorded only (the AI economy, invasions and victory still run on the 4 Korea cities)
 
 const Placement := preload("res://scripts/worldmap/worldmap_placement_a.gd")
 const RosterService := preload("res://scripts/worldmap/worldmap_city_roster_service.gd")
@@ -27,6 +34,11 @@ const CHECKPOINT_SAVE := "user://worldmap_left_panel_state.json"
 const OLD_DIRECT := [["karakorum", "pyeongyang"], ["karakorum", "yecheng"]]
 const FIRST_ROADS := [["gyeongju", "goryeong"], ["karakorum", "dadu"], ["chengdu", "lhasa"]]
 const SEA_PAIR := ["sabi", "gaeseong"]
+const CAPITALS := ["gyeongju", "hanseong", "luoyang", "osaka"]
+const OldSave := preload("res://tools/make_placement_a_old_save_baseline.gd")
+const WorldCapture := preload("res://tests/scripts/support/placement_a_world_capture.gd")
+const OLD_SAVE_DIR := "res://tests/fixtures/placement_a"
+const MOVED_HERO := "go_yeon_mu"   # stationed by the seeder (a new hero), moved between the two 고구려 cities in 2
 const CHARGE := ["sanada_yukimura", "shimazu_iehisa", "a_zhu", "xiahou_yuan", "qapaghan_khagan"]
 const MOUNTED := ["go_yeon_mu", "anfiyanggu", "bilge_khagan"]
 const DEBUFF := ["dae_mun_ye"]
@@ -73,12 +85,16 @@ func _run() -> void:
 	_check_world("1. new game")
 	var snapshot := _snapshot()
 	await _check_save_load(snapshot)
+	await _new_game_world()   # 3..7 on a fresh placement-A new game
 	_check_links()
 	_check_first_sortie()
 	_check_sea_route()
 	var errors_before_turns := _logger.errors.size()
 	_check_turns()
 	_check_new_factions(errors_before_turns)
+	_check_owned_new_city()
+	_check_runtime_file()
+	await _check_missing_runtime_file()
 	_restore_saves()
 	await _check_skills()
 	OS.remove_logger(_logger)
@@ -110,7 +126,9 @@ func _check_world(label: String) -> void:
 			var want_ids: Array = want.stationed.duplicate()
 			have_ids.sort()
 			want_ids.sort()
-			if owner != str(want.faction_id) or str(entry.get("governor_id", "")) != str(want.governor_id) or have_ids != want_ids:
+			# addendum 7-3: an undecided governor (한성 "미정 …") keeps main's value
+			var want_governor := str(hud[city_id].get("governor_id", "")) if str(want.governor_source).begins_with(Placement.GOVERNOR_UNDECIDED_PREFIX) else str(want.governor_id)
+			if owner != str(want.faction_id) or str(entry.get("governor_id", "")) != want_governor or have_ids != want_ids:
 				bad.append("%s owner %s governor %s heroes %d/%d" % [city_id, owner, entry.get("governor_id"), have_ids.size(), want_ids.size()])
 			var base: Dictionary = hud[city_id]
 			if bool(want.legacy):
@@ -147,6 +165,18 @@ func _check_world(label: String) -> void:
 	want_owned.sort()
 	_expect(owned == want_owned, "%s: the player owns the heroes of 한성 + 개성 (%d)" % [label, owned.size()])
 	_expect(str((_main.get("_player_state") as Dictionary).get("world_placement_id", "")) == Placement.PLACEMENT_ID, "%s: world marker %s" % [label, Placement.PLACEMENT_ID])
+	# addendum 7-2: capital is a string in the JSON ("false" must not read as true); A has exactly these four capitals
+	var capitals: Array = []
+	for city_id in hud:
+		if bool((_main.call("_get_city_hud_entry", city_id) as Dictionary).get("capital", false)):
+			capitals.append(city_id)
+	capitals.sort()
+	_expect(capitals == CAPITALS, "%s: capitals are exactly 한성 / 경주 / 오사카 / 낙양 %s" % [label, str(capitals)])
+	var hanseong_governor := str((_main.call("_get_city_hud_entry", "hanseong") as Dictionary).get("governor_id", ""))
+	_expect(hanseong_governor == str(hud.hanseong.get("governor_id", "")), "%s: 한성 governor kept from main (undecided in the JSON) '%s'" % [label, hanseong_governor])
+	var longxi_governor := str((_main.call("_get_city_hud_entry", "longxi") as Dictionary).get("governor_id", ""))
+	_expect(longxi_governor == "zhao_yun" and HeroDefinitionRegistry.get_hero("zhao_yun").get("stats_approved") == false,
+		"%s: 조운 governs 농서 while his stats stay a draft (%s)" % [label, longxi_governor])
 
 
 func _snapshot() -> String:
@@ -159,16 +189,68 @@ func _snapshot() -> String:
 
 
 # ---------------------------------------------------------------- 2
+## Addendum 7: every load goes through a real path into a FRESH WorldMap scene and waits for the deferred hero seeding
+## (OldSave.load_through_title: GameSession.request_load + a new scene, reads the checkpoint slot;
+##  OldSave.load_through_system_menu: a new-game scene, then the system menu load, manual slot first).
+## The real user:// slots are backed up first and restored at the end (_backup_saves / _restore_saves).
 func _check_save_load(snapshot: String) -> void:
 	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "2. manual slot saved")
 	_expect(bool(_main.call("_checkpoint_worldmap_state_mvp")), "2. turn checkpoint saved")
-	for path in [MANUAL_SAVE, CHECKPOINT_SAVE]:
-		_main.call("_reset_worldmap_state")
-		_expect(_snapshot() != snapshot, "2. reset changes the world (%s)" % path)
-		_main.call("_load_worldmap_state", path)
-		await process_frame
-		_expect(_snapshot() == snapshot, "2. %s loads the new-game world" % path)
-		_check_world("2. %s" % path.get_file())
+	var a_manual := FileAccess.get_file_as_string(MANUAL_SAVE)
+	var a_checkpoint := FileAccess.get_file_as_string(CHECKPOINT_SAVE)
+	await OldSave.load_through_title(self, a_checkpoint)
+	_main = current_scene
+	_expect(_snapshot() == snapshot, "2. A turn checkpoint, title load in a new WorldMap: the new-game world")
+	_check_world("2. A checkpoint / title load")
+	await OldSave.load_through_system_menu(self, a_manual)
+	_main = current_scene
+	_expect(_snapshot() == snapshot, "2. A manual slot, system-menu load in a new WorldMap: the new-game world")
+	_check_world("2. A manual / system-menu load")
+	# A hero moved to another city, saved and loaded again, is not brought back to his placement-A city.
+	var from_city := str(_placement.hero_city[MOVED_HERO])
+	var to_city := ""
+	for city_id in _placement.city_order:
+		if city_id != from_city and str(_placement.cities[city_id].faction_id) == str(_placement.cities[from_city].faction_id):
+			to_city = city_id
+	var cities: Dictionary = _main.get("_city_runtime_states")
+	var from_ids: Array = (cities[from_city] as Dictionary).get("stationed_hero_ids", []).duplicate()
+	from_ids.erase(MOVED_HERO)
+	cities[from_city]["stationed_hero_ids"] = from_ids
+	cities[from_city]["hero_ids"] = from_ids.duplicate()
+	var to_ids: Array = (cities[to_city] as Dictionary).get("stationed_hero_ids", []).duplicate()
+	to_ids.append(MOVED_HERO)
+	cities[to_city]["stationed_hero_ids"] = to_ids
+	cities[to_city]["hero_ids"] = to_ids.duplicate()
+	var state: Dictionary = (_main.get("_hero_runtime_states") as Dictionary)[MOVED_HERO]
+	for key in ["current_city_id", "city_id", "location_city_id"]:
+		state[key] = to_city
+	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "2. moved %s %s -> %s and saved" % [MOVED_HERO, from_city, to_city])
+	var moved: Dictionary = await OldSave.load_through_system_menu(self, FileAccess.get_file_as_string(MANUAL_SAVE))
+	_main = current_scene
+	var places: Array = []
+	for city_id in moved.stationed:
+		if (moved.stationed[city_id] as Array).has(MOVED_HERO):
+			places.append(city_id)
+	_expect(places == [to_city], "2. after the reload %s is only in %s, not back in %s %s" % [MOVED_HERO, to_city, from_city, str(places)])
+	# Old (pre-A) saves, written on 60fd2a5: the same paths give the 60fd2a5 world - nothing added or moved.
+	var base: Variant = JSON.parse_string(FileAccess.get_file_as_string(OLD_SAVE_DIR + "/old_save_baseline.json"))
+	_expect(base is Dictionary and base.has("title_manual"), "2. old-save baseline fixture readable (%s)" % str((base as Dictionary).get("base_commit", "?") if base is Dictionary else "?"))
+	for kind in ["manual", "checkpoint"]:
+		var text := FileAccess.get_file_as_string(OLD_SAVE_DIR + "/old_%s_save.json" % kind)
+		for path in ["title", "system"]:
+			var now: Dictionary
+			if path == "title":
+				now = await OldSave.load_through_title(self, text)
+			else:
+				now = await OldSave.load_through_system_menu(self, text)
+			var want: Dictionary = base["%s_%s" % [path, kind]]
+			var diff: Array = []
+			for key in ["owners", "stationed", "owned_hero_ids", "hero_runtime_states"]:
+				if JSON.stringify(now.get(key), "", true) != JSON.stringify(want.get(key), "", true):
+					diff.append(key)
+			_expect(diff.is_empty(), "2. old %s save, %s load: owners / garrisons / owned heroes / hero states equal 60fd2a5 (differs: %s)" % [kind, path, str(diff)])
+	_main = current_scene
+	_expect(not Placement.is_placement_world(_main.get("_player_state")), "2. an old save stays an old-placement world (no world_placement_id)")
 
 
 # ---------------------------------------------------------------- 3
@@ -208,49 +290,146 @@ func _check_links() -> void:
 
 
 # ---------------------------------------------------------------- 4
+## Addendum 8 (채비서 89): two tables, one line per DIRECTION (source city -> target city), never merged per target.
+##  attack window: land / sea and the _get_player_attack_block_reason of that direction (siege research for a fortress
+##    or defense >= 4 target, warship research for a sea route) - "" = open
+##  real sortie: the same direction through the real deployment: payload (deployable heroes, the garrison left behind),
+##    an allocation inside each hero's command limit, gold and food the source can carry (minimum supply for the
+##    troops, food type the source has most of), the confirm path's validation, then the battle context it builds.
+## The rules are not relaxed. A faction with no real sortie on turn 1 is NOT a failure here: the factions and their
+## reasons are printed for the report (a decision for 김작). Only the table itself and "no state change" are checked.
 func _check_first_sortie() -> void:
-	var lines: Array[String] = ["[PLACEMENT_A] first sortie table: faction | cities | heroes | open targets | supply 100 (gold / food) at the sources"]
-	var no_target: Array = []
+	var before := _snapshot()
+	var window_lines: Array[String] = ["[PLACEMENT_A] attack window (faction | direction | route | road | research | deployment & resources):"]
+	var real_lines: Array[String] = ["[PLACEMENT_A] real sortie (faction | direction | result):"]
+	var real_count := {}
+	var no_real: Array[String] = []
+	var no_window: Array[String] = []
 	for faction_id in _placement.faction_ids:
 		var cities: Array = _placement.city_order.filter(func(c): return str(_placement.cities[c].faction_id) == faction_id)
-		var heroes := 0
-		var targets: Array[String] = []
-		var refused: Array[String] = []
-		var supply: Array[String] = []
-		_as_faction(faction_id)
+		var directions := 0
+		var real_ok := 0
+		var reasons: Array[String] = []
 		for city_id in cities:
-			heroes += (_placement.cities[city_id].stationed as Array).size()
 			for neighbor_id in _main.call("_get_city_neighbors_mvp", city_id):
 				var owner := str(_main.call("_get_city_owner_id_for_battle_context", neighbor_id))
 				if owner.is_empty() or owner == faction_id:
 					continue
-				_main.get("_player_state")["origin_city_id"] = city_id
-				var reason := str(_main.call("_get_player_attack_block_reason", neighbor_id))
-				if reason.is_empty() and not targets.has(neighbor_id):
-					targets.append(neighbor_id)
-				elif not reason.is_empty():
-					refused.append("%s>%s: %s" % [city_id, neighbor_id, reason])
-			var stock: Dictionary = (_main.call("_get_city_hud_entry", city_id) as Dictionary).get("resource_stock", {})
-			var food := int(stock.get("rice", 0)) + int(stock.get("barley", 0)) + int(stock.get("seafood", 0))
-			var ok := int(stock.get("gold", 0)) >= Supply.minimum_gold(100) and food >= Supply.minimum_food(100)
-			supply.append("%s %s(%d/%d)" % [city_id, "ok" if ok else "부족", int(stock.get("gold", 0)), food])
-		_as_faction("player")
-		if targets.is_empty():
-			no_target.append(faction_id)
-		lines.append("  %s | %d | %d | %s | %s" % [faction_id, cities.size(), heroes, ", ".join(targets) if not targets.is_empty() else "없음", "; ".join(supply)])
-		if targets.is_empty():
-			lines.append("      refused: " + " / ".join(refused))
-	print("\n".join(lines))
-	_expect(no_target.is_empty(), "4. all 34 factions have a first-turn sortie target %s" % str(no_target))
+				directions += 1
+				var row := _sortie_direction(faction_id, city_id, neighbor_id)
+				window_lines.append("  %s | %s -> %s(%s) | %s | 도로 열림 | %s | %s" % [faction_id, city_id, neighbor_id, owner, row.route,
+					("연구 막힘: " + str(row.block)) if not str(row.block).is_empty() else "연구 조건 없음", row.real])
+				real_lines.append("  %s | %s -> %s | %s" % [faction_id, city_id, neighbor_id, row.real])
+				if bool(row.real_ok):
+					real_ok += 1
+				else:
+					reasons.append("%s->%s: %s" % [city_id, neighbor_id, row.real])
+		real_count[faction_id] = real_ok
+		if directions == 0:
+			no_window.append(faction_id)
+		if real_ok == 0:
+			no_real.append("%s (%s)" % [faction_id, " / ".join(reasons)])
+	var summary: Array[String] = ["[PLACEMENT_A] real sortie directions per faction:"]
+	for faction_id in _placement.faction_ids:
+		summary.append("  %s %d" % [faction_id, int(real_count[faction_id])])
+	summary.append("[PLACEMENT_A] factions with no real sortie on turn 1 (김작 decision, not a test failure): " + ("없음" if no_real.is_empty() else "; ".join(no_real)))
+	print("\n".join(window_lines))
+	print("\n".join(real_lines))
+	print("\n".join(summary))
+	var first: Array[String] = ["[PLACEMENT_A] first roads, each direction:"]
 	for pair in FIRST_ROADS:
 		for dir in [[pair[0], pair[1]], [pair[1], pair[0]]]:
 			var faction_id := str(_main.call("_get_city_owner_id_for_battle_context", dir[0]))
-			_as_faction(faction_id)
-			_main.get("_player_state")["origin_city_id"] = dir[0]
-			var source := str(_main.call("_find_player_attack_source_city", dir[1]))
-			var reason := str(_main.call("_get_player_attack_block_reason", dir[1]))
-			_as_faction("player")
-			_expect(source == dir[0] and reason.is_empty(), "4. %s (%s) -> %s passes the sortie check (%s)" % [dir[0], faction_id, dir[1], reason])
+			var row := _sortie_direction(faction_id, dir[0], dir[1])
+			first.append("  %s(%s) -> %s | window: %s | real: %s" % [dir[0], faction_id, dir[1], row.block if not str(row.block).is_empty() else "열림", row.real])
+			_expect((_main.call("_get_city_neighbors_mvp", dir[0]) as Array).has(dir[1]), "4. %s -> %s is a direct link" % [dir[0], dir[1]])
+	print("\n".join(first))
+	# 채비서 90: which first roads need siege research, direction by direction (the rule itself is not changed)
+	for case in [["gyeongju", "goryeong", false], ["goryeong", "gyeongju", false], ["dadu", "karakorum", true], ["karakorum", "dadu", false], ["chengdu", "lhasa", true], ["lhasa", "chengdu", true]]:
+		var faction_id := str(_main.call("_get_city_owner_id_for_battle_context", case[0]))
+		var row := _sortie_direction(faction_id, case[0], case[1])
+		_expect(str(row.block).contains("공성") == bool(case[2]), "4. %s -> %s needs siege research: %s (%s)" % [case[0], case[1], str(case[2]), row.block])
+	var stock_lines: Array[String] = ["[PLACEMENT_A] first-turn stock of the source cities (before any turn end or test grant): city | faction | gold | rice | barley | seafood"]
+	for city_id in _placement.city_order:
+		var stock: Dictionary = (_main.call("_get_city_hud_entry", city_id) as Dictionary).get("resource_stock", {})
+		stock_lines.append("  %s | %s | %d | %d | %d | %d" % [city_id, _placement.cities[city_id].faction_id, int(stock.get("gold", 0)), int(stock.get("rice", 0)), int(stock.get("barley", 0)), int(stock.get("seafood", 0))])
+	print("\n".join(stock_lines))
+	_expect(no_window.is_empty(), "4. every faction has at least one direction to a foreign city (attack window table) %s" % str(no_window))
+	_expect(_snapshot() == before, "4. the tables change nothing in the world (no departure, no payment)")
+
+
+## One direction: {route, block, real, real_ok}. Runs as the acting faction and restores the player afterwards.
+func _sortie_direction(faction_id: String, source_id: String, target_id: String) -> Dictionary:
+	_as_faction(faction_id)
+	var player_state: Dictionary = _main.get("_player_state")
+	var origin_before = player_state.get("origin_city_id", "")
+	player_state["origin_city_id"] = source_id
+	var route := "해로" if bool(_main.call("_is_naval_attack_route_mvp", source_id, target_id)) else "육로"
+	var block := str(_main.call("_get_player_attack_block_reason", target_id))
+	var real := ""
+	var real_ok := false
+	var payload: Dictionary = _main.call("_build_player_attack_deployment_payload", source_id, target_id, "manual")
+	if payload.is_empty():
+		real = "편성 불가 (출전할 장수 또는 남길 병력이 없음)"
+	else:
+		var deployment := _real_deployment(payload)
+		if deployment.is_empty():
+			real = "편성 불가 (금·군량으로 출전 가능한 병력이 0)"
+		else:
+			var validation: Dictionary = _main.call("_validate_player_attack_deployment", deployment)
+			if not bool(validation.get("ok", false)):
+				real = "거부: %s" % str(validation.get("message", validation.get("error_code", "")))
+			else:
+				var ids: Array[String] = []
+				for hero_id in validation.selected_hero_ids:
+					ids.append(str(hero_id))
+				var cost: Dictionary = validation.supply_cost
+				var context: Dictionary = _main.call("_build_player_attack_battle_context", source_id, target_id, "manual", ids, validation.attacker_troop_allocation, cost)
+				real_ok = not context.is_empty()
+				if real_ok:
+					real = "출전 가능: 장수 %d, 병력 %d, 금 %d, 군량 %d(%s)" % [ids.size(), int(validation.total_troops), int(cost.get("gold", 0)), int(cost.get("food", 0)), str(validation.food_type)]
+				else:
+					real = "전투 데이터 생성 실패"
+	player_state["origin_city_id"] = origin_before
+	_as_faction("player")
+	return {"route": route, "block": block, "real": real, "real_ok": real_ok}
+
+
+## The largest deployment the source can really field: heroes in payload order inside their command limits, the
+## garrison left behind (max_deployable_troops), and gold / food (minimum supply) the source can carry.
+func _real_deployment(payload: Dictionary) -> Dictionary:
+	var food_type := "rice"
+	for candidate in ["barley", "seafood"]:
+		if int(payload.get("%s_available" % candidate, 0)) > int(payload.get("%s_available" % food_type, 0)):
+			food_type = candidate
+	var food := int(payload.get("%s_available" % food_type, 0))
+	var gold := int(payload.get("gold_available", 0))
+	var heroes: Array = payload.get("heroes", [])
+	var capacity := 0
+	for hero in heroes:
+		capacity += maxi(0, int(hero.get("command_limit", 0)))
+	var total := mini(capacity, int(payload.get("max_deployable_troops", 0)))
+	while total > 0 and (Supply.minimum_gold(total) > gold or Supply.minimum_food(total) > food):
+		total -= maxi(1, int(total / 10.0))
+	if total <= 0:
+		return {}
+	var allocation := {}
+	var ids: Array[String] = []
+	var left := total
+	for hero in heroes:
+		if left <= 0:
+			break
+		var troops := mini(maxi(0, int(hero.get("command_limit", 0))), left)
+		if troops > 0:
+			allocation[str(hero.hero_id)] = troops
+			ids.append(str(hero.hero_id))
+			left -= troops
+	return {
+		"source_city_id": payload.source_city_id, "target_city_id": payload.target_city_id, "mode": "manual",
+		"selected_hero_ids": ids, "attacker_troop_allocation": allocation,
+		"attacker_food_type": food_type, "attacker_food_amount": Supply.minimum_food(total),
+		"attacker_carried_gold": Supply.minimum_gold(total), "attacker_salt_amount": 0,
+	}
 
 
 ## The acting faction for the real sortie check: the ids a new game as that faction sets (GameSession and the saved
@@ -332,6 +511,57 @@ func _check_new_factions(errors_before_turns: int) -> void:
 	var turn_errors: Array = _logger.errors.slice(errors_before_turns)
 	_expect(turn_errors.is_empty(), "7. no engine / script error during the three turns and the checks %s" % str(turn_errors.slice(0, 4)))
 	_expect(_logger.errors.is_empty(), "no engine / script error in the whole world part %s" % str(_logger.errors.slice(0, 4)))
+
+
+# ---------------------------------------------------------------- 9 / 10
+## Addendum 9: the runtime file is the one the game reads, outside .gdignore, and a resource Godot exports.
+func _check_runtime_file() -> void:
+	var dir := Placement.RUNTIME_PATH.get_base_dir()
+	var under_gdignore := ""
+	while dir != "res://" and dir != "res:":
+		if FileAccess.file_exists(dir.path_join(".gdignore")):
+			under_gdignore = dir
+		dir = dir.get_base_dir()
+	_expect(under_gdignore.is_empty() and FileAccess.file_exists(Placement.RUNTIME_PATH), "9. %s exists outside every .gdignore folder (%s)" % [Placement.RUNTIME_PATH, under_gdignore])
+	_expect(FileAccess.file_exists("res://data/heroes/source/.gdignore"), "9. data/heroes/source/ (working sources) keeps its .gdignore")
+	var resource := load(Placement.RUNTIME_PATH)
+	_expect(resource is JSON, "9. the runtime file is a JSON resource (exported with all resources) - %s" % str(resource))
+	print("[PLACEMENT_A] export_presets.cfg in the repository: %s (no preset filter to check; a JSON resource outside .gdignore is exported by default)" % ("yes" if FileAccess.file_exists("res://export_presets.cfg") else "no"))
+
+
+## Addendum 9: with the runtime file gone, a new game stops on the error screen instead of starting the old placement.
+func _check_missing_runtime_file() -> void:
+	Placement.runtime_path_override = "res://data/worldmap/placement_a_runtime_missing_for_test.json"
+	_session.call("request_new_game", "player")
+	change_scene_to_file(WORLDMAP_SCENE_PATH)
+	for i in 10:
+		await process_frame
+	var main := current_scene
+	var errors: Array = Placement.start_error(main)
+	var overlay := main.get_node_or_null("PlacementAStartError") as CanvasLayer
+	_expect(not errors.is_empty() and overlay != null and overlay.visible and overlay.layer >= 100, "9. runtime file missing: the start stops on a full-screen error %s" % str(errors))
+	_expect(not Placement.is_placement_world(main.get("_player_state")), "9. runtime file missing: the world is not marked as placement A (it did not start)")
+	Placement.runtime_path_override = ""
+	await _new_game_world()
+
+
+## Addendum 10: a new city owned by the player in a test state - the victory count and next turn's income, recorded.
+func _check_owned_new_city() -> void:
+	var city_id := "cheorwon"
+	var before_owner := str(_main.call("_get_city_owner_id_for_battle_context", city_id))
+	_main.call("_set_city_runtime_owner", city_id, "player")
+	var outcome: Dictionary = _main.call("_evaluate_korea_mvp_outcome_mvp")
+	var owned_korea := int(_main.call("_get_player_owned_korea_mvp_city_count"))
+	var stock_before: Dictionary = ((_main.call("_get_city_hud_entry", city_id) as Dictionary).get("resource_stock", {}) as Dictionary).duplicate()
+	var national_before: Dictionary = (_main.call("_get_player_national_resource_stock_mvp") as Dictionary).duplicate()
+	_end_turn()
+	var stock_after: Dictionary = (_main.call("_get_city_hud_entry", city_id) as Dictionary).get("resource_stock", {})
+	var national_after: Dictionary = _main.call("_get_player_national_resource_stock_mvp")
+	print("[PLACEMENT_A] test-owned new city %s (was %s): victory count of player Korea cities %d, outcome %s; %s stock gold %d -> %d, rice %d -> %d; player national gold %d -> %d" % [
+		city_id, before_owner, owned_korea, str(outcome.get("status", "")), city_id,
+		int(stock_before.get("gold", 0)), int(stock_after.get("gold", 0)), int(stock_before.get("rice", 0)), int(stock_after.get("rice", 0)),
+		int(national_before.get("gold", 0)), int(national_after.get("gold", 0))])
+	_expect(str(_main.call("_get_city_owner_id_for_battle_context", city_id)) == "player", "10. the test-owned new city stays the player's through a turn (recorded, no crash)")
 
 
 # ---------------------------------------------------------------- 8
@@ -447,6 +677,14 @@ func _run_skill(harness, hero_id: String, skill: Dictionary) -> void:
 
 
 # ---------------------------------------------------------------- helpers
+func _new_game_world() -> void:
+	_session.call("request_new_game", "player")
+	change_scene_to_file(WORLDMAP_SCENE_PATH)
+	for i in 20:
+		await process_frame
+	_main = current_scene
+
+
 func _end_turn() -> void:
 	var turn_controller = _main.call("_ensure_turn_controller")
 	(_main.get("_player_state") as Dictionary)["pending_invasion_event"] = {}
