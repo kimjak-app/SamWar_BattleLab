@@ -17,7 +17,11 @@ extends SceneTree
 ##   --units on|off      the four preview units (default on)
 ##   --trees on|off      forest trees (default on)
 ##   --out <folder>      output folder (default <repo>/../EASTWAR_battle3d_captures)
+##   --guide             queue 44b: instead of a camera shot, write the two top-down guide drawings for the painter
+##                       (guide_board_60m.png, guide_outer.png, 2048x2048, each with a .json; see battle3d_capture_layers.gd)
 ## Writes <out>/battle3d_cam<A|B>_<WxH>_<options>.png and a .json next to it (camera, size, options, Godot, commit).
+## Queue 44b: a props.json in the --paint folder stands upright 2D pictures (trees, rocks) on the terrain; without it,
+## nothing is added (the default picture is the queue 44 one).
 ## Game scenes are not touched: every change is made on this run's own preview instance.
 
 const PREVIEW_SCENE := "res://scenes/battle3d/Terrain20x20_Preview.tscn"
@@ -27,6 +31,7 @@ const HEADLESS_MESSAGE := "[BATTLE3D_CAPTURE] 화면이 있는 실행 필요: --
 const BOARD_PAINT_FILE := "board_paint.png"
 const OUTER_PAINT_FILE := "outer_paint.png"
 const SETTLE_FRAMES := 2
+const Layers := preload("res://tools/battle3d_capture_layers.gd")
 
 ## 록비서 camera B: orthographic, yaw 0.32, horizontal distance 43, height 28, focus (27, 0, 5.5), size 42 (pitch ~33°).
 ## A = the preview's own start view (terrain_preview.gd: board centre, yaw 0.32, distance 43, height 40, size 60).
@@ -36,7 +41,7 @@ const CAMERAS := {
 }
 const DEFAULTS := {
 	"camera": "B", "size": Vector2i(1920, 1080), "border": true, "paint": "", "outer_size": 220.0,
-	"units": true, "trees": true, "out": "",
+	"units": true, "trees": true, "out": "", "guide": false,
 }
 
 
@@ -50,6 +55,10 @@ static func parse_args(args: PackedStringArray) -> Dictionary:
 	var i := 0
 	while i < args.size():
 		var key := args[i]
+		if key == "--guide":   # a flag: no value
+			options["guide"] = true
+			i += 1
+			continue
 		var value := args[i + 1] if i + 1 < args.size() else ""
 		i += 2
 		match key:
@@ -106,7 +115,14 @@ static func output_stem(options: Dictionary) -> String:
 		tags.append("nounits")
 	if not options.trees:
 		tags.append("notrees")
+	if bool(options.get("props", false)):
+		tags.append("props")
 	return "battle3d_cam%s_%dx%d_%s" % [options.camera, size.x, size.y, "_".join(tags)]
+
+
+## Queue 44b: the guide files a --guide run writes, in order (each PNG has a .json with the same stem).
+static func guide_files() -> Array:
+	return [Layers.GUIDE_BOARD_FILE + ".png", Layers.GUIDE_BOARD_FILE + ".json", Layers.GUIDE_OUTER_FILE + ".png", Layers.GUIDE_OUTER_FILE + ".json"]
 
 
 func _run() -> void:
@@ -127,6 +143,9 @@ func _run() -> void:
 	await process_frame
 	var field: Node = preview.get("field")
 	var material: ShaderMaterial = field.get("shader_material")
+	if bool(options.guide):
+		_write_guides(preview, field, options)
+		return
 	var applied := _apply_options(preview, field, material, options)
 	var camera: Camera3D = preview.get("camera")
 	var pose := camera_pose(str(options.camera))
@@ -184,6 +203,11 @@ func _apply_options(preview: Node, field: Node, material: ShaderMaterial, option
 			material.set_shader_parameter("outer_ground_tex", outer_tex)
 			material.set_shader_parameter("use_outer_ground_tex", true)
 			applied.outer_paint = paint_dir.path_join(OUTER_PAINT_FILE)
+	if not paint_dir.is_empty():
+		var props := Layers.add_props(preview, paint_dir, Callable(field, "sample_smooth_height_at_world"), float(options.outer_size), Layers.play_center(field))
+		applied["props"] = int(props.count)
+		applied["props_skipped"] = (props.warnings as Array).size()
+		options["props"] = int(props.count) > 0
 	if not bool(options.units):
 		for view in (preview.get("views") as Dictionary).values():
 			(view as Node3D).visible = false
@@ -198,6 +222,32 @@ func _apply_options(preview: Node, field: Node, material: ShaderMaterial, option
 		if child is CanvasLayer:
 			(child as CanvasLayer).visible = false
 	return applied
+
+
+## Queue 44b: the two guide drawings + their .json (origin, size, axes, resolution, legend, commit).
+func _write_guides(preview: Node, field: Node, options: Dictionary) -> void:
+	var out_dir := str(options.out)
+	if out_dir.is_empty():
+		out_dir = ProjectSettings.globalize_path("res://").path_join("../EASTWAR_battle3d_guides").simplify_path()
+	DirAccess.make_dir_recursive_absolute(out_dir)
+	var board = preview.get("board")
+	var center := Layers.play_center(field)
+	var ok := true
+	for kind in ["board", "outer"]:
+		var stem: String = Layers.GUIDE_BOARD_FILE if kind == "board" else Layers.GUIDE_OUTER_FILE
+		var image := Layers.draw_guide(kind, board, field, float(options.outer_size))
+		var saved := image.save_png(out_dir.path_join(stem + ".png"))
+		ok = ok and saved == OK
+		var info := Layers.guide_info(kind, float(options.outer_size), center)
+		info["outer_size_m"] = float(options.outer_size)
+		info["bridge_ends_m"] = Layers.bridge_ends(field).map(func(e): return [[e[0].x, e[0].y], [e[1].x, e[1].y]])
+		info["godot"] = Engine.get_version_info().get("string", "")
+		info["commit"] = _commit_hash()
+		var file := FileAccess.open(out_dir.path_join(stem + ".json"), FileAccess.WRITE)
+		file.store_string(JSON.stringify(info, "  "))
+		file.close()
+		print("[BATTLE3D_CAPTURE] guide %s -> %s" % [kind, out_dir.path_join(stem + ".png")])
+	quit(0 if ok else 1)
 
 
 ## A PNG from outside the repository, with mipmaps (the shader samples it with linear + mipmap filtering).

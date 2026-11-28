@@ -8,11 +8,20 @@ extends SceneTree
 #  2. argument parsing: camera B = 록비서's numbers exactly (yaw 0.32, distance 43, height 28, focus (27, 0, 5.5),
 #     size 42, pitch ~33°); --border off -> show_border_line false; the other options and bad values
 #  3. a headless run of the tool prints the "화면이 있는 실행 필요" notice and exits with code 2
+# Queue 44b (guide + billboard props):
+#  4. defaults are queue 44's: --guide off, no props.json = no node added (the builder's node count unchanged)
+#  5. --guide: parsed as a flag, the four output names, the .json keys; a headless --guide run exits with code 2
+#  6. coordinates: the board corners and both bridge ends, mapped to guide pixels, equal the shader UV formulas
+#     (board: xz / 60; outer: (xz - play_center) / outer_size + 0.5) within 1 px; the bridge ends match the built bridge
+#  7. props.json: 3 good entries -> 3 props whose base sits on the terrain (0.05 m), Y-fixed billboards with alpha cut;
+#     a missing image and an entry outside the outer ground are skipped with one warning each
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
 const Builder = preload("res://scripts/battle3d/terrain_board_builder.gd")
 const Capture = preload("res://tools/battle3d_capture.gd")
 const SHADER_PATH := "res://scripts/battle3d/eastwar_terrain_20x20.gdshader"
+const Layers = preload("res://tools/battle3d_capture_layers.gd")
+const PROPS_DIR := "user://battle3d_capture_props_test"
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -27,6 +36,7 @@ func _run() -> void:
 	_check_builder()
 	_check_args()
 	_check_headless_exit()
+	_check_guide_and_props()
 	_finish()
 
 
@@ -109,6 +119,93 @@ func _check_headless_exit() -> void:
 	_expect(code == Capture.EXIT_NEEDS_WINDOW, "3. headless run exits with code 2 (got %d)" % code)
 	# the Korean part can come back in the console code page on Windows; the English tail is ASCII everywhere
 	_expect(text.contains("[BATTLE3D_CAPTURE]") and (text.contains("화면이 있는 실행 필요") or text.contains("headless display has no renderer")), "3. headless run prints the notice")
+
+
+## 4-7: queue 44b
+func _check_guide_and_props() -> void:
+	var defaults: Dictionary = Capture.parse_args(PackedStringArray())
+	_expect(defaults.guide == false, "4. --guide is off by default")
+	var builder = Builder.new()
+	builder.setup_from_board(Board.new())
+	var before := _count_nodes(builder)
+	var none: Dictionary = Layers.add_props(builder, "", Callable(builder, "sample_smooth_height_at_world"), 220.0, Layers.play_center(builder))
+	var empty_dir: Dictionary = Layers.add_props(builder, ProjectSettings.globalize_path("user://"), Callable(builder, "sample_smooth_height_at_world"), 220.0, Layers.play_center(builder))
+	_expect(int(none.count) == 0 and none.root == null and int(empty_dir.count) == 0 and empty_dir.root == null and _count_nodes(builder) == before,
+		"4. no props.json: no node added (%d nodes before and after)" % before)
+	# 5. --guide
+	var guide: Dictionary = Capture.parse_args(PackedStringArray(["--guide", "--outer-size", "180", "--out", "C:/guide"]))
+	_expect(not guide.has("error") and guide.guide == true and is_equal_approx(float(guide.outer_size), 180.0) and guide.out == "C:/guide", "5. --guide is a flag; --outer-size / --out still read after it")
+	_expect(Capture.guide_files() == ["guide_board_60m.png", "guide_board_60m.json", "guide_outer.png", "guide_outer.json"], "5. guide output names %s" % str(Capture.guide_files()))
+	var center: Vector2 = Layers.play_center(builder)
+	var info_board: Dictionary = Layers.guide_info("board", 180.0, center)
+	var info_outer: Dictionary = Layers.guide_info("outer", 180.0, center)
+	var keys := ["kind", "origin_m", "size_m", "axes", "resolution", "shader_uv", "play_center_m", "legend"]
+	_expect(keys.all(func(k): return info_board.has(k) and info_outer.has(k)), "5. guide .json keys %s" % str(keys))
+	_expect(info_board.origin_m == [0.0, 0.0] and is_equal_approx(float(info_board.size_m), 60.0) and info_board.resolution == [2048, 2048]
+		and info_outer.origin_m == [center.x - 90.0, center.y - 90.0] and is_equal_approx(float(info_outer.size_m), 180.0),
+		"5. guide origins / sizes: board (0,0) 60 m, outer %s 180 m around the play centre %s" % [str(info_outer.origin_m), str(center)])
+	var output: Array = []
+	var code := OS.execute(OS.get_executable_path(), ["--headless", "--path", ProjectSettings.globalize_path("res://"), "--script", "res://tools/battle3d_capture.gd", "--", "--guide"], output, true)
+	_expect(code == Capture.EXIT_NEEDS_WINDOW, "5. headless --guide exits with code 2 (got %d)" % code)
+	# 6. coordinates
+	var res := 2048.0
+	var worst := 0.0
+	var points: Array = [Vector2(0, 0), Vector2(60, 0), Vector2(0, 60), Vector2(60, 60)]
+	for ends in Layers.bridge_ends(builder):
+		points.append(ends[0])
+		points.append(ends[1])
+	for point in points:
+		var shader_board: Vector2 = (point / 60.0) * res                                   # board_paint_tex UV * res
+		var shader_outer: Vector2 = ((point - center) / 180.0 + Vector2(0.5, 0.5)) * res   # outer_ground_tex UV * res
+		worst = maxf(worst, Layers.board_pixel(point.x, point.y).distance_to(shader_board))
+		worst = maxf(worst, Layers.outer_pixel(point.x, point.y, 180.0, center).distance_to(shader_outer))
+	_expect(points.size() == 6 and worst <= 1.0, "6. corners + bridge ends: guide pixel = shader UV within 1 px (worst %.3f px, %d points)" % [worst, points.size()])
+	_expect(Layers.board_pixel(60, 60) == Vector2(2048, 2048) and Layers.outer_pixel(center.x, center.y, 180.0, center) == Vector2(1024, 1024), "6. board corner (60,60) = pixel 2048; the play centre = outer pixel 1024")
+	var bridge_root: Node = builder.get("bridges_root")
+	var bridge: Node3D = bridge_root.get_child(0) if bridge_root != null and bridge_root.get_child_count() > 0 else null
+	var ends0: Array = Layers.bridge_ends(builder)[0] if not Layers.bridge_ends(builder).is_empty() else []
+	_expect(bridge != null and ends0.size() == 2 and absf((ends0[0] + ends0[1]).x * 0.5 - bridge.position.x) < 0.01 and absf(ends0[0].y - bridge.position.z) < 0.01,
+		"6. the guide's bridge ends are the two ends of the built bridge (%s)" % str(bridge.position if bridge != null else "none"))
+	# 7. props
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PROPS_DIR))
+	var tree := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	tree.fill(Color(0.2, 0.5, 0.2, 1.0))
+	tree.save_png(ProjectSettings.globalize_path(PROPS_DIR + "/tree_a.png"))
+	var entries := [
+		{"image": "tree_a.png", "x": 12.5, "z": 30.0, "height_m": 4.0, "anchor": "bottom", "shadow": true},
+		{"image": "tree_a.png", "x": 40.0, "z": 8.0, "height_m": 3.0, "anchor": "bottom", "shadow": false},
+		{"image": "tree_a.png", "x": 27.0, "z": 50.0, "height_m": 5.0, "anchor": "bottom", "shadow": true},
+		{"image": "missing.png", "x": 10.0, "z": 10.0, "height_m": 3.0},
+		{"image": "tree_a.png", "x": 500.0, "z": 10.0, "height_m": 3.0},
+	]
+	var file := FileAccess.open(PROPS_DIR + "/props.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(entries))
+	file.close()
+	var height_at := Callable(builder, "sample_smooth_height_at_world")
+	var props: Dictionary = Layers.add_props(builder, ProjectSettings.globalize_path(PROPS_DIR), height_at, 180.0, center)
+	var root3d: Node3D = props.root
+	_expect(int(props.count) == 3 and root3d != null and root3d.get_child_count() == 3, "7. 3 good entries -> 3 props (%d)" % int(props.count))
+	_expect((props.warnings as Array).size() == 2, "7. the missing image and the far entry are skipped with one warning each %s" % str(props.warnings))
+	var base_bad: Array = []
+	if root3d != null:
+		for prop in root3d.get_children():
+			var sprite := prop.get_node("Picture") as Sprite3D
+			var picture_bottom: float = (prop as Node3D).position.y + sprite.position.y - sprite.pixel_size * 8.0 * 0.5
+			var ground := float(height_at.call((prop as Node3D).position.x, (prop as Node3D).position.z))
+			if absf(picture_bottom - ground) > 0.05 or sprite.billboard != BaseMaterial3D.BILLBOARD_FIXED_Y or sprite.alpha_cut != SpriteBase3D.ALPHA_CUT_DISCARD:
+				base_bad.append(prop.name)
+		_expect(base_bad.is_empty(), "7. each picture stands on the terrain (bottom within 0.05 m), Y-fixed billboard, alpha cut %s" % str(base_bad))
+		_expect(root3d.get_node("Prop_0").has_node("GroundShadow") and not root3d.get_node("Prop_1").has_node("GroundShadow"), "7. shadow: true lays a ground shadow, false does not")
+	builder.free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROPS_DIR + "/props.json"))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROPS_DIR + "/tree_a.png"))
+
+
+func _count_nodes(node: Node) -> int:
+	var count := 1
+	for child in node.get_children():
+		count += _count_nodes(child)
+	return count
 
 
 func _expect(condition: bool, label: String) -> void:
