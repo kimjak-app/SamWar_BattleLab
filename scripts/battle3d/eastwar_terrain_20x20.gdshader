@@ -21,6 +21,13 @@ uniform sampler2D outer_ground_tex : source_color, filter_linear_mipmap, repeat_
 uniform float outer_ground_world_size = 220.0;
 uniform float outer_ground_strength : hint_range(0.0, 1.0) = 1.0;
 
+// === 1d. 판 안 "그림 땅" (큐 44: 록비서 2.5D 시안 비교용, 기본 꺼짐 = 기존 화면 그대로) ===
+// 켜면 판(0..board_paint_world_size m) 안 땅 색을 월드 좌표 UV(v_world_pos.xz / board_paint_world_size) 그림으로 바꾼다.
+// 진흙·검댕·눈 덧칠, 칸 선, 강조, 경계선은 그 위에 그대로 얹힌다.
+uniform bool use_board_paint_tex = false;
+uniform sampler2D board_paint_tex : source_color, filter_linear_mipmap, repeat_disable;
+uniform float board_paint_world_size = 60.0;
+
 // === 2. 산악 비주얼 스타일 선택 스위치 (그림 1 · 2 · 3 대응) ===
 // 0: 구역별 3종 자동 혼합 (서쪽=스타일1 초록능선+기암, 북동=스타일2 녹음·이끼암산, 남동=스타일3 황토바위산)
 // 1: 스타일 1 고정 (그림 1: 푸른 초록 능선 + 황갈색/기암 절벽)
@@ -242,6 +249,13 @@ void fragment() {
 
 	vec3 base_albedo = mix(ground_col, chosen_mtn_col, cliff_mask);
 	float base_roughness = mix(0.82, 0.86, cliff_mask);
+
+	if (use_board_paint_tex) {
+		vec2 paint_uv = v_world_pos.xz / max(board_paint_world_size, 1.0);
+		if (paint_uv.x >= 0.0 && paint_uv.x <= 1.0 && paint_uv.y >= 0.0 && paint_uv.y <= 1.0) {
+			base_albedo = texture(board_paint_tex, paint_uv).rgb;
+		}
+	}
 
 	float mud_mask = smoothstep(0.2, 0.75, mud_w + (micro_noise - 0.5) * 0.25) * (1.0 - cliff_mask * 0.7);
 	base_albedo = mix(base_albedo, mud_col, mud_mask);
