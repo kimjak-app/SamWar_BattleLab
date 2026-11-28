@@ -984,6 +984,17 @@ def git_show_text(root, commit: str, path: str) -> str:
     return subprocess.check_output(["git", "show", f"{commit}:{path}"], cwd=root).decode("utf-8").replace("\r\n", "\n")
 
 
+# Queue 46 (PLACEMENT_A + 0.7 roads): three hook lines - the placement-A new game, markers take the runtime owner,
+# placement-A static city values restored on load (WorldMapPlacementA).
+PLACEMENT46_CHECKPOINT = "1b3bfad812d12385e20d7d17e2dc695ec2877b82"
+EXPECTED_PLACEMENT46_MAIN_DELTA: list[str] = ['+\tWorldMapPlacementA.apply_new_game(self)  # Queue 46: placement A (39 cities, 34 factions; the 119 new heroes via '
+ 'the seeder).',
+ '+\t_refresh_city_marker_owner_states_from_runtime()  # Queue 46: markers built from CITY_HUD_DATA take the runtime '
+ 'owner.',
+ '+\tWorldMapPlacementA.restore_static_values(self)  # Queue 46: placement-A city values not in the save; old saves '
+ 'untouched.']
+
+
 def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_main: str, main_path: str) -> None:
     p1_main = git_show_text(root, P1_MAIN_CHECKPOINT, main_path)
     assert line_delta(warning_cleanup_main, p1_main) == EXPECTED_P1_MAIN_DELTA, (
@@ -1006,8 +1017,14 @@ def assert_main_is_approved_p1_state(root, current_main: str, warning_cleanup_ma
             "HUD-41 worldmap_main.gd delta no longer matches the approved exact delta"
         )
         approved_main = hud41_main
+    if PLACEMENT46_CHECKPOINT:
+        placement46_main = git_show_text(root, PLACEMENT46_CHECKPOINT, main_path)
+        assert line_delta(approved_main, placement46_main) == EXPECTED_PLACEMENT46_MAIN_DELTA, (
+            "PLACEMENT-46 worldmap_main.gd delta no longer matches the approved exact delta"
+        )
+        approved_main = placement46_main
     assert current_main == approved_main, (
-        "worldmap_main.gd changed after the approved P-1/P0-stock/CITIES65/HUD-41 checkpoint; review a new exact delta "
+        "worldmap_main.gd changed after the approved P-1/P0-stock/CITIES65/HUD-41/PLACEMENT-46 checkpoint; review a new exact delta "
         "instead of relaxing the guard"
     )
 
