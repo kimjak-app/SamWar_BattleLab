@@ -135,7 +135,6 @@ func _run() -> void:
 	_check_turns()
 	_check_new_factions(errors_before_turns)
 	_check_owned_new_city()
-	await _check_stock_save_load()
 	_check_runtime_file()
 	await _check_missing_runtime_file()
 	_restore_saves()
@@ -249,6 +248,16 @@ func _check_save_load(snapshot: String) -> void:
 	_main = current_scene
 	_expect(_snapshot() == snapshot, "2. A manual slot, system-menu load in a new WorldMap: the new-game world")
 	_check_world("2. A manual / system-menu load")
+	# 47-4 (same round trip as the moved hero below): one turn on the loaded A save changes the stock, and a stock no
+	# turn touches (an AI new city) is changed by hand as well; after save + load the saved stock must stay.
+	_end_turn()
+	var stock_cities: Dictionary = _main.get("_city_runtime_states")
+	((stock_cities["jeonju"] as Dictionary)["resource_stock"] as Dictionary)["gold"] = 7
+	((stock_cities["jeonju"] as Dictionary)["resource_stock"] as Dictionary)["rice"] = 3
+	var stock_before := _stock_table()
+	var gaeseong_start: Array = CITY_VALUES_104["gaeseong"]
+	_expect(int(stock_before.gaeseong.gold) != int(gaeseong_start[0]) or int(stock_before.gaeseong.seafood) != int(gaeseong_start[4]),
+		"47-4. one turn on the loaded A save changed 개성's stock (player city: gold %d, seafood %d)" % [int(stock_before.gaeseong.gold), int(stock_before.gaeseong.seafood)])
 	# A hero moved to another city, saved and loaded again, is not brought back to his placement-A city.
 	var from_city := str(_placement.hero_city[MOVED_HERO])
 	var to_city := ""
@@ -275,6 +284,7 @@ func _check_save_load(snapshot: String) -> void:
 		if (moved.stationed[city_id] as Array).has(MOVED_HERO):
 			places.append(city_id)
 	_expect(places == [to_city], "2. after the reload %s is only in %s, not back in %s %s" % [MOVED_HERO, to_city, from_city, str(places)])
+	_check_stock_reloaded(stock_before)
 	# Old (pre-A) saves, written on 60fd2a5: the same paths give the 60fd2a5 world - nothing added or moved.
 	var base: Variant = JSON.parse_string(FileAccess.get_file_as_string(OLD_SAVE_DIR + "/old_save_baseline.json"))
 	_expect(base is Dictionary and base.has("title_manual"), "2. old-save baseline fixture readable (%s)" % str((base as Dictionary).get("base_commit", "?") if base is Dictionary else "?"))
@@ -662,25 +672,9 @@ func _check_city_values() -> void:
 	_expect(legacy_bad.is_empty(), "47-2. the 13 legacy cities: stock, gold, food, ratings, seeds as main (unchanged worldmap_main.gd) %s" % str(legacy_bad.slice(0, 6)))
 
 
-## 47-4: the saved stock wins over the start values on a placement-A load.
-func _check_stock_save_load() -> void:
-	await _new_game_world()
-	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "47-4. A new game saved (manual slot)")
-	await OldSave.load_through_system_menu(self, FileAccess.get_file_as_string(MANUAL_SAVE))
-	_main = current_scene
-	_end_turn()
-	# a stock no turn touches (an AI new city) changed by hand as well
-	var cities: Dictionary = _main.get("_city_runtime_states")
-	var jeonju: Dictionary = cities["jeonju"]
-	(jeonju["resource_stock"] as Dictionary)["gold"] = 7
-	(jeonju["resource_stock"] as Dictionary)["rice"] = 3
-	var before := _stock_table()
-	var gaeseong_start: Array = CITY_VALUES_104["gaeseong"]
-	var gaeseong: Dictionary = before["gaeseong"]
-	_expect(int(gaeseong.gold) != int(gaeseong_start[0]) or int(gaeseong.seafood) != int(gaeseong_start[4]), "47-4. one turn changed 개성's stock (player city: gold %d, seafood %d)" % [int(gaeseong.gold), int(gaeseong.seafood)])
-	_expect(bool(_main.call("_save_worldmap_manual_slot_mvp")), "47-4. saved again after the turn")
-	await OldSave.load_through_system_menu(self, FileAccess.get_file_as_string(MANUAL_SAVE))
-	_main = current_scene
+## 47-4: the saved stock wins over the start values on a placement-A load (checked in 2.'s second round trip:
+## the loaded A save played one turn, a hand-changed AI city stock, save, load).
+func _check_stock_reloaded(before: Dictionary) -> void:
 	var after := _stock_table()
 	var diff: Array = before.keys().filter(func(c): return JSON.stringify(before[c], "", true) != JSON.stringify(after.get(c), "", true))
 	_expect(diff.is_empty() and int(after.jeonju.gold) == 7 and int(after.jeonju.rice) == 3, "47-4. reloaded: the saved stock of the 39 cities stays, not the start values (전주 gold %d rice %d) %s" % [int(after.jeonju.gold), int(after.jeonju.rice), str(diff.slice(0, 4))])
