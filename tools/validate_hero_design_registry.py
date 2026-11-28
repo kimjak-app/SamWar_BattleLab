@@ -10,16 +10,19 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-EXPECTED_HERO_COUNT = 39
+# Queue 45: 163 = the 44 registered heroes + the 119 roster heroes (Drive 68 / 74). This validator still expected the
+# 39-hero values from before the five Imjin War heroes (it failed on main 6b6bc2f); the totals below are the 44's
+# (14/12/11/4/3 units, momentum 1/9/23/11) plus the 119's (58/37/18/0/6 units, momentum 1/32/79/7).
+EXPECTED_HERO_COUNT = 163
 EXPECTED_UNIT_TYPE_COUNT = 5
 EXPECTED_UNIT_DISTRIBUTION = {
-    "infantry": 11,
-    "cavalry": 10,
-    "archer": 11,
+    "infantry": 72,
+    "cavalry": 49,
+    "archer": 29,
     "gunner": 4,
-    "mounted_archer": 3,
+    "mounted_archer": 9,
 }
-EXPECTED_MOMENTUM_DISTRIBUTION = {1: 1, 2: 9, 3: 18, 4: 11}
+EXPECTED_MOMENTUM_DISTRIBUTION = {1: 2, 2: 41, 3: 102, 4: 18}
 HERO_ENTRY_RE = re.compile(r'^\s*"([a-z0-9_]+)"\s*:\s*\{', re.MULTILINE)
 
 
@@ -139,8 +142,9 @@ def main() -> int:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print("PARITY PASS: 39 heroes; unit distribution 11/10/11/4/3; support role-only contract; momentum costs 1..4")
-    print("MOMENTUM DISTRIBUTION PASS: 1=1, 2=9, 3=18, 4=11")
+    units = EXPECTED_UNIT_DISTRIBUTION
+    print(f"PARITY PASS: {EXPECTED_HERO_COUNT} heroes; unit distribution {units['infantry']}/{units['cavalry']}/{units['archer']}/{units['gunner']}/{units['mounted_archer']}; support role-only contract; momentum costs 1..4")
+    print("MOMENTUM DISTRIBUTION PASS: " + ", ".join(f"{k}={v}" for k, v in sorted(EXPECTED_MOMENTUM_DISTRIBUTION.items())))
     return 0
 
 

@@ -1,0 +1,1244 @@
+{
+  "schema": "eastwar_placement_A_revised_v1",
+  "source": "Drive 67 (록비서, 김작 확정 11-28 08:52), section 3",
+  "note": "Reference data for queue 46 only. Queue 45 code does not read this file.",
+  "cities": [
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "한반도",
+      "city": "평양",
+      "faction": "고구려 (`goguryeo`)",
+      "faction_id": "goguryeo",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "광개토대왕",
+      "stationed": [
+        {
+          "name": "광개토대왕",
+          "registered": true
+        },
+        {
+          "name": "을지문덕",
+          "registered": true
+        },
+        {
+          "name": "도림",
+          "registered": true
+        },
+        {
+          "name": "고연무",
+          "registered": false
+        },
+        {
+          "name": "을파소",
+          "registered": false
+        }
+      ],
+      "troops": "280",
+      "population": "42000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "한반도",
+      "city": "한성",
+      "faction": "플레이어(한성) (`player`)",
+      "faction_id": "player",
+      "home_city": "거점",
+      "capital": "true",
+      "governor": "미정(이순신 제안, 9절)",
+      "stationed": [
+        {
+          "name": "이순신",
+          "registered": true
+        },
+        {
+          "name": "정도전",
+          "registered": true
+        },
+        {
+          "name": "권율",
+          "registered": true
+        },
+        {
+          "name": "곽재우",
+          "registered": true
+        },
+        {
+          "name": "김덕령",
+          "registered": true
+        }
+      ],
+      "troops": "300",
+      "population": "50000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "한반도",
+      "city": "사비",
+      "faction": "백제 (`baekje_faction`)",
+      "faction_id": "baekje_faction",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "의자왕",
+      "stationed": [
+        {
+          "name": "의자왕",
+          "registered": true
+        },
+        {
+          "name": "계백",
+          "registered": true
+        },
+        {
+          "name": "흑치상지",
+          "registered": true
+        },
+        {
+          "name": "복신",
+          "registered": false
+        },
+        {
+          "name": "부여풍",
+          "registered": false
+        }
+      ],
+      "troops": "300",
+      "population": "44000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "한반도",
+      "city": "경주",
+      "faction": "신라 (`silla`)",
+      "faction_id": "silla",
+      "home_city": "거점",
+      "capital": "true",
+      "governor": "김춘추",
+      "stationed": [
+        {
+          "name": "김춘추",
+          "registered": true
+        },
+        {
+          "name": "김유신",
+          "registered": true
+        },
+        {
+          "name": "장보고",
+          "registered": true
+        },
+        {
+          "name": "문무왕",
+          "registered": false
+        },
+        {
+          "name": "김인문",
+          "registered": false
+        }
+      ],
+      "troops": "280",
+      "population": "48000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "일본",
+      "city": "에도",
+      "faction": "도쿠가와 (`tokugawa`)",
+      "faction_id": "tokugawa",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "도쿠가와 이에야스",
+      "stationed": [
+        {
+          "name": "도쿠가와 이에야스",
+          "registered": true
+        },
+        {
+          "name": "혼다 마사노부",
+          "registered": true
+        },
+        {
+          "name": "혼다 타다카츠",
+          "registered": true
+        },
+        {
+          "name": "도리이 모토타다",
+          "registered": false
+        },
+        {
+          "name": "오쿠보 다다요",
+          "registered": false
+        }
+      ],
+      "troops": "380",
+      "population": "46000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "일본",
+      "city": "교토",
+      "faction": "오다 (`oda`)",
+      "faction_id": "oda",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "노부나가",
+      "stationed": [
+        {
+          "name": "노부나가",
+          "registered": true
+        },
+        {
+          "name": "마에다 도시이에",
+          "registered": false
+        },
+        {
+          "name": "다케나카 한베에",
+          "registered": false
+        },
+        {
+          "name": "모리 란마루",
+          "registered": false
+        }
+      ],
+      "troops": "240",
+      "population": "45000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "일본",
+      "city": "오사카",
+      "faction": "도요토미 (`toyotomi`)",
+      "faction_id": "toyotomi",
+      "home_city": "거점",
+      "capital": "true",
+      "governor": "도요토미 히데요시",
+      "stationed": [
+        {
+          "name": "도요토미 히데요시",
+          "registered": true
+        },
+        {
+          "name": "가토 기요마사",
+          "registered": true
+        },
+        {
+          "name": "구로다 나가마사",
+          "registered": true
+        },
+        {
+          "name": "사나다 유키무라",
+          "registered": false
+        }
+      ],
+      "troops": "260",
+      "population": "50000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "일본",
+      "city": "큐슈",
+      "faction": "큐슈 (`kyushu_faction`)",
+      "faction_id": "kyushu_faction",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "시마즈 요시히로",
+      "stationed": [
+        {
+          "name": "시마즈 요시히로",
+          "registered": true
+        },
+        {
+          "name": "고니시 유키나가",
+          "registered": true
+        },
+        {
+          "name": "시마즈 이에히사",
+          "registered": false
+        },
+        {
+          "name": "시마즈 도요히사",
+          "registered": false
+        },
+        {
+          "name": "시마즈 도시히사",
+          "registered": false
+        }
+      ],
+      "troops": "270",
+      "population": "42000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "중국",
+      "city": "업성",
+      "faction": "위(업성) (`wei`)",
+      "faction_id": "wei",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "조조",
+      "stationed": [
+        {
+          "name": "조조",
+          "registered": true
+        },
+        {
+          "name": "하후돈",
+          "registered": true
+        },
+        {
+          "name": "순욱",
+          "registered": true
+        },
+        {
+          "name": "곽가",
+          "registered": true
+        },
+        {
+          "name": "허저",
+          "registered": false
+        }
+      ],
+      "troops": "450",
+      "population": "55000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "중국",
+      "city": "낙양",
+      "faction": "초(항우) (`chu`)",
+      "faction_id": "chu",
+      "home_city": "거점",
+      "capital": "true",
+      "governor": "항우",
+      "stationed": [
+        {
+          "name": "항우",
+          "registered": true
+        },
+        {
+          "name": "범증",
+          "registered": true
+        },
+        {
+          "name": "여포",
+          "registered": true
+        },
+        {
+          "name": "종리말",
+          "registered": false
+        },
+        {
+          "name": "항장",
+          "registered": false
+        }
+      ],
+      "troops": "420",
+      "population": "80000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "중국",
+      "city": "건업",
+      "faction": "오 (`wu`)",
+      "faction_id": "wu",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "손책",
+      "stationed": [
+        {
+          "name": "손책",
+          "registered": true
+        },
+        {
+          "name": "주유",
+          "registered": true
+        },
+        {
+          "name": "여몽",
+          "registered": true
+        },
+        {
+          "name": "장소",
+          "registered": false
+        },
+        {
+          "name": "능통",
+          "registered": false
+        }
+      ],
+      "troops": "300",
+      "population": "52000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "중국",
+      "city": "성도",
+      "faction": "촉 (`shu`)",
+      "faction_id": "shu",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "제갈량",
+      "stationed": [
+        {
+          "name": "제갈량",
+          "registered": true
+        },
+        {
+          "name": "유비",
+          "registered": true
+        },
+        {
+          "name": "관우",
+          "registered": true
+        },
+        {
+          "name": "장비",
+          "registered": true
+        },
+        {
+          "name": "법정",
+          "registered": false
+        }
+      ],
+      "troops": "350",
+      "population": "60000",
+      "grade": "2"
+    },
+    {
+      "group": "기존 13성 (도시 값은 원본 그대로, 주둔 장수와 태수만 제안)",
+      "region": "이민족",
+      "city": "상도",
+      "faction": "몽골 (`mongol_faction`)",
+      "faction_id": "mongol_faction",
+      "home_city": "거점",
+      "capital": "false",
+      "governor": "징기스칸",
+      "stationed": [
+        {
+          "name": "징기스칸",
+          "registered": true
+        },
+        {
+          "name": "수부타이",
+          "registered": true
+        },
+        {
+          "name": "제베",
+          "registered": true
+        },
+        {
+          "name": "우량카다이",
+          "registered": false
+        },
+        {
+          "name": "아술",
+          "registered": false
+        }
+      ],
+      "troops": "460",
+      "population": "36000",
+      "grade": "2"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "개성",
+      "faction": "플레이어(한성) (`player`)",
+      "faction_id": "player",
+      "home_city": "",
+      "capital": "false",
+      "governor": "척준경",
+      "stationed": [
+        {
+          "name": "척준경",
+          "registered": true
+        },
+        {
+          "name": "고경명",
+          "registered": true
+        },
+        {
+          "name": "강감찬",
+          "registered": false
+        },
+        {
+          "name": "최영",
+          "registered": false
+        },
+        {
+          "name": "윤관",
+          "registered": false
+        }
+      ],
+      "troops": "120",
+      "population": "20000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "국내성",
+      "faction": "고구려 (`goguryeo`)",
+      "faction_id": "goguryeo",
+      "home_city": "",
+      "capital": "false",
+      "governor": "온달",
+      "stationed": [
+        {
+          "name": "온달",
+          "registered": false
+        },
+        {
+          "name": "밀우",
+          "registered": false
+        },
+        {
+          "name": "유유",
+          "registered": false
+        }
+      ],
+      "troops": "120",
+      "population": "20000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "전주",
+      "faction": "후백제 (`hubaekje`)",
+      "faction_id": "hubaekje",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "최승우",
+      "stationed": [
+        {
+          "name": "최승우",
+          "registered": false
+        },
+        {
+          "name": "금강",
+          "registered": false
+        },
+        {
+          "name": "공직",
+          "registered": false
+        },
+        {
+          "name": "상귀",
+          "registered": false
+        },
+        {
+          "name": "지점",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "철원",
+      "faction": "태봉 (`taebong`)",
+      "faction_id": "taebong",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "복지겸",
+      "stationed": [
+        {
+          "name": "복지겸",
+          "registered": false
+        },
+        {
+          "name": "이흔암",
+          "registered": false
+        },
+        {
+          "name": "윤신달",
+          "registered": false
+        },
+        {
+          "name": "종간",
+          "registered": false
+        },
+        {
+          "name": "환선길",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "고령",
+      "faction": "가야 (`gaya`)",
+      "faction_id": "gaya",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "김수로왕",
+      "stationed": [
+        {
+          "name": "김수로왕",
+          "registered": false
+        },
+        {
+          "name": "이진아시왕",
+          "registered": false
+        },
+        {
+          "name": "김무력",
+          "registered": false
+        },
+        {
+          "name": "허황옥",
+          "registered": false
+        },
+        {
+          "name": "거등왕",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "한반도",
+      "city": "상경 용천부",
+      "faction": "발해 (`balhae`)",
+      "faction_id": "balhae",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "장문휴",
+      "stationed": [
+        {
+          "name": "장문휴",
+          "registered": false
+        },
+        {
+          "name": "대문의",
+          "registered": false
+        },
+        {
+          "name": "대야발",
+          "registered": false
+        },
+        {
+          "name": "대인선",
+          "registered": false
+        },
+        {
+          "name": "대숭린",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "고후",
+      "faction": "다케다 (`takeda`)",
+      "faction_id": "takeda",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "다케다 신겐",
+      "stationed": [
+        {
+          "name": "다케다 신겐",
+          "registered": true
+        },
+        {
+          "name": "사나다 마사유키",
+          "registered": false
+        },
+        {
+          "name": "나이토 마사토요",
+          "registered": false
+        },
+        {
+          "name": "아키야마 노부토모",
+          "registered": false
+        },
+        {
+          "name": "오부 도라마사",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "에치고",
+      "faction": "우에스기 (`uesugi`)",
+      "faction_id": "uesugi",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "우에스기 겐신",
+      "stationed": [
+        {
+          "name": "우에스기 겐신",
+          "registered": true
+        },
+        {
+          "name": "나오에 가게쓰나",
+          "registered": false
+        },
+        {
+          "name": "혼조 시게나가",
+          "registered": false
+        },
+        {
+          "name": "가키자키 가게이에",
+          "registered": false
+        },
+        {
+          "name": "사이토 토모노부",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "히로시마",
+      "faction": "모리 (`mori`)",
+      "faction_id": "mori",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "모리 데루모토",
+      "stationed": [
+        {
+          "name": "모리 데루모토",
+          "registered": false
+        },
+        {
+          "name": "깃카와 히로이에",
+          "registered": false
+        },
+        {
+          "name": "구치바 미치요시",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "분고 후나이",
+      "faction": "모리 (`mori`)",
+      "faction_id": "mori",
+      "home_city": "",
+      "capital": "false",
+      "governor": "후쿠하라 사다토시",
+      "stationed": [
+        {
+          "name": "후쿠하라 사다토시",
+          "registered": false
+        },
+        {
+          "name": "시시도 다카이에",
+          "registered": false
+        }
+      ],
+      "troops": "120",
+      "population": "20000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "아이즈",
+      "faction": "다테 (`date`)",
+      "faction_id": "date",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "오니니와 쓰나모토",
+      "stationed": [
+        {
+          "name": "오니니와 쓰나모토",
+          "registered": false
+        },
+        {
+          "name": "루스 마사카게",
+          "registered": false
+        },
+        {
+          "name": "다테 히데무네",
+          "registered": false
+        },
+        {
+          "name": "시로이시 무네나오",
+          "registered": false
+        },
+        {
+          "name": "하라다 무네타네",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "일본",
+      "city": "오다와라",
+      "faction": "호조 (`hojo`)",
+      "faction_id": "hojo",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "호조 우지야스",
+      "stationed": [
+        {
+          "name": "호조 우지야스",
+          "registered": false
+        },
+        {
+          "name": "호조 쓰나시게",
+          "registered": false
+        },
+        {
+          "name": "호조 우지테루",
+          "registered": false
+        },
+        {
+          "name": "다이도지 마사시게",
+          "registered": false
+        },
+        {
+          "name": "호조 우지노리",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "허창",
+      "faction": "위(업성) (`wei`)",
+      "faction_id": "wei",
+      "home_city": "",
+      "capital": "false",
+      "governor": "조인",
+      "stationed": [
+        {
+          "name": "조인",
+          "registered": false
+        },
+        {
+          "name": "하후연",
+          "registered": false
+        },
+        {
+          "name": "전위",
+          "registered": false
+        }
+      ],
+      "troops": "120",
+      "population": "20000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "농서",
+      "faction": "촉 (`shu`)",
+      "faction_id": "shu",
+      "home_city": "",
+      "capital": "false",
+      "governor": "조운",
+      "stationed": [
+        {
+          "name": "조운",
+          "registered": false
+        },
+        {
+          "name": "강유",
+          "registered": false
+        },
+        {
+          "name": "왕평",
+          "registered": false
+        },
+        {
+          "name": "마속",
+          "registered": false
+        }
+      ],
+      "troops": "120",
+      "population": "20000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "강동",
+      "faction": "손견 (`sun_jian`)",
+      "faction_id": "sun_jian",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "정보",
+      "stationed": [
+        {
+          "name": "정보",
+          "registered": false
+        },
+        {
+          "name": "손정",
+          "registered": false
+        },
+        {
+          "name": "조절",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "기주",
+      "faction": "원소 (`yuan_shao`)",
+      "faction_id": "yuan_shao",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "심배",
+      "stationed": [
+        {
+          "name": "심배",
+          "registered": false
+        },
+        {
+          "name": "원담",
+          "registered": false
+        },
+        {
+          "name": "곽도",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "복양",
+      "faction": "장각 (`zhang_jiao`)",
+      "faction_id": "zhang_jiao",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "파재",
+      "stationed": [
+        {
+          "name": "파재",
+          "registered": false
+        },
+        {
+          "name": "장만성",
+          "registered": false
+        },
+        {
+          "name": "한충",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "개봉",
+      "faction": "송 (`song`)",
+      "faction_id": "song",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "악비",
+      "stationed": [
+        {
+          "name": "악비",
+          "registered": false
+        },
+        {
+          "name": "종택",
+          "registered": false
+        },
+        {
+          "name": "양연소",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "팽성",
+      "faction": "명 (`ming`)",
+      "faction_id": "ming",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "목영",
+      "stationed": [
+        {
+          "name": "목영",
+          "registered": false
+        },
+        {
+          "name": "탕화",
+          "registered": false
+        },
+        {
+          "name": "남옥",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "대도",
+      "faction": "공손찬 (`gongsun_zan`)",
+      "faction_id": "gongsun_zan",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "전예",
+      "stationed": [
+        {
+          "name": "전예",
+          "registered": false
+        },
+        {
+          "name": "공손범",
+          "registered": false
+        },
+        {
+          "name": "공손월",
+          "registered": false
+        },
+        {
+          "name": "단경",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "장안",
+      "faction": "동탁 (`dong_zhuo`)",
+      "faction_id": "dong_zhuo",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "서영",
+      "stationed": [
+        {
+          "name": "서영",
+          "registered": false
+        },
+        {
+          "name": "장제",
+          "registered": false
+        },
+        {
+          "name": "우보",
+          "registered": false
+        },
+        {
+          "name": "번조",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "양양",
+      "faction": "유표 (`liu_biao`)",
+      "faction_id": "liu_biao",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "문빙",
+      "stationed": [
+        {
+          "name": "문빙",
+          "registered": false
+        },
+        {
+          "name": "유기",
+          "registered": false
+        },
+        {
+          "name": "채부인",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "중국",
+      "city": "양주",
+      "faction": "오월 (`wuyue`)",
+      "faction_id": "wuyue",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "서온",
+      "stationed": [
+        {
+          "name": "서온",
+          "registered": false
+        },
+        {
+          "name": "이신복",
+          "registered": false
+        },
+        {
+          "name": "대몽",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "이민족",
+      "city": "허투알라",
+      "faction": "청 (`qing`)",
+      "faction_id": "qing",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "양고리",
+      "stationed": [
+        {
+          "name": "양고리",
+          "registered": false
+        },
+        {
+          "name": "페이잉동",
+          "registered": false
+        },
+        {
+          "name": "안페양고",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "이민족",
+      "city": "오르혼",
+      "faction": "돌궐 (`gokturk`)",
+      "faction_id": "gokturk",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "빌게가한",
+      "stationed": [
+        {
+          "name": "빌게가한",
+          "registered": false
+        },
+        {
+          "name": "묵철가한",
+          "registered": false
+        },
+        {
+          "name": "퀼테긴",
+          "registered": false
+        },
+        {
+          "name": "이넬가한",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    },
+    {
+      "group": "새로 채우는 26성 (병력, 인구, 등급은 모두 추가 검토)",
+      "region": "이민족",
+      "city": "라싸",
+      "faction": "토번 (`tibet`)",
+      "faction_id": "tibet",
+      "home_city": "거점(신규 제안)",
+      "capital": "false",
+      "governor": "치송데첸",
+      "stationed": [
+        {
+          "name": "치송데첸",
+          "registered": false
+        },
+        {
+          "name": "론흠릉",
+          "registered": false
+        },
+        {
+          "name": "문성공주",
+          "registered": false
+        },
+        {
+          "name": "랑다르마",
+          "registered": false
+        }
+      ],
+      "troops": "200",
+      "population": "30000",
+      "grade": "1"
+    }
+  ]
+}

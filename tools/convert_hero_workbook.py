@@ -315,7 +315,175 @@ def write_outputs(payloads: dict[str, Any], output_dir: Path) -> None:
         )
 
 
+# ---------------------------------------------------------------- queue 45: roster JSON input adapter
+# The Excel path above is unchanged. This adapter reads the roster JSON (Drive 68, 245 heroes) and APPENDS the chosen
+# heroes to the generated JSON files and to HeroDefinitionRegistry.LEGACY_IDENTITY_DATA without touching a byte of the
+# existing records (each file keeps its own layout: indented, one record per line, or a single minified line).
+
+REGISTRY_PATH = Path("scripts/worldmap/hero_definition_registry.gd")
+REGISTRY_CLOSE = "}\n\nstatic var HERO_DATA"
+NEW_HERO_CITY_FIELDS = ("assigned_city_id", "city_id", "location_city_id")   # left empty: placement is queue 46
+NEW_HERO_FACTION_FIELDS = ("faction_id", "force_id", "side", "nation")
+
+
+def roster_records(roster_path: Path, hero_ids: list[str], portrait_paths: dict[str, str]) -> tuple[dict[str, list], list[str]]:
+    roster = {hero["hero_id"]: hero for hero in json.loads(roster_path.read_text(encoding="utf-8"))["heroes"]}
+    errors: list[str] = []
+    records: dict[str, list] = {"base": [], "profile": [], "loyalty": [], "skill": [], "identity": []}
+    require(len(set(hero_ids)) == len(hero_ids), "Duplicate hero_id in the chosen list", errors)
+    for hero_id in hero_ids:
+        hero = roster.get(hero_id)
+        if hero is None:
+            errors.append(f"{hero_id}: not in the roster")
+            continue
+        unit_id = str(hero.get("unit_type", ""))
+        primary_role = ROLE_NAME_TO_ID.get(str(hero.get("primary_role")))
+        secondary_role = ROLE_NAME_TO_ID.get(str(hero.get("secondary_role")))
+        require(unit_id in UNIT_TYPES, f"{hero_id}: invalid unit type {unit_id}", errors)
+        require(primary_role in ROLES, f"{hero_id}: invalid primary role {hero.get('primary_role')}", errors)
+        require(secondary_role in ROLES, f"{hero_id}: invalid secondary role {hero.get('secondary_role')}", errors)
+        require(hero.get("unique_skill_id") == f"{hero_id}_unique", f"{hero_id}: skill ID must be {hero_id}_unique", errors)
+        require(hero.get("target_mode") in TARGET_MODES, f"{hero_id}: invalid target_mode {hero.get('target_mode')}", errors)
+        require(isinstance(hero.get("skill_range"), int) and 0 <= hero["skill_range"] <= 5, f"{hero_id}: range must be 0..5", errors)
+        require(isinstance(hero.get("radius"), int) and 0 <= hero["radius"] <= 3, f"{hero_id}: radius must be 0..3", errors)
+        require(isinstance(hero.get("momentum_cost"), int) and 1 <= hero["momentum_cost"] <= 4, f"{hero_id}: momentum_cost must be 1..4", errors)
+        for stat in ("leadership", "martial", "intelligence", "politics", "initial_loyalty"):
+            require(isinstance(hero.get(stat), int) and 0 <= hero[stat] <= 100, f"{hero_id}: {stat} must be 0..100", errors)
+        combined_text = " ".join(str(value) for value in hero.values() if value is not None)
+        for forbidden in FORBIDDEN_TEXT:
+            require(forbidden not in combined_text, f"{hero_id}: forbidden text remains: {forbidden}", errors)
+        skill_id = f"{hero_id}_unique"
+        records["base"].append({
+            "hero_id": hero_id,
+            "display_name": hero["display_name"],
+            "region": hero["region"],
+            "stats": {"leadership": hero["leadership"], "martial": hero["martial"], "intelligence": hero["intelligence"], "politics": hero["politics"]},
+            "battle_multipliers": {"land": hero["land_modifier"], "naval": hero["naval_modifier"]},
+        })
+        records["profile"].append({"hero_id": hero_id, "unit_type": unit_id, "primary_role": primary_role, "secondary_role": secondary_role, "unique_skill_id": skill_id})
+        records["loyalty"].append({"hero_id": hero_id, "initial_loyalty": hero["initial_loyalty"]})
+        records["skill"].append({
+            "skill_id": skill_id, "hero_id": hero_id, "display_name": hero["skill_name"], "concept": hero["concept"],
+            "effect_type": hero["skill_effect_type"], "target_mode": hero["target_mode"], "range": hero["skill_range"],
+            "radius": hero["radius"], "power": hero["skill_power"], "momentum_cost": hero["momentum_cost"], "action_cost": 1,
+            "hp_condition": None, "duration_turns": hero["duration_turns"], "description": hero["skill_desc"],
+        })
+        identity = {"id": hero_id, "hero_id": hero_id, "display_name": hero["display_name"], "name": hero["name"], "role": hero["role"]}
+        # No faction yet (new faction ids are queue 46): the keys exist and are empty, so the faction scans in
+        # worldmap_main (_get_known_non_player_faction_ids, the chancellor fallback) skip these heroes.
+        identity.update({field: "" for field in NEW_HERO_FACTION_FIELDS})
+        identity.update({field: "" for field in NEW_HERO_CITY_FIELDS})
+        identity.update({
+            "unique_skill_id": skill_id, "skill_id": skill_id, "skill_name": hero["skill_name"], "skill_desc": hero["skill_desc"],
+            "skill_effect_type": hero["skill_effect_type"], "skill_power": hero["skill_power"], "skill_value": hero["skill_power"],
+            "portrait_path": portrait_paths.get(hero_id, ""), "portrait_image": "", "battlefield_portrait_image": "",
+            "hanja": hero.get("hanja", ""), "roster_faction": hero.get("faction", ""), "description": hero.get("bio", ""),
+            "review_status": hero["review_status"], "stats_approved": False,
+        })
+        records["identity"].append(identity)
+    return records, errors
+
+
+def _compact(record: dict) -> str:
+    return json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+
+
+def _append_indented_base_stats(text: str, records: list[dict]) -> str:
+    tail = "    }\n  ]\n}\n"
+    if not text.endswith(tail):
+        raise WorkbookError("hero_base_stats.json: unexpected layout at the end")
+    blocks = []
+    for r in records:
+        blocks.append("\n".join([
+            "    {",
+            f'      "hero_id": {json.dumps(r["hero_id"])},',
+            f'      "display_name": {json.dumps(r["display_name"], ensure_ascii=False)},',
+            f'      "region": {json.dumps(r["region"], ensure_ascii=False)},',
+            f'      "stats": {json.dumps(r["stats"])},',
+            f'      "battle_multipliers": {json.dumps(r["battle_multipliers"])}',
+            "    }",
+        ]))
+    return text[: -len(tail)] + "    },\n" + ",\n".join(blocks) + "\n  ]\n}\n"
+
+
+def _append_line_records(text: str, records: list[dict]) -> str:
+    tail = "}\n  ]\n}\n"
+    if not text.endswith(tail):
+        raise WorkbookError("hero_initial_loyalty.json: unexpected layout at the end")
+    return text[: -len(tail)] + "},\n" + ",\n".join("    " + _compact(r) for r in records) + "\n  ]\n}\n"
+
+
+def _append_minified(text: str, records: list[dict], name: str) -> str:
+    tail = "]}\n"
+    if not text.endswith(tail):
+        raise WorkbookError(f"{name}: unexpected layout at the end")
+    return text[: -len(tail)] + "," + ",".join(_compact(r) for r in records) + tail
+
+
+def _append_registry(text: str, records: list[dict]) -> str:
+    if text.count(REGISTRY_CLOSE) != 1:
+        raise WorkbookError("hero_definition_registry.gd: LEGACY_IDENTITY_DATA end not found")
+    lines = "".join(f"\t{json.dumps(r['hero_id'])}: {json.dumps(r, ensure_ascii=False)},\n" for r in records)
+    return text.replace(REGISTRY_CLOSE, lines + REGISTRY_CLOSE)
+
+
+def append_roster(roster_path: Path, hero_ids: list[str], output_dir: Path, registry_path: Path, portrait_paths: dict[str, str]) -> list[str]:
+    records, errors = roster_records(roster_path, hero_ids, portrait_paths)
+    targets = {
+        "hero_base_stats.json": ("heroes", lambda t: _append_indented_base_stats(t, records["base"])),
+        "hero_battle_profiles.json": ("profiles", lambda t: _append_minified(t, records["profile"], "hero_battle_profiles.json")),
+        "hero_initial_loyalty.json": ("heroes", lambda t: _append_line_records(t, records["loyalty"])),
+        "hero_unique_skills.json": ("skills", lambda t: _append_minified(t, records["skill"], "hero_unique_skills.json")),
+    }
+    texts = {name: (output_dir / name).read_text(encoding="utf-8") for name in targets}
+    for name, (key, _) in targets.items():
+        existing = {str(r.get("hero_id")) for r in json.loads(texts[name])[key]}
+        clash = existing & set(hero_ids)
+        require(not clash, f"{name}: already has {sorted(clash)[:5]}", errors)
+    registry_text = registry_path.read_text(encoding="utf-8")
+    for hero_id in hero_ids:
+        require(f'\t"{hero_id}": {{' not in registry_text, f"{registry_path.name}: already has {hero_id}", errors)
+    if errors:
+        return errors
+    for name, (key, append) in targets.items():
+        new_text = append(texts[name])
+        old_records = json.loads(texts[name])[key]
+        new_records = json.loads(new_text)[key]
+        if new_records[: len(old_records)] != old_records or len(new_records) != len(old_records) + len(hero_ids):
+            return [f"{name}: append check failed"]
+        (output_dir / name).write_text(new_text, encoding="utf-8", newline="\n")
+    registry_path.write_text(_append_registry(registry_text, records["identity"]), encoding="utf-8", newline="\n")
+    return []
+
+
+def main_roster(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="convert_hero_workbook.py --roster-json")
+    parser.add_argument("--roster-json", type=Path, required=True, help="roster JSON (schema eastwar_hero_workbook_v1)")
+    parser.add_argument("--ids-csv", type=Path, required=True, help="csv with a hero_id column: the heroes to add, in order")
+    parser.add_argument("--portrait-map", type=Path, help="csv with hero_id and output_path (portraits made by make_hero_portraits.py)")
+    parser.add_argument("--output-dir", type=Path, default=Path("data/heroes/generated"))
+    parser.add_argument("--registry", type=Path, default=REGISTRY_PATH)
+    args = parser.parse_args(argv)
+    import csv
+    with args.ids_csv.open(encoding="utf-8", newline="") as handle:
+        hero_ids = [row["hero_id"] for row in csv.DictReader(handle)]
+    portrait_paths: dict[str, str] = {}
+    if args.portrait_map and args.portrait_map.is_file():
+        with args.portrait_map.open(encoding="utf-8", newline="") as handle:
+            portrait_paths = {row["hero_id"]: "res://" + row["output_path"] for row in csv.DictReader(handle)}
+    errors = append_roster(args.roster_json, hero_ids, args.output_dir, args.registry, portrait_paths)
+    if errors:
+        print("VALIDATION FAILED", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+    print(f"ROSTER APPEND PASS: {len(hero_ids)} heroes appended -> {args.output_dir}, {args.registry}")
+    return 0
+
+
 def main() -> int:
+    if "--roster-json" in sys.argv[1:]:
+        return main_roster(sys.argv[1:])
     parser = argparse.ArgumentParser()
     parser.add_argument("workbook", type=Path, help="Locked .xlsx design workbook")
     parser.add_argument("--output-dir", type=Path, default=Path("data/heroes/generated"))

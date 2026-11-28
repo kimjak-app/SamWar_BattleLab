@@ -67,8 +67,14 @@ def main() -> int:
     hero_count = len(json.loads(read(BASE_STATS_PATH)).get("heroes", []))
     require(errors, len(skills) == hero_count, f"expected {hero_count} unique skills (one per hero), found {len(skills)}")
     # The five Imjin War skills (74f974e) all cost 3: 18 -> 23 at cost 3.
-    require(errors, cost_distribution == Counter({1: 1, 2: 9, 3: 23, 4: 11}),
-            f"momentum distribution mismatch: {dict(cost_distribution)}")
+    # Queue 45: the first 44 skills keep their locked distribution; the 119 appended roster skills (Drive 68) add
+    # {1: 1, 2: 32, 3: 79, 4: 7}.
+    first_44 = Counter(int(skill.get("momentum_cost", 0)) for skill in skills[:44])
+    appended = Counter(int(skill.get("momentum_cost", 0)) for skill in skills[44:])
+    require(errors, first_44 == Counter({1: 1, 2: 9, 3: 23, 4: 11}),
+            f"momentum distribution mismatch (first 44): {dict(first_44)}")
+    require(errors, appended == Counter({1: 1, 2: 32, 3: 79, 4: 7}),
+            f"momentum distribution mismatch (appended 119): {dict(appended)}")
     require(errors, effect_types <= mapping_keys,
             f"resolver mapping missing effect types: {sorted(effect_types - mapping_keys)}")
     require(errors, '"damage_single"' in resolver, "damage_single archetype missing")

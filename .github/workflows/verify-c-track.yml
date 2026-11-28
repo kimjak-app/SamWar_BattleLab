@@ -431,6 +431,7 @@ jobs:
             tests/scripts/test_worldmap_hud41_followup.gd
             tests/scripts/test_worldmap_hud_layout_3d.gd
             tests/scripts/test_battle3d_capture_options.gd
+            tests/scripts/test_hero_register_119.gd
           )
           index=$(cat "$RUNNER_TEMP/ci_test_index" 2>/dev/null || echo 0)
           for test_script in "${tests[@]}"; do

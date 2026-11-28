@@ -308,6 +308,839 @@
       "region": "일본",
       "stats": {"leadership": 88, "martial": 84, "intelligence": 85, "politics": 81},
       "battle_multipliers": {"land": 1.2, "naval": 0.8}
+    },
+    {
+      "hero_id": "go_yeon_mu",
+      "display_name": "고연무",
+      "region": "한반도",
+      "stats": {"leadership": 85, "martial": 84, "intelligence": 80, "politics": 66},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "eul_pa_so",
+      "display_name": "을파소",
+      "region": "한반도",
+      "stats": {"leadership": 76, "martial": 40, "intelligence": 93, "politics": 94},
+      "battle_multipliers": {"land": 0.8, "naval": 0.75}
+    },
+    {
+      "hero_id": "bok_sin",
+      "display_name": "복신",
+      "region": "한반도",
+      "stats": {"leadership": 86, "martial": 84, "intelligence": 82, "politics": 70},
+      "battle_multipliers": {"land": 1.15, "naval": 0.9}
+    },
+    {
+      "hero_id": "buyeo_pung",
+      "display_name": "부여풍",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 76, "intelligence": 80, "politics": 78},
+      "battle_multipliers": {"land": 1.05, "naval": 0.9}
+    },
+    {
+      "hero_id": "munmu_wang",
+      "display_name": "문무왕",
+      "region": "한반도",
+      "stats": {"leadership": 90, "martial": 78, "intelligence": 88, "politics": 92},
+      "battle_multipliers": {"land": 1.1, "naval": 1.2}
+    },
+    {
+      "hero_id": "kim_in_mun",
+      "display_name": "김인문",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 60, "intelligence": 90, "politics": 93},
+      "battle_multipliers": {"land": 0.85, "naval": 0.9}
+    },
+    {
+      "hero_id": "torii_mototada",
+      "display_name": "도리이 모토타다",
+      "region": "일본",
+      "stats": {"leadership": 86, "martial": 84, "intelligence": 72, "politics": 70},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "okubo_tadayo",
+      "display_name": "오쿠보 다다요",
+      "region": "일본",
+      "stats": {"leadership": 82, "martial": 80, "intelligence": 74, "politics": 76},
+      "battle_multipliers": {"land": 1.15, "naval": 0.75}
+    },
+    {
+      "hero_id": "maeda_toshiie",
+      "display_name": "마에다 도시이에",
+      "region": "일본",
+      "stats": {"leadership": 90, "martial": 88, "intelligence": 80, "politics": 84},
+      "battle_multipliers": {"land": 1.2, "naval": 0.8}
+    },
+    {
+      "hero_id": "takenaka_hanbei",
+      "display_name": "다케나카 한베에",
+      "region": "일본",
+      "stats": {"leadership": 82, "martial": 52, "intelligence": 96, "politics": 86},
+      "battle_multipliers": {"land": 0.9, "naval": 0.75}
+    },
+    {
+      "hero_id": "mori_ranmaru",
+      "display_name": "모리 란마루",
+      "region": "일본",
+      "stats": {"leadership": 70, "martial": 78, "intelligence": 74, "politics": 60},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "sanada_yukimura",
+      "display_name": "사나다 유키무라",
+      "region": "일본",
+      "stats": {"leadership": 88, "martial": 94, "intelligence": 86, "politics": 72},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "shimazu_iehisa",
+      "display_name": "시마즈 이에히사",
+      "region": "일본",
+      "stats": {"leadership": 84, "martial": 88, "intelligence": 76, "politics": 64},
+      "battle_multipliers": {"land": 1.2, "naval": 0.9}
+    },
+    {
+      "hero_id": "shimazu_toyohisa",
+      "display_name": "시마즈 도요히사",
+      "region": "일본",
+      "stats": {"leadership": 78, "martial": 90, "intelligence": 64, "politics": 48},
+      "battle_multipliers": {"land": 1.25, "naval": 0.8}
+    },
+    {
+      "hero_id": "shimazu_toshihisa",
+      "display_name": "시마즈 도시히사",
+      "region": "일본",
+      "stats": {"leadership": 80, "martial": 76, "intelligence": 82, "politics": 74},
+      "battle_multipliers": {"land": 1.1, "naval": 0.85}
+    },
+    {
+      "hero_id": "xu_chu",
+      "display_name": "허저",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 97, "intelligence": 48, "politics": 40},
+      "battle_multipliers": {"land": 1.25, "naval": 0.65}
+    },
+    {
+      "hero_id": "zhongli_mei",
+      "display_name": "종리말",
+      "region": "중국",
+      "stats": {"leadership": 82, "martial": 86, "intelligence": 70, "politics": 52},
+      "battle_multipliers": {"land": 1.2, "naval": 0.75}
+    },
+    {
+      "hero_id": "xiang_zhuang",
+      "display_name": "항장",
+      "region": "중국",
+      "stats": {"leadership": 72, "martial": 82, "intelligence": 58, "politics": 40},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "zhang_zhao",
+      "display_name": "장소",
+      "region": "중국",
+      "stats": {"leadership": 72, "martial": 32, "intelligence": 90, "politics": 96},
+      "battle_multipliers": {"land": 0.75, "naval": 0.9}
+    },
+    {
+      "hero_id": "ling_tong",
+      "display_name": "능통",
+      "region": "중국",
+      "stats": {"leadership": 82, "martial": 86, "intelligence": 72, "politics": 60},
+      "battle_multipliers": {"land": 1.15, "naval": 1.1}
+    },
+    {
+      "hero_id": "fa_zheng",
+      "display_name": "법정",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 48, "intelligence": 96, "politics": 82},
+      "battle_multipliers": {"land": 0.9, "naval": 0.75}
+    },
+    {
+      "hero_id": "uriyangkhadai",
+      "display_name": "우량카다이",
+      "region": "중국",
+      "stats": {"leadership": 92, "martial": 82, "intelligence": 86, "politics": 70},
+      "battle_multipliers": {"land": 1.3, "naval": 0.75}
+    },
+    {
+      "hero_id": "a_zhu",
+      "display_name": "아술",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 84, "intelligence": 82, "politics": 66},
+      "battle_multipliers": {"land": 1.25, "naval": 0.8}
+    },
+    {
+      "hero_id": "gang_gam_chan",
+      "display_name": "강감찬",
+      "region": "한반도",
+      "stats": {"leadership": 97, "martial": 80, "intelligence": 96, "politics": 88},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "choe_yeong",
+      "display_name": "최영",
+      "region": "한반도",
+      "stats": {"leadership": 93, "martial": 94, "intelligence": 78, "politics": 70},
+      "battle_multipliers": {"land": 1.2, "naval": 0.85}
+    },
+    {
+      "hero_id": "yun_gwan",
+      "display_name": "윤관",
+      "region": "한반도",
+      "stats": {"leadership": 91, "martial": 84, "intelligence": 86, "politics": 82},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "on_dal",
+      "display_name": "온달",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 90, "intelligence": 62, "politics": 50},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "mil_u",
+      "display_name": "밀우",
+      "region": "한반도",
+      "stats": {"leadership": 74, "martial": 86, "intelligence": 68, "politics": 52},
+      "battle_multipliers": {"land": 1.2, "naval": 0.65}
+    },
+    {
+      "hero_id": "yu_yu",
+      "display_name": "유유",
+      "region": "한반도",
+      "stats": {"leadership": 70, "martial": 82, "intelligence": 72, "politics": 55},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "choe_seung_u",
+      "display_name": "최승우",
+      "region": "한반도",
+      "stats": {"leadership": 72, "martial": 36, "intelligence": 92, "politics": 88},
+      "battle_multipliers": {"land": 0.8, "naval": 0.75}
+    },
+    {
+      "hero_id": "geum_gang",
+      "display_name": "금강",
+      "region": "한반도",
+      "stats": {"leadership": 78, "martial": 80, "intelligence": 68, "politics": 60},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "gong_jik",
+      "display_name": "공직",
+      "region": "한반도",
+      "stats": {"leadership": 76, "martial": 74, "intelligence": 70, "politics": 66},
+      "battle_multipliers": {"land": 1.05, "naval": 0.75}
+    },
+    {
+      "hero_id": "sang_gwi",
+      "display_name": "상귀",
+      "region": "한반도",
+      "stats": {"leadership": 74, "martial": 78, "intelligence": 64, "politics": 55},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "ji_jeom",
+      "display_name": "지점",
+      "region": "한반도",
+      "stats": {"leadership": 73, "martial": 76, "intelligence": 66, "politics": 54},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "bok_ji_gyeom",
+      "display_name": "복지겸",
+      "region": "한반도",
+      "stats": {"leadership": 84, "martial": 82, "intelligence": 78, "politics": 76},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "yi_heun_am",
+      "display_name": "이흔암",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 83, "intelligence": 70, "politics": 58},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "yun_sin_dal",
+      "display_name": "윤신달",
+      "region": "한반도",
+      "stats": {"leadership": 78, "martial": 76, "intelligence": 74, "politics": 72},
+      "battle_multipliers": {"land": 1.05, "naval": 0.75}
+    },
+    {
+      "hero_id": "jong_gan",
+      "display_name": "종간",
+      "region": "한반도",
+      "stats": {"leadership": 70, "martial": 34, "intelligence": 90, "politics": 86},
+      "battle_multipliers": {"land": 0.8, "naval": 0.75}
+    },
+    {
+      "hero_id": "hwan_seon_gil",
+      "display_name": "환선길",
+      "region": "한반도",
+      "stats": {"leadership": 77, "martial": 80, "intelligence": 66, "politics": 50},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "kim_su_ro",
+      "display_name": "김수로왕",
+      "region": "한반도",
+      "stats": {"leadership": 88, "martial": 80, "intelligence": 78, "politics": 86},
+      "battle_multipliers": {"land": 1.05, "naval": 0.9}
+    },
+    {
+      "hero_id": "i_jin_a_si",
+      "display_name": "이진아시왕",
+      "region": "한반도",
+      "stats": {"leadership": 85, "martial": 78, "intelligence": 76, "politics": 82},
+      "battle_multipliers": {"land": 1.05, "naval": 0.8}
+    },
+    {
+      "hero_id": "kim_mu_ryeok",
+      "display_name": "김무력",
+      "region": "한반도",
+      "stats": {"leadership": 84, "martial": 88, "intelligence": 70, "politics": 62},
+      "battle_multipliers": {"land": 1.2, "naval": 0.75}
+    },
+    {
+      "hero_id": "heo_hwang_ok",
+      "display_name": "허황옥",
+      "region": "한반도",
+      "stats": {"leadership": 76, "martial": 52, "intelligence": 84, "politics": 90},
+      "battle_multipliers": {"land": 0.85, "naval": 1.0}
+    },
+    {
+      "hero_id": "geo_deung_wang",
+      "display_name": "거등왕",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 76, "intelligence": 74, "politics": 80},
+      "battle_multipliers": {"land": 1.0, "naval": 0.9}
+    },
+    {
+      "hero_id": "jang_mun_hyu",
+      "display_name": "장문휴",
+      "region": "한반도",
+      "stats": {"leadership": 90, "martial": 82, "intelligence": 84, "politics": 70},
+      "battle_multipliers": {"land": 0.95, "naval": 1.35}
+    },
+    {
+      "hero_id": "dae_mun_ye",
+      "display_name": "대문의",
+      "region": "한반도",
+      "stats": {"leadership": 83, "martial": 74, "intelligence": 82, "politics": 80},
+      "battle_multipliers": {"land": 1.05, "naval": 0.85}
+    },
+    {
+      "hero_id": "dae_ya_bal",
+      "display_name": "대야발",
+      "region": "한반도",
+      "stats": {"leadership": 84, "martial": 80, "intelligence": 76, "politics": 74},
+      "battle_multipliers": {"land": 1.15, "naval": 0.8}
+    },
+    {
+      "hero_id": "dae_in_seon",
+      "display_name": "대인선",
+      "region": "한반도",
+      "stats": {"leadership": 82, "martial": 68, "intelligence": 80, "politics": 84},
+      "battle_multipliers": {"land": 0.95, "naval": 0.85}
+    },
+    {
+      "hero_id": "dae_sung_rin",
+      "display_name": "대숭린",
+      "region": "한반도",
+      "stats": {"leadership": 80, "martial": 62, "intelligence": 84, "politics": 88},
+      "battle_multipliers": {"land": 0.9, "naval": 0.85}
+    },
+    {
+      "hero_id": "sanada_masayuki",
+      "display_name": "사나다 마사유키",
+      "region": "일본",
+      "stats": {"leadership": 90, "martial": 78, "intelligence": 94, "politics": 88},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "naito_masatoyo",
+      "display_name": "나이토 마사토요",
+      "region": "일본",
+      "stats": {"leadership": 85, "martial": 82, "intelligence": 80, "politics": 74},
+      "battle_multipliers": {"land": 1.15, "naval": 0.75}
+    },
+    {
+      "hero_id": "akiyama_nobutomo",
+      "display_name": "아키야마 노부토모",
+      "region": "일본",
+      "stats": {"leadership": 84, "martial": 86, "intelligence": 76, "politics": 68},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "obu_toramasa",
+      "display_name": "오부 도라마사",
+      "region": "일본",
+      "stats": {"leadership": 82, "martial": 86, "intelligence": 68, "politics": 60},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "naoe_kagetsuna",
+      "display_name": "나오에 가게쓰나",
+      "region": "일본",
+      "stats": {"leadership": 85, "martial": 64, "intelligence": 88, "politics": 90},
+      "battle_multipliers": {"land": 0.9, "naval": 0.75}
+    },
+    {
+      "hero_id": "honjo_shigenaga",
+      "display_name": "혼조 시게나가",
+      "region": "일본",
+      "stats": {"leadership": 84, "martial": 88, "intelligence": 70, "politics": 58},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "kakizaki_kageie",
+      "display_name": "가키자키 가게이에",
+      "region": "일본",
+      "stats": {"leadership": 83, "martial": 90, "intelligence": 62, "politics": 50},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "saito_tomonobu",
+      "display_name": "사이토 토모노부",
+      "region": "일본",
+      "stats": {"leadership": 81, "martial": 76, "intelligence": 82, "politics": 80},
+      "battle_multipliers": {"land": 1.05, "naval": 0.75}
+    },
+    {
+      "hero_id": "mori_terumoto",
+      "display_name": "모리 데루모토",
+      "region": "일본",
+      "stats": {"leadership": 88, "martial": 72, "intelligence": 84, "politics": 86},
+      "battle_multipliers": {"land": 1.05, "naval": 0.9}
+    },
+    {
+      "hero_id": "kikkawa_hiroie",
+      "display_name": "깃카와 히로이에",
+      "region": "일본",
+      "stats": {"leadership": 84, "martial": 80, "intelligence": 86, "politics": 82},
+      "battle_multipliers": {"land": 1.15, "naval": 0.8}
+    },
+    {
+      "hero_id": "kuchiba_michiyoshi",
+      "display_name": "구치바 미치요시",
+      "region": "일본",
+      "stats": {"leadership": 81, "martial": 74, "intelligence": 80, "politics": 78},
+      "battle_multipliers": {"land": 1.05, "naval": 0.8}
+    },
+    {
+      "hero_id": "fukuhara_sadatoshi",
+      "display_name": "후쿠하라 사다토시",
+      "region": "일본",
+      "stats": {"leadership": 80, "martial": 76, "intelligence": 74, "politics": 72},
+      "battle_multipliers": {"land": 1.1, "naval": 0.8}
+    },
+    {
+      "hero_id": "shishido_takaie",
+      "display_name": "시시도 다카이에",
+      "region": "일본",
+      "stats": {"leadership": 79, "martial": 78, "intelligence": 74, "politics": 70},
+      "battle_multipliers": {"land": 1.1, "naval": 0.8}
+    },
+    {
+      "hero_id": "oniniwa_tsunamoto",
+      "display_name": "오니니와 쓰나모토",
+      "region": "일본",
+      "stats": {"leadership": 83, "martial": 80, "intelligence": 78, "politics": 76},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "rusu_masakage",
+      "display_name": "루스 마사카게",
+      "region": "일본",
+      "stats": {"leadership": 81, "martial": 76, "intelligence": 74, "politics": 78},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "date_hidemune",
+      "display_name": "다테 히데무네",
+      "region": "일본",
+      "stats": {"leadership": 76, "martial": 74, "intelligence": 76, "politics": 80},
+      "battle_multipliers": {"land": 1.0, "naval": 0.85}
+    },
+    {
+      "hero_id": "shiroishi_munenao",
+      "display_name": "시로이시 무네나오",
+      "region": "일본",
+      "stats": {"leadership": 79, "martial": 78, "intelligence": 72, "politics": 68},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "harada_munetane",
+      "display_name": "하라다 무네타네",
+      "region": "일본",
+      "stats": {"leadership": 78, "martial": 82, "intelligence": 68, "politics": 60},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "hojo_ujiyasu",
+      "display_name": "호조 우지야스",
+      "region": "일본",
+      "stats": {"leadership": 95, "martial": 86, "intelligence": 92, "politics": 90},
+      "battle_multipliers": {"land": 1.2, "naval": 0.75}
+    },
+    {
+      "hero_id": "hojo_tsunashige",
+      "display_name": "호조 쓰나시게",
+      "region": "일본",
+      "stats": {"leadership": 86, "martial": 88, "intelligence": 74, "politics": 66},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "hojo_ujiteru",
+      "display_name": "호조 우지테루",
+      "region": "일본",
+      "stats": {"leadership": 84, "martial": 82, "intelligence": 76, "politics": 70},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "daidoji_masashige",
+      "display_name": "다이도지 마사시게",
+      "region": "일본",
+      "stats": {"leadership": 81, "martial": 78, "intelligence": 80, "politics": 74},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "hojo_ujinori",
+      "display_name": "호조 우지노리",
+      "region": "일본",
+      "stats": {"leadership": 80, "martial": 74, "intelligence": 80, "politics": 78},
+      "battle_multipliers": {"land": 1.05, "naval": 0.8}
+    },
+    {
+      "hero_id": "cao_ren",
+      "display_name": "조인",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 86, "intelligence": 78, "politics": 72},
+      "battle_multipliers": {"land": 1.15, "naval": 0.75}
+    },
+    {
+      "hero_id": "xiahou_yuan",
+      "display_name": "하후연",
+      "region": "중국",
+      "stats": {"leadership": 88, "martial": 92, "intelligence": 70, "politics": 60},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "dian_wei",
+      "display_name": "전위",
+      "region": "중국",
+      "stats": {"leadership": 76, "martial": 96, "intelligence": 44, "politics": 36},
+      "battle_multipliers": {"land": 1.2, "naval": 0.65}
+    },
+    {
+      "hero_id": "zhao_yun",
+      "display_name": "조운",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 97, "intelligence": 80, "politics": 65},
+      "battle_multipliers": {"land": 1.25, "naval": 0.75}
+    },
+    {
+      "hero_id": "jiang_wei",
+      "display_name": "강유",
+      "region": "중국",
+      "stats": {"leadership": 92, "martial": 88, "intelligence": 90, "politics": 70},
+      "battle_multipliers": {"land": 1.2, "naval": 0.75}
+    },
+    {
+      "hero_id": "wang_ping",
+      "display_name": "왕평",
+      "region": "중국",
+      "stats": {"leadership": 86, "martial": 80, "intelligence": 82, "politics": 66},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "ma_su",
+      "display_name": "마속",
+      "region": "중국",
+      "stats": {"leadership": 74, "martial": 62, "intelligence": 88, "politics": 68},
+      "battle_multipliers": {"land": 0.95, "naval": 0.75}
+    },
+    {
+      "hero_id": "cheng_pu",
+      "display_name": "정보",
+      "region": "중국",
+      "stats": {"leadership": 88, "martial": 84, "intelligence": 80, "politics": 74},
+      "battle_multipliers": {"land": 1.15, "naval": 1.1}
+    },
+    {
+      "hero_id": "sun_jing",
+      "display_name": "손정",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 72, "intelligence": 76, "politics": 78},
+      "battle_multipliers": {"land": 1.05, "naval": 0.9}
+    },
+    {
+      "hero_id": "zu_mao",
+      "display_name": "조절",
+      "region": "중국",
+      "stats": {"leadership": 74, "martial": 80, "intelligence": 60, "politics": 48},
+      "battle_multipliers": {"land": 1.15, "naval": 0.8}
+    },
+    {
+      "hero_id": "shen_pei",
+      "display_name": "심배",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 58, "intelligence": 88, "politics": 78},
+      "battle_multipliers": {"land": 0.9, "naval": 0.7}
+    },
+    {
+      "hero_id": "yuan_tan",
+      "display_name": "원담",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 76, "intelligence": 68, "politics": 60},
+      "battle_multipliers": {"land": 1.1, "naval": 0.8}
+    },
+    {
+      "hero_id": "guo_tu",
+      "display_name": "곽도",
+      "region": "중국",
+      "stats": {"leadership": 74, "martial": 40, "intelligence": 84, "politics": 70},
+      "battle_multipliers": {"land": 0.85, "naval": 0.7}
+    },
+    {
+      "hero_id": "bo_cai",
+      "display_name": "파재",
+      "region": "중국",
+      "stats": {"leadership": 82, "martial": 80, "intelligence": 70, "politics": 48},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "zhang_mancheng",
+      "display_name": "장만성",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 76, "intelligence": 68, "politics": 50},
+      "battle_multipliers": {"land": 1.05, "naval": 0.7}
+    },
+    {
+      "hero_id": "han_zhong_yt",
+      "display_name": "한충",
+      "region": "중국",
+      "stats": {"leadership": 76, "martial": 78, "intelligence": 66, "politics": 48},
+      "battle_multipliers": {"land": 1.05, "naval": 0.7}
+    },
+    {
+      "hero_id": "yue_fei",
+      "display_name": "악비",
+      "region": "중국",
+      "stats": {"leadership": 96, "martial": 95, "intelligence": 88, "politics": 70},
+      "battle_multipliers": {"land": 1.3, "naval": 0.75}
+    },
+    {
+      "hero_id": "zong_ze",
+      "display_name": "종택",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 78, "intelligence": 86, "politics": 84},
+      "battle_multipliers": {"land": 1.15, "naval": 0.8}
+    },
+    {
+      "hero_id": "yang_yanzhao",
+      "display_name": "양연소",
+      "region": "중국",
+      "stats": {"leadership": 86, "martial": 88, "intelligence": 76, "politics": 64},
+      "battle_multipliers": {"land": 1.2, "naval": 0.7}
+    },
+    {
+      "hero_id": "mu_ying",
+      "display_name": "목영",
+      "region": "중국",
+      "stats": {"leadership": 88, "martial": 86, "intelligence": 78, "politics": 74},
+      "battle_multipliers": {"land": 1.2, "naval": 0.8}
+    },
+    {
+      "hero_id": "tang_he",
+      "display_name": "탕화",
+      "region": "중국",
+      "stats": {"leadership": 86, "martial": 82, "intelligence": 76, "politics": 78},
+      "battle_multipliers": {"land": 1.1, "naval": 1.15}
+    },
+    {
+      "hero_id": "lan_yu",
+      "display_name": "남옥",
+      "region": "중국",
+      "stats": {"leadership": 84, "martial": 90, "intelligence": 66, "politics": 45},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "tian_yu",
+      "display_name": "전예",
+      "region": "중국",
+      "stats": {"leadership": 84, "martial": 76, "intelligence": 86, "politics": 80},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "gongsun_fan",
+      "display_name": "공손범",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 76, "intelligence": 68, "politics": 58},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "gongsun_yue",
+      "display_name": "공손월",
+      "region": "중국",
+      "stats": {"leadership": 76, "martial": 78, "intelligence": 64, "politics": 50},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "shan_jing",
+      "display_name": "단경",
+      "region": "중국",
+      "stats": {"leadership": 74, "martial": 74, "intelligence": 66, "politics": 54},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "xu_rong",
+      "display_name": "서영",
+      "region": "중국",
+      "stats": {"leadership": 82, "martial": 84, "intelligence": 70, "politics": 50},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "zhang_ji_dongzhuo",
+      "display_name": "장제",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 80, "intelligence": 66, "politics": 52},
+      "battle_multipliers": {"land": 1.1, "naval": 0.75}
+    },
+    {
+      "hero_id": "niu_fu",
+      "display_name": "우보",
+      "region": "중국",
+      "stats": {"leadership": 76, "martial": 78, "intelligence": 60, "politics": 48},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "fan_chou",
+      "display_name": "번조",
+      "region": "중국",
+      "stats": {"leadership": 75, "martial": 79, "intelligence": 58, "politics": 44},
+      "battle_multipliers": {"land": 1.1, "naval": 0.7}
+    },
+    {
+      "hero_id": "wen_pin",
+      "display_name": "문빙",
+      "region": "중국",
+      "stats": {"leadership": 84, "martial": 80, "intelligence": 76, "politics": 70},
+      "battle_multipliers": {"land": 1.15, "naval": 0.9}
+    },
+    {
+      "hero_id": "liu_qi",
+      "display_name": "유기",
+      "region": "중국",
+      "stats": {"leadership": 76, "martial": 68, "intelligence": 74, "politics": 72},
+      "battle_multipliers": {"land": 1.0, "naval": 0.9}
+    },
+    {
+      "hero_id": "lady_cai",
+      "display_name": "채부인",
+      "region": "중국",
+      "stats": {"leadership": 70, "martial": 28, "intelligence": 82, "politics": 86},
+      "battle_multipliers": {"land": 0.8, "naval": 0.8}
+    },
+    {
+      "hero_id": "xu_wen",
+      "display_name": "서온",
+      "region": "중국",
+      "stats": {"leadership": 88, "martial": 72, "intelligence": 88, "politics": 92},
+      "battle_multipliers": {"land": 1.0, "naval": 0.95}
+    },
+    {
+      "hero_id": "li_shenfu",
+      "display_name": "이신복",
+      "region": "중국",
+      "stats": {"leadership": 84, "martial": 82, "intelligence": 74, "politics": 60},
+      "battle_multipliers": {"land": 1.15, "naval": 0.9}
+    },
+    {
+      "hero_id": "tai_meng",
+      "display_name": "대몽",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 80, "intelligence": 72, "politics": 58},
+      "battle_multipliers": {"land": 1.1, "naval": 0.9}
+    },
+    {
+      "hero_id": "yangguri",
+      "display_name": "양고리",
+      "region": "중국",
+      "stats": {"leadership": 86, "martial": 92, "intelligence": 68, "politics": 55},
+      "battle_multipliers": {"land": 1.25, "naval": 0.65}
+    },
+    {
+      "hero_id": "fiongdon",
+      "display_name": "페이잉동",
+      "region": "중국",
+      "stats": {"leadership": 85, "martial": 88, "intelligence": 74, "politics": 62},
+      "battle_multipliers": {"land": 1.2, "naval": 0.65}
+    },
+    {
+      "hero_id": "anfiyanggu",
+      "display_name": "안페양고",
+      "region": "중국",
+      "stats": {"leadership": 80, "martial": 82, "intelligence": 70, "politics": 66},
+      "battle_multipliers": {"land": 1.15, "naval": 0.7}
+    },
+    {
+      "hero_id": "bilge_khagan",
+      "display_name": "빌게가한",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 82, "intelligence": 88, "politics": 84},
+      "battle_multipliers": {"land": 1.2, "naval": 0.5}
+    },
+    {
+      "hero_id": "qapaghan_khagan",
+      "display_name": "묵철가한",
+      "region": "중국",
+      "stats": {"leadership": 92, "martial": 90, "intelligence": 76, "politics": 64},
+      "battle_multipliers": {"land": 1.3, "naval": 0.5}
+    },
+    {
+      "hero_id": "kul_tigin",
+      "display_name": "퀼테긴",
+      "region": "중국",
+      "stats": {"leadership": 86, "martial": 94, "intelligence": 74, "politics": 56},
+      "battle_multipliers": {"land": 1.3, "naval": 0.5}
+    },
+    {
+      "hero_id": "inel_khagan",
+      "display_name": "이넬가한",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 80, "intelligence": 66, "politics": 58},
+      "battle_multipliers": {"land": 1.15, "naval": 0.5}
+    },
+    {
+      "hero_id": "trisong_detsen",
+      "display_name": "치송데첸",
+      "region": "중국",
+      "stats": {"leadership": 88, "martial": 74, "intelligence": 86, "politics": 88},
+      "battle_multipliers": {"land": 1.1, "naval": 0.55}
+    },
+    {
+      "hero_id": "lun_qinling",
+      "display_name": "론흠릉",
+      "region": "중국",
+      "stats": {"leadership": 90, "martial": 86, "intelligence": 82, "politics": 70},
+      "battle_multipliers": {"land": 1.2, "naval": 0.55}
+    },
+    {
+      "hero_id": "princess_wencheng",
+      "display_name": "문성공주",
+      "region": "중국",
+      "stats": {"leadership": 72, "martial": 30, "intelligence": 88, "politics": 94},
+      "battle_multipliers": {"land": 0.8, "naval": 0.7}
+    },
+    {
+      "hero_id": "langdarma",
+      "display_name": "랑다르마",
+      "region": "중국",
+      "stats": {"leadership": 78, "martial": 76, "intelligence": 64, "politics": 58},
+      "battle_multipliers": {"land": 1.05, "naval": 0.55}
     }
   ]
 }

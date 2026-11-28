@@ -8,7 +8,7 @@ const UNIQUE_SKILLS_PATH := "res://data/heroes/generated/hero_unique_skills.json
 const UNIQUE_SKILL_EXTENSIONS_PATH := "res://data/heroes/hero_unique_skill_runtime_extensions.json"
 const UNIT_TYPE_RULES_PATH := "res://data/heroes/generated/unit_type_rules.json"
 const BATTLE_ROLE_RULES_PATH := "res://data/heroes/generated/battle_role_rules.json"
-const EXPECTED_HERO_COUNT := 44
+const EXPECTED_HERO_COUNT := 163   # queue 45: 44 + 119 registered (definitions only)
 
 static var _loaded := false
 static var _load_error := ""

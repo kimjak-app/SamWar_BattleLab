@@ -61,6 +61,23 @@ const ENEMY_TARGET_MODES := [
 ]
 
 
+## Queue 45: an effect type the resolver has no archetype for is never swapped for another type - the skill does
+## nothing (validate_skill fails with unsupported_effect_type, so no target, no plan, no momentum spent) and the first
+## time each such type is met one line is printed: [SKILL_UNIMPLEMENTED] type=<effect_type> skill=<skill_id>.
+static var _unimplemented_logged: Dictionary = {}
+
+
+static func get_unimplemented_log_count(effect_type: String) -> int:
+	return int(_unimplemented_logged.get(effect_type, 0))
+
+
+static func _log_unimplemented(effect_type: String, skill_id: String) -> void:
+	if _unimplemented_logged.has(effect_type):
+		return
+	_unimplemented_logged[effect_type] = 1
+	print("[SKILL_UNIMPLEMENTED] type=%s skill=%s" % [effect_type, skill_id])
+
+
 static func normalize_skill(raw_skill: Dictionary) -> Dictionary:
 	var skill := raw_skill.duplicate(true)
 	var effect_type := String(skill.get("effect_type", ""))
@@ -85,6 +102,7 @@ static func validate_skill(raw_skill: Dictionary) -> Dictionary:
 	if String(skill.get("hero_id", "")).is_empty():
 		return _failure("missing_hero_id")
 	if not VALID_ARCHETYPES.has(String(skill.get("archetype", ""))):
+		_log_unimplemented(String(skill.get("effect_type", "")), String(skill.get("skill_id", "")))
 		return _failure("unsupported_effect_type")
 	if not SELF_TARGET_MODES.has(String(skill.get("target_mode", ""))) \
 			and not ALLY_TARGET_MODES.has(String(skill.get("target_mode", ""))) \

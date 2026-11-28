@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATED = ROOT / "data" / "heroes" / "generated"
-EXPECTED_COUNT = 44
+EXPECTED_COUNT = 163   # queue 45: 44 + the 119 roster heroes (definitions only, no garrison)
 NEW_HEROES = {
     "gwak_jae_u": ("goryeo_joseon", "hanseong", "res://assets/heroes/portraits/korea/korea_gwak_jae_u.png"),
     "go_gyeong_myeong": ("goryeo_joseon", "hanseong", "res://assets/heroes/portraits/korea/korea_go_gyeong_myeong.png"),
@@ -57,7 +57,7 @@ def main() -> int:
         )
 
     design_registry = (ROOT / "scripts" / "worldmap" / "hero_design_data_registry.gd").read_text(encoding="utf-8")
-    assert "const EXPECTED_HERO_COUNT := 44" in design_registry, "HeroDesignDataRegistry still expects a non-44 count"
+    assert f"const EXPECTED_HERO_COUNT := {EXPECTED_COUNT}" in design_registry, f"HeroDesignDataRegistry does not expect {EXPECTED_COUNT}"
 
     identity_path = ROOT / "scripts" / "worldmap" / "hero_definition_registry.gd"
     identity_text = identity_path.read_text(encoding="utf-8")
@@ -100,7 +100,7 @@ def main() -> int:
         assert required_token in seeder_text, f"WorldMap city-seeding contract missing: {required_token}"
 
     print(
-        "VALIDATION PASS: 44 hero design parity + 44 WorldMap identities + five Imjin placements + "
+        f"VALIDATION PASS: {EXPECTED_COUNT} hero design parity + {EXPECTED_COUNT} WorldMap identities + five Imjin placements + "
         "registry-to-city production seeding bridge"
     )
     return 0
