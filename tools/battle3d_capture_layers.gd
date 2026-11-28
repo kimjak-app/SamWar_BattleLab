@@ -221,7 +221,13 @@ static func add_props(parent: Node3D, folder: String, height_at: Callable, outer
 		sprite.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
 		sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 		sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		sprite.position = Vector3(0.0, height_m * 0.5, 0.0)   # anchor "bottom": the picture's lower edge on the ground
+		# anchor "bottom": the picture's VISIBLE foot on the ground (채비서 108). The foot is "base_px" rows above the
+		# image's lower edge when the entry gives it (a rock whose grass tuft hangs lower than its body), else the
+		# transparent rows under the lowest drawn row (alpha >= 0.5, what the alpha cut keeps) are skipped.
+		var base_px := int(entry.get("base_px", transparent_bottom_rows(image)))
+		base_px = clampi(base_px, 0, image.get_height() - 1)
+		sprite.position = Vector3(0.0, height_m * 0.5 - float(base_px) * sprite.pixel_size, 0.0)
+		prop.set_meta("base_px", base_px)
 		prop.add_child(sprite)
 		if bool(entry.get("shadow", false)):
 			var shadow := MeshInstance3D.new()
@@ -243,6 +249,17 @@ static func add_props(parent: Node3D, folder: String, height_at: Callable, outer
 			prop.add_child(shadow)
 		result.count = int(result.count) + 1
 	return result
+
+
+## Rows at the bottom of the image with no pixel the alpha cut keeps (alpha < 0.5).
+static func transparent_bottom_rows(image: Image) -> int:
+	var rows := 0
+	for y in range(image.get_height() - 1, -1, -1):
+		for x in image.get_width():
+			if image.get_pixel(x, y).a >= 0.5:
+				return rows
+		rows += 1
+	return rows
 
 
 static func _warn(result: Dictionary, message: String) -> void:

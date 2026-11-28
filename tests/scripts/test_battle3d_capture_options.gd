@@ -13,7 +13,8 @@ extends SceneTree
 #  5. --guide: parsed as a flag, the four output names, the .json keys; a headless --guide run exits with code 2
 #  6. coordinates: the board corners and both bridge ends, mapped to guide pixels, equal the shader UV formulas
 #     (board: xz / 60; outer: (xz - play_center) / outer_size + 0.5) within 1 px; the bridge ends match the built bridge
-#  7. props.json: 3 good entries -> 3 props whose base sits on the terrain (0.05 m), Y-fixed billboards with alpha cut;
+#  7. props.json: 5 good entries -> 5 props whose VISIBLE foot sits on the terrain (0.05 m) - transparent rows under the
+#     foot skipped, or "base_px" given by hand (채비서 108) - Y-fixed billboards with alpha cut;
 #     a missing image and an entry outside the outer ground are skipped with one warning each
 
 const Board = preload("res://scripts/battle3d/lab_heightfield.gd")
@@ -177,28 +178,41 @@ func _check_guide_and_props() -> void:
 		{"image": "tree_a.png", "x": 27.0, "z": 50.0, "height_m": 5.0, "anchor": "bottom", "shadow": true},
 		{"image": "missing.png", "x": 10.0, "z": 10.0, "height_m": 3.0},
 		{"image": "tree_a.png", "x": 500.0, "z": 10.0, "height_m": 3.0},
+		# 채비서 108: a picture with 3 transparent rows under its foot, and a foot given by hand ("base_px")
+		{"image": "tree_pad.png", "x": 20.0, "z": 20.0, "height_m": 4.0, "anchor": "bottom", "shadow": true},
+		{"image": "tree_a.png", "x": 33.0, "z": 25.0, "height_m": 4.0, "anchor": "bottom", "base_px": 2},
 	]
+	var padded := Image.create(8, 10, false, Image.FORMAT_RGBA8)
+	padded.fill(Color(0, 0, 0, 0))
+	padded.fill_rect(Rect2i(0, 0, 8, 7), Color(0.2, 0.5, 0.2, 1.0))
+	padded.set_pixel(3, 7, Color(0.2, 0.5, 0.2, 0.3))   # a faint pixel the alpha cut drops: not the foot
+	padded.save_png(ProjectSettings.globalize_path(PROPS_DIR + "/tree_pad.png"))
+	var want_foot := {"Prop_0": [8, 0], "Prop_1": [8, 0], "Prop_2": [8, 0], "Prop_5": [10, 3], "Prop_6": [8, 2]}   # [image height, foot rows]
 	var file := FileAccess.open(PROPS_DIR + "/props.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(entries))
 	file.close()
 	var height_at := Callable(builder, "sample_smooth_height_at_world")
 	var props: Dictionary = Layers.add_props(builder, ProjectSettings.globalize_path(PROPS_DIR), height_at, 180.0, center)
 	var root3d: Node3D = props.root
-	_expect(int(props.count) == 3 and root3d != null and root3d.get_child_count() == 3, "7. 3 good entries -> 3 props (%d)" % int(props.count))
+	_expect(int(props.count) == 5 and root3d != null and root3d.get_child_count() == 5, "7. 5 good entries -> 5 props (%d)" % int(props.count))
 	_expect((props.warnings as Array).size() == 2, "7. the missing image and the far entry are skipped with one warning each %s" % str(props.warnings))
+	_expect(Layers.transparent_bottom_rows(padded) == 3 and Layers.transparent_bottom_rows(tree) == 0, "7. transparent rows under the foot: 3 (padded, faint pixel ignored), 0 (opaque)")
 	var base_bad: Array = []
 	if root3d != null:
 		for prop in root3d.get_children():
 			var sprite := prop.get_node("Picture") as Sprite3D
-			var picture_bottom: float = (prop as Node3D).position.y + sprite.position.y - sprite.pixel_size * 8.0 * 0.5
+			var foot: Array = want_foot.get(prop.name, [0, 0])
+			# the visible foot: the image's lower edge raised by the transparent / given rows
+			var visible_foot: float = (prop as Node3D).position.y + sprite.position.y - sprite.pixel_size * float(foot[0]) * 0.5 + sprite.pixel_size * float(foot[1])
 			var ground := float(height_at.call((prop as Node3D).position.x, (prop as Node3D).position.z))
-			if absf(picture_bottom - ground) > 0.05 or sprite.billboard != BaseMaterial3D.BILLBOARD_FIXED_Y or sprite.alpha_cut != SpriteBase3D.ALPHA_CUT_DISCARD:
-				base_bad.append(prop.name)
-		_expect(base_bad.is_empty(), "7. each picture stands on the terrain (bottom within 0.05 m), Y-fixed billboard, alpha cut %s" % str(base_bad))
+			if absf(visible_foot - ground) > 0.05 or int(prop.get_meta("base_px", -1)) != int(foot[1]) or sprite.billboard != BaseMaterial3D.BILLBOARD_FIXED_Y or sprite.alpha_cut != SpriteBase3D.ALPHA_CUT_DISCARD:
+				base_bad.append("%s foot %.3f ground %.3f rows %s" % [prop.name, visible_foot, ground, str(prop.get_meta("base_px", -1))])
+		_expect(base_bad.is_empty(), "7. each picture's VISIBLE foot stands on the terrain (within 0.05 m; padded and base_px pictures too), Y-fixed billboard, alpha cut %s" % str(base_bad))
 		_expect(root3d.get_node("Prop_0").has_node("GroundShadow") and not root3d.get_node("Prop_1").has_node("GroundShadow"), "7. shadow: true lays a ground shadow, false does not")
 	builder.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROPS_DIR + "/props.json"))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROPS_DIR + "/tree_a.png"))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROPS_DIR + "/tree_pad.png"))
 
 
 func _count_nodes(node: Node) -> int:
