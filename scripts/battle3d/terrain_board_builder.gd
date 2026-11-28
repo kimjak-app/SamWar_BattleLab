@@ -56,6 +56,11 @@ const FOREST_LAYOUT_SEED: int = 20261031
 @export var outer_ground_world_size: float = 220.0
 @export_range(0.0, 1.0, 0.05) var outer_ground_strength: float = 1.0
 
+## Queue 44: in-board painted ground (comparison with the 2.5D art; off by default = the board looks as before)
+@export var use_board_paint_texture: bool = false
+@export var board_paint_texture: Texture2D
+@export var board_paint_world_size: float = 60.0
+
 ## River water shader controls (Three Kingdoms 8R tone + 2-layer flow, sun glint, baked shore foam)
 @export_range(0.0, 1.0, 0.01) var water_flow_speed: float = 0.08
 @export_range(0.05, 1.0, 0.01) var water_ripple_scale: float = 0.22
@@ -683,6 +688,10 @@ func _apply_terrain_shader_material() -> void:
 	shader_material.set_shader_parameter("tactical_highlight_map", highlight_texture)
 	shader_material.set_shader_parameter("use_pbr_textures", use_pbr_textures)
 	shader_material.set_shader_parameter("mountain_visual_style", mountain_visual_style)
+	shader_material.set_shader_parameter("use_board_paint_tex", use_board_paint_texture and board_paint_texture != null)
+	shader_material.set_shader_parameter("board_paint_world_size", board_paint_world_size)
+	if board_paint_texture != null:
+		shader_material.set_shader_parameter("board_paint_tex", board_paint_texture)
 	_update_outer_ground_shader_params()
 
 	var noise_tex := NoiseTexture2D.new()
