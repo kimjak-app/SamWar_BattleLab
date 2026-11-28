@@ -4,9 +4,11 @@ extends RefCounted
 ## Queue 39 (CITIES65 0.7): the scene keeps its 13 hand-placed CityMarker nodes; the other cities of the 3D map data
 ## get a logical 2D marker built here (a copy of an existing marker), so 3D clicks, the HUD and turn code see them
 ## the same way. The 2D map itself is hidden by the 3D HUD; positions are a least-squares fit of the 13 scene markers.
-## Legacy markers keep their neighbors / route types (gameplay links of the 13 cities are unchanged until faction
-## placement); a new marker lists its 0.7 roads as "land" and sea routes as "sea", so the route type between a new
-## city and a legacy one is explicit (e.g. 오사카–히로시마 is land, no naval research).
+## Queue 46 (PLACEMENT_A + 0.7 roads): every marker — the 13 scene markers too — gets its links from the same 0.7 rule
+## data the 3D roads are drawn from (100 roads as "land", 20 sea routes as "sea"), both directions. The scene's v2.4
+## neighbors / route types (18 links, e.g. 상도–평양, 상도–업성) are replaced, so sortie, AI, battle context, trade
+## and supply all read the 0.7 graph, and the route type of every linked pair is explicit (e.g. 오사카–히로시마 is
+## land, no naval research; 사비–개성 is sea).
 
 const RULE_DATA_PATH := "res://worldmap3d/maps/eastasia/rule_data_eastasia.json"
 const MARKERS_PATH := "res://worldmap3d/maps/eastasia/markers.json"
@@ -30,6 +32,8 @@ static func add_missing_city_markers(city_layer: Node, city_hud_data: Dictionary
 		return added
 	var fit := _fit_km_to_layer(existing, marker_km)
 	var links := _links_by_city(rules)
+	for city_id in existing:
+		_apply_links(existing[city_id] as WorldMapCityMarker, links.get(city_id, {}))
 	for city in rules.get("cities", []):
 		var city_id := str(city.get("id", ""))
 		if city_id.is_empty() or existing.has(city_id) or not city_hud_data.has(city_id) or not marker_km.has(city_id):
@@ -40,19 +44,27 @@ static func add_missing_city_markers(city_layer: Node, city_hud_data: Dictionary
 		marker.display_name = str(city_hud_data[city_id].get("name", city.get("name_ko", city_id)))
 		marker.region_id = str(REGION_ID_BY_STYLE.get(str(city.get("building_style", "")), ""))
 		marker.owner_faction_id = str(city_hud_data[city_id].get("owner", ""))
-		var city_links: Dictionary = links.get(city_id, {})
-		var neighbor_ids: Array[String] = []
-		for neighbor_id in city_links:
-			neighbor_ids.append(str(neighbor_id))
-		neighbor_ids.sort()
-		marker.neighbors = neighbor_ids
-		marker.route_types = city_links.duplicate()
+		_apply_links(marker, links.get(city_id, {}))
 		var km: Dictionary = marker_km[city_id]
 		marker.position = Vector2(fit.ax * float(km.x_km) + fit.bx, fit.az * float(km.z_km) + fit.bz)
 		marker.web_seed_position = marker.position
 		city_layer.add_child(marker)
 		added.append(city_id)
 	return added
+
+
+static func _apply_links(marker: WorldMapCityMarker, city_links: Dictionary) -> void:
+	var neighbor_ids: Array[String] = []
+	for neighbor_id in city_links:
+		neighbor_ids.append(str(neighbor_id))
+	neighbor_ids.sort()
+	marker.neighbors = neighbor_ids
+	marker.route_types = city_links.duplicate()
+
+
+## The gameplay link table: city id -> {neighbor id: "land" | "sea"}, symmetric (both directions of every pair).
+static func load_links() -> Dictionary:
+	return _links_by_city(_load_json(RULE_DATA_PATH))
 
 
 static func _links_by_city(rules: Dictionary) -> Dictionary:

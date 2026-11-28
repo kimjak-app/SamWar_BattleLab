@@ -91,10 +91,11 @@ func _check_silk_short() -> void:
 func _check_trade_lines() -> void:
 	var trade: Object = _main.call("_ensure_trade_controller")
 	var partner := ""
-	for city_id in _main.get("_city_markers_by_id"):
-		if str(_main.call("_find_contextual_trade_source_city_id", str(city_id))) == OWN_CITY:
-			partner = str(city_id)
-			break
+	# Queue 46 (배치 A): 개성 (also the player's) sorts before 한성 as the contextual source of every partner, so the
+	# partner is the first of 한성's own external trade candidates (the orders below name 한성 as the source).
+	var own_candidates: Array = _main.call("_get_external_trade_candidate_city_ids", OWN_CITY)
+	own_candidates.sort()
+	partner = str(own_candidates[0]) if not own_candidates.is_empty() else ""
 	_expect(not partner.is_empty(), "3. trade partner exists")
 	if partner.is_empty():
 		return

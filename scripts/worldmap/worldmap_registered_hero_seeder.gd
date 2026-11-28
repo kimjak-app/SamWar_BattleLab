@@ -13,7 +13,10 @@ extends Node
 ## - never seed a hero that already has a runtime state (moved/deployed/captured
 ##   heroes therefore cannot be teleported back to their original city);
 ## - mirror both stationed_hero_ids and hero_ids for legacy/current callers;
-## - rerun only when a new WorldMap scene instance appears.
+## - rerun only when a new WorldMap scene instance appears;
+## - queue 46: a hero whose definition carries a placement_id is seeded only in a world started with that placement
+##   (_player_state.world_placement_id) — an old save (no marker) keeps its old placement;
+## - the player-owned list follows the current player faction (GameSession), not the literal id "player".
 
 const HeroDefinitionRegistryScript := preload("res://scripts/worldmap/hero_definition_registry.gd")
 const MAX_DEFERRED_SEED_ATTEMPTS := 4
@@ -88,6 +91,9 @@ func _seed_missing_registered_heroes(worldmap: Node) -> void:
 		for hero_id_variant in city.get("stationed_hero_ids", city.get("hero_ids", [])):
 			stationed_ids[String(hero_id_variant)] = true
 
+	var player_state_variant: Variant = worldmap.get("_player_state")
+	var world_placement_id := str((player_state_variant as Dictionary).get("world_placement_id", "")) if player_state_variant is Dictionary else ""
+	var player_faction_id := str(worldmap.call("_get_current_player_faction_id")) if worldmap.has_method("_get_current_player_faction_id") else "player"
 	var seeded_by_city := {}
 	var player_owned_additions: Array[String] = []
 	for hero_id_variant in HeroDefinitionRegistryScript.HERO_DATA.keys():
@@ -98,6 +104,9 @@ func _seed_missing_registered_heroes(worldmap: Node) -> void:
 		if not hero_variant is Dictionary:
 			continue
 		var hero: Dictionary = hero_variant
+		var hero_placement_id := String(hero.get("placement_id", ""))
+		if not hero_placement_id.is_empty() and hero_placement_id != world_placement_id:
+			continue
 		var city_id := String(hero.get("assigned_city_id", hero.get("city_id", hero.get("location_city_id", ""))))
 		if city_id.is_empty() or not city_states.has(city_id):
 			continue
@@ -126,7 +135,7 @@ func _seed_missing_registered_heroes(worldmap: Node) -> void:
 		if not seeded_by_city.has(city_id):
 			seeded_by_city[city_id] = []
 		(seeded_by_city[city_id] as Array).append(hero_id)
-		if String(hero.get("side", "")) == "player" or owner_id == "player":
+		if owner_id == player_faction_id:
 			player_owned_additions.append(hero_id)
 
 	worldmap.set("_city_runtime_states", city_states)

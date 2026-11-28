@@ -3,6 +3,9 @@ extends SceneTree
 # Queue 36 STOCK-AUTHORITY-P0 (+ reply 1): one city ledger. Each city's resource_stock is the only stock; the national
 # stock is the sum of the owned cities and is never stored or changed on its own. Runs on the real WorldMap.tscn from a
 # new game (player / hanseong) plus one neighbouring city handed to the player.
+# Queue 46 (배치 A, 0.7 links): the new game already gives the player a second city (개성, next to 한성), so that one is
+# the second city and nothing is handed over; the foreign trade partner is taken from 한성's external trade candidates
+# (개성 is also next to 철원 / 사비, so the "first source" search no longer returns 한성).
 #  1. two owned cities, rice 40 + 60 -> national 100 (live sum and both national caches)
 #  2. internal transfer 10 -> 30 / 70, national still 100
 #  3. chancellor auto-trade and a manual external trade: national = city sum, the trade gold shows in the national sum
@@ -47,12 +50,16 @@ func _run() -> void:
 		return
 	_player = str(_main.call("_get_current_player_faction_id"))
 	var marker = (_main.get("_city_markers_by_id") as Dictionary).get(OWN_CITY)
-	_second = str(marker.neighbors[0]) if marker != null and not marker.neighbors.is_empty() else ""
-	_expect(not _second.is_empty(), "hanseong has a neighbour to hand to the player (%s)" % _second)
+	for neighbor_id in (marker.neighbors if marker != null else []):
+		if bool(_main.call("_is_city_owned_by_player_mvp", str(neighbor_id))):
+			_second = str(neighbor_id)
+	if _second.is_empty() and marker != null and not marker.neighbors.is_empty():
+		_second = str(marker.neighbors[0])
+		_set_owner(_second, _player)
+	_expect(not _second.is_empty(), "hanseong has a neighbouring second city of the player (%s)" % _second)
 	if _second.is_empty():
 		_finish()
 		return
-	_set_owner(_second, _player)
 	_expect(_payment_cities() == [OWN_CITY, _second], "the player owns exactly %s and %s, capital first (%s)" % [OWN_CITY, _second, str(_payment_cities())])
 
 	_check_sum_and_transfer()
@@ -102,11 +109,9 @@ func _check_trade() -> void:
 	_expect_sum_is_cities("3. after chancellor auto-trade")
 	_main.set("_trade_control_modes", trade_modes_before)
 
-	var target := ""
-	for city_id in _main.get("_city_markers_by_id"):
-		if str(_main.call("_find_contextual_trade_source_city_id", str(city_id))) == OWN_CITY:
-			target = str(city_id)
-			break
+	var candidates: Array = _main.call("_get_external_trade_candidate_city_ids", OWN_CITY)
+	candidates.sort()
+	var target := str(candidates[0]) if not candidates.is_empty() else ""
 	_expect(not target.is_empty(), "3. a foreign trade partner of %s exists" % OWN_CITY)
 	if target.is_empty():
 		return

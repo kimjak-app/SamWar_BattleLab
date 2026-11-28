@@ -7,15 +7,20 @@ extends SceneTree
 #  2. the 44 definitions are exactly the baseline's (get_hero as sorted-key JSON text)
 #  3. new game: city garrisons, the player's owned heroes and every hero runtime state equal the baseline; no new hero
 #     is stationed, owned, has a runtime state, or sits in an unclaimed city
+#     Queue 46 (PLACEMENT_A): a new game is now 배치 A, so 3 checks the placement instead of the 6b6bc2f baseline — every
+#     one of the 163 heroes stationed once, in its placement city, with a runtime state there, none in an unclaimed city
+#     (the full placement checks are test_worldmap_placement_a.gd). 4 (old saves load as on 6b6bc2f) is unchanged.
 #  4. the baseline's manual save and turn checkpoint (written on 6b6bc2f) load to the same world as on 6b6bc2f
 #  5. each new hero: get_hero returns it, stats_approved == true except the draft 조운 (false; 김작 11-28 15:06),
 #     review_status as in the roster (조운 = draft),
-#     city and faction fields empty, the 9 new-type skills keep their roster effect_type
+#     faction fields empty, city fields = the placement-A city with placement_id (queue 46), the 9 new-type skills keep
+#     their roster effect_type
 #  6. an effect type the battle resolver does not know: no effect (validate / plan fail, no target), no crash, one
 #     [SKILL_UNIMPLEMENTED] line per type
 #  7. the 119 portraits: 512x512 RGB PNG, load() is not null
 
 const Capture := preload("res://tests/scripts/support/hero_reg119_capture.gd")
+const Placement := preload("res://scripts/worldmap/worldmap_placement_a.gd")
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const FIXTURE_DIR := "res://tests/fixtures/hero_reg119"
 const ROSTER_PATH := "res://data/heroes/source/roster_245_20261128.json"
@@ -35,6 +40,7 @@ var _baseline: Dictionary = {}
 var _new_ids: Array[String] = []
 var _roster: Dictionary = {}
 var _saved_files: Dictionary = {}
+var _placement_city: Dictionary = {}
 
 
 func _initialize() -> void:
@@ -50,6 +56,8 @@ func _run() -> void:
 	var header := lines[0].split(",")
 	for i in range(1, lines.size()):
 		_new_ids.append(lines[i].split(",")[header.find("hero_id")])
+	var city_hud_data: Dictionary = (load("res://scripts/worldmap/worldmap_main.gd") as GDScript).get_script_constant_map().get("CITY_HUD_DATA", {})
+	_placement_city = Placement.load_placement(HeroDefinitionRegistry.HERO_DATA, city_hud_data).get("hero_city", {})
 	_check_registry()
 	_check_definitions()
 	_check_new_heroes()
@@ -57,7 +65,7 @@ func _run() -> void:
 	_check_portraits()
 	_backup_saves()
 	var main := await _new_game()
-	_check_world("3. new game", Capture.world(main), _baseline.new_game)
+	_check_placement_world("3. new game (배치 A)", Capture.world(main), main)
 	_write(MANUAL_SAVE, FileAccess.get_file_as_string(FIXTURE_DIR + "/manual_save.json"))
 	_write(CHECKPOINT_SAVE, FileAccess.get_file_as_string(FIXTURE_DIR + "/checkpoint_save.json"))
 	main.call("_load_worldmap_state", MANUAL_SAVE)
@@ -104,7 +112,33 @@ func _check_definitions() -> void:
 	_expect(now.size() == 44 and changed.is_empty(), "2. the 44 definitions equal 6b6bc2f %s" % str(changed))
 
 
-## 3 / 4
+## 3 (queue 46: the new game is 배치 A)
+func _check_placement_world(label: String, now: Dictionary, main: Node) -> void:
+	var placement := Placement.load_placement(HeroDefinitionRegistry.HERO_DATA, main.get("CITY_HUD_DATA"))
+	var hero_city: Dictionary = placement.get("hero_city", {})
+	var where := {}
+	var dup: Array = []
+	for city_id in now.stationed:
+		for hero_id in now.stationed[city_id]:
+			if where.has(hero_id):
+				dup.append(hero_id)
+			where[hero_id] = city_id
+	var cities: Dictionary = main.get("CITY_HUD_DATA")
+	for city_id in cities:
+		if not now.stationed.has(city_id):
+			for hero_id in (cities[city_id] as Dictionary).get("stationed_hero_ids", []):
+				where[hero_id] = city_id
+	var wrong: Array = []
+	var states: Dictionary = JSON.parse_string(str(now.get("hero_runtime_states", "{}")))
+	for hero_id in hero_city:
+		if str(where.get(hero_id, "")) != str(hero_city[hero_id]) or str((states.get(hero_id, {}) as Dictionary).get("current_city_id", "")) != str(hero_city[hero_id]):
+			wrong.append(hero_id)
+	_expect(bool(placement.ok) and hero_city.size() == 163 and where.size() == 163 and dup.is_empty() and wrong.is_empty(),
+		"%s: 163 heroes stationed once, each in its placement city with a runtime state there (dup %s, wrong %s)" % [label, str(dup), str(wrong.slice(0, 8))])
+	_expect((now.unclaimed_with_heroes as Dictionary).is_empty(), "%s: no hero in an unclaimed city" % label)
+
+
+## 4
 func _check_world(label: String, now: Dictionary, base: Dictionary) -> void:
 	for key in ["stationed", "owned_hero_ids", "unclaimed_with_heroes"]:
 		_expect(JSON.stringify(now.get(key), "", true) == JSON.stringify(base.get(key), "", true), "%s: %s equal to 6b6bc2f" % [label, key])
@@ -128,8 +162,12 @@ func _check_new_heroes() -> void:
 		var hero := HeroDefinitionRegistry.get_hero(hero_id)
 		var roster: Dictionary = _roster.get(hero_id, {})
 		var ok: bool = not hero.is_empty() and hero.get("stats_approved") == (hero_id != "zhao_yun") and str(hero.get("review_status")) == str(roster.get("review_status"))
-		for field in ["assigned_city_id", "city_id", "location_city_id", "faction_id", "force_id", "side", "nation"]:
+		for field in ["faction_id", "force_id", "side", "nation"]:
 			ok = ok and hero.has(field) and str(hero.get(field)) == ""
+		var placement_city := str(_placement_city.get(hero_id, ""))
+		for field in ["assigned_city_id", "city_id", "location_city_id"]:
+			ok = ok and not placement_city.is_empty() and str(hero.get(field)) == placement_city
+		ok = ok and str(hero.get("placement_id", "")) == Placement.PLACEMENT_ID
 		ok = ok and str(hero.get("skill_effect_type")) == str(roster.get("skill_effect_type"))
 		ok = ok and str((hero.get("design_unique_skill", {}) as Dictionary).get("effect_type")) == str(roster.get("skill_effect_type"))
 		ok = ok and int(hero.get("leadership", -1)) == int(roster.get("leadership")) and int(hero.get("martial", -1)) == int(roster.get("martial"))
@@ -137,7 +175,7 @@ func _check_new_heroes() -> void:
 		ok = ok and str(hero.get("unit_type")) == str(roster.get("unit_type")) and int(hero.get("initial_loyalty", -1)) == int(roster.get("initial_loyalty"))
 		if not ok:
 			bad.append(hero_id)
-	_expect(bad.is_empty(), "5. 119 definitions: stats / unit / loyalty / skill type from the roster, stats_approved true (조운 false), review_status kept, city and faction empty %s" % str(bad.slice(0, 8)))
+	_expect(bad.is_empty(), "5. 119 definitions: stats / unit / loyalty / skill type from the roster, stats_approved true (조운 false), review_status kept, faction empty, city = placement A %s" % str(bad.slice(0, 8)))
 	var zhao := HeroDefinitionRegistry.get_hero("zhao_yun")
 	_expect(str(zhao.get("review_status")).contains("초안"), "5. 조운 carries the draft mark (%s)" % str(zhao.get("review_status")))
 	var drafts := _new_ids.filter(func(h): return str(HeroDefinitionRegistry.get_hero(h).get("review_status")).contains("초안"))

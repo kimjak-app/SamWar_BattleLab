@@ -55,7 +55,11 @@ func _run() -> void:
 		_finish()
 		return
 	var marker = (_main.get("_city_markers_by_id") as Dictionary).get(OWN_CITY)
-	_second = str(marker.neighbors[0]) if marker != null and not marker.neighbors.is_empty() else ""
+	# Queue 46 (배치 A, 0.7 links): 한성's first neighbour (철원) is now a faction city that check 8 targets; the city
+	# handed around in check 7 is an unclaimed neighbour, as it was before the placement.
+	for neighbor_id in (marker.neighbors if marker != null else []):
+		if _second.is_empty() and WorldMapUnclaimedCityRules.is_unclaimed_owner(_main.call("_get_city_owner_id_for_battle_context", str(neighbor_id))):
+			_second = str(neighbor_id)
 
 	_check_submit_and_turn_end()
 	_check_other_actions()

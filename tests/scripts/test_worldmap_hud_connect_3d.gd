@@ -22,7 +22,7 @@ const CityActionController := preload("res://scripts/worldmap/ui/worldmap_city_a
 const Strategy := preload("res://scripts/worldmap/actions/strategy_request_service.gd")
 const OWN_CITY := "hanseong"
 const ENEMY_CITY := "pyeongyang"
-const EMPTY_CITY := "gaeseong"
+const EMPTY_CITY := "sangju"  # queue 46: 개성 is the player's under 배치 A; 상주 stays unclaimed
 const RESOURCES := ["gold", "rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
 const DISTINCT := {"gold": 4321, "rice": 1101, "barley": 1203, "seafood": 1307, "wood": 1409, "iron": 1511, "horses": 1613, "silk": 1717, "salt": 1819}
 
@@ -247,10 +247,11 @@ func _diff(before: Dictionary, after: Dictionary) -> Dictionary:
 func _check_trade() -> void:
 	_reset_stocks()
 	var partner := ""
-	for city_id in _main.get("_city_markers_by_id"):
-		if str(_main.call("_find_contextual_trade_source_city_id", str(city_id))) == OWN_CITY:
-			partner = str(city_id)
-			break
+	# Queue 46 (배치 A): 개성 (also the player's) sorts before 한성 as the contextual source of every partner, so the
+	# partner is the first of 한성's own external trade candidates (the orders below name 한성 as the source).
+	var own_candidates: Array = _main.call("_get_external_trade_candidate_city_ids", OWN_CITY)
+	own_candidates.sort()
+	partner = str(own_candidates[0]) if not own_candidates.is_empty() else ""
 	_expect(not partner.is_empty(), "4. a trade partner exists")
 	if partner.is_empty():
 		return
@@ -368,7 +369,7 @@ func _check_unclaimed() -> void:
 		_main.call("_on_spy_action_pressed", "public_support_disrupt")
 		_expect(_diff(before, _stock(OWN_CITY)).is_empty(), "9. %s: no action of 평양 runs on the unclaimed city" % variant)
 		var spy_check: Dictionary = _main.call("_validate_spy_action", "gather_info", EMPTY_CITY)
-		_expect(not bool(spy_check.get("ok", true)), "9. %s: 개성 is not a spy target" % variant)
+		_expect(not bool(spy_check.get("ok", true)), "9. %s: 상주 is not a spy target" % variant)
 		if variant == "intel window open":
 			await _press(&"intel")
 			await _select(EMPTY_CITY)
@@ -468,7 +469,8 @@ func _reset_stocks() -> void:
 	for city_id in _main.get("_city_markers_by_id"):
 		var owner := str(_main.call("_get_city_owner_faction_id_for_trade_display", str(city_id)))
 		if not owner.is_empty() and str(city_id) != OWN_CITY:
-			_set_stock(str(city_id), partner_stock)
+			# Queue 46: under 배치 A the player also owns 개성; its stock is emptied so the national sum is 한성's alone.
+			_set_stock(str(city_id), {} if bool(_main.call("_is_city_owned_by_player_mvp", str(city_id))) else partner_stock)
 	var state: Dictionary = _main.get("_player_state")
 	state["diplomacy_action_cooldown"] = 0
 	state["spy_cooldown"] = 0

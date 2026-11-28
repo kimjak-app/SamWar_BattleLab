@@ -1,0 +1,164 @@
+hero_name,hero_id,city_name
+광개토대왕,gwanggaeto,평양
+을지문덕,eulji_mundeok,평양
+도림,dorim,평양
+고연무,go_yeon_mu,평양
+을파소,eul_pa_so,평양
+이순신,yi_sun_sin,한성
+정도전,jeong_do_jeon,한성
+권율,kwon_yul,한성
+곽재우,gwak_jae_u,한성
+김덕령,kim_deok_ryeong,한성
+의자왕,uija_wang,사비
+계백,gyebaek,사비
+흑치상지,heukchi_sangji,사비
+복신,bok_sin,사비
+부여풍,buyeo_pung,사비
+김춘추,kim_chun_chu,경주
+김유신,kim_yu_sin,경주
+장보고,jang_bo_go,경주
+문무왕,munmu_wang,경주
+김인문,kim_in_mun,경주
+도쿠가와 이에야스,tokugawa_ieyasu,에도
+혼다 마사노부,honda_masanobu,에도
+혼다 타다카츠,honda_tadakatsu,에도
+도리이 모토타다,torii_mototada,에도
+오쿠보 다다요,okubo_tadayo,에도
+노부나가,nobunaga,교토
+마에다 도시이에,maeda_toshiie,교토
+다케나카 한베에,takenaka_hanbei,교토
+모리 란마루,mori_ranmaru,교토
+도요토미 히데요시,toyotomi_hideyoshi,오사카
+가토 기요마사,kato_kiyomasa,오사카
+구로다 나가마사,kuroda_nagamasa,오사카
+사나다 유키무라,sanada_yukimura,오사카
+시마즈 요시히로,shimazu_yoshihiro,큐슈
+고니시 유키나가,konishi_yukinaga,큐슈
+시마즈 이에히사,shimazu_iehisa,큐슈
+시마즈 도요히사,shimazu_toyohisa,큐슈
+시마즈 도시히사,shimazu_toshihisa,큐슈
+조조,cao_cao,업성
+하후돈,xiahou_dun,업성
+순욱,xun_yu,업성
+곽가,guo_jia,업성
+허저,xu_chu,업성
+항우,xiang_yu,낙양
+범증,fan_zeng,낙양
+여포,lu_bu,낙양
+종리말,zhongli_mei,낙양
+항장,xiang_zhuang,낙양
+손책,sun_ce,건업
+주유,zhou_yu,건업
+여몽,lu_meng,건업
+장소,zhang_zhao,건업
+능통,ling_tong,건업
+제갈량,zhuge_liang,성도
+유비,liu_bei,성도
+관우,guan_yu,성도
+장비,zhang_fei,성도
+법정,fa_zheng,성도
+징기스칸,genghis_khan,상도
+수부타이,subutai,상도
+제베,jebe,상도
+우량카다이,uriyangkhadai,상도
+아술,a_zhu,상도
+척준경,cheok_jun_gyeong,개성
+고경명,go_gyeong_myeong,개성
+강감찬,gang_gam_chan,개성
+최영,choe_yeong,개성
+윤관,yun_gwan,개성
+온달,on_dal,국내성
+밀우,mil_u,국내성
+유유,yu_yu,국내성
+최승우,choe_seung_u,전주
+금강,geum_gang,전주
+공직,gong_jik,전주
+상귀,sang_gwi,전주
+지점,ji_jeom,전주
+복지겸,bok_ji_gyeom,철원
+이흔암,yi_heun_am,철원
+윤신달,yun_sin_dal,철원
+종간,jong_gan,철원
+환선길,hwan_seon_gil,철원
+김수로왕,kim_su_ro,고령
+이진아시왕,i_jin_a_si,고령
+김무력,kim_mu_ryeok,고령
+허황옥,heo_hwang_ok,고령
+거등왕,geo_deung_wang,고령
+장문휴,jang_mun_hyu,상경 용천부
+대문의,dae_mun_ye,상경 용천부
+대야발,dae_ya_bal,상경 용천부
+대인선,dae_in_seon,상경 용천부
+대숭린,dae_sung_rin,상경 용천부
+다케다 신겐,takeda_shingen,고후
+사나다 마사유키,sanada_masayuki,고후
+나이토 마사토요,naito_masatoyo,고후
+아키야마 노부토모,akiyama_nobutomo,고후
+오부 도라마사,obu_toramasa,고후
+우에스기 겐신,kenshin,에치고
+나오에 가게쓰나,naoe_kagetsuna,에치고
+혼조 시게나가,honjo_shigenaga,에치고
+가키자키 가게이에,kakizaki_kageie,에치고
+사이토 토모노부,saito_tomonobu,에치고
+모리 데루모토,mori_terumoto,히로시마
+깃카와 히로이에,kikkawa_hiroie,히로시마
+구치바 미치요시,kuchiba_michiyoshi,히로시마
+후쿠하라 사다토시,fukuhara_sadatoshi,분고 후나이
+시시도 다카이에,shishido_takaie,분고 후나이
+오니니와 쓰나모토,oniniwa_tsunamoto,아이즈
+루스 마사카게,rusu_masakage,아이즈
+다테 히데무네,date_hidemune,아이즈
+시로이시 무네나오,shiroishi_munenao,아이즈
+하라다 무네타네,harada_munetane,아이즈
+호조 우지야스,hojo_ujiyasu,오다와라
+호조 쓰나시게,hojo_tsunashige,오다와라
+호조 우지테루,hojo_ujiteru,오다와라
+다이도지 마사시게,daidoji_masashige,오다와라
+호조 우지노리,hojo_ujinori,오다와라
+조인,cao_ren,허창
+하후연,xiahou_yuan,허창
+전위,dian_wei,허창
+조운,zhao_yun,농서
+강유,jiang_wei,농서
+왕평,wang_ping,농서
+마속,ma_su,농서
+정보,cheng_pu,강동
+손정,sun_jing,강동
+조절,zu_mao,강동
+심배,shen_pei,기주
+원담,yuan_tan,기주
+곽도,guo_tu,기주
+파재,bo_cai,복양
+장만성,zhang_mancheng,복양
+한충,han_zhong_yt,복양
+악비,yue_fei,개봉
+종택,zong_ze,개봉
+양연소,yang_yanzhao,개봉
+목영,mu_ying,팽성
+탕화,tang_he,팽성
+남옥,lan_yu,팽성
+전예,tian_yu,대도
+공손범,gongsun_fan,대도
+공손월,gongsun_yue,대도
+단경,shan_jing,대도
+서영,xu_rong,장안
+장제,zhang_ji_dongzhuo,장안
+우보,niu_fu,장안
+번조,fan_chou,장안
+문빙,wen_pin,양양
+유기,liu_qi,양양
+채부인,lady_cai,양양
+서온,xu_wen,양주
+이신복,li_shenfu,양주
+대몽,tai_meng,양주
+양고리,yangguri,허투알라
+페이잉동,fiongdon,허투알라
+안페양고,anfiyanggu,허투알라
+빌게가한,bilge_khagan,오르혼
+묵철가한,qapaghan_khagan,오르혼
+퀼테긴,kul_tigin,오르혼
+이넬가한,inel_khagan,오르혼
+치송데첸,trisong_detsen,라싸
+론흠릉,lun_qinling,라싸
+문성공주,princess_wencheng,라싸
+랑다르마,langdarma,라싸

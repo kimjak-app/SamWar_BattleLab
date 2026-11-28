@@ -50,10 +50,11 @@ func _run() -> void:
 		return
 	_trade = _main.call("_ensure_trade_controller")
 	_player = str(_main.call("_get_current_player_faction_id"))
-	for city_id in _main.get("_city_markers_by_id"):
-		if str(_main.call("_find_contextual_trade_source_city_id", str(city_id))) == OWN_CITY:
-			_partner = str(city_id)
-			break
+	# Queue 46 (배치 A): 개성 (also the player's) sorts before 한성 as the contextual source of every partner, so the
+	# partner is the first of 한성's own external trade candidates (the orders below name 한성 as the source).
+	var own_candidates: Array = _main.call("_get_external_trade_candidate_city_ids", OWN_CITY)
+	own_candidates.sort()
+	_partner = str(own_candidates[0]) if not own_candidates.is_empty() else ""
 	_expect(not _partner.is_empty(), "a foreign trade partner of %s exists" % OWN_CITY)
 	if _partner.is_empty():
 		_finish()
@@ -260,21 +261,22 @@ func _check_duplicates_and_load() -> void:
 # ---------------------------------------------------------------- 5
 func _check_ownership() -> void:
 	# Source city lost: refund to the player's capital (another own city), the occupier gets nothing.
+	# Queue 46: under 배치 A the player already owns 개성, the first own city after 한성 (capital first, then by id).
 	_reset()
-	_set_owner("sabi", _player)
+	var refund_city := "gaeseong"
+	_expect(bool(_main.call("_is_city_owned_by_player_mvp", refund_city)), "5. 개성 is the player's second city")
 	var result := _submit({"salt": {"action": "import", "amount": 4}})
 	var pay: Dictionary = result.get("reserved", {})
 	_set_owner(OWN_CITY, "goguryeo")
 	var occupied_before := _stock(OWN_CITY)
-	var capital_before := _stock("sabi")
+	var capital_before := _stock(refund_city)
 	var partner_before := _stock(_partner)
 	_resolve()
 	var request := _request(str(result.get("request_id", "")))
 	_expect(str(request.get("status", "")) == Strategy.STATUS_INVALID and str(request.get("result", {}).get("reason", "")) == "source_changed", "5. source city lost -> invalid source_changed")
 	_expect(_stock(OWN_CITY) == occupied_before and _stock(_partner) == partner_before, "5. occupier and partner get nothing")
-	_expect(_diff(capital_before, _stock("sabi")) == _only_nonzero(pay), "5. the whole reservation goes to the player's capital once")
+	_expect(_diff(capital_before, _stock(refund_city)) == _only_nonzero(pay), "5. the whole reservation goes to the player's capital once")
 	_set_owner(OWN_CITY, _player)
-	_set_owner("sabi", "baekje_faction")
 	# Partner taken by a third faction / becomes unclaimed.
 	for new_owner in ["wei", ""]:
 		_reset()

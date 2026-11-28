@@ -13,6 +13,9 @@ extends SceneTree
 #  8. menu on an enemy city, then an unclaimed city: the menu closes, no action of the previous city runs; back -> normal
 #  9. after a turn + a save/load copy: no unclaimed city in AI production / invasion candidates, diplomacy / trade / spy
 #     targets, the victory city list, player sortie targets, the owned city list (also in the save) or the national stock
+# Queue 46 (PLACEMENT_A, 0.7 game links): a new game now fills 26 of the 52 new cities (배치 A). The unclaimed-city checks
+# (1, 5, 6, 8, 9) run on the 26 that stay unclaimed; the 26 placed ones are checked against the placement (owner, marker).
+# 큐슈–오사카 is not a 0.7 link any more: the naval control in 3 is the 0.7 sea route 큐슈–히젠.
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const RULES := "res://worldmap3d/maps/eastasia/rule_data_eastasia.json"
@@ -30,12 +33,17 @@ const LEGACY := {
 }
 const OLD_DIRECT_ROADS := [["karakorum", "pyeongyang"], ["karakorum", "yecheng"], ["hanseong", "pyeongyang"], ["chengdu", "jianye"]]
 const PROMOTED_LAND := [["jianye", "jiangdong"], ["osaka", "hiroshima"], ["kyushu", "kagoshima"]]
+const SEA_CONTROL := ["kyushu", "hizen"]
+const EMPTY_CITY := "sangju"  # unclaimed under 배치 A, next to 한성
+const Placement := preload("res://scripts/worldmap/worldmap_placement_a.gd")
 
 var _checks := 0
 var _failures: Array[String] = []
 var _main: Node
 var _rules: Dictionary
 var _new_ids: Array[String] = []
+var _unclaimed_ids: Array[String] = []
+var _placed: Dictionary = {}
 
 
 func _initialize() -> void:
@@ -57,6 +65,13 @@ func _run() -> void:
 	if _main == null:
 		_finish()
 		return
+	var placement := Placement.load_placement(HeroDefinitionRegistry.HERO_DATA, _main.get("CITY_HUD_DATA"))
+	for city_id in placement.cities:
+		_placed[city_id] = str(placement.cities[city_id].faction_id)
+	for city_id in _new_ids:
+		if not _placed.has(city_id):
+			_unclaimed_ids.append(city_id)
+	_expect(_unclaimed_ids.size() == 26, "26 of the 52 new cities stay unclaimed under 배치 A (%d)" % _unclaimed_ids.size())
 	_check_roster()
 	_check_regions()
 	_check_roads()
@@ -94,8 +109,12 @@ func _check_roster() -> void:
 		_expect(str(rule.get("owner", "")) == want[0] and int(rule.get("troops", -1)) == want[1] and int(rule.get("grade", -1)) == want[3], "1. legacy %s 3D rules unchanged" % city_id)
 	for city_id in _new_ids:
 		var entry: Dictionary = _main.call("_get_city_hud_entry", city_id)
-		_expect(str(entry.get("owner", "x")) == "" and int(entry.get("troops", -1)) == 0, "1. new %s: owner \"\" and 0 troops" % city_id)
-		_expect(str(markers[city_id].owner_faction_id) == "" and not (markers[city_id].neighbors as Array).is_empty(), "1. new %s marker: unclaimed, with 0.7 links" % city_id)
+		var want_owner := str(_placed.get(city_id, ""))
+		if want_owner.is_empty():
+			_expect(str(entry.get("owner", "x")) == "" and int(entry.get("troops", -1)) == 0, "1. new %s: owner \"\" and 0 troops" % city_id)
+		else:
+			_expect(str(entry.get("owner", "")) == want_owner and int(entry.get("troops", 0)) > 0, "1. new %s: placed for %s with troops" % [city_id, want_owner])
+		_expect(str(markers[city_id].owner_faction_id) == want_owner and not (markers[city_id].neighbors as Array).is_empty(), "1. new %s marker: owner %s, with 0.7 links" % [city_id, want_owner])
 	_expect(str(_main.call("_format_faction_label", "")) == WorldMapUnclaimedCityRules.OWNER_LABEL, "1. owner label of an unclaimed city = 주인 없음(빈 성)")
 
 
@@ -137,7 +156,7 @@ func _check_roads() -> void:
 		_expect(land.has(k) and not sea.has(k), "3. %s is a land road in the map data" % k)
 		_expect(str(_main.call("_get_city_route_type_between_mvp", pair[0], pair[1])) == "land", "3. %s route type land in the game" % k)
 		_expect(not bool(_main.call("_is_naval_attack_route_mvp", pair[0], pair[1])), "3. %s needs no naval research" % k)
-	_expect(bool(_main.call("_is_naval_attack_route_mvp", "kyushu", "osaka")), "3. control: legacy sea route 큐슈–오사카 still needs naval research")
+	_expect(sea.has(_key(SEA_CONTROL[0], SEA_CONTROL[1])) and bool(_main.call("_is_naval_attack_route_mvp", SEA_CONTROL[0], SEA_CONTROL[1])), "3. control: the 0.7 sea route 큐슈–히젠 needs naval research")
 
 
 # ---------------------------------------------------------------- 4
@@ -171,7 +190,7 @@ func _check_menu_switch() -> void:
 	await process_frame
 	var panel: Control = controller.get("_panel")
 	_expect(panel != null and panel.visible and controller.get("_selected_marker") == markers.pyeongyang, "8. enemy city 평양: menu open")
-	var empty_id := "gaeseong"
+	var empty_id := EMPTY_CITY
 	markers[empty_id].city_selected.emit(markers[empty_id])
 	await process_frame
 	_expect(str(_main.get("selected_city_id")) == empty_id, "8. selection switched to the unclaimed city")
@@ -194,7 +213,7 @@ func _check_turns() -> void:
 		_end_turn()
 	var owners_after := _owners()
 	var changed := []
-	for city_id in _new_ids:
+	for city_id in _unclaimed_ids:
 		if owners_after.get(city_id, "") != "":
 			changed.append(city_id)
 	_expect(changed.is_empty(), "5. five turns: no unclaimed city got an owner %s" % str(changed))
@@ -211,6 +230,7 @@ func _check_save_load() -> void:
 	_expect(_city_snapshot() == before, "6. all 65 city states equal after load")
 	# An old save: only the 13 legacy cities in the city state.
 	var old_save: Dictionary = saved.duplicate(true)
+	(old_save.get("player_state", {}) as Dictionary).erase("world_placement_id")  # an old save has no placement marker
 	var city_state: Variant = old_save.get("worldmap_city_state", {})
 	if city_state is Dictionary:
 		for city_id in (city_state as Dictionary).keys():
@@ -233,16 +253,16 @@ func _check_exclusions(tag: String) -> void:
 	var hits := []
 	var production: Dictionary = (_main.get("_player_state") as Dictionary).get("last_ai_domestic_apply_result", {})
 	for entry in production.get("city_results", []):
-		if _new_ids.has(str(entry.get("city_id", ""))):
+		if _unclaimed_ids.has(str(entry.get("city_id", ""))):
 			hits.append(["ai_production", entry.city_id])
 	var warfare: Object = _main.call("_ensure_enemy_warfare_service")
 	for pair in warfare.call("get_invasion_pairs"):
 		for key in ["attacker_city_id", "defender_city_id"]:
-			if _new_ids.has(str(pair.get(key, ""))):
+			if _unclaimed_ids.has(str(pair.get(key, ""))):
 				hits.append(["invasion", pair.get(key)])
 	for candidate in warfare.call("build_pressure_plan_candidates"):
 		for value in (candidate as Dictionary).values():
-			if value is String and _new_ids.has(value):
+			if value is String and _unclaimed_ids.has(value):
 				hits.append(["pressure_plan", value])
 	var player := str(_main.call("_get_current_player_faction_id"))
 	var state: Dictionary = _main.get("_player_state")
@@ -251,7 +271,7 @@ func _check_exclusions(tag: String) -> void:
 	for faction_id in _main.call("_get_known_faction_ids_for_diplomacy"):
 		if WorldMapUnclaimedCityRules.is_unclaimed_owner(faction_id):
 			hits.append(["diplomacy_faction", faction_id])
-	for city_id in _new_ids:
+	for city_id in _unclaimed_ids:
 		for action_id in ["envoy", "tribute", "trade_agreement", "restore_relations", "alliance_proposal"]:
 			if bool((_main.call("_validate_diplomacy_action", action_id, city_id) as Dictionary).get("ok", false)):
 				hits.append(["diplomacy", action_id, city_id])
@@ -260,23 +280,23 @@ func _check_exclusions(tag: String) -> void:
 				hits.append(["spy", action_id, city_id])
 		if str(_main.call("_get_player_attack_block_reason", city_id)).is_empty():
 			hits.append(["sortie", city_id])
-	var gather: Dictionary = _main.call("_validate_spy_action", "gather_info", "gaeseong")
-	_expect(str(gather.get("reason", "")) == WorldMapUnclaimedCityRules.REJECT_REASON, "%s: spy on 개성 refused as unclaimed (%s)" % [tag, str(gather.get("reason", ""))])
+	var gather: Dictionary = _main.call("_validate_spy_action", "gather_info", EMPTY_CITY)
+	_expect(str(gather.get("reason", "")) == WorldMapUnclaimedCityRules.REJECT_REASON, "%s: spy on 상주 refused as unclaimed (%s)" % [tag, str(gather.get("reason", ""))])
 	for city_id in _main.call("_get_player_city_ids_for_national_stock_mvp"):
-		if _new_ids.has(str(city_id)):
+		if _unclaimed_ids.has(str(city_id)):
 			hits.append(["national_stock", city_id])
 		for target in _main.call("_get_external_trade_candidate_city_ids", str(city_id)):
-			if _new_ids.has(str(target)):
+			if _unclaimed_ids.has(str(target)):
 				hits.append(["trade", city_id, target])
 	var victory: Array = _main.get_script().get_script_constant_map().get("T03_KOREA_CITY_IDS", [])
 	for city_id in victory:
-		if _new_ids.has(str(city_id)):
+		if _unclaimed_ids.has(str(city_id)):
 			hits.append(["victory", city_id])
 	for city_id in state.get("owned_city_ids", []):
-		if _new_ids.has(str(city_id)):
+		if _unclaimed_ids.has(str(city_id)):
 			hits.append(["owned", city_id])
 	var saved_text := JSON.stringify(JSON.parse_string(JSON.stringify(_main.call("_serialize_worldmap_state"))).get("player_state", {}).get("owned_city_ids", []))
-	for city_id in _new_ids:
+	for city_id in _unclaimed_ids:
 		if saved_text.contains("\"%s\"" % city_id):
 			hits.append(["owned_in_save", city_id])
 	_expect(hits.is_empty(), "%s: no unclaimed city in any exclusion list %s" % [tag, str(hits)])

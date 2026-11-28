@@ -183,6 +183,11 @@ func _check_snapshot_stays() -> void:
 	var elsewhere := _other_city()
 	for hero_id in all_ids.slice(1):
 		_main.call("_apply_battle_settlement_move_hero", hero_id, elsewhere)
+	# Queue 46 (배치 A): every hero has a runtime state now, so a save -> load puts the target's own garrison back after
+	# check 5 emptied the roster list; move them out the same way so the target holds only the one test hero.
+	for hero_id in ((_main.call("_get_city_hud_entry", _target) as Dictionary).get("stationed_hero_ids", []) as Array).duplicate():
+		if str(hero_id) != ids[0]:
+			_main.call("_apply_battle_settlement_move_hero", str(hero_id), elsewhere)
 	_main.call("_apply_battle_settlement_move_hero", ids[0], _target)
 	var state: Dictionary = _main.get("_player_state")
 	state["city_intel"] = {}

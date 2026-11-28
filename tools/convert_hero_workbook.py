@@ -322,8 +322,19 @@ def write_outputs(payloads: dict[str, Any], output_dir: Path) -> None:
 
 REGISTRY_PATH = Path("scripts/worldmap/hero_definition_registry.gd")
 REGISTRY_CLOSE = "}\n\nstatic var HERO_DATA"
-NEW_HERO_CITY_FIELDS = ("assigned_city_id", "city_id", "location_city_id")   # left empty: placement is queue 46
+NEW_HERO_CITY_FIELDS = ("assigned_city_id", "city_id", "location_city_id")   # queue 46: the placement-A city
 NEW_HERO_FACTION_FIELDS = ("faction_id", "force_id", "side", "nation")
+# Queue 46 (PLACEMENT_A): the city of each new hero comes from the placement tables; the seeder stations it only in a
+# world whose placement is PLACEMENT_ID (WorldMapPlacementA). Faction fields stay empty (the city owner decides).
+PLACEMENT_ID = "placement_A_revised_20261128"
+PLACEMENT_HERO_IDS = Path("data/heroes/source/placement_A_hero_ids_20261128.csv")
+PLACEMENT_CITY_IDS = Path("data/heroes/source/placement_A_city_ids_20261128.csv")
+
+
+def placement_city_by_hero() -> dict[str, str]:
+    import csv
+    city_ids = {row["city_name"]: row["city_id"] for row in csv.DictReader(PLACEMENT_CITY_IDS.open(encoding="utf-8"))}
+    return {row["hero_id"]: city_ids[row["city_name"]] for row in csv.DictReader(PLACEMENT_HERO_IDS.open(encoding="utf-8"))}
 
 
 def roster_records(roster_path: Path, hero_ids: list[str], portrait_paths: dict[str, str]) -> tuple[dict[str, list], list[str]]:
@@ -331,6 +342,7 @@ def roster_records(roster_path: Path, hero_ids: list[str], portrait_paths: dict[
     errors: list[str] = []
     records: dict[str, list] = {"base": [], "profile": [], "loyalty": [], "skill": [], "identity": []}
     require(len(set(hero_ids)) == len(hero_ids), "Duplicate hero_id in the chosen list", errors)
+    placement_cities = placement_city_by_hero()
     for hero_id in hero_ids:
         hero = roster.get(hero_id)
         if hero is None:
@@ -372,7 +384,10 @@ def roster_records(roster_path: Path, hero_ids: list[str], portrait_paths: dict[
         # No faction yet (new faction ids are queue 46): the keys exist and are empty, so the faction scans in
         # worldmap_main (_get_known_non_player_faction_ids, the chancellor fallback) skip these heroes.
         identity.update({field: "" for field in NEW_HERO_FACTION_FIELDS})
-        identity.update({field: "" for field in NEW_HERO_CITY_FIELDS})
+        placement_city = placement_cities.get(hero_id, "")
+        require(bool(placement_city), f"{hero_id}: no placement-A city", errors)
+        identity.update({field: placement_city for field in NEW_HERO_CITY_FIELDS})
+        identity["placement_id"] = PLACEMENT_ID
         identity.update({
             "unique_skill_id": skill_id, "skill_id": skill_id, "skill_name": hero["skill_name"], "skill_desc": hero["skill_desc"],
             "skill_effect_type": hero["skill_effect_type"], "skill_power": hero["skill_power"], "skill_value": hero["skill_power"],

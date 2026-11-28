@@ -1100,6 +1100,7 @@ func _initialize_korea_mvp_new_game(faction_id: String) -> void:
 			}
 	var player_city: Dictionary = _city_runtime_states.get(start_city_id, {})
 	_player_state["owned_hero_ids"] = _get_stationed_hero_ids_for_city(player_city)
+	WorldMapPlacementA.apply_new_game(self)  # Queue 46: placement A (39 cities, 34 factions; the 119 new heroes via the seeder).
 	_ensure_worldmap_runtime_state_defaults()
 	# Seed persistent city stock before the first national-panel render.  The
 	# seeder only fills missing keys and never overwrites a saved/runtime value.
@@ -1456,6 +1457,7 @@ func _connect_city_markers() -> void:
 		_city_markers_by_id[city_marker.city_id] = city_marker
 		if not city_marker.city_selected.is_connected(_on_city_marker_selected):
 			city_marker.city_selected.connect(_on_city_marker_selected)
+	_refresh_city_marker_owner_states_from_runtime()  # Queue 46: markers built from CITY_HUD_DATA take the runtime owner.
 
 
 func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
@@ -12837,6 +12839,7 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_hero_runtime_states.clear()
 	_city_policy_state.clear()
 	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}), str(data.get("stock_ledger", "")) != STOCK_LEDGER_VERSION)
+	WorldMapPlacementA.restore_static_values(self)  # Queue 46: placement-A city values not in the save; old saves untouched.
 	_apply_worldmap_city_policy_state(data.get("city_policy_state", {}))
 	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
 	_restore_trade_persistence_from_player_state()
