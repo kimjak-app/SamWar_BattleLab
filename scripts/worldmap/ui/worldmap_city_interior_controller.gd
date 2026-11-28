@@ -5,7 +5,8 @@ extends Node
 ## (like WorldMap3DHost). Listens to every city marker's `city_selected` (2D click and the 3D adapter's forwarded
 ## pick emit the same signal) with CONNECT_DEFERRED, so main's own handler has already run. Opens only for the
 ## player's own city when no target / turn / modal state is active; otherwise records why in last_reject_reason.
-## Reads main state only (get()/call()), never writes it. Main is held as a plain Node; no WorldMap3D* classes are named.
+## Reads main state only (get()/call()), never writes it (the one node it adds to main's tree is the addendum-8 view
+## button in the right panel). Main is held as a plain Node; no WorldMap3D* classes are named.
 ## The window is built in code and is not modal (CH-2b): it docks to the right of main's left world status panel, top
 ## edges aligned, and everything outside it (map drag, wheel, other city clicks, camera keys) still reaches the map.
 ## HUDFIX: the window is the castle picture only (no title bar, close button or panel style). It closes on Esc or on a
@@ -16,14 +17,26 @@ extends Node
 ## CH-3: a city with a castle layout (WorldMapCityInteriorLayouts) is drawn from it on a 1280x768 canvas scaled into
 ## the window's body; other cities keep the CH-2 placeholder. Tech-driven visibility is CH-4.
 
+## Queue 43 (layout): the picture is drawn under every HUD window - top bar (TopNav 40) > menu windows, popups and result
+## overlays > the left / right panels (WorldMapUI 1) > this picture (0) > the 3D map (WorldMap3DLayer -10). While a centre
+## menu window (WorldMapHudMenuRouter.get_center_windows) overlaps it, the picture folds away (layer hidden, the open city
+## kept, no input taken) and comes back when that window closes; a window that does not overlap leaves it shown.
+## Queue 43 addendum 8 (Kim 11-28 08:52): a city click no longer opens the picture - selecting a city ends at its
+## storage / troops. The picture opens only from the "성 내부 보기" button this controller puts in the right city panel
+## (right end of the city-name line; shown for an own city with castle art, disabled while an open condition fails, "성 내부
+## 닫기" while open on that city). A click on any other city closes it (never retargets: that would open it without
+## the button); the CH-2 open conditions are unchanged and checked on the press.
+
 const MAIN_META := "wm_city_interior_controller"
-const WINDOW_LAYER := 50   # free between TopNav (40) and the tech tree overlay (60)
+const WINDOW_LAYER := 0    # queue 43: under WorldMapUI (1), above the 3D map layer (-10)
 const TURN_PHASE_PLAYER := "player"
+const MENU_ROUTER_HOST := "TopNavCanvas/TopNav"   # main child holding `menu_router` (read only)
 ## CH-2b dock rule: width = viewport width x WINDOW_WIDTH_RATIO (at least MIN_WINDOW_WIDTH); the body keeps the 1280:768
 ## canvas ratio. Placed DOCK_GAP right of the left status panel; shrinks (not below the minimum) to clear the right panel.
-const WINDOW_WIDTH_RATIO := 0.307
+## Queue 43 (Kim 11-28 07:48): same place, smaller - 0.307 -> 0.20, 400 -> 320.
+const WINDOW_WIDTH_RATIO := 0.20
 const DOCK_GAP := 12.0
-const MIN_WINDOW_WIDTH := 400.0
+const MIN_WINDOW_WIDTH := 320.0
 const BODY_ASPECT := 768.0 / 1280.0
 const FALLBACK_POSITION := Vector2(12, 12)   # the left panel is missing or hidden
 const LEFT_PANEL_MEMBER := "left_world_status_panel"    # main, read only
@@ -34,6 +47,14 @@ const LAYOUTS_PATH := "res://scripts/worldmap/ui/worldmap_city_interior_layouts.
 const COASTAL_CHECK := "_is_city_coastal_for_city_tech"   # main, read only
 const CLICK_MOVE_LIMIT := 6.0               # px; the same limit as the 3D map's click-to-select (worldmap_camera.gd)
 const OUTSIDE_CLICK_SETTLE_FRAMES := 2      # frames after the release for a city pick of the same click to arrive
+const SELECTED_CITY_MEMBER := "selected_city_id"   # main, read only
+const VIEW_BUTTON_NAME := "CityInteriorViewButton"
+const VIEW_BUTTON_TEXT := "성 내부 보기"
+const VIEW_BUTTON_CLOSE_TEXT := "성 내부 닫기"
+## The button sits at the right end of the right panel's city-name line (a child of that label, anchored right), so the
+## panel gets no taller: at 1280x720 the panel already fills the screen height.
+const VIEW_BUTTON_HOST := "MarginContainer/Content/CityNameLabel"
+const VIEW_BUTTON_FONT_SIZE := 13
 
 ## Checked in this order after "own city". [kind, main member name]. Kinds: flag = bool true blocks,
 ## text = non-empty String blocks, visible = node visible blocks, method_true = call() true blocks,
@@ -62,7 +83,7 @@ const MODAL_GUARDS := [
 ## Other main members this controller relies on (the test checks they still exist).
 const MAIN_MEMBERS := [
 	"_city_markers_by_id", "_is_city_owned_by_player_mvp", "_ensure_camera_controller",
-	"_normalize_turn_phase", COASTAL_CHECK, LEFT_PANEL_MEMBER, RIGHT_PANEL_MEMBER,
+	"_normalize_turn_phase", COASTAL_CHECK, LEFT_PANEL_MEMBER, RIGHT_PANEL_MEMBER, SELECTED_CITY_MEMBER,
 ]
 
 @export var main_path: NodePath = NodePath("..")
@@ -84,6 +105,7 @@ var _placeholder: Label = null
 var _interior_area: Control = null   # the window body; the canvas is scaled and centred in it
 var _canvas: Control = null          # "InteriorCanvas", 1280x768 layout pixels
 var _drawn_items: Array = []         # the layout item of each drawn node, in draw order (tests)
+var _view_button: Button = null      # "성 내부 보기" in the right city panel (addendum 8)
 
 
 func _ready() -> void:
@@ -102,15 +124,118 @@ func _ready() -> void:
 	if not main.is_node_ready():   # root child: main._ready builds the markers after us
 		await main.ready
 	_connect_markers()
+	_ensure_view_button()
 
 
 func _exit_tree() -> void:
+	if _view_button != null and is_instance_valid(_view_button):
+		_view_button.queue_free()   # it sits in main's right panel, not under this node
+	_view_button = null
 	if main != null and is_instance_valid(main) and main.has_meta(MAIN_META) and main.get_meta(MAIN_META) == self:
 		main.remove_meta(MAIN_META)
 
 
+func get_view_button() -> Button:
+	return _view_button
+
+
+## Addendum 8: the "성 내부 보기" button, built once at the right end of the right panel's city-name line.
+func _ensure_view_button() -> void:
+	if _view_button != null:
+		return
+	var panel := main.get(RIGHT_PANEL_MEMBER) as Control
+	var host := panel.get_node_or_null(VIEW_BUTTON_HOST) as Control if panel != null else null
+	if host == null:
+		return
+	_view_button = Button.new()
+	_view_button.name = VIEW_BUTTON_NAME
+	_view_button.text = VIEW_BUTTON_TEXT
+	_view_button.visible = false
+	_view_button.focus_mode = Control.FOCUS_NONE
+	_view_button.add_theme_font_size_override("font_size", VIEW_BUTTON_FONT_SIZE)
+	_view_button.pressed.connect(_on_view_button_pressed)
+	host.add_child(_view_button)
+	_view_button.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_place_view_button()
+
+
+## The label is only as wide as the city name, so the button is placed against the panel content's right edge (the
+## label's parent), vertically centred on the name line.
+func _place_view_button() -> void:
+	var host := _view_button.get_parent() as Control
+	var line := host.get_parent() as Control if host != null else null
+	if line == null:
+		return
+	_view_button.reset_size()
+	var at := Vector2(line.size.x - host.position.x - _view_button.size.x, (host.size.y - _view_button.size.y) * 0.5)
+	if not _view_button.position.is_equal_approx(at):
+		_view_button.position = at
+
+
+## Opens the picture for the selected city (CH-2 open conditions), or closes it when it is open on that city.
+func _on_view_button_pressed() -> void:
+	var city_id := _selected_city_id()
+	if is_open() and city_id == _open_city_id:
+		close()
+	else:
+		try_open(city_id)
+	_update_view_button()
+
+
+func _selected_city_id() -> String:
+	return str(main.get(SELECTED_CITY_MEMBER)) if main != null and is_instance_valid(main) else ""
+
+
+## Shown for an own city with castle art; disabled while an open condition fails; the close text while open on it.
+func _update_view_button() -> void:
+	if _view_button == null or not is_instance_valid(_view_button):
+		return
+	var city_id := _selected_city_id()
+	var own := not city_id.is_empty() and bool(main.call("_is_city_owned_by_player_mvp", city_id))
+	var shown := own and not _region_style(city_id).is_empty()
+	if _view_button.visible != shown:
+		_view_button.visible = shown
+	if not shown:
+		return
+	var open_here := is_open() and city_id == _open_city_id
+	var text := VIEW_BUTTON_CLOSE_TEXT if open_here else VIEW_BUTTON_TEXT
+	if _view_button.text != text:
+		_view_button.text = text
+	_view_button.disabled = not open_here and not get_reject_reason(city_id).is_empty()
+	_place_view_button()
+
+
 func is_open() -> bool:
 	return not _open_city_id.is_empty()
+
+
+## Open but folded away under an overlapping menu window (queue 43).
+func is_folded() -> bool:
+	return is_open() and _layer != null and not _layer.visible
+
+
+## The centre menu windows on screen now (from the top menu router), [] without one.
+func get_menu_windows() -> Array:
+	var host := main.get_node_or_null(MENU_ROUTER_HOST) if main != null and is_instance_valid(main) else null
+	var router = host.get("menu_router") if host != null else null
+	if router == null or not is_instance_valid(router) or not router.has_method("get_center_windows"):
+		return []
+	return router.call("get_center_windows")
+
+
+func _overlaps_menu_window() -> bool:
+	if _window == null:
+		return false
+	var rect := _window.get_global_rect()
+	for window in get_menu_windows():
+		if rect.intersects((window as Control).get_global_rect()):
+			return true
+	return false
+
+
+func _update_fold() -> void:
+	if _layer != null:
+		_layer.visible = not _overlaps_menu_window()
 
 
 func get_open_city_id() -> String:
@@ -177,8 +302,8 @@ func try_open(city_id: String) -> bool:
 	_open_city_id = city_id
 	_ensure_window()
 	_draw_city(city_id)
-	_layer.visible = true
 	_update_dock()
+	_update_fold()
 	return true
 
 
@@ -216,9 +341,13 @@ func close() -> void:
 
 ## Follows the left panel (dragged) and the viewport size while open; applies only when the rect changed.
 func _process(_delta: float) -> void:
+	_update_view_button()
 	if is_open():
 		_update_dock()
-		if _outside_settle_frames >= 0:
+		_update_fold()
+		if is_folded():
+			_reset_outside_click()   # folded: the picture takes no click until it shows again
+		elif _outside_settle_frames >= 0:
 			_outside_settle_frames -= 1
 			if _outside_settle_frames < 0:
 				var picked := _city_picked_since_press
@@ -228,7 +357,7 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not is_open():
+	if not is_open() or is_folded():
 		return
 	var key := event as InputEventKey
 	if event.is_action_pressed("ui_cancel") or (key != null and key.pressed and not key.echo and key.keycode == KEY_ESCAPE):
@@ -247,7 +376,7 @@ func _input(event: InputEvent) -> void:
 ## A left press that no HUD control (the window, panels, top menu, turn button) took: a press on the map. Not consumed,
 ## so the map still does what the press does (city pick, camera).
 func _unhandled_input(event: InputEvent) -> void:
-	if not is_open():
+	if not is_open() or is_folded():
 		return
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
@@ -280,8 +409,9 @@ func _on_city_selected(marker: Node) -> void:
 	if marker == null or not is_instance_valid(marker):
 		return
 	_city_picked_since_press = true   # this click picked a city: the city rules below decide, not the empty-map close
-	if not try_open(str(marker.get("city_id"))) and last_reject_reason == "not_own_city":
-		close()   # CH-2b: a city that is not the player's closes the open window
+	# Addendum 8: a city click never opens the picture (the "성 내부 보기" button does); another city closes it.
+	if is_open() and str(marker.get("city_id")) != _open_city_id:
+		close()
 
 
 func _guard_active(guard: Array) -> bool:

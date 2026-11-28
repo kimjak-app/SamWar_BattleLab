@@ -25,8 +25,6 @@ const RESOURCE_COLORS := {
 
 const GOLD_COLOR := Color(0.97, 0.84, 0.60, 1.0)
 const NORMAL_COLOR := Color(0.88, 0.90, 0.94, 1.0)
-const SHORTAGE_COLOR := Color(0.93, 0.34, 0.28, 1.0)
-const GOOD_COLOR := Color(0.40, 0.76, 0.43, 1.0)
 const ROW_COUNT := 5
 const ROW_HEIGHT := 20.0
 const ROW_GAP := 4
@@ -295,13 +293,14 @@ func _render_resource_rows(source_text: String) -> void:
 
 		var resource_name := str(resources[index])
 		var payload := _parse_resource_line(source_text, resource_name)
-		var status_text := str(payload.get("status", ""))
 		icon.visible = true
 		icon.color = RESOURCE_COLORS.get(resource_name, Color(0.7, 0.7, 0.7, 1.0))
 		name_label.text = resource_name
 		value_label.text = str(payload.get("value", "- / -"))
-		status_label.text = status_text
-		status_label.add_theme_color_override("font_color", _status_color(status_text))
+		# Queue 43 (addendum 7): no capacity-ratio status word here ("650 / 9999 부족" read as "cannot afford"). The amount
+		# and the cap stay; the status is still computed upstream (get_resource_status_label), only not shown. A real
+		# shortage is reported next to the action that needs it.
+		status_label.text = ""
 
 
 func _get_source_text() -> String:
@@ -338,14 +337,6 @@ func _parse_resource_line(source_text: String, resource_name: String) -> Diction
 		"value": "%s / %s" % [matched.get_string(1), matched.get_string(2)],
 		"status": matched.get_string(3) if matched.get_group_count() >= 3 else "",
 	}
-
-
-func _status_color(status: String) -> Color:
-	if status == "부족":
-		return SHORTAGE_COLOR
-	if status == "충분" or status == "가득" or status == "양호":
-		return GOOD_COLOR
-	return NORMAL_COLOR
 
 
 func _request_initial_panel_refit() -> void:

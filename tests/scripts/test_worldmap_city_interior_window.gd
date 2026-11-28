@@ -12,6 +12,9 @@ extends SceneTree
 #    real mouse events through the viewport: an empty-map click (< 6 px) closes; a drag of 6 px or more keeps it; a map
 #    click that picks an own city keeps it / retargets, an enemy city closes; presses on the window, the left panel grip,
 #    the left panel, the right panel, a top menu button and the turn button keep it open
+# Queue 43: the picture is 0.20 / 320 wide; folded (no Esc, no map click) while a menu window overlaps it, shown again
+#    when that window closes (the full menu-by-menu check is test_worldmap_hud_layout_3d.gd). Addendum 8: a city click
+#    never opens it; the "성 내부 보기" button in the right city panel opens / closes it; any other city click closes it
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const CONTROLLER_NODE := "WorldMapCityInteriorController"
@@ -83,12 +86,20 @@ func _run() -> void:
 	var player_faction := str(worldmap.call("_get_current_player_faction_id"))
 	_expect(bool(worldmap.call("_is_city_owned_by_player_mvp", OWN_CITY)), "%s starts player-owned" % OWN_CITY)
 
-	# 1a. own city click (real signal path, main handles first)
+	# 1a. own city click (real signal path, main handles first). Queue 43 addendum 8: the click only selects the city;
+	# the picture opens from the "성 내부 보기" button in the right city panel (a real mouse click on it).
 	await _click(markers[OWN_CITY])
-	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "own city click opens the window")
-	_expect(str(ctl.get("last_reject_reason")) == "", "own city: no reject reason")
+	_expect(not bool(ctl.call("is_open")), "own city click does not open the picture (addendum 8)")
 	_expect(str(worldmap.get("selected_city_id")) == OWN_CITY, "main processed the click (selected_city_id)")
-	_expect_picture_only(ctl, OWN_CITY, "own city click")
+	var view_button: Button = ctl.call("get_view_button")
+	var right_panel: Control = worldmap.get("city_info_panel_control")
+	_expect(view_button != null and view_button.is_visible_in_tree() and not view_button.disabled and right_panel.is_ancestor_of(view_button)
+		and view_button.text == "성 내부 보기", "own city: the '성 내부 보기' button is in the right city panel and enabled")
+	await _click_button(view_button)
+	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "the button opens the picture on the own city")
+	_expect(str(ctl.get("last_reject_reason")) == "", "own city: no reject reason")
+	_expect(view_button.text == "성 내부 닫기", "open: the button reads '성 내부 닫기'")
+	_expect_picture_only(ctl, OWN_CITY, "button open")
 	await process_frame
 	await _check_dock(ctl, worldmap)
 	await _check_outside_click(ctl, worldmap, markers, player_faction)
@@ -96,18 +107,29 @@ func _run() -> void:
 
 	# 6. same city again: still one window, not reopened
 	await _click(markers[OWN_CITY])
-	_expect(bool(ctl.call("is_open")) and str(ctl.get("last_reject_reason")) == "already_open", "same city again -> already_open")
+	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "same city again: stays open")
 	_expect(_count_layers(ctl) == 1, "one window layer")
-	ctl.call("close")
+	# addendum 8: the button closes it again
+	await _close_menu_windows(worldmap)
+	await _click_button(view_button)
+	_expect(not bool(ctl.call("is_open")) and view_button.text == "성 내부 보기", "the button again closes the picture")
 
-	# 1b. enemy city click (real signal path)
+	# 1b. enemy city click (real signal path): nothing opens, no button for a foreign city
 	await _click(markers[ENEMY_CITY])
-	_expect(not bool(ctl.call("is_open")) and str(ctl.get("last_reject_reason")) == "not_own_city", "enemy city click -> not_own_city")
+	await process_frame
+	_expect(not bool(ctl.call("is_open")) and not view_button.visible, "enemy city click: closed, no '성 내부 보기' button")
 	# 7. CH-2b: an enemy city click closes the open window
 	ctl.call("try_open", OWN_CITY)
 	await _click(markers[ENEMY_CITY])
-	_expect(not bool(ctl.call("is_open")) and str(ctl.get("last_reject_reason")) == "not_own_city", "enemy city click closes the open window")
+	_expect(not bool(ctl.call("is_open")), "enemy city click closes the open window")
 	_expect((ctl.call("get_canvas") as Control).get_child_count() == 0, "closed by an enemy click: textures released")
+	# addendum 8: another OWN city click closes it too (never retargets without the button)
+	var lent_owner := str(markers[SECOND_CITY].get("owner_faction_id"))
+	markers[SECOND_CITY].set("owner_faction_id", player_faction)
+	ctl.call("try_open", OWN_CITY)
+	await _click(markers[SECOND_CITY])
+	_expect(not bool(ctl.call("is_open")), "another own city click closes the picture (no retarget)")
+	markers[SECOND_CITY].set("owner_faction_id", lent_owner)
 
 	# 2. main state snapshot after main's own click handling; no more clicks below, only controller operations
 	var player_state: Dictionary = worldmap.get("_player_state")
@@ -117,7 +139,7 @@ func _run() -> void:
 	ctl.call("try_open", OWN_CITY)
 	var second_owner := str(markers[SECOND_CITY].get("owner_faction_id"))
 	markers[SECOND_CITY].set("owner_faction_id", player_faction)
-	_expect(bool(ctl.call("try_open", SECOND_CITY)) and str(ctl.call("get_open_city_id")) == SECOND_CITY, "another own city retargets the open window")
+	_expect(bool(ctl.call("try_open", SECOND_CITY)) and str(ctl.call("get_open_city_id")) == SECOND_CITY, "try_open on another own city retargets the open window (API, used by the button)")
 	_expect_picture_only(ctl, SECOND_CITY, "retarget")
 	_expect(_count_layers(ctl) == 1, "still one window layer after retarget")
 	markers[SECOND_CITY].set("owner_faction_id", second_owner)
@@ -125,7 +147,8 @@ func _run() -> void:
 	# 3. close()
 	ctl.call("close")
 	_expect(not bool(ctl.call("is_open")), "close() closes")
-	# 3. Esc while open closes (through the viewport input pipeline)
+	# 3. Esc while open closes (through the viewport input pipeline); queue 43: with no menu window over the picture
+	await _close_menu_windows(worldmap)
 	ctl.call("try_open", OWN_CITY)
 	root.push_input(_esc())
 	await process_frame
@@ -246,10 +269,11 @@ func _check_dock(ctl: Node, worldmap: Node) -> void:
 	right.visible = false   # the dock rule without the right panel first
 	await _settle()
 	var viewport_width := window.get_viewport().get_visible_rect().size.x
-	var want_width := maxf(viewport_width * 0.307, 400.0)
-	_expect(is_equal_approx(ctl.WINDOW_WIDTH_RATIO, 0.307) and is_equal_approx(ctl.MIN_WINDOW_WIDTH, 400.0) and is_equal_approx(ctl.DOCK_GAP, 12.0),
-		"dock constants 0.307 / 400 / 12")
-	_expect(is_equal_approx(viewport_width, TEST_VIEWPORT_SIZE.x) and absf(want_width - 589.44) <= 0.01, "viewport %d -> width %.2f" % [int(viewport_width), want_width])
+	# Queue 43 (Kim 11-28 07:48): the picture is smaller - 0.307 -> 0.20, 400 -> 320.
+	var want_width := maxf(viewport_width * 0.20, 320.0)
+	_expect(is_equal_approx(ctl.WINDOW_WIDTH_RATIO, 0.20) and is_equal_approx(ctl.MIN_WINDOW_WIDTH, 320.0) and is_equal_approx(ctl.DOCK_GAP, 12.0),
+		"dock constants 0.20 / 320 / 12")
+	_expect(is_equal_approx(viewport_width, TEST_VIEWPORT_SIZE.x) and absf(want_width - 384.0) <= 0.01, "viewport %d -> width %.2f" % [int(viewport_width), want_width])
 	_expect_dock(ctl, window, left, want_width, "docked right of the left panel")
 	# the body keeps 1280:768 and the canvas k follows the body width
 	var area: Control = ctl.call("get_interior_area")
@@ -270,9 +294,9 @@ func _check_dock(ctl: Node, worldmap: Node) -> void:
 	var right_before: Vector2 = right.global_position
 	right.visible = true
 	var dock_x: float = left.get_global_rect().end.x + ctl.DOCK_GAP
-	right.global_position = Vector2(dock_x + 450.0 + ctl.DOCK_GAP, right_before.y)   # room for 450 px
+	right.global_position = Vector2(dock_x + 350.0 + ctl.DOCK_GAP, right_before.y)   # room for 350 px (queue 43: 384 wide)
 	await _settle()
-	_expect(absf(window.size.x - 450.0) <= 1.0 and absf(window.global_position.x - dock_x) <= 1.0, "shrinks to clear the right panel (%.1f, want 450)" % window.size.x)
+	_expect(absf(window.size.x - 350.0) <= 1.0 and absf(window.global_position.x - dock_x) <= 1.0, "shrinks to clear the right panel (%.1f, want 350)" % window.size.x)
 	right.global_position = Vector2(dock_x + 200.0 + ctl.DOCK_GAP, right_before.y)   # room for 200 px only
 	await _settle()
 	_expect(absf(window.size.x - ctl.MIN_WINDOW_WIDTH) <= 1.0, "never below the minimum width (%.1f)" % window.size.x)
@@ -283,10 +307,10 @@ func _check_dock(ctl: Node, worldmap: Node) -> void:
 	await _settle()
 	_expect(window.global_position.distance_to(ctl.FALLBACK_POSITION) <= 1.0, "left panel hidden: window at the fallback corner (%s)" % str(window.global_position))
 	left.visible = true
-	# a narrow viewport: 1000 x 0.307 < 400 -> the minimum width
+	# a narrow viewport: 1000 x 0.20 < 320 -> the minimum width
 	root.size = Vector2i(1000, 700)
 	await _settle()
-	_expect_dock(ctl, window, left, 400.0, "narrow viewport -> minimum width")
+	_expect_dock(ctl, window, left, 320.0, "narrow viewport -> minimum width")
 	right.visible = right_visible_before
 	root.size = viewport_size_before
 	await _settle()
@@ -341,7 +365,7 @@ func _check_outside_click(ctl: Node, worldmap: Node, markers: Dictionary, player
 	# a map click that picks a city (the pick lands between the press and the release, as a 2D marker / 3D region pick)
 	var second_owner := str(markers[SECOND_CITY].get("owner_faction_id"))
 	markers[SECOND_CITY].set("owner_faction_id", player_faction)
-	for case in [[OWN_CITY, true, OWN_CITY, "same own city"], [SECOND_CITY, true, SECOND_CITY, "another own city retargets"], [ENEMY_CITY, false, "", "enemy city closes"]]:
+	for case in [[OWN_CITY, true, OWN_CITY, "same own city"], [SECOND_CITY, false, "", "another own city closes (addendum 8)"], [ENEMY_CITY, false, "", "enemy city closes"]]:
 		ctl.call("try_open", OWN_CITY)
 		await _settle()
 		await _mouse_press(empty, true)
@@ -378,6 +402,14 @@ func _check_outside_click(ctl: Node, worldmap: Node, markers: Dictionary, player
 		await _settle()
 		await process_frame
 		_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "a press on %s keeps the window open" % target[0])
+	# Queue 43: the grip press above dragged the left panel, so the docked picture now overlaps CityDetailPanel (shown
+	# by the city click): folded - Esc does nothing to it; the menu window closed -> shown again
+	_expect(bool(ctl.call("is_folded")), "picture over CityDetailPanel: folded")
+	root.push_input(_esc())
+	await process_frame
+	_expect(bool(ctl.call("is_open")) and str(ctl.call("get_open_city_id")) == OWN_CITY, "Esc while folded: kept open on %s" % OWN_CITY)
+	await _close_menu_windows(worldmap)
+	_expect(not bool(ctl.call("is_folded")) and window.is_visible_in_tree(), "menu window closed: the picture shows again")
 	# Esc still closes
 	root.push_input(_esc())
 	await process_frame
@@ -394,6 +426,30 @@ func _hud_point(node: Control, window: Control) -> Vector2:
 	if node != window and window.get_global_rect().has_point(point):
 		point = Vector2(rect.position.x + minf(20.0, rect.size.x * 0.5), rect.get_center().y)
 	return point
+
+
+## Addendum 8: a real left click (press + release) on the button's centre, through the viewport. Done at 1920x1080
+## (headless starts with a tiny window where the right panel is off screen), then the size is put back.
+func _click_button(button: Control) -> void:
+	var size_before := root.size
+	root.size = TEST_VIEWPORT_SIZE
+	await _settle()
+	var at := button.get_global_rect().get_center()
+	await _mouse_motion(at)
+	await _mouse_press(at, true)
+	await _mouse_press(at, false)
+	await process_frame
+	root.size = size_before
+	await _settle()
+
+
+## Queue 43: closes the top menu router's centre windows (CityDetailPanel shown by a city click) so the picture shows.
+func _close_menu_windows(worldmap: Node) -> void:
+	var nav := worldmap.get_node_or_null("TopNavCanvas/TopNav")
+	var router = nav.get("menu_router") if nav != null else null
+	if router != null:
+		router.call("close_all")
+	await _settle()
 
 
 func _first_visible_button(node: Node) -> Control:

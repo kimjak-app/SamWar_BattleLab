@@ -79,7 +79,9 @@ func _check_menus() -> void:
 	await _press(&"intel")
 	_expect(_detail.is_visible_in_tree() and str(_main.get("_selected_diplomacy_spy_tab")) == "spy", "1. intel -> spy tab")
 	await _press(&"trade")
-	_expect(_detail.is_visible_in_tree() and str(_main.get("_unified_primary_tab")) == "trade", "1. intel -> trade switches the tab")
+	# Queue 43 (addendum 7): for an own city the order window takes the trade tab's place, so either one is on screen.
+	var order_window: Control = _main.get("_manual_trade_order_panel")
+	_expect((_detail.is_visible_in_tree() or (order_window != null and order_window.is_visible_in_tree())) and str(_main.get("_unified_primary_tab")) == "trade", "1. intel -> trade switches the tab")
 	await _press(&"system")
 	_expect(not _detail.is_visible_in_tree() and popup.is_visible_in_tree(), "1. trade -> system: CityDetailPanel hidden, system window shown")
 	_expect(popup.get_node_or_null("VBoxContainer/Buttons/SaveButton") != null or _find(popup, "SaveButton") != null, "1. system window has save / load")
