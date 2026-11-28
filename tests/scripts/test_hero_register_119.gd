@@ -8,7 +8,8 @@ extends SceneTree
 #  3. new game: city garrisons, the player's owned heroes and every hero runtime state equal the baseline; no new hero
 #     is stationed, owned, has a runtime state, or sits in an unclaimed city
 #  4. the baseline's manual save and turn checkpoint (written on 6b6bc2f) load to the same world as on 6b6bc2f
-#  5. each new hero: get_hero returns it, stats_approved == false, review_status as in the roster (조운 = draft),
+#  5. each new hero: get_hero returns it, stats_approved == true except the draft 조운 (false; 김작 11-28 15:06),
+#     review_status as in the roster (조운 = draft),
 #     city and faction fields empty, the 9 new-type skills keep their roster effect_type
 #  6. an effect type the battle resolver does not know: no effect (validate / plan fail, no target), no crash, one
 #     [SKILL_UNIMPLEMENTED] line per type
@@ -126,7 +127,7 @@ func _check_new_heroes() -> void:
 	for hero_id in _new_ids:
 		var hero := HeroDefinitionRegistry.get_hero(hero_id)
 		var roster: Dictionary = _roster.get(hero_id, {})
-		var ok: bool = not hero.is_empty() and hero.get("stats_approved") == false and str(hero.get("review_status")) == str(roster.get("review_status"))
+		var ok: bool = not hero.is_empty() and hero.get("stats_approved") == (hero_id != "zhao_yun") and str(hero.get("review_status")) == str(roster.get("review_status"))
 		for field in ["assigned_city_id", "city_id", "location_city_id", "faction_id", "force_id", "side", "nation"]:
 			ok = ok and hero.has(field) and str(hero.get(field)) == ""
 		ok = ok and str(hero.get("skill_effect_type")) == str(roster.get("skill_effect_type"))
@@ -136,7 +137,7 @@ func _check_new_heroes() -> void:
 		ok = ok and str(hero.get("unit_type")) == str(roster.get("unit_type")) and int(hero.get("initial_loyalty", -1)) == int(roster.get("initial_loyalty"))
 		if not ok:
 			bad.append(hero_id)
-	_expect(bad.is_empty(), "5. 119 definitions: stats / unit / loyalty / skill type from the roster, stats_approved false, review_status kept, city and faction empty %s" % str(bad.slice(0, 8)))
+	_expect(bad.is_empty(), "5. 119 definitions: stats / unit / loyalty / skill type from the roster, stats_approved true (조운 false), review_status kept, city and faction empty %s" % str(bad.slice(0, 8)))
 	var zhao := HeroDefinitionRegistry.get_hero("zhao_yun")
 	_expect(str(zhao.get("review_status")).contains("초안"), "5. 조운 carries the draft mark (%s)" % str(zhao.get("review_status")))
 	var drafts := _new_ids.filter(func(h): return str(HeroDefinitionRegistry.get_hero(h).get("review_status")).contains("초안"))

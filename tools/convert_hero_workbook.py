@@ -378,7 +378,8 @@ def roster_records(roster_path: Path, hero_ids: list[str], portrait_paths: dict[
             "skill_effect_type": hero["skill_effect_type"], "skill_power": hero["skill_power"], "skill_value": hero["skill_power"],
             "portrait_path": portrait_paths.get(hero_id, ""), "portrait_image": "", "battlefield_portrait_image": "",
             "hanja": hero.get("hanja", ""), "roster_faction": hero.get("faction", ""), "description": hero.get("bio", ""),
-            "review_status": hero["review_status"], "stats_approved": False,
+            # 김작 11-28 15:06 "Ok": the 118 roster stats are approved; the draft (조운) stays unapproved.
+            "review_status": hero["review_status"], "stats_approved": "초안" not in str(hero["review_status"]),
         })
         records["identity"].append(identity)
     return records, errors
